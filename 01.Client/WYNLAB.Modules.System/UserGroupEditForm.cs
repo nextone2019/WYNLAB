@@ -100,14 +100,14 @@ public class UserGroupEditForm : XtraForm
         root.TextVisible = false;
         root.Padding = new DevExpress.XtraLayout.Utils.Padding(4, 4, 4, 4);
 
-        var groupBasic = root.AddGroup("기본정보");
+        var groupBasic = root.AddGroup("기본정보").StyleAsSection();
         groupBasic.AddItem("그룹코드", txtUserGrpCd).MarkRequired();
         groupBasic.AddItem("그룹명", txtUserGrpNm).MarkRequired();
         var descItem = groupBasic.AddItem("설명", txtDescription);
         descItem.Control.Height = 50;
         groupBasic.AddItem("정렬순서", spnSortOrder);
 
-        var groupStatus = root.AddGroup("상태");
+        var groupStatus = root.AddGroup("상태").StyleAsSection();
         var itemUseYn = groupStatus.AddItem(string.Empty, chkUseYn);
         itemUseYn.TextVisible = false;
 

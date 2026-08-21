@@ -131,19 +131,19 @@ public class MenuListForm : BaseForm
         root.TextVisible = false;
         root.Padding = new DevExpress.XtraLayout.Utils.Padding(4, 4, 4, 4);
 
-        var groupBasic = root.AddGroup("기본정보");
+        var groupBasic = root.AddGroup("기본정보").StyleAsSection();
         groupBasic.AddItem("메뉴코드", txtMenuCd).MarkRequired();
         groupBasic.AddItem("메뉴명", txtMenuNm).MarkRequired();
         groupBasic.AddItem("상위메뉴코드", txtUpperMenuCd);
         groupBasic.AddItem("메뉴레벨", spnMenuLevel);
         groupBasic.AddItem("메뉴유형", cboMenuType).MarkRequired();
 
-        var groupAdvanced = root.AddGroup("연결정보");
+        var groupAdvanced = root.AddGroup("연결정보").StyleAsSection();
         groupAdvanced.AddItem("화면 클래스명", txtFormClassNm);
         groupAdvanced.AddItem("아이콘명", txtIconNm);
         groupAdvanced.AddItem("정렬순서", spnSortOrder);
 
-        var groupStatus = root.AddGroup("상태");
+        var groupStatus = root.AddGroup("상태").StyleAsSection();
         var itemUseYn = groupStatus.AddItem(string.Empty, chkUseYn);
         itemUseYn.TextVisible = false;
 

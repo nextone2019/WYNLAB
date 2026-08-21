@@ -149,12 +149,12 @@ public class UserEditForm : XtraForm
         root.TextVisible = false;
         root.Padding = new DevExpress.XtraLayout.Utils.Padding(4, 4, 4, 4);
 
-        var groupAccount = root.AddGroup("계정정보");
+        var groupAccount = root.AddGroup("계정정보").StyleAsSection();
         groupAccount.AddItem("아이디", txtUserId).MarkRequired();
         var pwItem = groupAccount.AddItem("비밀번호", txtPassword);
         if (!_isEditMode) pwItem.MarkRequired();
 
-        var groupPersonal = root.AddGroup("인적사항");
+        var groupPersonal = root.AddGroup("인적사항").StyleAsSection();
         groupPersonal.AddItem("이름", txtUserNm).MarkRequired();
         groupPersonal.AddItem("사번", txtEmpNo);
         groupPersonal.AddItem("부서코드", txtDeptCd);
@@ -171,11 +171,11 @@ public class UserEditForm : XtraForm
             txtUserNm.MarkRequired();
         }
 
-        var groupContact = root.AddGroup("연락처");
+        var groupContact = root.AddGroup("연락처").StyleAsSection();
         groupContact.AddItem("이메일", txtEmail);
         groupContact.AddItem("휴대폰", txtMobileNo);
 
-        var groupAuth = root.AddGroup("권한");
+        var groupAuth = root.AddGroup("권한").StyleAsSection();
         var itemAdmin = groupAuth.AddItem(string.Empty, chkIsAdmin);
         itemAdmin.TextVisible = false;
         var itemUseYn = groupAuth.AddItem(string.Empty, chkUseYn);
