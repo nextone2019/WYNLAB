@@ -42,11 +42,12 @@ public class ShellForm : XtraForm
     // 툴바 아이콘과 활성 MDI 탭 표시줄이 공유하는 "인터랙션" 강조색(브랜드색과는 별개로 고정).
     private static readonly Color ActionAccent = Color.FromArgb(41, 121, 255);
 
-    // MDI 문서 탭 색 - 비활성 탭은 눌러앉은 느낌의 연회색, 활성 탭은 본문(흰색)과 이어지는
-    // 흰 배경 + 상단 강조색 바(ActionAccent)로 눈에 띄게 한다. CustomDrawTabHeader에서 사용.
+    // MDI 문서 탭 색 - 비활성 탭은 눌러앉은 느낌의 연회색, 활성 탭은 배경색 하나로만 구분한다.
+    // 순백색(255,255,255)은 밋밋하고 붕 떠 보인다는 피드백이 있어서, 브랜드색을 아주 살짝만
+    // 섞은 오프화이트로 바꿨다 - 완전히 흰 것보다 은은하게 "디자인된" 느낌이 난다.
     private static readonly Color TabInactiveBg = Color.FromArgb(232, 234, 238);
     private static readonly Color TabHotBg = Color.FromArgb(244, 245, 247);
-    private static readonly Color TabActiveBg = Color.White;
+    private Color TabActiveBg => ColorHelper.Mix(_accentColor, Color.White, 0.96f);
     private static readonly Color TabInactiveFg = Color.FromArgb(120, 122, 128);
     private static readonly Color TabActiveFg = Color.FromArgb(35, 35, 38);
 
@@ -217,6 +218,14 @@ public class ShellForm : XtraForm
         rect.Inflate(-1, 0);
         rect.Y += 2;
         rect.Height -= 2;
+
+        // 첫 번째 탭은 사이드바 오른쪽 경계선에 바로 붙어서 답답해 보인다는 피드백 -
+        // 맨 앞 탭에만 살짝 왼쪽 여백을 줘서 사이드바와 분리되어 보이게 한다.
+        if (info.VisibleIndex == 0)
+        {
+            rect.X += 6;
+            rect.Width -= 6;
+        }
 
         var isActive = info.IsActiveState;
         var isHot = info.IsHotState;
