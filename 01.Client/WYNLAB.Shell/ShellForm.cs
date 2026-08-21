@@ -194,7 +194,7 @@ public class ShellForm : XtraForm
 
         tabbedMdiManager.AppearancePage.HeaderActive.BackColor = TabActiveBg;
         tabbedMdiManager.AppearancePage.HeaderActive.ForeColor = TabActiveFg;
-        tabbedMdiManager.AppearancePage.HeaderActive.Font = AppFonts.BodyBold;
+        tabbedMdiManager.AppearancePage.HeaderActive.Font = AppFonts.Body;
         tabbedMdiManager.AppearancePage.HeaderActive.Options.UseBackColor = true;
         tabbedMdiManager.AppearancePage.HeaderActive.Options.UseForeColor = true;
         tabbedMdiManager.AppearancePage.HeaderActive.Options.UseFont = true;
@@ -203,9 +203,10 @@ public class ShellForm : XtraForm
     }
 
     /// <summary>
-    /// 탭 배경을 직접 그리고(위쪽 모서리만 둥글게, 탭 사이는 살짝 간격을 둬서 서로 안 맞닿게),
+    /// 탭 배경을 직접 그리고(위쪽 모서리만 살짝 둥글게, 탭 사이는 간격을 둬서 서로 안 맞닿게),
     /// 텍스트/아이콘/닫기 버튼은 DevExpress 기본 로직(DefaultDraw*)에 그대로 맡긴다.
-    /// 활성 탭은 흰 배경 위에 브랜드 액션 색(ActionAccent) 바를 상단에 그려 더 눈에 띄게 한다.
+    /// 활성 탭 강조는 배경색 차이 하나로만 표현한다(처음엔 상단 강조색 바를 더했었는데,
+    /// 과하다는 피드백을 받아 배경색만 남기고 단순화했다).
     /// </summary>
     private void TabbedMdiManager_CustomDrawTabHeader(object? sender, TabHeaderCustomDrawEventArgs e)
     {
@@ -225,16 +226,10 @@ public class ShellForm : XtraForm
         var oldMode = g.SmoothingMode;
         g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
 
-        using (var path = TopRoundedRect(rect, 8))
+        using (var path = TopRoundedRect(rect, 3))
         using (var brush = new SolidBrush(back))
         {
             g.FillPath(brush, path);
-        }
-
-        if (isActive)
-        {
-            using var accentBrush = new SolidBrush(ActionAccent);
-            g.FillRectangle(accentBrush, rect.X + 2, rect.Y, Math.Max(0, rect.Width - 4), 3);
         }
 
         g.SmoothingMode = oldMode;
