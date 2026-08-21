@@ -10,7 +10,7 @@ namespace WYNLAB.Shell;
 ///
 /// 회사별로 원하는 콘텐츠(결재리스트, 공지사항, 업무 대시보드 등)를 자유롭게 구성할 수 있는
 /// 자리다. 지금은 자리표시용 문구만 있고, 실제 콘텐츠는 나중에 채워 넣으면 된다.
-/// BaseForm을 상속하므로 QueryAsync 등을 override해서 홈화면에도 조회/새로고침 동작을
+/// BaseForm을 상속하므로 QueryClick 등을 override해서 홈화면에도 조회/새로고침 동작을
 /// 붙일 수 있다.
 /// </summary>
 public class HomeForm : BaseForm

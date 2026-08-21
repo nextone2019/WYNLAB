@@ -15,7 +15,7 @@ namespace WYNLAB.SM.MENU;
 /// 핵심이라 트리를 보면서 바로 옆에서 편집하는 게 훨씬 직관적).
 ///
 /// 신규 등록 규칙:
-/// - Shell 툴바 "입력"(NewAsync) -> 좌측 트리에서 현재 선택된 메뉴가 있으면 그 메뉴의
+/// - Shell 툴바 "입력"(NewClick) -> 좌측 트리에서 현재 선택된 메뉴가 있으면 그 메뉴의
 ///   "하위 메뉴"로 신규 등록 (상위메뉴코드/메뉴레벨 자동 세팅, 직접 입력 불가)
 /// - 우측 상단 "최상위 메뉴로 등록" 버튼 -> 트리 선택과 무관하게 항상 최상위(모듈)로 신규 등록
 /// </summary>
@@ -79,7 +79,7 @@ public class MenuListForm : BaseForm
         Controls.Add(BuildScreenHeader());
 
         EnterNewMode(null);
-        Load += async (s, e) => await QueryAsync();
+        Load += async (s, e) => await QueryClick();
     }
 
     private void BuildLeftPanel()
@@ -206,7 +206,7 @@ public class MenuListForm : BaseForm
         btnSaveInline.Appearance.ForeColor = Color.White;
         btnSaveInline.Appearance.Options.UseBackColor = true;
         btnSaveInline.Appearance.Options.UseForeColor = true;
-        btnSaveInline.Click += async (s, e) => await SaveAsync();
+        btnSaveInline.Click += async (s, e) => await SaveClick();
 
         btnCancelEdit.Size = new Size(90, 32);
         btnCancelEdit.Click += (s, e) => EnterNewMode(_lastSelectedCd);
@@ -224,7 +224,7 @@ public class MenuListForm : BaseForm
         btnSaveInline.Location = new Point(btnCancelEdit.Left - btnSaveInline.Width - 8, 12);
     }
 
-    public override async Task QueryAsync()
+    public override async Task QueryClick()
     {
         _menus = await ApiClient.GetAsync<List<MenuListItemDto>>("api/menus") ?? new();
         menuTree.DataSource = _menus;
@@ -237,13 +237,13 @@ public class MenuListForm : BaseForm
         }
     }
 
-    public override Task NewAsync()
+    public override Task NewClick()
     {
         EnterNewMode(_lastSelectedCd);
         return Task.CompletedTask;
     }
 
-    public override async Task DeleteAsync()
+    public override async Task DeleteClick()
     {
         if (_editingMenuCd == null)
         {
@@ -258,7 +258,7 @@ public class MenuListForm : BaseForm
         if (confirm != DialogResult.Yes) return;
 
         await ApiClient.DeleteAsync($"api/menus/{_editingMenuCd}");
-        await QueryAsync();
+        await QueryClick();
     }
 
     private void OnTreeSelectionChanged()
@@ -328,7 +328,7 @@ public class MenuListForm : BaseForm
         lblFormHint.Text = parent != null ? $"상위 메뉴: {parent.MenuNm}" : "최상위 메뉴(모듈)입니다.";
     }
 
-    public override async Task SaveAsync()
+    public override async Task SaveClick()
     {
         if (string.IsNullOrWhiteSpace(txtMenuCd.Text) || string.IsNullOrWhiteSpace(txtMenuNm.Text))
         {
@@ -381,7 +381,7 @@ public class MenuListForm : BaseForm
                 return;
             }
 
-            await QueryAsync();
+            await QueryClick();
 
             var savedNode = menuTree.FindNodeByKeyID(savedMenuCd);
             if (savedNode != null) menuTree.FocusedNode = savedNode;

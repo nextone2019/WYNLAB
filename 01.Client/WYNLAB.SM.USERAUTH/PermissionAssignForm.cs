@@ -71,7 +71,7 @@ public class PermissionAssignForm : BaseForm
         Controls.Add(splitContainer);
         Controls.Add(BuildScreenHeader());
 
-        Load += async (s, e) => await QueryAsync();
+        Load += async (s, e) => await QueryClick();
     }
 
     /// <summary>
@@ -215,12 +215,12 @@ public class PermissionAssignForm : BaseForm
         lblTargetHint.Text = "왼쪽에서 사용자 또는 그룹을 선택해주세요.";
     }
 
-    public override async Task QueryAsync()
+    public override async Task QueryClick()
     {
         await LoadTargetsAsync();
     }
 
-    public override async Task SaveAsync()
+    public override async Task SaveClick()
     {
         await SaveCurrentAsync();
     }

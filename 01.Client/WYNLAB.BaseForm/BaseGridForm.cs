@@ -5,8 +5,8 @@ namespace WYNLAB.Base;
 
 /// <summary>
 /// XtraGrid 기반 목록화면의 공통 베이스. 개별 화면에 버튼을 두지 않고,
-/// Shell 상단의 공통 툴바(조회/입력/저장/삭제/출력)가 호출하는 QueryAsync/NewAsync/
-/// SaveAsync/DeleteAsync/PrintAsync(BaseForm에서 상속)를 override 해서 동작을 채운다.
+/// Shell 상단의 공통 툴바(조회/입력/저장/삭제/행추가/행삭제/출력)가 호출하는 QueryClick/NewClick/
+/// SaveClick/DeleteClick/NewRowClick/DeleteRowClick/PrintAsync(BaseForm에서 상속)를 override 해서 동작을 채운다.
 /// </summary>
 public class BaseGridForm : BaseForm
 {

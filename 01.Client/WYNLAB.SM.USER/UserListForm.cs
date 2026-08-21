@@ -10,9 +10,9 @@ namespace WYNLAB.SM.USER;
 /// ShellForm에서 리플렉션으로 동적 오픈된다.
 ///
 /// 화면 자체에는 버튼이 없다 - Shell 상단 공통 툴바(조회/입력/삭제/출력)가 이 화면이 활성화된 상태에서
-/// QueryAsync/NewAsync/DeleteAsync/PrintAsync(BaseGridForm/BaseForm 상속)를 호출하는 구조.
+/// QueryClick/NewClick/DeleteClick/PrintAsync(BaseGridForm/BaseForm 상속)를 호출하는 구조.
 /// 검색조건(아이디/이름)만 화면 상단에 직접 두고, 조회 실행 자체는 Shell 툴바 "조회" 버튼과
-/// 이 패널의 "검색" 버튼/Enter 둘 다에서 QueryAsync()로 진입하도록 통일했다.
+/// 이 패널의 "검색" 버튼/Enter 둘 다에서 QueryClick()로 진입하도록 통일했다.
 /// </summary>
 public class UserListForm : BaseGridForm
 {
@@ -34,7 +34,7 @@ public class UserListForm : BaseGridForm
         MainGridView.DoubleClick += async (s, e) => await OpenEditPopupAsync();
 
         // 화면이 열리자마자 목록을 바로 보여주는 게 사용성이 좋음 (Shell 툴바 "조회" 안 눌러도 되도록)
-        Load += async (s, e) => await QueryAsync();
+        Load += async (s, e) => await QueryClick();
 
         // 공통 타이틀 바 - 검색패널보다 나중에 추가해야 맨 위를 차지한다
         Controls.Add(BuildScreenHeader());
@@ -62,14 +62,14 @@ public class UserListForm : BaseGridForm
         btnSearch.Font = AppFonts.Body;
         btnSearch.Location = new Point(408, 10);
         btnSearch.Size = new Size(72, 26);
-        btnSearch.Click += async (s, e) => await QueryAsync();
+        btnSearch.Click += async (s, e) => await QueryClick();
         searchPanel.Controls.Add(btnSearch);
 
         void SearchOnEnter(object? s, KeyEventArgs e)
         {
             if (e.KeyCode != Keys.Enter) return;
             e.Handled = true;
-            _ = QueryAsync();
+            _ = QueryClick();
         }
         txtSearchUserId.KeyDown += SearchOnEnter;
         txtSearchUserNm.KeyDown += SearchOnEnter;
@@ -85,23 +85,23 @@ public class UserListForm : BaseGridForm
         searchPanel.Controls.Add(lbl);
     }
 
-    public override async Task QueryAsync()
+    public override async Task QueryClick()
     {
         var query = $"api/users?userId={Uri.EscapeDataString(txtSearchUserId.Text.Trim())}&userNm={Uri.EscapeDataString(txtSearchUserNm.Text.Trim())}";
         _currentList = await ApiClient.GetAsync<List<UserListItemDto>>(query) ?? new();
         MainGrid.DataSource = _currentList;
     }
 
-    public override async Task NewAsync()
+    public override async Task NewClick()
     {
         using var form = new UserEditForm(); // 신규모드
         if (form.ShowDialog() == DialogResult.OK)
         {
-            await QueryAsync();
+            await QueryClick();
         }
     }
 
-    public override async Task DeleteAsync()
+    public override async Task DeleteClick()
     {
         var selected = MainGridView.GetFocusedRow() as UserListItemDto;
         if (selected == null)
@@ -115,7 +115,7 @@ public class UserListForm : BaseGridForm
         if (confirm != DialogResult.Yes) return;
 
         await ApiClient.DeleteAsync($"api/users/{selected.UserId}");
-        await QueryAsync();
+        await QueryClick();
     }
 
     /// <summary>더블클릭으로 수정 팝업 오픈 - Shell 툴바가 아닌 그리드 자체 동작</summary>
@@ -127,7 +127,7 @@ public class UserListForm : BaseGridForm
         using var form = new UserEditForm(selected);
         if (form.ShowDialog() == DialogResult.OK)
         {
-            await QueryAsync();
+            await QueryClick();
         }
     }
 }

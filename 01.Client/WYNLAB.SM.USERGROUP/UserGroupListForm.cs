@@ -20,7 +20,7 @@ public partial class UserGroupListForm : BaseGridForm
         Controls.Add(BuildScreenHeader()); // 검색패널보다 나중에 추가해야 맨 위를 차지한다
     }
 
-    private async void UserGroupListForm_Load(object? sender, EventArgs e) => await QueryAsync();
+    private async void UserGroupListForm_Load(object? sender, EventArgs e) => await QueryClick();
 
     private async void MainGridView_DoubleClick(object? sender, EventArgs e) => await OpenEditPopupAsync();
 
@@ -28,28 +28,28 @@ public partial class UserGroupListForm : BaseGridForm
     {
         if (e.KeyCode != Keys.Enter) return;
         e.Handled = true;
-        await QueryAsync();
+        await QueryClick();
     }
 
-    private async void btnSearch_Click(object? sender, EventArgs e) => await QueryAsync();
+    private async void btnSearch_Click(object? sender, EventArgs e) => await QueryClick();
 
-    public override async Task QueryAsync()
+    public override async Task QueryClick()
     {
         var query = $"api/user-groups?userGrpNm={Uri.EscapeDataString(txtSearchGrpNm.Text.Trim())}";
         _currentList = await ApiClient.GetAsync<List<UserGroupListItemDto>>(query) ?? new();
         MainGrid.DataSource = _currentList;
     }
 
-    public override async Task NewAsync()
+    public override async Task NewClick()
     {
         using var form = new UserGroupEditForm();
         if (form.ShowDialog() == DialogResult.OK)
         {
-            await QueryAsync();
+            await QueryClick();
         }
     }
 
-    public override async Task DeleteAsync()
+    public override async Task DeleteClick()
     {
         var selected = MainGridView.GetFocusedRow() as UserGroupListItemDto;
         if (selected == null)
@@ -64,7 +64,7 @@ public partial class UserGroupListForm : BaseGridForm
         if (confirm != DialogResult.Yes) return;
 
         await ApiClient.DeleteAsync($"api/user-groups/{selected.UserGrpCd}");
-        await QueryAsync();
+        await QueryClick();
     }
 
     private async Task OpenEditPopupAsync()
@@ -75,7 +75,7 @@ public partial class UserGroupListForm : BaseGridForm
         using var form = new UserGroupEditForm(selected);
         if (form.ShowDialog() == DialogResult.OK)
         {
-            await QueryAsync();
+            await QueryClick();
         }
     }
 }

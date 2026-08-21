@@ -92,6 +92,36 @@ public static class ToolbarIconPainters
         gg.FillRectangle(accentBrush, 7.5f, 17, 9, 5);
     });
 
+    public static void RowAdd(Graphics g, Rectangle rect, Color outline, Color accent) => DrawScaled(g, rect, gg =>
+    {
+        using var pen = new Pen(outline, 1.6f) { StartCap = LineCap.Round, EndCap = LineCap.Round, LineJoin = LineJoin.Round };
+        gg.DrawRectangle(pen, 3.5f, 4, 17, 15);
+        gg.DrawLine(pen, 3.5f, 9, 20.5f, 9);
+        gg.DrawLine(pen, 3.5f, 14, 20.5f, 14);
+
+        // New 아이콘과 동일한 자리에 같은 스타일의 "+" 배지로 통일감을 준다
+        using var accentBrush = new SolidBrush(accent);
+        gg.FillEllipse(accentBrush, 13.5f, 13.5f, 8, 8);
+        using var whitePen = new Pen(Color.White, 1.4f) { StartCap = LineCap.Round, EndCap = LineCap.Round };
+        gg.DrawLine(whitePen, 17.5f, 15.7f, 17.5f, 19.3f);
+        gg.DrawLine(whitePen, 15.7f, 17.5f, 19.3f, 17.5f);
+    });
+
+    public static void RowDelete(Graphics g, Rectangle rect, Color outline, Color accent) => DrawScaled(g, rect, gg =>
+    {
+        using var pen = new Pen(outline, 1.6f) { StartCap = LineCap.Round, EndCap = LineCap.Round, LineJoin = LineJoin.Round };
+        gg.DrawRectangle(pen, 3.5f, 4, 17, 15);
+        gg.DrawLine(pen, 3.5f, 9, 20.5f, 9);
+        gg.DrawLine(pen, 3.5f, 14, 20.5f, 14);
+
+        // RowAdd와 같은 자리, "-" 배지만 다르게 - 삭제 대상 행이 아니라 "행을 없앤다"는
+        // 동작 자체를 뜻하므로 Delete(휴지통) 아이콘과 달리 배지 하나로만 표현한다.
+        using var accentBrush = new SolidBrush(accent);
+        gg.FillEllipse(accentBrush, 13.5f, 13.5f, 8, 8);
+        using var whitePen = new Pen(Color.White, 1.4f) { StartCap = LineCap.Round, EndCap = LineCap.Round };
+        gg.DrawLine(whitePen, 15.7f, 17.5f, 19.3f, 17.5f);
+    });
+
     /// <summary>24x24 가상 좌표계 -> 실제 rect 크기로 자동 스케일링해서 그려주는 헬퍼</summary>
     private static void DrawScaled(Graphics g, Rectangle rect, Action<Graphics> draw)
     {
