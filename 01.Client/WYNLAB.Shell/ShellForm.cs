@@ -57,18 +57,6 @@ public class ShellForm : XtraForm
     private readonly ComboBoxEdit cboSkin = new();
     private readonly ToolTip toolbarToolTip = new();
 
-    // 네이티브 타이틀바(흰 배경)를 없애고, 최소화/최대화/닫기 버튼까지 브랜드 헤더 색 안에
-    // 포함시키기 위한 커스텀 캡션바. FormBorderStyle=None으로 네이티브 타이틀바/테두리를
-    // 지우는 대신, 창 이동/리사이즈는 아래 WndProc(WM_NCHITTEST)와 수동 드래그로 직접 구현한다.
-    private readonly Panel captionBar = new() { Height = 30, Dock = DockStyle.Top };
-    private readonly LabelControl lblCaptionTitle = new();
-    private readonly LabelControl btnMinimize = new();
-    private readonly LabelControl btnMaximizeRestore = new();
-    private readonly LabelControl btnClose = new();
-    private Point _captionDragStart;
-    private bool _captionDragging;
-    private const int ResizeBorderThickness = 6;
-
     /// <summary>
     /// 사용자가 고를 수 있는 테마 목록. DevExpress에는 스킨이 수십 개 있어 전부 나열하면
     /// 오래되거나 브랜드와 안 어울리는 것도 섞여 들어가므로, 최근/모던한 스킨만 선별했다.
@@ -98,12 +86,6 @@ public class ShellForm : XtraForm
         WindowState = FormWindowState.Maximized;
         BackColor = Color.White;
 
-        // 네이티브 타이틀바(흰색)를 없애고 커스텀 캡션바로 대체 - 최소화/최대화/닫기 버튼도
-        // 브랜드 헤더 색 안에 포함되도록 하기 위함. 리사이즈/이동은 WndProc + 수동 드래그로 구현.
-        FormBorderStyle = FormBorderStyle.None;
-        MaximizedBounds = Screen.PrimaryScreen!.WorkingArea;
-        LocationChanged += (s, e) => MaximizedBounds = Screen.FromControl(this).WorkingArea;
-
         // 가로: 현재 헤더 툴바(홈+조회/입력/저장+삭제+출력 카드+우측 사용자정보)가 겹치지 않고
         // 다 보이는 최소폭. 서비스선택/테마선택은 좌측 사이드바로 옮겨서 헤더 쪽 최소폭 여유가 늘었다.
         // 세로도 업무화면이 너무 눌리지 않도록 최소값을 둠.
@@ -124,20 +106,17 @@ public class ShellForm : XtraForm
         BuildSidebar();
         BuildAccordionMenu();
         BuildStatusBar();
-        BuildCaptionBar();
 
         headerPanel.Controls.Add(logoPanel);
 
         var headerBottomBorder = new Panel { Dock = DockStyle.Bottom, Height = 1, BackColor = HeaderDividerColor };
         headerPanel.Controls.Add(headerBottomBorder);
 
-        // 순서 중요: 상단바를 먼저 추가해야 전체 폭을 차지하고, 그 아래에 좌측 메뉴가 배치됨.
-        // captionBar는 headerPanel보다 나중에 추가해야 그 위(맨 위 가장자리)를 차지한다.
+        // 순서 중요: 상단바를 먼저 추가해야 전체 폭을 차지하고, 그 아래에 좌측 메뉴가 배치됨
         // statusBar는 Bottom이라 순서 무관하게 항상 최하단에 고정됨
         Controls.Add(statusBar);
         Controls.Add(sidebarPanel);
         Controls.Add(headerPanel);
-        Controls.Add(captionBar);
 
         AppConfig.EnvironmentChanged += RefreshTitle;
 
@@ -181,144 +160,6 @@ public class ShellForm : XtraForm
         Text = AppConfig.IsDevelopment
             ? "WYN LAB [개발서버]  ※ 실제 데이터가 아닌 개발/테스트 서버입니다"
             : "WYN LAB";
-        lblCaptionTitle.Text = Text;
-    }
-
-    /// <summary>
-    /// 네이티브 타이틀바를 대체하는 캡션바. 좌측엔 창 제목(개발서버 경고 문구 포함), 우측엔
-    /// 최소화/최대화·복원/닫기 버튼을 배치하고 헤더와 같은 배경색을 써서 하나로 이어져 보이게 한다.
-    /// 창 이동은 캡션바 배경(제목 텍스트 포함) 드래그로, 리사이즈는 WndProc의 WM_NCHITTEST로 처리한다.
-    /// </summary>
-    private void BuildCaptionBar()
-    {
-        captionBar.BackColor = HeaderBg;
-
-        lblCaptionTitle.Dock = DockStyle.Fill;
-        lblCaptionTitle.AutoSizeMode = LabelAutoSizeMode.None;
-        lblCaptionTitle.Padding = new Padding(14, 0, 0, 0);
-        lblCaptionTitle.Appearance.TextOptions.VAlignment = DevExpress.Utils.VertAlignment.Center;
-        lblCaptionTitle.Appearance.ForeColor = Color.FromArgb(235, 236, 238);
-        lblCaptionTitle.Appearance.Font = AppFonts.Caption;
-        lblCaptionTitle.Text = Text;
-
-        ConfigureCaptionButton(btnMinimize, "");
-        ConfigureCaptionButton(btnMaximizeRestore, "");
-        ConfigureCaptionButton(btnClose, "", isClose: true);
-
-        btnMinimize.Click += (s, e) => WindowState = FormWindowState.Minimized;
-        btnMaximizeRestore.Click += (s, e) => ToggleMaximizeRestore();
-        btnClose.Click += (s, e) => Close();
-
-        EnableCaptionDrag(captionBar);
-        EnableCaptionDrag(lblCaptionTitle);
-
-        // 추가 순서 중요: 제목 라벨(Dock=Fill)을 먼저 넣고, 버튼들은 그 위에 겹쳐지도록 나중에
-        // 추가한다 (나중에 추가된 컨트롤이 z-order상 앞쪽에 위치해서 클릭이 버튼으로 먼저 감).
-        captionBar.Controls.Add(lblCaptionTitle);
-        captionBar.Controls.Add(btnMinimize);
-        captionBar.Controls.Add(btnMaximizeRestore);
-        captionBar.Controls.Add(btnClose);
-
-        captionBar.Resize += (s, e) => PositionCaptionButtons();
-        PositionCaptionButtons();
-    }
-
-    /// <summary>최소화/최대화/닫기 버튼 공통 스타일 - 평소엔 캡션바와 같은 배경, 호버 시에만 밝아짐(닫기는 빨강).</summary>
-    private void ConfigureCaptionButton(LabelControl btn, string glyph, bool isClose = false)
-    {
-        btn.Text = glyph;
-        btn.Size = new Size(44, captionBar.Height);
-        btn.AutoSizeMode = LabelAutoSizeMode.None;
-        btn.Appearance.TextOptions.HAlignment = DevExpress.Utils.HorzAlignment.Center;
-        btn.Appearance.TextOptions.VAlignment = DevExpress.Utils.VertAlignment.Center;
-        btn.Appearance.Font = new Font("Segoe MDL2 Assets", 9f);
-        btn.Appearance.ForeColor = Color.FromArgb(230, 231, 233);
-        btn.Appearance.Options.UseBackColor = true;
-        btn.Appearance.Options.UseFont = true;
-        btn.Appearance.BackColor = HeaderBg;
-        btn.Cursor = Cursors.Default;
-
-        var hoverColor = isClose ? Color.FromArgb(196, 43, 28) : ColorHelper.Adjust(HeaderBg, 24);
-        btn.MouseEnter += (s, e) => { btn.Appearance.BackColor = hoverColor; btn.Appearance.ForeColor = Color.White; btn.Invalidate(); };
-        btn.MouseLeave += (s, e) => { btn.Appearance.BackColor = HeaderBg; btn.Appearance.ForeColor = Color.FromArgb(230, 231, 233); btn.Invalidate(); };
-    }
-
-    private void PositionCaptionButtons()
-    {
-        var x = captionBar.Width;
-        x -= btnClose.Width; btnClose.Location = new Point(x, 0);
-        x -= btnMaximizeRestore.Width; btnMaximizeRestore.Location = new Point(x, 0);
-        x -= btnMinimize.Width; btnMinimize.Location = new Point(x, 0);
-    }
-
-    private void ToggleMaximizeRestore()
-    {
-        WindowState = WindowState == FormWindowState.Maximized ? FormWindowState.Normal : FormWindowState.Maximized;
-        btnMaximizeRestore.Text = WindowState == FormWindowState.Maximized ? "" : "";
-    }
-
-    /// <summary>
-    /// FormBorderStyle.None이라 네이티브 드래그가 없으므로 수동 구현 - AppMessageBox의
-    /// EnableDrag와 같은 방식(마우스 down 위치 기준 상대 이동). 최대화 상태에서 드래그를
-    /// 시작하면 먼저 일반 크기로 복원한 뒤 그 지점부터 이어서 드래그되게 한다(윈도우 기본 동작과 유사).
-    /// 더블클릭으로는 최대화/복원을 토글한다.
-    /// </summary>
-    private void EnableCaptionDrag(Control control)
-    {
-        control.MouseDown += (s, e) =>
-        {
-            if (e.Button != MouseButtons.Left) return;
-            if (WindowState == FormWindowState.Maximized)
-            {
-                var ratioX = (float)e.X / Math.Max(1, control.Width);
-                var restoredWidth = MinimumSize.Width;
-                WindowState = FormWindowState.Normal;
-                Location = new Point(Cursor.Position.X - (int)(restoredWidth * ratioX), Cursor.Position.Y - e.Y);
-            }
-            _captionDragging = true;
-            _captionDragStart = e.Location;
-        };
-        control.MouseMove += (s, e) =>
-        {
-            if (!_captionDragging) return;
-            Location = new Point(Location.X + e.X - _captionDragStart.X, Location.Y + e.Y - _captionDragStart.Y);
-        };
-        control.MouseUp += (s, e) => { _captionDragging = false; };
-        control.DoubleClick += (s, e) => ToggleMaximizeRestore();
-    }
-
-    /// <summary>
-    /// FormBorderStyle.None으로 네이티브 리사이즈 테두리가 사라진 것을 대체 - 창 가장자리
-    /// 근처(ResizeBorderThickness px)에서는 WM_NCHITTEST 결과를 방향에 맞는 HT* 코드로 바꿔서
-    /// 돌려주면, Windows가 알아서 리사이즈 커서 표시와 드래그 리사이즈를 처리해준다.
-    /// </summary>
-    protected override void WndProc(ref Message m)
-    {
-        const int WM_NCHITTEST = 0x0084;
-        const int HTCLIENT = 1;
-
-        base.WndProc(ref m);
-
-        if (m.Msg == WM_NCHITTEST && WindowState == FormWindowState.Normal && m.Result.ToInt32() == HTCLIENT)
-        {
-            var lParam = m.LParam.ToInt32();
-            var screenPoint = new Point((short)(lParam & 0xFFFF), (short)((lParam >> 16) & 0xFFFF));
-            var p = PointToClient(screenPoint);
-
-            var left = p.X <= ResizeBorderThickness;
-            var right = p.X >= ClientSize.Width - ResizeBorderThickness;
-            var top = p.Y <= ResizeBorderThickness;
-            var bottom = p.Y >= ClientSize.Height - ResizeBorderThickness;
-
-            if (top && left) m.Result = (IntPtr)13;      // HTTOPLEFT
-            else if (top && right) m.Result = (IntPtr)14; // HTTOPRIGHT
-            else if (bottom && left) m.Result = (IntPtr)16; // HTBOTTOMLEFT
-            else if (bottom && right) m.Result = (IntPtr)17; // HTBOTTOMRIGHT
-            else if (left) m.Result = (IntPtr)10;   // HTLEFT
-            else if (right) m.Result = (IntPtr)11;  // HTRIGHT
-            else if (top) m.Result = (IntPtr)12;    // HTTOP
-            else if (bottom) m.Result = (IntPtr)15; // HTBOTTOM
-        }
     }
 
     /// <summary>

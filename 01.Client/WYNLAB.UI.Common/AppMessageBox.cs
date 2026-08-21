@@ -30,9 +30,17 @@ public static class AppMessageBox
 
 internal class AppMessageBoxForm : XtraForm
 {
-    private const int HeaderHeight = 44;
-    private const int FooterHeight = 56;
-    private const int BodyHeight = 96;
+    private const int HeaderHeight = 36;
+    private const int FooterHeight = 46;
+    private const int BodyHeight = 72;
+
+    // 메시지박스 전용 축소 폰트 - 앱 전역 AppFonts(9.5pt 기준)보다 한 단계씩 작게 써서
+    // 전체 다이얼로그 크기를 줄인다. 다른 화면까지 영향받는 AppFonts 자체는 건드리지 않는다.
+    private static readonly Font TitleFont = new("Segoe UI", 9f, FontStyle.Bold);
+    private static readonly Font BodyFont = new("Segoe UI", 8.75f, FontStyle.Regular);
+    private static readonly Font ButtonFont = new("Segoe UI", 8.75f, FontStyle.Regular);
+    private static readonly Font GlyphFont = new("Segoe UI", 8f, FontStyle.Bold);
+    private static readonly Font CloseFont = new("Segoe UI", 8f, FontStyle.Regular);
 
     private readonly PanelControl headerPanel = new();
     private readonly CircleBadge headerBadge = new();
@@ -51,7 +59,7 @@ internal class AppMessageBoxForm : XtraForm
         FormBorderStyle = FormBorderStyle.None;
         StartPosition = FormStartPosition.CenterParent;
         BackColor = Color.White;
-        Width = 420;
+        Width = 360;
         Height = HeaderHeight + BodyHeight + FooterHeight;
         ShowInTaskbar = false;
 
@@ -67,6 +75,18 @@ internal class AppMessageBoxForm : XtraForm
         Controls.Add(bodyPanel);
         Controls.Add(footerPanel);
         Controls.Add(headerPanel);
+    }
+
+    /// <summary>
+    /// 다이얼로그 전체 테두리를 얇게 그려서 하나의 박스로 보이게 한다. 이게 없으면 헤더/본문/
+    /// 푸터가 각자 다른 배경색 패널일 뿐이라 경계가 흐려지고, 특히 푸터(거의 흰색)가 바탕화면과
+    /// 구분이 잘 안 돼서 버튼이 메시지박스 밖에 붕 떠 있는 것처럼 보이는 문제가 있었다.
+    /// </summary>
+    protected override void OnPaint(PaintEventArgs e)
+    {
+        base.OnPaint(e);
+        using var pen = new Pen(Color.FromArgb(210, 212, 217));
+        e.Graphics.DrawRectangle(pen, 0, 0, Width - 1, Height - 1);
     }
 
     private static (Color badge, string glyph) GetIconStyle(MessageBoxIcon icon) => icon switch
@@ -86,36 +106,36 @@ internal class AppMessageBoxForm : XtraForm
         headerPanel.Appearance.Options.UseBackColor = true;
         headerPanel.BorderStyle = DevExpress.XtraEditors.Controls.BorderStyles.NoBorder;
 
-        var textX = 16;
+        var textX = 14;
         if (icon != MessageBoxIcon.None)
         {
-            headerBadge.Size = new Size(22, 22);
-            headerBadge.Location = new Point(14, 11);
+            headerBadge.Size = new Size(18, 18);
+            headerBadge.Location = new Point(12, 9);
             headerBadge.BackColor = badgeColor;
             lblHeaderGlyph.Text = glyph;
             lblHeaderGlyph.Dock = DockStyle.Fill;
             lblHeaderGlyph.AutoSizeMode = LabelAutoSizeMode.None;
             lblHeaderGlyph.Appearance.ForeColor = Color.White;
-            lblHeaderGlyph.Appearance.Font = AppFonts.BodyBold;
+            lblHeaderGlyph.Appearance.Font = GlyphFont;
             lblHeaderGlyph.Appearance.TextOptions.HAlignment = DevExpress.Utils.HorzAlignment.Center;
             lblHeaderGlyph.Appearance.TextOptions.VAlignment = DevExpress.Utils.VertAlignment.Center;
             headerBadge.Controls.Add(lblHeaderGlyph);
             headerPanel.Controls.Add(headerBadge);
-            textX = 44;
+            textX = 36;
         }
 
         lblCaption.Text = caption;
-        lblCaption.Location = new Point(textX, 12);
+        lblCaption.Location = new Point(textX, 9);
         lblCaption.AutoSizeMode = LabelAutoSizeMode.None;
-        lblCaption.Size = new Size(Width - textX - 40, 22);
+        lblCaption.Size = new Size(Width - textX - 34, 18);
         lblCaption.Appearance.ForeColor = Color.White;
-        lblCaption.Appearance.Font = AppFonts.BodyBold;
+        lblCaption.Appearance.Font = TitleFont;
 
-        lblClose.Location = new Point(Width - 38, 10);
+        lblClose.Location = new Point(Width - 32, 8);
         lblClose.AutoSizeMode = LabelAutoSizeMode.None;
-        lblClose.Size = new Size(24, 24);
+        lblClose.Size = new Size(20, 20);
         lblClose.Appearance.ForeColor = Color.FromArgb(230, 255, 255, 255);
-        lblClose.Appearance.Font = AppFonts.Caption;
+        lblClose.Appearance.Font = CloseFont;
         lblClose.Appearance.TextOptions.HAlignment = DevExpress.Utils.HorzAlignment.Center;
         lblClose.Appearance.TextOptions.VAlignment = DevExpress.Utils.VertAlignment.Center;
         lblClose.Cursor = Cursors.Hand;
@@ -131,11 +151,11 @@ internal class AppMessageBoxForm : XtraForm
     private void BuildBody(string text)
     {
         lblMessage.Text = text;
-        lblMessage.Location = new Point(24, 0);
+        lblMessage.Location = new Point(20, 0);
         lblMessage.AutoSizeMode = LabelAutoSizeMode.None;
-        lblMessage.Size = new Size(Width - 48, BodyHeight);
+        lblMessage.Size = new Size(Width - 40, BodyHeight);
         lblMessage.Appearance.ForeColor = Color.FromArgb(55, 55, 55);
-        lblMessage.Appearance.Font = AppFonts.Body;
+        lblMessage.Appearance.Font = BodyFont;
         lblMessage.Appearance.TextOptions.WordWrap = DevExpress.Utils.WordWrap.Wrap;
         lblMessage.Appearance.TextOptions.HAlignment = DevExpress.Utils.HorzAlignment.Center;
         lblMessage.Appearance.TextOptions.VAlignment = DevExpress.Utils.VertAlignment.Center;
@@ -150,17 +170,19 @@ internal class AppMessageBoxForm : XtraForm
         footerPanel.Controls.Add(topBorder);
 
         var specs = GetButtonSpecs(buttons);
-        const int btnWidth = 92;
-        const int btnGap = 12;
+        const int btnWidth = 76;
+        const int btnHeight = 28;
+        const int btnGap = 10;
         var totalWidth = specs.Length * btnWidth + (specs.Length - 1) * btnGap;
         var x = (Width - totalWidth) / 2;
+        var y = (FooterHeight - 1 - btnHeight) / 2 + 1;
 
         SimpleButton? firstButton = null;
         foreach (var (label, result) in specs)
         {
-            var btn = new SimpleButton { Text = label, Size = new Size(btnWidth, 34), DialogResult = result };
-            btn.Appearance.Font = AppFonts.Body;
-            btn.Location = new Point(x, 12);
+            var btn = new SimpleButton { Text = label, Size = new Size(btnWidth, btnHeight), DialogResult = result };
+            btn.Appearance.Font = ButtonFont;
+            btn.Location = new Point(x, y);
             footerPanel.Controls.Add(btn);
             firstButton ??= btn;
             x += btnWidth + btnGap;
