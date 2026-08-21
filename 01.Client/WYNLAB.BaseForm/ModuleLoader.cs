@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Reflection;
 
 namespace WYNLAB.Base;
@@ -14,23 +15,45 @@ namespace WYNLAB.Base;
 ///
 /// 화면 DLL 하나가 깨져 있어도(예: 배포 중 손상) 앱 전체가 죽지 않도록, 개별 DLL 로드
 /// 실패는 무시한다 - 그 DLL에 들어있던 메뉴만 "화면을 찾을 수 없습니다"로 처리된다.
+///
+/// Assembly.LoadFrom으로 로드한 어셈블리는 CLR의 "LoadFrom 컨텍스트"라는 별도 바인딩
+/// 컨텍스트에 들어간다. Type.GetType(assemblyQualifiedName)이 어셈블리를 이름만으로
+/// 찾을 때는 기본 로드 컨텍스트만 뒤지기 때문에, LoadFrom 컨텍스트에 있는 어셈블리는
+/// 못 찾고 FileNotFoundException을 삼켜서 그냥 null을 돌려준다. AssemblyResolve
+/// 이벤트를 걸어서 이미 로드해둔 어셈블리를 직접 돌려줘야 Type.GetType이 찾을 수 있다.
 /// </summary>
 public static class ModuleLoader
 {
+    private static readonly Dictionary<string, Assembly> LoadedAssemblies = new(System.StringComparer.OrdinalIgnoreCase);
+    private static bool _resolverAttached;
+
     public static void LoadAll(string? folderPath)
     {
+        if (!_resolverAttached)
+        {
+            System.AppDomain.CurrentDomain.AssemblyResolve += OnAssemblyResolve;
+            _resolverAttached = true;
+        }
+
         if (string.IsNullOrWhiteSpace(folderPath) || !Directory.Exists(folderPath)) return;
 
         foreach (var dllPath in Directory.GetFiles(folderPath, "*.dll"))
         {
             try
             {
-                Assembly.LoadFrom(dllPath);
+                var assembly = Assembly.LoadFrom(dllPath);
+                LoadedAssemblies[assembly.GetName().Name] = assembly;
             }
             catch
             {
                 // 화면 DLL 하나가 로드에 실패해도 나머지 화면/앱 시작 자체는 계속 진행한다.
             }
         }
+    }
+
+    private static Assembly? OnAssemblyResolve(object sender, System.ResolveEventArgs args)
+    {
+        var simpleName = new AssemblyName(args.Name).Name;
+        return LoadedAssemblies.TryGetValue(simpleName, out var assembly) ? assembly : null;
     }
 }
