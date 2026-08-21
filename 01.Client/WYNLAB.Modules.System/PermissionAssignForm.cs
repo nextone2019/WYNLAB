@@ -66,21 +66,25 @@ public class PermissionAssignForm : BaseForm
         Load += async (s, e) => await QueryAsync();
     }
 
+    /// <summary>
+    /// Dock 추가 순서 중요: 이 프로젝트 전반의 검증된 패턴(BaseGridForm/UserGroupEditForm 등)과
+    /// 동일하게 Fill을 먼저 추가하고, 그 다음에 Top 패널들을 추가한다 - 나중에 추가된 Top이
+    /// 우선권을 가져 맨 위 가장자리를 차지하므로, 화면상 가장 위에 둘 것(tabPanel)을 가장
+    /// 나중에 추가한다. BringToFront/SendToBack으로 순서를 억지로 맞추면 오히려 그리드
+    /// 컬럼헤더가 다른 패널에 가려지는 문제가 생겨서(이전 버그) 순수 추가순서로만 해결한다.
+    /// </summary>
     private void BuildLeftPanel()
     {
         var divider = new Panel { Dock = DockStyle.Right, Width = 1, BackColor = Color.FromArgb(225, 225, 225) };
-        leftPanel.Controls.Add(divider);
 
-        var tabPanel = new Panel { Dock = DockStyle.Top, Height = 40, Padding = new Padding(10, 8, 10, 0) };
-        btnTabUser.Size = new Size(110, 26);
-        btnTabUser.Location = new Point(10, 8);
-        btnTabGroup.Size = new Size(110, 26);
-        btnTabGroup.Location = new Point(124, 8);
-        btnTabUser.Click += async (s, e) => await SwitchTabAsync("USER");
-        btnTabGroup.Click += async (s, e) => await SwitchTabAsync("GRP");
-        tabPanel.Controls.Add(btnTabUser);
-        tabPanel.Controls.Add(btnTabGroup);
-        leftPanel.Controls.Add(tabPanel);
+        targetGrid.MainView = targetGridView;
+        targetGrid.Dock = DockStyle.Fill;
+        targetGridView.OptionsView.ShowGroupPanel = false;
+        targetGridView.OptionsView.ShowIndicator = false;
+        targetGridView.OptionsBehavior.Editable = false;
+        targetGridView.OptionsSelection.EnableAppearanceFocusedRow = true;
+        targetGridView.FocusedRowChanged += async (s, e) => await OnTargetSelectedAsync();
+        targetGridView.MouseUp += TargetGridView_MouseUp;
 
         var searchPanel = new Panel { Dock = DockStyle.Top, Height = 40, Padding = new Padding(10, 6, 10, 6) };
         txtSearch.Font = AppFonts.Body;
@@ -93,21 +97,21 @@ public class PermissionAssignForm : BaseForm
             await LoadTargetsAsync();
         };
         searchPanel.Controls.Add(txtSearch);
-        leftPanel.Controls.Add(searchPanel);
 
-        targetGrid.MainView = targetGridView;
-        targetGrid.Dock = DockStyle.Fill;
-        targetGridView.OptionsView.ShowGroupPanel = false;
-        targetGridView.OptionsView.ShowIndicator = false;
-        targetGridView.OptionsBehavior.Editable = false;
-        targetGridView.OptionsSelection.EnableAppearanceFocusedRow = true;
-        targetGridView.FocusedRowChanged += async (s, e) => await OnTargetSelectedAsync();
-        targetGridView.MouseUp += TargetGridView_MouseUp;
-        leftPanel.Controls.Add(targetGrid);
+        var tabPanel = new Panel { Dock = DockStyle.Top, Height = 40, Padding = new Padding(10, 8, 10, 0) };
+        btnTabUser.Size = new Size(110, 26);
+        btnTabUser.Location = new Point(10, 8);
+        btnTabGroup.Size = new Size(110, 26);
+        btnTabGroup.Location = new Point(124, 8);
+        btnTabUser.Click += async (s, e) => await SwitchTabAsync("USER");
+        btnTabGroup.Click += async (s, e) => await SwitchTabAsync("GRP");
+        tabPanel.Controls.Add(btnTabUser);
+        tabPanel.Controls.Add(btnTabGroup);
 
-        // 순서 중요: Dock 배치상 마지막에 추가해야 위쪽 탭/검색 패널 아래로 그리드가 자리잡음
-        tabPanel.BringToFront();
-        searchPanel.SendToBack();
+        leftPanel.Controls.Add(divider);
+        leftPanel.Controls.Add(targetGrid);   // Fill 먼저
+        leftPanel.Controls.Add(searchPanel);  // Top - tabPanel보다 먼저 추가되어 그 아래에 위치
+        leftPanel.Controls.Add(tabPanel);     // Top - 가장 나중에 추가되어 맨 위 차지
 
         UpdateTabButtonStyle();
     }
@@ -150,7 +154,6 @@ public class PermissionAssignForm : BaseForm
         lblTargetHint.Size = new Size(600, 18);
         lblTargetHint.Text = "왼쪽에서 사용자 또는 그룹을 선택해주세요.";
         headerPanel.Controls.Add(lblTargetHint);
-        rightPanel.Controls.Add(headerPanel);
 
         authTree.Dock = DockStyle.Fill;
         authTree.KeyFieldName = "MenuCd";
@@ -189,8 +192,8 @@ public class PermissionAssignForm : BaseForm
             }
         };
 
-        rightPanel.Controls.Add(authTree);
-        headerPanel.BringToFront();
+        rightPanel.Controls.Add(authTree);    // Fill 먼저
+        rightPanel.Controls.Add(headerPanel);  // Top - 나중에 추가되어 맨 위 차지
     }
 
     private void ClearRightPanel()
