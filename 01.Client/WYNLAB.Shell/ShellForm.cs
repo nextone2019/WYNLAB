@@ -1,4 +1,4 @@
-using DevExpress.XtraBars.Navigation;
+﻿using DevExpress.XtraBars.Navigation;
 using DevExpress.XtraTab;
 using DevExpress.XtraTabbedMdi;
 using DevExpress.XtraEditors;
@@ -10,38 +10,42 @@ using System.Drawing;
 namespace WYNLAB.Shell;
 
 /// <summary>
-/// MDI 메인 셸 (디자인: 브랜드 컬러 헤더 + 흰색 카드형 툴바).
+/// MDI 메인 셸 (디자인: 브랜드 컬러 헤더 + 사이드바, 개별 아이콘 툴바).
 ///
 /// 레이아웃 구조 (위→아래):
-///  1. headerPanel  - 로고 + 조회/입력/저장 | 삭제 | 출력 툴바. 사용자정보는 좌측 사이드바로 이동됨.
+///  1. headerPanel  - 로고 + 홈/조회/입력/저장/삭제/출력 개별 아이콘 버튼. 사용자정보는 좌측 사이드바로 이동됨.
 ///  2. sidebarPanel - 좌측 메뉴(다크 배경 + 우측 구분선으로 MDI 영역과 명확히 분리). 로고 클릭으로 표시/숨김
 ///  3. MDI 클라이언트 영역(흰색) - 업무화면들이 뜨는 공간
 ///
-/// 헤더 배경 전체를 appsettings.json의 ToolbarColor(회사별 브랜드색)로 채운다. 그 위에 놓이는
-/// 툴바 카드(RoundedPanel)는 전부 흰색으로 통일해서 예전처럼 그룹마다 카드색이 제각각(빨강/파랑/회색)
-/// 이던 산만함을 없앴고, "성격" 구분은 카드 안 아이콘 색으로만 표현한다(삭제=빨강 아이콘, 저장=강조색
-/// 꽉 채움). 삭제 아이콘 색은 브랜드 색과 무관하게 항상 빨간색 고정(위험한 동작이라는 UX 관례 유지).
+/// 헤더와 사이드바는 둘 다 appsettings.json의 ToolbarColor(회사별 브랜드색)에서 파생된 같은 색
+/// 계열이지만, 헤더는 흰색 쪽으로 살짝 섞은 밝은 톤, 사이드바는 검정 쪽으로 많이 섞은 짙은 톤을
+/// 써서 "같은 브랜드지만 서로 다른 면"임이 구분되도록 한다(ColorHelper.Mix). 툴바 버튼은 카드로
+/// 묶지 않고 전부 개별 흰 배지 버튼으로 나열하며, "성격" 구분은 아이콘 색으로만 표현한다
+/// (삭제 아이콘은 브랜드 색과 무관하게 항상 빨간색 고정 - 위험한 동작이라는 UX 관례 유지).
 /// </summary>
 public class ShellForm : XtraForm
 {
     private readonly Color _accentColor = ColorHelper.FromHex(AppConfig.ToolbarColor);
-    // 헤더 전체 배경을 브랜드색(_accentColor)으로 채우므로, 그 위에 놓이는 구분선/카드는
-    // 이 색 기준으로 살짝 밝게 조정해서 만든다(어떤 브랜드색이 들어와도 자연스럽게 어울리도록).
-    private Color HeaderBg => _accentColor;
-    private Color HeaderDividerColor => ColorHelper.Adjust(_accentColor, 28);
-    private static readonly Color CardBg = Color.White;
+
+    // 헤더와 사이드바가 "같은 브랜드 색 계열이지만 톤(명도)이 다른" 두 면으로 보이도록,
+    // 둘 다 _accentColor에서 파생시킨다. 사이드바는 검정 쪽으로 많이 섞어 원래 의도(항상
+    // 짙은 배경에 밝은 글자, 브랜드색이 밝아도 대비 보장)를 유지하고, 헤더는 흰색 쪽으로
+    // 살짝만 섞어 사이드바보다 눈에 띄게 연한 톤으로 구분되게 한다.
+    private Color HeaderBg => ColorHelper.Mix(_accentColor, Color.White, 0.35f);
+    private Color HeaderDividerColor => ColorHelper.Adjust(HeaderBg, -22);
+    // 툴바 아이콘 배지는 순백색이면 헤더 톤 위에서 너무 튀어 보여서, 헤더색을 살짝 섞은
+    // 연한 톤으로 낮춘다 - 헤더와 같은 계열이라 훨씬 차분하게 어우러진다.
+    private Color IconBadgeBg => ColorHelper.Mix(HeaderBg, Color.White, 0.55f);
     private static readonly Color DangerColor = Color.FromArgb(192, 57, 43);
     private static readonly Color SidebarBg = Color.FromArgb(245, 246, 248);
     private static readonly Color DividerColor = Color.FromArgb(225, 225, 225);
 
-    // 좌측 메뉴 다크 테마 - 브랜드 색(ToolbarColor)은 회사마다 밝을 수도 어두울 수도 있어서
-    // 사이드바 텍스트/호버 색으로는 쓰지 않고, 항상 대비가 보장되는 고정 팔레트를 사용한다.
-    private static readonly Color NavDarkBg = Color.FromArgb(22, 24, 29);
-    private static readonly Color NavHoverBg = Color.FromArgb(34, 37, 45);
-    private static readonly Color NavPressedBg = Color.FromArgb(45, 49, 58);
+    private Color NavDarkBg => ColorHelper.Mix(_accentColor, Color.Black, 0.45f);
+    private Color NavHoverBg => ColorHelper.Adjust(NavDarkBg, 12);
+    private Color NavPressedBg => ColorHelper.Adjust(NavDarkBg, 23);
     private static readonly Color NavText = Color.FromArgb(222, 224, 228);
     private static readonly Color NavTextMuted = Color.FromArgb(158, 161, 168);
-    private static readonly Color NavDivider = Color.FromArgb(42, 45, 52);
+    private Color NavDivider => ColorHelper.Adjust(NavDarkBg, 20);
 
     private readonly Panel headerPanel;
     private readonly Panel logoPanel;
@@ -52,6 +56,18 @@ public class ShellForm : XtraForm
     private readonly ComboBoxEdit cboEnvironment = new();
     private readonly ComboBoxEdit cboSkin = new();
     private readonly ToolTip toolbarToolTip = new();
+
+    // 네이티브 타이틀바(흰 배경)를 없애고, 최소화/최대화/닫기 버튼까지 브랜드 헤더 색 안에
+    // 포함시키기 위한 커스텀 캡션바. FormBorderStyle=None으로 네이티브 타이틀바/테두리를
+    // 지우는 대신, 창 이동/리사이즈는 아래 WndProc(WM_NCHITTEST)와 수동 드래그로 직접 구현한다.
+    private readonly Panel captionBar = new() { Height = 30, Dock = DockStyle.Top };
+    private readonly LabelControl lblCaptionTitle = new();
+    private readonly LabelControl btnMinimize = new();
+    private readonly LabelControl btnMaximizeRestore = new();
+    private readonly LabelControl btnClose = new();
+    private Point _captionDragStart;
+    private bool _captionDragging;
+    private const int ResizeBorderThickness = 6;
 
     /// <summary>
     /// 사용자가 고를 수 있는 테마 목록. DevExpress에는 스킨이 수십 개 있어 전부 나열하면
@@ -82,6 +98,12 @@ public class ShellForm : XtraForm
         WindowState = FormWindowState.Maximized;
         BackColor = Color.White;
 
+        // 네이티브 타이틀바(흰색)를 없애고 커스텀 캡션바로 대체 - 최소화/최대화/닫기 버튼도
+        // 브랜드 헤더 색 안에 포함되도록 하기 위함. 리사이즈/이동은 WndProc + 수동 드래그로 구현.
+        FormBorderStyle = FormBorderStyle.None;
+        MaximizedBounds = Screen.PrimaryScreen!.WorkingArea;
+        LocationChanged += (s, e) => MaximizedBounds = Screen.FromControl(this).WorkingArea;
+
         // 가로: 현재 헤더 툴바(홈+조회/입력/저장+삭제+출력 카드+우측 사용자정보)가 겹치지 않고
         // 다 보이는 최소폭. 서비스선택/테마선택은 좌측 사이드바로 옮겨서 헤더 쪽 최소폭 여유가 늘었다.
         // 세로도 업무화면이 너무 눌리지 않도록 최소값을 둠.
@@ -102,17 +124,20 @@ public class ShellForm : XtraForm
         BuildSidebar();
         BuildAccordionMenu();
         BuildStatusBar();
+        BuildCaptionBar();
 
         headerPanel.Controls.Add(logoPanel);
 
         var headerBottomBorder = new Panel { Dock = DockStyle.Bottom, Height = 1, BackColor = HeaderDividerColor };
         headerPanel.Controls.Add(headerBottomBorder);
 
-        // 순서 중요: 상단바를 먼저 추가해야 전체 폭을 차지하고, 그 아래에 좌측 메뉴가 배치됨
+        // 순서 중요: 상단바를 먼저 추가해야 전체 폭을 차지하고, 그 아래에 좌측 메뉴가 배치됨.
+        // captionBar는 headerPanel보다 나중에 추가해야 그 위(맨 위 가장자리)를 차지한다.
         // statusBar는 Bottom이라 순서 무관하게 항상 최하단에 고정됨
         Controls.Add(statusBar);
         Controls.Add(sidebarPanel);
         Controls.Add(headerPanel);
+        Controls.Add(captionBar);
 
         AppConfig.EnvironmentChanged += RefreshTitle;
 
@@ -156,6 +181,144 @@ public class ShellForm : XtraForm
         Text = AppConfig.IsDevelopment
             ? "WYN LAB [개발서버]  ※ 실제 데이터가 아닌 개발/테스트 서버입니다"
             : "WYN LAB";
+        lblCaptionTitle.Text = Text;
+    }
+
+    /// <summary>
+    /// 네이티브 타이틀바를 대체하는 캡션바. 좌측엔 창 제목(개발서버 경고 문구 포함), 우측엔
+    /// 최소화/최대화·복원/닫기 버튼을 배치하고 헤더와 같은 배경색을 써서 하나로 이어져 보이게 한다.
+    /// 창 이동은 캡션바 배경(제목 텍스트 포함) 드래그로, 리사이즈는 WndProc의 WM_NCHITTEST로 처리한다.
+    /// </summary>
+    private void BuildCaptionBar()
+    {
+        captionBar.BackColor = HeaderBg;
+
+        lblCaptionTitle.Dock = DockStyle.Fill;
+        lblCaptionTitle.AutoSizeMode = LabelAutoSizeMode.None;
+        lblCaptionTitle.Padding = new Padding(14, 0, 0, 0);
+        lblCaptionTitle.Appearance.TextOptions.VAlignment = DevExpress.Utils.VertAlignment.Center;
+        lblCaptionTitle.Appearance.ForeColor = Color.FromArgb(235, 236, 238);
+        lblCaptionTitle.Appearance.Font = AppFonts.Caption;
+        lblCaptionTitle.Text = Text;
+
+        ConfigureCaptionButton(btnMinimize, "");
+        ConfigureCaptionButton(btnMaximizeRestore, "");
+        ConfigureCaptionButton(btnClose, "", isClose: true);
+
+        btnMinimize.Click += (s, e) => WindowState = FormWindowState.Minimized;
+        btnMaximizeRestore.Click += (s, e) => ToggleMaximizeRestore();
+        btnClose.Click += (s, e) => Close();
+
+        EnableCaptionDrag(captionBar);
+        EnableCaptionDrag(lblCaptionTitle);
+
+        // 추가 순서 중요: 제목 라벨(Dock=Fill)을 먼저 넣고, 버튼들은 그 위에 겹쳐지도록 나중에
+        // 추가한다 (나중에 추가된 컨트롤이 z-order상 앞쪽에 위치해서 클릭이 버튼으로 먼저 감).
+        captionBar.Controls.Add(lblCaptionTitle);
+        captionBar.Controls.Add(btnMinimize);
+        captionBar.Controls.Add(btnMaximizeRestore);
+        captionBar.Controls.Add(btnClose);
+
+        captionBar.Resize += (s, e) => PositionCaptionButtons();
+        PositionCaptionButtons();
+    }
+
+    /// <summary>최소화/최대화/닫기 버튼 공통 스타일 - 평소엔 캡션바와 같은 배경, 호버 시에만 밝아짐(닫기는 빨강).</summary>
+    private void ConfigureCaptionButton(LabelControl btn, string glyph, bool isClose = false)
+    {
+        btn.Text = glyph;
+        btn.Size = new Size(44, captionBar.Height);
+        btn.AutoSizeMode = LabelAutoSizeMode.None;
+        btn.Appearance.TextOptions.HAlignment = DevExpress.Utils.HorzAlignment.Center;
+        btn.Appearance.TextOptions.VAlignment = DevExpress.Utils.VertAlignment.Center;
+        btn.Appearance.Font = new Font("Segoe MDL2 Assets", 9f);
+        btn.Appearance.ForeColor = Color.FromArgb(230, 231, 233);
+        btn.Appearance.Options.UseBackColor = true;
+        btn.Appearance.Options.UseFont = true;
+        btn.Appearance.BackColor = HeaderBg;
+        btn.Cursor = Cursors.Default;
+
+        var hoverColor = isClose ? Color.FromArgb(196, 43, 28) : ColorHelper.Adjust(HeaderBg, 24);
+        btn.MouseEnter += (s, e) => { btn.Appearance.BackColor = hoverColor; btn.Appearance.ForeColor = Color.White; btn.Invalidate(); };
+        btn.MouseLeave += (s, e) => { btn.Appearance.BackColor = HeaderBg; btn.Appearance.ForeColor = Color.FromArgb(230, 231, 233); btn.Invalidate(); };
+    }
+
+    private void PositionCaptionButtons()
+    {
+        var x = captionBar.Width;
+        x -= btnClose.Width; btnClose.Location = new Point(x, 0);
+        x -= btnMaximizeRestore.Width; btnMaximizeRestore.Location = new Point(x, 0);
+        x -= btnMinimize.Width; btnMinimize.Location = new Point(x, 0);
+    }
+
+    private void ToggleMaximizeRestore()
+    {
+        WindowState = WindowState == FormWindowState.Maximized ? FormWindowState.Normal : FormWindowState.Maximized;
+        btnMaximizeRestore.Text = WindowState == FormWindowState.Maximized ? "" : "";
+    }
+
+    /// <summary>
+    /// FormBorderStyle.None이라 네이티브 드래그가 없으므로 수동 구현 - AppMessageBox의
+    /// EnableDrag와 같은 방식(마우스 down 위치 기준 상대 이동). 최대화 상태에서 드래그를
+    /// 시작하면 먼저 일반 크기로 복원한 뒤 그 지점부터 이어서 드래그되게 한다(윈도우 기본 동작과 유사).
+    /// 더블클릭으로는 최대화/복원을 토글한다.
+    /// </summary>
+    private void EnableCaptionDrag(Control control)
+    {
+        control.MouseDown += (s, e) =>
+        {
+            if (e.Button != MouseButtons.Left) return;
+            if (WindowState == FormWindowState.Maximized)
+            {
+                var ratioX = (float)e.X / Math.Max(1, control.Width);
+                var restoredWidth = MinimumSize.Width;
+                WindowState = FormWindowState.Normal;
+                Location = new Point(Cursor.Position.X - (int)(restoredWidth * ratioX), Cursor.Position.Y - e.Y);
+            }
+            _captionDragging = true;
+            _captionDragStart = e.Location;
+        };
+        control.MouseMove += (s, e) =>
+        {
+            if (!_captionDragging) return;
+            Location = new Point(Location.X + e.X - _captionDragStart.X, Location.Y + e.Y - _captionDragStart.Y);
+        };
+        control.MouseUp += (s, e) => { _captionDragging = false; };
+        control.DoubleClick += (s, e) => ToggleMaximizeRestore();
+    }
+
+    /// <summary>
+    /// FormBorderStyle.None으로 네이티브 리사이즈 테두리가 사라진 것을 대체 - 창 가장자리
+    /// 근처(ResizeBorderThickness px)에서는 WM_NCHITTEST 결과를 방향에 맞는 HT* 코드로 바꿔서
+    /// 돌려주면, Windows가 알아서 리사이즈 커서 표시와 드래그 리사이즈를 처리해준다.
+    /// </summary>
+    protected override void WndProc(ref Message m)
+    {
+        const int WM_NCHITTEST = 0x0084;
+        const int HTCLIENT = 1;
+
+        base.WndProc(ref m);
+
+        if (m.Msg == WM_NCHITTEST && WindowState == FormWindowState.Normal && m.Result.ToInt32() == HTCLIENT)
+        {
+            var lParam = m.LParam.ToInt32();
+            var screenPoint = new Point((short)(lParam & 0xFFFF), (short)((lParam >> 16) & 0xFFFF));
+            var p = PointToClient(screenPoint);
+
+            var left = p.X <= ResizeBorderThickness;
+            var right = p.X >= ClientSize.Width - ResizeBorderThickness;
+            var top = p.Y <= ResizeBorderThickness;
+            var bottom = p.Y >= ClientSize.Height - ResizeBorderThickness;
+
+            if (top && left) m.Result = (IntPtr)13;      // HTTOPLEFT
+            else if (top && right) m.Result = (IntPtr)14; // HTTOPRIGHT
+            else if (bottom && left) m.Result = (IntPtr)16; // HTBOTTOMLEFT
+            else if (bottom && right) m.Result = (IntPtr)17; // HTBOTTOMRIGHT
+            else if (left) m.Result = (IntPtr)10;   // HTLEFT
+            else if (right) m.Result = (IntPtr)11;  // HTRIGHT
+            else if (top) m.Result = (IntPtr)12;    // HTTOP
+            else if (bottom) m.Result = (IntPtr)15; // HTBOTTOM
+        }
     }
 
     /// <summary>
@@ -367,58 +530,38 @@ public class ShellForm : XtraForm
     }
 
     /// <summary>
-    /// 홈은 상단바에 단독 배치하고, 조회/입력/저장 · 삭제 · 출력은 각각 둥근 흰색 카드
-    /// (RoundedPanel)로 묶어서 "그룹"임이 한눈에 보이도록 구성한다.
-    /// 예전엔 그룹마다 카드 배경색(회색/빨강/파랑)이 달라서 툴바 전체가 산만해 보였는데,
-    /// 헤더 자체가 브랜드색으로 채워진 지금은 카드를 전부 흰색으로 통일하고,
-    /// 대신 "성격"은 카드 안 아이콘 색으로만 구분한다(삭제=빨강 아이콘, 나머지=브랜드 강조색,
-    /// 저장만 강조색을 꽉 채워 가장 중요한 동작임을 강조).
+    /// 모든 버튼(홈/조회/입력/저장/삭제/출력)을 카드로 묶지 않고 각각 독립된 배지 버튼으로
+    /// 헤더에 나란히 배치한다. 예전엔 조회/입력/저장을 하나의 카드로 묶고 저장만 강조색을
+    /// 꽉 채워 표시했는데, 그룹핑 자체가 산만하다는 피드백에 따라 전부 개별 버튼으로 풀고
+    /// 저장도 다른 아이콘과 같은 스타일(연한 배지 + 강조색 아이콘)로 통일했다.
+    /// 배지 배경은 순백색 대신 헤더색을 살짝 섞은 연한 톤(IconBadgeBg)을 써서 튀어 보이지
+    /// 않게 했다. "성격" 구분은 이제 아이콘 색으로만 표현한다(삭제=빨강, 나머지=브랜드 강조색).
     /// 클릭하면 현재 활성화된 MDI 자식폼(ActiveMdiChild)의 표준 액션(BaseForm.QueryAsync 등)을 호출한다.
     /// </summary>
     private void BuildToolbar()
     {
         var iconAccent = Color.FromArgb(41, 121, 255);
-        var neutralBadge = Color.FromArgb(241, 243, 245);
+        var badgeBg = IconBadgeBg;
 
         var x = 228;
-        AddIconBadgeButton(headerPanel, ref x, 6, "홈", ToolbarIconPainters.Home, Color.White, iconAccent, false, f => { OpenHomeForm(); return Task.CompletedTask; });
+        AddIconBadgeButton(headerPanel, ref x, 6, "홈", ToolbarIconPainters.Home, badgeBg, iconAccent, false, f => { OpenHomeForm(); return Task.CompletedTask; });
         x += 6;
         AddDivider(ref x);
 
-        // 조회 / 입력 / 저장 - 흰 카드 한 그룹, 저장만 강조색으로 채워 구분
-        var queryGroup = AddToolbarGroup(ref x, ButtonSize.Width * 3, CardBg);
-        var qx = 0;
-        AddIconBadgeButton(queryGroup, ref qx, 4, "조회", ToolbarIconPainters.Query, neutralBadge, iconAccent, false, f => f.QueryAsync());
-        AddIconBadgeButton(queryGroup, ref qx, 4, "입력", ToolbarIconPainters.New, neutralBadge, iconAccent, false, f => f.NewAsync());
-        AddIconBadgeButton(queryGroup, ref qx, 4, "저장", ToolbarIconPainters.Save, iconAccent, iconAccent, true, f => f.SaveAsync());
+        AddIconBadgeButton(headerPanel, ref x, 6, "조회", ToolbarIconPainters.Query, badgeBg, iconAccent, false, f => f.QueryAsync());
+        AddIconBadgeButton(headerPanel, ref x, 6, "입력", ToolbarIconPainters.New, badgeBg, iconAccent, false, f => f.NewAsync());
+        AddIconBadgeButton(headerPanel, ref x, 6, "저장", ToolbarIconPainters.Save, badgeBg, iconAccent, false, f => f.SaveAsync());
+        x += 6;
+        AddDivider(ref x);
 
-        // 삭제 - 카드는 다른 그룹과 같은 흰색, "위험한 동작"이라는 의미는 빨간 아이콘으로만 표현
-        var deleteGroup = AddToolbarGroup(ref x, ButtonSize.Width, CardBg);
-        var dx = 0;
-        AddIconBadgeButton(deleteGroup, ref dx, 4, "삭제", ToolbarIconPainters.Delete, neutralBadge, DangerColor, false, f => f.DeleteAsync());
+        AddIconBadgeButton(headerPanel, ref x, 6, "삭제", ToolbarIconPainters.Delete, badgeBg, DangerColor, false, f => f.DeleteAsync());
+        x += 6;
+        AddDivider(ref x);
 
-        // 출력 - 카드는 동일한 흰색, 나머지 아이콘과 같은 브랜드 강조색을 사용
-        var printGroup = AddToolbarGroup(ref x, ButtonSize.Width, CardBg);
-        var px = 0;
-        AddIconBadgeButton(printGroup, ref px, 4, "출력", ToolbarIconPainters.Print, neutralBadge, iconAccent, false, f => f.PrintAsync());
+        AddIconBadgeButton(headerPanel, ref x, 6, "출력", ToolbarIconPainters.Print, badgeBg, iconAccent, false, f => f.PrintAsync());
     }
 
     private static readonly Size ButtonSize = new(54, 48);
-
-    /// <summary>둥근 배경 카드를 만들어 headerPanel에 배치하고, 다음 그룹을 위한 x좌표를 진행시킨다.</summary>
-    private RoundedPanel AddToolbarGroup(ref int x, int width, Color backColor)
-    {
-        var panel = new RoundedPanel
-        {
-            Location = new Point(x, 2),
-            Size = new Size(width, ButtonSize.Height + 8),
-            BackColor = backColor,
-            CornerRadius = 12
-        };
-        headerPanel.Controls.Add(panel);
-        x += width + 10;
-        return panel;
-    }
 
     /// <summary>
     /// action 파라미터는 BaseForm을 받지만, "홈" 버튼처럼 활성화면과 무관하게 항상 동작해야 하는

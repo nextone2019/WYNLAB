@@ -30,4 +30,14 @@ public static class ColorHelper
         int Clamp(int v) => Math.Max(0, Math.Min(255, v));
         return Color.FromArgb(Clamp(baseColor.R + amount), Clamp(baseColor.G + amount), Clamp(baseColor.B + amount));
     }
+
+    /// <summary>base를 target 쪽으로 ratio(0~1)만큼 섞은 색. 같은 색 계열을 유지하면서
+    /// 더 밝게(target=White) 또는 더 어둡게(target=Black) 만들 때 사용 - Adjust(고정값 가감)와
+    /// 달리 원래 색이 얼마나 밝은지와 무관하게 항상 일관된 비율로 섞인다.</summary>
+    public static Color Mix(Color baseColor, Color target, float ratio)
+    {
+        ratio = Math.Max(0f, Math.Min(1f, ratio));
+        int Lerp(int a, int b) => (int)Math.Round(a + (b - a) * ratio);
+        return Color.FromArgb(Lerp(baseColor.R, target.R), Lerp(baseColor.G, target.G), Lerp(baseColor.B, target.B));
+    }
 }
