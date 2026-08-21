@@ -51,6 +51,15 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+else
+{
+    // HSTS: 운영에선 한번 https로 접속에 성공하면 브라우저/클라이언트가 이후 요청을
+    // 자동으로 https로만 보내도록 강제한다. 지금 운영 API가 실제로는 http로 서비스되고
+    // 있어서(appsettings.Prod.json ApiBaseUrl 참고 - 서버에 TLS 인증서가 아직 없음) 당장은
+    // 효과가 없지만, 인증서를 설치하고 클라이언트 ApiBaseUrl을 https로 바꾸는 순간부터
+    // 바로 적용되도록 미리 켜둔다.
+    app.UseHsts();
+}
 
 app.UseHttpsRedirection();
 app.UseAuthentication();
