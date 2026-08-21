@@ -6,7 +6,7 @@ using WYNLAB.Shared.Dtos;
 using WYNLAB.UI.Common;
 using System.Drawing;
 
-namespace WYNLAB.Modules.System;
+namespace WYNLAB.Screens.UserManage;
 
 /// <summary>
 /// 사용자 신규등록/수정 팝업.

@@ -3,7 +3,7 @@ using WYNLAB.Shared.Dtos;
 using WYNLAB.UI.Common;
 using System.Drawing;
 
-namespace WYNLAB.Modules.System;
+namespace WYNLAB.Screens.UserManage;
 
 /// <summary>
 /// 사용자관리 화면. TSMMENU.FORM_CLASS_NM 에 이 클래스의 어셈블리 정규화 이름이 등록되어

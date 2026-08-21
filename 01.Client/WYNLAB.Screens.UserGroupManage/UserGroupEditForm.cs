@@ -6,7 +6,7 @@ using WYNLAB.Shared.Dtos;
 using WYNLAB.UI.Common;
 using System.Drawing;
 
-namespace WYNLAB.Modules.System;
+namespace WYNLAB.Screens.UserGroupManage;
 
 /// <summary>
 /// 사용자그룹 신규등록/수정 팝업. UserEditForm/MenuEditForm과 같은 LayoutControl 패턴을 쓰되,

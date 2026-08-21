@@ -7,7 +7,7 @@ using WYNLAB.Shared.Dtos;
 using WYNLAB.UI.Common;
 using System.Drawing;
 
-namespace WYNLAB.Modules.System;
+namespace WYNLAB.Screens.MenuManage;
 
 /// <summary>
 /// 메뉴관리 화면. 좌측에 등록된 메뉴 전체를 트리로 보여주고, 우측에서 바로 등록/수정한다

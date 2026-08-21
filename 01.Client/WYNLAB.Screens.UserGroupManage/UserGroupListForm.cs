@@ -3,7 +3,7 @@ using WYNLAB.Shared.Dtos;
 using WYNLAB.UI.Common;
 using System.Drawing;
 
-namespace WYNLAB.Modules.System;
+namespace WYNLAB.Screens.UserGroupManage;
 
 /// <summary>
 /// 사용자그룹관리 화면. TSMUSERGRP를 관리하고, 더블클릭으로 들어가는 수정 팝업(UserGroupEditForm)

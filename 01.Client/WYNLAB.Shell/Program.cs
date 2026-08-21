@@ -1,4 +1,5 @@
 using System.Windows.Forms;
+using WYNLAB.UI.Common;
 
 namespace WYNLAB.Shell;
 
@@ -18,6 +19,11 @@ internal static class Program
         // .NET Framework용 WinForms 초기화 (net6+의 ApplicationConfiguration.Initialize() 대체)
         Application.EnableVisualStyles();
         Application.SetCompatibleTextRenderingDefault(false);
+
+        // 화면별로 쪼개진 DLL(WYNLAB.Screens.*)들을 미리 로드해둔다 - Shell은 이 프로젝트들을
+        // 더 이상 컴파일 타임에 참조하지 않으므로, ShellForm.OpenMenuForm의 Type.GetType이
+        // 찾을 수 있으려면 이 시점에 먼저 AppDomain에 올려둬야 한다.
+        ModuleLoader.LoadAll(AppConfig.ModulesPath);
 
         // 로그인 성공 시에만 ShellForm(MDI 메인) 기동. 로그인창이 닫히면서 띄운 스플래시는
         // ShellForm이 실제로 화면에 그려진 직후(Shown)에 닫아서, 그 사이 빈 화면이 보이지 않게 한다.

@@ -6,7 +6,7 @@
     <UseWindowsForms>true</UseWindowsForms>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <RootNamespace>WYNLAB.Modules.System</RootNamespace>
+    <RootNamespace>WYNLAB.Screens.UserManage</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>
@@ -29,15 +29,24 @@
     <Reference Include="DevExpress.XtraLayout.v20.2">
       <HintPath>C:\Program Files (x86)\DevExpress 20.2\Components\Bin\Framework\DevExpress.XtraLayout.v20.2.dll</HintPath>
     </Reference>
-    <!-- 권한부여관리 화면의 메뉴 트리(체크그리드)용 -->
-    <Reference Include="DevExpress.XtraTreeList.v20.2">
-      <HintPath>C:\Program Files (x86)\DevExpress 20.2\Components\Bin\Framework\DevExpress.XtraTreeList.v20.2.dll</HintPath>
-    </Reference>
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\WYNLAB.UI.Common\WYNLAB.UI.Common.csproj" />
     <ProjectReference Include="..\..\03.Shared\WYNLAB.Shared\WYNLAB.Shared.csproj" />
   </ItemGroup>
+
+  <!-- 빌드할 때마다 Shell이 런타임에 스캔하는 Modules 폴더로 결과물을 자동 복사한다.
+       화면 하나만 고쳐서 그 DLL만 서버에 올리는 배포 모델(예전 BAROCRM과 동일) -
+       WYNLAB.Shell은 이 프로젝트를 더 이상 컴파일 타임에 참조하지 않는다. -->
+  <Target Name="CopyToModulesFolder" AfterTargets="Build">
+    <ItemGroup>
+      <ModuleOutputFiles Include="$(TargetDir)$(TargetName).dll" />
+      <ModuleOutputFiles Include="$(TargetDir)$(TargetName).pdb" Condition="Exists('$(TargetDir)$(TargetName).pdb')" />
+    </ItemGroup>
+    <Copy SourceFiles="@(ModuleOutputFiles)"
+          DestinationFolder="$(SolutionDir)01.Client\WYNLAB.Shell\bin\$(Configuration)\net48\Modules\"
+          SkipUnchangedFiles="true" />
+  </Target>
 
 </Project>

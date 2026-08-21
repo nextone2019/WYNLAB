@@ -24,6 +24,29 @@ public static class AppConfig
             ? env.ApiBaseUrl
             : throw new InvalidOperationException($"'{CurrentEnvironment}' 환경 설정이 appsettings.json에 없습니다.");
 
+    /// <summary>
+    /// 화면별로 쪼개진 DLL(WYNLAB.Screens.*)들이 놓여있는 폴더 - 시작 시 ModuleLoader가
+    /// 이 폴더를 스캔해서 전부 로드한다. 환경별로 다른 경로를 가질 수 있다(운영은 보통
+    /// 서버의 공유폴더/배포경로, 개발은 각 화면 프로젝트의 빌드 후 자동복사 대상 폴더).
+    /// appsettings.json에 상대경로(예: "Modules")로 적으면 exe 폴더 기준으로 풀어준다 -
+    /// 개발 PC마다 저장소 경로가 다를 수 있어서 절대경로를 하드코딩하지 않기 위함.
+    /// </summary>
+    public static string ModulesPath
+    {
+        get
+        {
+            if (!_config.Value.Environments.TryGetValue(CurrentEnvironment, out var env) ||
+                string.IsNullOrWhiteSpace(env.ModulesPath))
+            {
+                return string.Empty;
+            }
+
+            return Path.IsPathRooted(env.ModulesPath)
+                ? env.ModulesPath
+                : Path.Combine(AppContext.BaseDirectory, env.ModulesPath);
+        }
+    }
+
     public static string ToolbarColor => _config.Value.ToolbarColor;
 
     public static UiThemeConfig Theme => _config.Value.Theme;
@@ -76,6 +99,7 @@ public static class AppConfig
     private class EnvironmentEntry
     {
         public string ApiBaseUrl { get; set; } = string.Empty;
+        public string ModulesPath { get; set; } = string.Empty;
     }
 }
 

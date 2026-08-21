@@ -8,7 +8,7 @@ using WYNLAB.Shared.Dtos;
 using WYNLAB.UI.Common;
 using System.Drawing;
 
-namespace WYNLAB.Modules.System;
+namespace WYNLAB.Screens.PermissionAssign;
 
 /// <summary>
 /// 권한부여관리 화면. 좌측에서 사용자 또는 그룹(대상)을 고르면, 우측 메뉴트리에서
