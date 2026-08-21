@@ -32,17 +32,19 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\WYNLAB.BaseForm\WYNLAB.BaseForm.csproj" />
-    <ProjectReference Include="..\..\03.Shared\WYNLAB.Shared\WYNLAB.Shared.csproj" />
+    <ProjectReference Include="..\..\..\01.Client\WYNLAB.BaseForm\WYNLAB.BaseForm.csproj" />
+    <ProjectReference Include="..\..\..\03.Shared\WYNLAB.Shared\WYNLAB.Shared.csproj" />
   </ItemGroup>
 
+  <!-- 이 프로젝트는 99.SOURCE\SM\에 있는 자기 전용 .sln에서 빌드되므로, SolutionDir 기준
+       상대경로도 그에 맞춰(리포 루트까지 두 단계 위) 잡는다. -->
   <Target Name="CopyToModulesFolder" AfterTargets="Build">
     <ItemGroup>
       <ModuleOutputFiles Include="$(TargetDir)$(TargetName).dll" />
       <ModuleOutputFiles Include="$(TargetDir)$(TargetName).pdb" Condition="Exists('$(TargetDir)$(TargetName).pdb')" />
     </ItemGroup>
     <Copy SourceFiles="@(ModuleOutputFiles)"
-          DestinationFolder="$(SolutionDir)01.Client\WYNLAB.Shell\bin\$(Configuration)\net48\Modules\"
+          DestinationFolder="$(SolutionDir)..\..\01.Client\WYNLAB.Shell\bin\$(Configuration)\net48\Modules\"
           SkipUnchangedFiles="true" />
   </Target>
 
