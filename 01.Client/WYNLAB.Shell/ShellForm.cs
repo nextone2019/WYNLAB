@@ -732,8 +732,10 @@ public class ShellForm : XtraForm
 
                 element.Appearance.Hovered.BackColor = NavHoverBg;
                 element.Appearance.Hovered.ForeColor = Color.White;
+                element.Appearance.Hovered.Font = AppFonts.BodyBold;
                 element.Appearance.Hovered.Options.UseBackColor = true;
                 element.Appearance.Hovered.Options.UseForeColor = true;
+                element.Appearance.Hovered.Options.UseFont = true;
             }
             else
             {
