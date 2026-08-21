@@ -756,10 +756,16 @@ public class ShellForm : XtraForm
                 element.Appearance.Hovered.Options.UseForeColor = true;
                 element.Appearance.Hovered.Options.UseFont = true;
 
-                element.Appearance.Pressed.BackColor = NavPressedBg;
-                element.Appearance.Pressed.ForeColor = Color.White;
+                // 클릭(선택) 상태 - 폰트 크기/굵기/배경은 전부 Normal과 동일하게 유지하고
+                // 글자색만 옅은 골드톤으로 바꿔서 "선택됨"을 표시한다. 예전엔 Font/UseFont를
+                // 따로 안 줘서 Pressed일 때 스타일 안 먹은 기본(더 작아 보이는) 폰트로
+                // 떨어지는 버그가 있었다 - Normal과 같은 AppFonts.Body를 명시해서 고침.
+                element.Appearance.Pressed.BackColor = NavDarkBg;
+                element.Appearance.Pressed.ForeColor = Color.FromArgb(255, 205, 86);
+                element.Appearance.Pressed.Font = AppFonts.Body;
                 element.Appearance.Pressed.Options.UseBackColor = true;
                 element.Appearance.Pressed.Options.UseForeColor = true;
+                element.Appearance.Pressed.Options.UseFont = true;
 
                 element.Click += (s, e) => OpenMenuForm(child);
             }
