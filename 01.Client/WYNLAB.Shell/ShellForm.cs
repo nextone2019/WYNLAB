@@ -216,6 +216,13 @@ public class ShellForm : XtraForm
         tabbedMdiManager.AppearancePage.HeaderActive.Options.UseFont = true;
 
         tabbedMdiManager.CustomDrawTabHeader += TabbedMdiManager_CustomDrawTabHeader;
+
+        // XtraTabbedMdiManager엔 탭 텍스트 좌우 여백을 조절하는 속성이 없어서(리플렉션으로
+        // 전체 속성을 확인했지만 Padding/Indent/최소너비 같은 훅이 전혀 없었다), 탭이 텍스트
+        // 길이에 딱 맞게 폭을 계산하는 걸 역으로 이용한다 - 탭에 표시되는 문자열 앞뒤에 공백을
+        // 붙이면 그만큼 탭 자체가 넓어지면서 자연스럽게 여백처럼 보인다. form.Text(창 제목,
+        // BuildScreenHeader의 화면 타이틀)는 그대로 두고, MDI 탭 전용 Text만 별도로 바꾼다.
+        tabbedMdiManager.PageAdded += (s, e) => e.Page.Text = $"  {e.Page.Text}  ";
     }
 
     /// <summary>
@@ -241,14 +248,6 @@ public class ShellForm : XtraForm
         rect.Inflate(-1, 0);
         rect.Y += 2;
         rect.Height -= 2;
-
-        // 첫 번째 탭은 사이드바 오른쪽 경계선에 바로 붙어서 답답해 보인다는 피드백 -
-        // 맨 앞 탭에만 살짝 왼쪽 여백을 줘서 사이드바와 분리되어 보이게 한다.
-        if (info.VisibleIndex == 0)
-        {
-            rect.X += 6;
-            rect.Width -= 6;
-        }
 
         var isActive = info.IsActiveState;
         var isHot = info.IsHotState;
