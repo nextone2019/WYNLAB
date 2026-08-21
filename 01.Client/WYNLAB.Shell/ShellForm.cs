@@ -389,7 +389,7 @@ public class ShellForm : XtraForm
                 lblUserInline.Text = string.Empty;
                 return;
             }
-            var time = SessionManager.Current.SignInTime is { } t ? $" [{t:yyyyMMdd HH:mm}]" : string.Empty;
+            var time = SessionManager.Current.SignInTime is { } t ? $" [{t:yyyy-MM-dd HH:mm}]" : string.Empty;
             lblUserInline.Text = $"{user.UserNm}{time}";
         }
         Refresh();
