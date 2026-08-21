@@ -67,6 +67,8 @@ public class ShellForm : XtraForm
     private static readonly Font MenuItemFont = new("Segoe UI", 8.5f, FontStyle.Regular);
     private static readonly Font MenuItemHoverFont = new("Segoe UI", 8.5f, FontStyle.Bold);
     private const int MenuTopIconSize = 15;
+    // MDI 문서 탭 전용 축소 폰트 - 메뉴트리 항목과 같은 크기로 맞춰서 전체적으로 통일감 있게.
+    private static readonly Font MenuTabFont = new("Segoe UI", 8.5f, FontStyle.Regular);
 
     private readonly Panel headerPanel;
     private readonly Panel logoPanel;
@@ -196,7 +198,7 @@ public class ShellForm : XtraForm
     {
         tabbedMdiManager.AppearancePage.Header.BackColor = TabInactiveBg;
         tabbedMdiManager.AppearancePage.Header.ForeColor = TabInactiveFg;
-        tabbedMdiManager.AppearancePage.Header.Font = AppFonts.Body;
+        tabbedMdiManager.AppearancePage.Header.Font = MenuTabFont;
         tabbedMdiManager.AppearancePage.Header.Options.UseBackColor = true;
         tabbedMdiManager.AppearancePage.Header.Options.UseForeColor = true;
         tabbedMdiManager.AppearancePage.Header.Options.UseFont = true;
@@ -208,7 +210,7 @@ public class ShellForm : XtraForm
 
         tabbedMdiManager.AppearancePage.HeaderActive.BackColor = TabActiveBg;
         tabbedMdiManager.AppearancePage.HeaderActive.ForeColor = TabActiveFg;
-        tabbedMdiManager.AppearancePage.HeaderActive.Font = AppFonts.Body;
+        tabbedMdiManager.AppearancePage.HeaderActive.Font = MenuTabFont;
         tabbedMdiManager.AppearancePage.HeaderActive.Options.UseBackColor = true;
         tabbedMdiManager.AppearancePage.HeaderActive.Options.UseForeColor = true;
         tabbedMdiManager.AppearancePage.HeaderActive.Options.UseFont = true;
@@ -341,7 +343,8 @@ public class ShellForm : XtraForm
     public void SetStatusMessage(string message) => lblStatusMessage.Text = message;
 
     /// <summary>좌측 사이드바 - 다크 테마. 우측 구분선으로 MDI(흰색) 영역과 시각적으로 분리.
-    /// 맨 위엔 로그인 사용자/시간, 맨 아래엔 서비스선택/테마선택 콤보, 가운데는 메뉴 아코디언.</summary>
+    /// 맨 위 흰 여백(sidebarTopGap)엔 로그인 사용자/시간, 맨 아래엔 서비스선택/테마선택 콤보,
+    /// 가운데는 메뉴 아코디언.</summary>
     private void BuildSidebar()
     {
         accordionMenu.BackColor = NavDarkBg;
@@ -350,47 +353,49 @@ public class ShellForm : XtraForm
         accordionMenu.ScrollBarMode = DevExpress.XtraBars.Navigation.ScrollBarMode.Hidden;
 
         var divider = new Panel { Dock = DockStyle.Right, Width = 1, BackColor = NavDivider };
-        var userPanel = BuildSidebarUserPanel();
         var toolPanel = BuildSidebarToolPanel();
+        ConfigureSidebarTopGap();
 
         // Dock 추가 순서: Fill(accordionMenu) 먼저, Top/Bottom은 나중에 추가해야
         // 각자 가장자리를 정상적으로 차지한다 (PermissionAssignForm에서 겪은 것과 같은 문제 방지).
         sidebarPanel.Controls.Add(accordionMenu);
         sidebarPanel.Controls.Add(divider);
         sidebarPanel.Controls.Add(toolPanel);
-        sidebarPanel.Controls.Add(userPanel);
         sidebarPanel.Controls.Add(sidebarTopGap);
     }
 
-    /// <summary>사이드바 맨 위 - 로그인 사용자명 + 로그인 시각</summary>
-    private Panel BuildSidebarUserPanel()
+    /// <summary>
+    /// 사이드바 맨 위 흰 여백(오른쪽 탭 줄과 높이를 맞춘 sidebarTopGap) 안에 로그인 사용자명 +
+    /// 시각을 넣는다. 원래는 사이드바 안쪽에 별도의 어두운 패널로 표시했는데, 탭 줄과 높이를
+    /// 맞추려고 추가한 위쪽 흰 여백이 비어있느니 차라리 그 자리에 넣는 게 낫다는 피드백으로 이동.
+    /// </summary>
+    private void ConfigureSidebarTopGap()
     {
-        var panel = new Panel { Dock = DockStyle.Top, Height = 58, BackColor = NavDarkBg, Padding = new Padding(14, 10, 14, 0) };
-        var bottomBorder = new Panel { Dock = DockStyle.Bottom, Height = 1, BackColor = NavDivider };
-
-        var lblUser = new LabelControl { Dock = DockStyle.Top, Height = 20 };
-        lblUser.Appearance.ForeColor = NavText;
-        lblUser.Appearance.Font = AppFonts.BodyBold;
-
-        var lblTime = new LabelControl { Dock = DockStyle.Top, Height = 16 };
-        lblTime.Appearance.ForeColor = NavTextMuted;
-        lblTime.Appearance.Font = AppFonts.Caption;
+        var lblUserInline = new LabelControl
+        {
+            Dock = DockStyle.Fill,
+            AutoSizeMode = LabelAutoSizeMode.None,
+            Padding = new Padding(14, 0, 10, 0)
+        };
+        lblUserInline.Appearance.ForeColor = Color.FromArgb(55, 55, 55);
+        lblUserInline.Appearance.Font = MenuItemFont;
+        lblUserInline.Appearance.TextOptions.VAlignment = DevExpress.Utils.VertAlignment.Center;
 
         void Refresh()
         {
             var user = SessionManager.Current.UserInfo;
-            lblUser.Text = user == null ? string.Empty : $"{user.UserNm} {user.PositionNm}";
-            lblTime.Text = SessionManager.Current.SignInTime is { } t ? $"로그인 {t:HH:mm}" : string.Empty;
+            if (user == null)
+            {
+                lblUserInline.Text = string.Empty;
+                return;
+            }
+            var time = SessionManager.Current.SignInTime is { } t ? $" · 로그인 {t:HH:mm}" : string.Empty;
+            lblUserInline.Text = $"{user.UserNm}{time}";
         }
         Refresh();
         AppConfig.EnvironmentChanged += Refresh;
 
-        // Dock 순서: lblTime(아래쪽) 먼저, lblUser(위쪽) 나중에 추가되어 맨 위를 차지
-        panel.Controls.Add(lblTime);
-        panel.Controls.Add(lblUser);
-        panel.Controls.Add(bottomBorder);
-
-        return panel;
+        sidebarTopGap.Controls.Add(lblUserInline);
     }
 
     /// <summary>
