@@ -27,12 +27,12 @@ public class MenuListForm : BaseForm
     private string? _lastSelectedCd;  // 트리에서 마지막으로 선택된 메뉴 (신규 시 상위메뉴 후보)
     private string? _newParentCd;     // 신규모드일 때 실제 적용될 상위메뉴코드 (null = 최상위)
 
-    // 우측 편집 패널은 고정폭(Dock=Right)으로 두고, 좌측 트리가 나머지 공간을 다 채운다(Dock=Fill).
-    // 예전엔 SplitContainerControl로 사용자가 드래그해서 폭을 조절할 수 있었는데, 그러면 MDI
-    // 창 크기가 바뀔 때마다 우측 입력 필드들 위치도 같이 흔들려서 고정폭 방식으로 바꿨다.
-    private const int RightPanelWidth = 600;
+    // 트리 폭은 사용자가 스플리터로 조절할 수 있게 하되(SplitContainerControl), 우측 입력
+    // 필드들은 FixedControlWidth로 각자 고정폭이라 스플리터를 옮기거나 MDI 창을 리사이즈해도
+    // 필드 자체의 크기/배치는 흔들리지 않는다 - 늘어나는/줄어드는 건 여백뿐이다.
+    private readonly SplitContainerControl splitContainer = new() { Dock = DockStyle.Fill };
     private readonly Panel leftPanel = new() { Dock = DockStyle.Fill };
-    private readonly Panel rightPanel = new() { Dock = DockStyle.Right, Width = RightPanelWidth };
+    private readonly Panel rightPanel = new() { Dock = DockStyle.Fill };
     private readonly TreeList menuTree = new();
     private readonly TreeListColumn colMenuNm = new() { FieldName = "MenuNm", Caption = "메뉴명" };
 
@@ -68,11 +68,14 @@ public class MenuListForm : BaseForm
 
         BuildLeftPanel();
         BuildRightPanel();
+        splitContainer.Panel1.Controls.Add(leftPanel);
+        splitContainer.Panel2.Controls.Add(rightPanel);
+        splitContainer.Panel1.MinSize = 220;
+        splitContainer.Panel2.MinSize = 500; // 우측 필드 중 화면 클래스명(420px)이 가장 넓어서 그보다 여유있게
+        splitContainer.SplitterPosition = 280;
 
-        // Dock 추가 순서: Fill(leftPanel) 먼저, Right(rightPanel)와 Top(타이틀바)은 나중에
-        // 추가해야 각자 가장자리를 정상적으로 차지한다.
-        Controls.Add(leftPanel);
-        Controls.Add(rightPanel);
+        // Dock 추가 순서: Fill(splitContainer) 먼저, Top(타이틀바)은 나중에 추가해야 맨 위를 차지한다
+        Controls.Add(splitContainer);
         Controls.Add(BuildScreenHeader());
 
         EnterNewMode(null);
@@ -83,6 +86,8 @@ public class MenuListForm : BaseForm
     {
         var divider = new Panel { Dock = DockStyle.Right, Width = 1, BackColor = Color.FromArgb(225, 225, 225) };
 
+        // 버그 수정: Dock을 실제로 지정한 적이 없어서 트리가 기본 크기(작은 박스)로만 떠 있었다.
+        menuTree.Dock = DockStyle.Fill;
         menuTree.KeyFieldName = "MenuCd";
         menuTree.ParentFieldName = "UpperMenuCd";
         menuTree.OptionsBehavior.Editable = false;
