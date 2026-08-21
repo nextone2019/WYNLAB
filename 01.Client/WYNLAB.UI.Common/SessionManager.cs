@@ -21,6 +21,9 @@ public sealed class SessionManager
     public string? AccessToken { get; private set; }
     public List<MenuDto> Menus { get; private set; } = new();
 
+    /// <summary>이번 세션에서 로그인한 시각(클라이언트 로컬시간) - 셸 사이드바에 표시용</summary>
+    public DateTime? SignInTime { get; private set; }
+
     public bool IsSignedIn => UserInfo != null;
 
     private SessionManager() { }
@@ -30,6 +33,7 @@ public sealed class SessionManager
         UserInfo = response.UserInfo;
         AccessToken = response.AccessToken;
         Menus = response.Menus;
+        SignInTime = DateTime.Now;
     }
 
     public MenuDto? GetMenuAuth(string menuCd) =>
@@ -40,5 +44,6 @@ public sealed class SessionManager
         UserInfo = null;
         AccessToken = null;
         Menus.Clear();
+        SignInTime = null;
     }
 }

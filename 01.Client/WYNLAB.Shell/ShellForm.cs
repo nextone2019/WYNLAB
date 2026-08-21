@@ -207,31 +207,66 @@ public class ShellForm : XtraForm
     public void SetStatusMessage(string message) => lblStatusMessage.Text = message;
 
     /// <summary>좌측 사이드바 - 다크 테마. 우측 구분선으로 MDI(흰색) 영역과 시각적으로 분리.
-    /// 맨 위에는 서비스선택/테마선택 콤보를 두는 도구 영역을 두고, 그 아래에 메뉴 아코디언이 온다.</summary>
+    /// 맨 위엔 로그인 사용자/시간, 맨 아래엔 서비스선택/테마선택 콤보, 가운데는 메뉴 아코디언.</summary>
     private void BuildSidebar()
     {
         accordionMenu.BackColor = NavDarkBg;
+        // 내용이 사이드바 높이보다 짧을 때도 스크롤바 트랙이 항상 보이던 것을 숨김.
+        // (메뉴가 많아져서 실제로 넘치면 마우스 휠 스크롤 자체는 그대로 동작함)
+        accordionMenu.ScrollBarMode = DevExpress.XtraBars.Navigation.ScrollBarMode.Hidden;
 
         var divider = new Panel { Dock = DockStyle.Right, Width = 1, BackColor = NavDivider };
-
+        var userPanel = BuildSidebarUserPanel();
         var toolPanel = BuildSidebarToolPanel();
 
-        // Dock 추가 순서: Fill(accordionMenu) 먼저, Top(toolPanel)은 나중에 추가해야
-        // 맨 위 가장자리를 정상적으로 차지한다 (PermissionAssignForm에서 겪은 것과 같은 문제 방지).
+        // Dock 추가 순서: Fill(accordionMenu) 먼저, Top/Bottom은 나중에 추가해야
+        // 각자 가장자리를 정상적으로 차지한다 (PermissionAssignForm에서 겪은 것과 같은 문제 방지).
         sidebarPanel.Controls.Add(accordionMenu);
         sidebarPanel.Controls.Add(divider);
         sidebarPanel.Controls.Add(toolPanel);
+        sidebarPanel.Controls.Add(userPanel);
+    }
+
+    /// <summary>사이드바 맨 위 - 로그인 사용자명 + 로그인 시각</summary>
+    private Panel BuildSidebarUserPanel()
+    {
+        var panel = new Panel { Dock = DockStyle.Top, Height = 58, BackColor = NavDarkBg, Padding = new Padding(14, 10, 14, 0) };
+        var bottomBorder = new Panel { Dock = DockStyle.Bottom, Height = 1, BackColor = NavDivider };
+
+        var lblUser = new LabelControl { Dock = DockStyle.Top, Height = 20 };
+        lblUser.Appearance.ForeColor = NavText;
+        lblUser.Appearance.Font = AppFonts.BodyBold;
+
+        var lblTime = new LabelControl { Dock = DockStyle.Top, Height = 16 };
+        lblTime.Appearance.ForeColor = NavTextMuted;
+        lblTime.Appearance.Font = AppFonts.Caption;
+
+        void Refresh()
+        {
+            var user = SessionManager.Current.UserInfo;
+            lblUser.Text = user == null ? string.Empty : $"{user.UserNm} {user.PositionNm}";
+            lblTime.Text = SessionManager.Current.SignInTime is { } t ? $"로그인 {t:HH:mm}" : string.Empty;
+        }
+        Refresh();
+        AppConfig.EnvironmentChanged += Refresh;
+
+        // Dock 순서: lblTime(아래쪽) 먼저, lblUser(위쪽) 나중에 추가되어 맨 위를 차지
+        panel.Controls.Add(lblTime);
+        panel.Controls.Add(lblUser);
+        panel.Controls.Add(bottomBorder);
+
+        return panel;
     }
 
     /// <summary>
-    /// 서비스선택 + 테마선택 콤보를 다크 사이드바 톤에 맞춰 배치.
+    /// 서비스선택 + 테마선택 콤보를 다크 사이드바 톤에 맞춰 배치. 사이드바 맨 아래에 고정.
     /// 각 행을 독립된 패널로 분리해뒀기 때문에, 나중에 "메뉴 찾기" 검색창을 추가할 때도
     /// 이 패널들 사이에 같은 방식으로 한 행만 끼워넣으면 된다.
     /// </summary>
     private Panel BuildSidebarToolPanel()
     {
-        var toolPanel = new Panel { Dock = DockStyle.Top, Height = 112, BackColor = NavDarkBg, Padding = new Padding(14, 10, 14, 10) };
-        var bottomBorder = new Panel { Dock = DockStyle.Bottom, Height = 1, BackColor = NavDivider };
+        var toolPanel = new Panel { Dock = DockStyle.Bottom, Height = 112, BackColor = NavDarkBg, Padding = new Padding(14, 10, 14, 10) };
+        var topBorder = new Panel { Dock = DockStyle.Top, Height = 1, BackColor = NavDivider };
 
         var envRow = BuildSidebarComboRow("서비스", cboEnvironment);
         var skinRow = BuildSidebarComboRow("테마", cboSkin);
@@ -253,7 +288,7 @@ public class ShellForm : XtraForm
         // 나중에 추가된 Top이 우선권을 가지므로 이렇게 해야 화면상 envRow가 위, skinRow가 아래로 온다.
         toolPanel.Controls.Add(skinRow);
         toolPanel.Controls.Add(envRow);
-        toolPanel.Controls.Add(bottomBorder);
+        toolPanel.Controls.Add(topBorder);
 
         return toolPanel;
     }
