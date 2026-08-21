@@ -1,13 +1,13 @@
-﻿
+
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WYNLAB.SM.USERGROUP", "WYNLAB.SM.USERGROUP\WYNLAB.SM.USERGROUP.csproj", "{BCD4F798-3194-4E69-95F5-BC860C29A758}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WYNLAB.BaseForm", "..\..\01.Client\WYNLAB.BaseForm\WYNLAB.BaseForm.csproj", "{58216F6A-9F3E-490F-99D6-E2FF65394FB6}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WYNLAB.BaseForm", "..\..\..\01.Client\WYNLAB.BaseForm\WYNLAB.BaseForm.csproj", "{58216F6A-9F3E-490F-99D6-E2FF65394FB6}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WYNLAB.Shared", "..\..\03.Shared\WYNLAB.Shared\WYNLAB.Shared.csproj", "{76DBC5E6-E976-459A-AE52-E6F812F90D0E}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WYNLAB.Shared", "..\..\..\03.Shared\WYNLAB.Shared\WYNLAB.Shared.csproj", "{76DBC5E6-E976-459A-AE52-E6F812F90D0E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
