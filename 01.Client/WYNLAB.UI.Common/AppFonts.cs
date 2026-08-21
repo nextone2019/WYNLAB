@@ -7,14 +7,17 @@ namespace WYNLAB.UI.Common;
 /// (7.7, 8.25, 8.5, 9.5, 10, 11, 14, 16, 20, 22pt 등) 화면 간 통일감이 없어 "깨져" 보이므로,
 /// 반드시 이 클래스의 상수만 사용한다.
 ///
-/// 폰트 종류/기준 크기(Body) 근거: DevExpress "Office 2019 Colorful" 스킨(Program.cs에서
-/// 앱 전체에 적용)의 기본 폰트를 실제로 띄워서 측정한 값 = Tahoma 9pt. 그리드 헤더/행처럼
-/// 이 클래스로 스타일을 안 준 컨트롤은 전부 이 스킨 기본값을 그대로 쓰기 때문에, 명시적으로
-/// 스타일을 주는 라벨/메뉴트리/탭 등도 같은 값(Tahoma 9pt)을 기준으로 맞춰야 서로 안 어긋난다.
+/// 폰트 종류: 맑은 고딕(Malgun Gothic) - Windows Vista 이후 기본 한글 UI 폰트이자
+/// Segoe UI/Tahoma와 짝을 맞춰 디자인된 폰트라 영문/한글이 섞여도 크기·굵기가 자연스럽게
+/// 맞는다. Tahoma/Segoe UI는 한글 글리프가 아예 없어서 Windows가 한글만 다른 폰트로
+/// 자동 대체해 그리는데, 그 대체 폰트가 원래 폰트보다 작아 보이는 문제(영문은 정상 크기,
+/// 한글만 작게 보임)가 있어서 바꿨다.
+/// 크기 기준(Body): DevExpress "Office 2019 Colorful" 스킨(Program.cs에서 앱 전체에 적용)의
+/// 기본 폰트를 실제로 띄워서 측정한 값(Tahoma 9pt)에 맞춘 9pt를 그대로 유지.
 /// </summary>
 public static class AppFonts
 {
-    private const string Family = "Tahoma";
+    private const string Family = "Malgun Gothic";
 
     /// <summary>로그인 화면 브랜드 타이틀 ("WYN LAB")</summary>
     public static readonly Font Display = new(Family, 26f, FontStyle.Bold);
