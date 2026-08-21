@@ -72,13 +72,24 @@ public static class ToolbarIconPainters
 
     public static void Print(Graphics g, Rectangle rect, Color outline, Color accent) => DrawScaled(g, rect, gg =>
     {
+        // 예전 버전은 본체(y9~18)와 아래쪽 출력용지함(y17~22) 사각형이 1 유닛 겹쳐서
+        // 작은 크기로 그릴 때 그 자리에 선이 뭉개져("찌그러져") 보이는 문제가 있었다.
+        // 겹치지 않게 다시 그림: 위쪽 용지는 열린 선으로, 본체/출력함은 서로 안 닿게 간격을 둠.
         using var pen = new Pen(outline, 1.6f) { StartCap = LineCap.Round, EndCap = LineCap.Round, LineJoin = LineJoin.Round };
-        gg.DrawRectangle(pen, 6.5f, 9, 11, 9);
-        gg.DrawRectangle(pen, 8.5f, 2, 7, 7);
-        gg.DrawRectangle(pen, 8.5f, 17, 7, 5);
 
+        // 위에서 본체로 들어가는 용지
+        gg.DrawLines(pen, new[] { new PointF(8, 9), new PointF(8, 4), new PointF(16, 4), new PointF(16, 9) });
+
+        // 프린터 본체
+        gg.DrawRectangle(pen, 4, 9, 16, 6.5f);
+
+        // 본체 상태표시등
+        using var dotBrush = new SolidBrush(outline);
+        gg.FillEllipse(dotBrush, 14.7f, 11.2f, 2, 2);
+
+        // 출력 용지함 (강조색 채움, 본체와 겹치지 않도록 살짝 띄움)
         using var accentBrush = new SolidBrush(accent);
-        gg.FillRectangle(accentBrush, 9.3f, 11.3f, 5.4f, 2f);
+        gg.FillRectangle(accentBrush, 7.5f, 17, 9, 5);
     });
 
     /// <summary>24x24 가상 좌표계 -> 실제 rect 크기로 자동 스케일링해서 그려주는 헬퍼</summary>

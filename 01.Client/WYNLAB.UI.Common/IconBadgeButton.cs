@@ -9,6 +9,11 @@ namespace WYNLAB.UI.Common;
 /// DevExpress SimpleButton은 이런 "배지형" 룩을 낼 수 없어서 Control을 상속받아
 /// OnPaint에서 전부 직접 그리는 방식으로 구현했다.
 ///
+/// 상태 표현(Normal/Hover/Pressed/Disabled)은 배지 색과 무관하게 항상 같은 세기로 보이도록
+/// 고정 알파의 검정 오버레이를 얹는 방식으로 통일했다 - 배지 자체 색(중립회색/파랑틴트/
+/// 강조색 채움 등)마다 밝기가 다 달라서, 그 색 기준 상대적으로 어둡게 하는 방식(예전 버전의
+/// ControlPaint.Dark(4%))으로는 버튼마다 호버 느낌의 세기가 제각각으로 보였다.
+///
 /// 사용 예:
 ///   var btn = new IconBadgeButton
 ///   {
@@ -21,6 +26,9 @@ namespace WYNLAB.UI.Common;
 /// </summary>
 public class IconBadgeButton : Control
 {
+    private static readonly Color DisabledBadgeColor = Color.FromArgb(240, 241, 243);
+    private static readonly Color DisabledIconColor = Color.FromArgb(195, 197, 201);
+
     /// <summary>실제 아이콘 모양을 그리는 델리게이트 - ToolbarIconPainters의 정적 메서드를 그대로 연결</summary>
     public Action<Graphics, Rectangle, Color, Color>? IconPainter { get; set; }
 
@@ -37,6 +45,7 @@ public class IconBadgeButton : Control
     public bool FilledBadge { get; set; }
 
     private bool _hover;
+    private bool _pressed;
 
     public IconBadgeButton()
     {
@@ -58,8 +67,34 @@ public class IconBadgeButton : Control
     protected override void OnMouseLeave(EventArgs e)
     {
         _hover = false;
+        _pressed = false;
         Invalidate();
         base.OnMouseLeave(e);
+    }
+
+    protected override void OnMouseDown(MouseEventArgs e)
+    {
+        if (e.Button == MouseButtons.Left)
+        {
+            _pressed = true;
+            Invalidate();
+        }
+        base.OnMouseDown(e);
+    }
+
+    protected override void OnMouseUp(MouseEventArgs e)
+    {
+        _pressed = false;
+        Invalidate();
+        base.OnMouseUp(e);
+    }
+
+    protected override void OnEnabledChanged(EventArgs e)
+    {
+        _hover = false;
+        _pressed = false;
+        Invalidate();
+        base.OnEnabledChanged(e);
     }
 
     protected override void OnPaint(PaintEventArgs e)
@@ -73,15 +108,27 @@ public class IconBadgeButton : Control
         var badgeSize = Math.Min(Math.Min(Width, Height) - 4, 44);
         var badgeRect = new Rectangle((Width - badgeSize) / 2, (Height - badgeSize) / 2, badgeSize, badgeSize);
 
-        var bg = _hover ? ControlPaint.Dark(BadgeColor, 0.04f) : BadgeColor;
-        using (var path = RoundedRect(badgeRect, 10))
-        using (var brush = new SolidBrush(bg))
+        using var path = RoundedRect(badgeRect, 10);
+
+        var badgeColor = Enabled ? BadgeColor : DisabledBadgeColor;
+        using (var brush = new SolidBrush(badgeColor))
         {
             g.FillPath(brush, path);
         }
 
-        var iconOutline = FilledBadge ? Color.White : OutlineColor;
-        var iconAccent = FilledBadge ? Color.White : AccentColor;
+        if (Enabled && _pressed)
+        {
+            using var overlay = new SolidBrush(Color.FromArgb(30, 0, 0, 0));
+            g.FillPath(overlay, path);
+        }
+        else if (Enabled && _hover)
+        {
+            using var overlay = new SolidBrush(Color.FromArgb(14, 0, 0, 0));
+            g.FillPath(overlay, path);
+        }
+
+        var iconOutline = !Enabled ? DisabledIconColor : (FilledBadge ? Color.White : OutlineColor);
+        var iconAccent = !Enabled ? DisabledIconColor : (FilledBadge ? Color.White : AccentColor);
         var iconRect = Rectangle.Inflate(badgeRect, -9, -9);
         IconPainter?.Invoke(g, iconRect, iconOutline, iconAccent);
     }
