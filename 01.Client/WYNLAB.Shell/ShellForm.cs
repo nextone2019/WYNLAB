@@ -39,6 +39,16 @@ public class ShellForm : XtraForm
     private static readonly Color DangerColor = Color.FromArgb(192, 57, 43);
     private static readonly Color SidebarBg = Color.FromArgb(245, 246, 248);
     private static readonly Color DividerColor = Color.FromArgb(225, 225, 225);
+    // 툴바 아이콘과 활성 MDI 탭 표시줄이 공유하는 "인터랙션" 강조색(브랜드색과는 별개로 고정).
+    private static readonly Color ActionAccent = Color.FromArgb(41, 121, 255);
+
+    // MDI 문서 탭 색 - 비활성 탭은 눌러앉은 느낌의 연회색, 활성 탭은 본문(흰색)과 이어지는
+    // 흰 배경 + 상단 강조색 바(ActionAccent)로 눈에 띄게 한다. CustomDrawTabHeader에서 사용.
+    private static readonly Color TabInactiveBg = Color.FromArgb(232, 234, 238);
+    private static readonly Color TabHotBg = Color.FromArgb(244, 245, 247);
+    private static readonly Color TabActiveBg = Color.White;
+    private static readonly Color TabInactiveFg = Color.FromArgb(120, 122, 128);
+    private static readonly Color TabActiveFg = Color.FromArgb(35, 35, 38);
 
     private Color NavDarkBg => ColorHelper.Mix(_accentColor, Color.Black, 0.45f);
     private Color NavHoverBg => ColorHelper.Adjust(NavDarkBg, 12);
@@ -95,6 +105,7 @@ public class ShellForm : XtraForm
         // MDI 탭 헤더에 X(닫기) 버튼 표시 - Home 탭은 BaseForm/HomeForm.OnFormClosing에서
         // 이미 닫기를 막고 있어서, X가 보여도 실제로는 닫히지 않는다.
         tabbedMdiManager.ClosePageButtonShowMode = ClosePageButtonShowMode.InAllTabPageHeaders;
+        ConfigureTabAppearance();
 
         headerPanel = new Panel { Dock = DockStyle.Top, Height = 60, BackColor = HeaderBg };
         logoPanel = new Panel { BackColor = HeaderBg, Cursor = Cursors.Hand, Width = 212, Dock = DockStyle.Left };
@@ -160,6 +171,92 @@ public class ShellForm : XtraForm
         Text = AppConfig.IsDevelopment
             ? "WYN LAB [개발서버]  ※ 실제 데이터가 아닌 개발/테스트 서버입니다"
             : "WYN LAB";
+    }
+
+    /// <summary>
+    /// MDI 문서 탭 - 기본 XtraTabbedMdiManager는 각진 사각 탭에 활성/비활성 색 차이가 거의 없어서
+    /// 산만해 보였다. AppearancePage로 상태별 색/폰트를 지정하고, CustomDrawTabHeader로 탭
+    /// 배경을 직접 그려서(위쪽만 둥근 모서리) 좀 더 부드럽고 활성 탭이 눈에 띄게 만든다.
+    /// </summary>
+    private void ConfigureTabAppearance()
+    {
+        tabbedMdiManager.AppearancePage.Header.BackColor = TabInactiveBg;
+        tabbedMdiManager.AppearancePage.Header.ForeColor = TabInactiveFg;
+        tabbedMdiManager.AppearancePage.Header.Font = AppFonts.Body;
+        tabbedMdiManager.AppearancePage.Header.Options.UseBackColor = true;
+        tabbedMdiManager.AppearancePage.Header.Options.UseForeColor = true;
+        tabbedMdiManager.AppearancePage.Header.Options.UseFont = true;
+
+        tabbedMdiManager.AppearancePage.HeaderHotTracked.BackColor = TabHotBg;
+        tabbedMdiManager.AppearancePage.HeaderHotTracked.ForeColor = TabActiveFg;
+        tabbedMdiManager.AppearancePage.HeaderHotTracked.Options.UseBackColor = true;
+        tabbedMdiManager.AppearancePage.HeaderHotTracked.Options.UseForeColor = true;
+
+        tabbedMdiManager.AppearancePage.HeaderActive.BackColor = TabActiveBg;
+        tabbedMdiManager.AppearancePage.HeaderActive.ForeColor = TabActiveFg;
+        tabbedMdiManager.AppearancePage.HeaderActive.Font = AppFonts.BodyBold;
+        tabbedMdiManager.AppearancePage.HeaderActive.Options.UseBackColor = true;
+        tabbedMdiManager.AppearancePage.HeaderActive.Options.UseForeColor = true;
+        tabbedMdiManager.AppearancePage.HeaderActive.Options.UseFont = true;
+
+        tabbedMdiManager.CustomDrawTabHeader += TabbedMdiManager_CustomDrawTabHeader;
+    }
+
+    /// <summary>
+    /// 탭 배경을 직접 그리고(위쪽 모서리만 둥글게, 탭 사이는 살짝 간격을 둬서 서로 안 맞닿게),
+    /// 텍스트/아이콘/닫기 버튼은 DevExpress 기본 로직(DefaultDraw*)에 그대로 맡긴다.
+    /// 활성 탭은 흰 배경 위에 브랜드 액션 색(ActionAccent) 바를 상단에 그려 더 눈에 띄게 한다.
+    /// </summary>
+    private void TabbedMdiManager_CustomDrawTabHeader(object? sender, TabHeaderCustomDrawEventArgs e)
+    {
+        var info = e.TabHeaderInfo;
+        var rect = e.Bounds;
+        if (rect.Width <= 0 || rect.Height <= 0) return;
+
+        rect.Inflate(-1, 0);
+        rect.Y += 2;
+        rect.Height -= 2;
+
+        var isActive = info.IsActiveState;
+        var isHot = info.IsHotState;
+        var back = isActive ? TabActiveBg : (isHot ? TabHotBg : TabInactiveBg);
+
+        var g = e.Graphics;
+        var oldMode = g.SmoothingMode;
+        g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
+
+        using (var path = TopRoundedRect(rect, 8))
+        using (var brush = new SolidBrush(back))
+        {
+            g.FillPath(brush, path);
+        }
+
+        if (isActive)
+        {
+            using var accentBrush = new SolidBrush(ActionAccent);
+            g.FillRectangle(accentBrush, rect.X + 2, rect.Y, Math.Max(0, rect.Width - 4), 3);
+        }
+
+        g.SmoothingMode = oldMode;
+
+        e.DefaultDrawImage();
+        e.DefaultDrawText();
+        e.DefaultDrawButtons();
+        e.Handled = true;
+    }
+
+    /// <summary>위쪽 두 모서리만 둥근 사각형 - 탭이 아래쪽 본문(MDI 영역)과 이어지는 느낌을 유지한다.</summary>
+    private static System.Drawing.Drawing2D.GraphicsPath TopRoundedRect(Rectangle bounds, int radius)
+    {
+        var path = new System.Drawing.Drawing2D.GraphicsPath();
+        var d = radius * 2;
+        path.AddArc(bounds.X, bounds.Y, d, d, 180, 90);
+        path.AddArc(bounds.Right - d, bounds.Y, d, d, 270, 90);
+        path.AddLine(bounds.Right, bounds.Y + radius, bounds.Right, bounds.Bottom);
+        path.AddLine(bounds.Right, bounds.Bottom, bounds.X, bounds.Bottom);
+        path.AddLine(bounds.X, bounds.Bottom, bounds.X, bounds.Y + radius);
+        path.CloseFigure();
+        return path;
     }
 
     /// <summary>
@@ -381,7 +478,7 @@ public class ShellForm : XtraForm
     /// </summary>
     private void BuildToolbar()
     {
-        var iconAccent = Color.FromArgb(41, 121, 255);
+        var iconAccent = ActionAccent;
         var badgeBg = IconBadgeBg;
 
         var x = 228;
