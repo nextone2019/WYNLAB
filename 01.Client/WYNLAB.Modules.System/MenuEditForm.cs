@@ -156,7 +156,7 @@ public class MenuEditForm : XtraForm
     {
         if (string.IsNullOrWhiteSpace(txtMenuCd.Text) || string.IsNullOrWhiteSpace(txtMenuNm.Text))
         {
-            XtraMessageBox.Show("메뉴코드와 메뉴명은 필수입니다.", "확인");
+            AppMessageBox.Show("메뉴코드와 메뉴명은 필수입니다.", "확인");
             return;
         }
 
@@ -198,7 +198,7 @@ public class MenuEditForm : XtraForm
 
             if (result == null || !result.Success)
             {
-                XtraMessageBox.Show(result?.Message ?? "저장에 실패했습니다.", "저장 실패");
+                AppMessageBox.Show(result?.Message ?? "저장에 실패했습니다.", "저장 실패");
                 return;
             }
 

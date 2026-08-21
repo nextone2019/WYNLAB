@@ -82,11 +82,11 @@ public class UserGroupListForm : BaseGridForm
         var selected = MainGridView.GetFocusedRow() as UserGroupListItemDto;
         if (selected == null)
         {
-            XtraMessageBox.Show("삭제할 그룹을 선택해주세요.", "안내");
+            AppMessageBox.Show("삭제할 그룹을 선택해주세요.", "안내");
             return;
         }
 
-        var confirm = XtraMessageBox.Show(
+        var confirm = AppMessageBox.Show(
             $"'{selected.UserGrpNm}({selected.UserGrpCd})' 그룹을 사용중지 처리하시겠습니까?\n소속된 사용자 {selected.MemberCount}명의 그룹 권한 합산에서 이 그룹이 빠집니다.",
             "삭제 확인", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
         if (confirm != DialogResult.Yes) return;

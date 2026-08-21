@@ -4,14 +4,15 @@ using System.Drawing.Drawing2D;
 namespace WYNLAB.UI.Common;
 
 /// <summary>
-/// MDI 상단 툴바용 카드형 아이콘 버튼. 둥근 사각 배지 배경 안에 아이콘을 직접 그리고,
-/// 그 아래 텍스트를 표시한다. DevExpress SimpleButton은 이런 "배지형" 룩을 낼 수 없어서
-/// Control을 상속받아 OnPaint에서 전부 직접 그리는 방식으로 구현했다.
+/// MDI 상단 툴바용 카드형 아이콘 버튼. 둥근 사각 배지 배경 안에 아이콘만 직접 그린다
+/// (아래 텍스트 캡션은 없음 - 대신 Text 속성값을 툴팁으로 노출해서 필요할 때만 보이게 함).
+/// DevExpress SimpleButton은 이런 "배지형" 룩을 낼 수 없어서 Control을 상속받아
+/// OnPaint에서 전부 직접 그리는 방식으로 구현했다.
 ///
 /// 사용 예:
 ///   var btn = new IconBadgeButton
 ///   {
-///       Text = "저장",
+///       Text = "저장",   // 툴팁 문구로 쓰임
 ///       IconPainter = ToolbarIconPainters.Save,
 ///       BadgeColor = Color.FromArgb(41, 121, 255),
 ///       FilledBadge = true   // 배지를 꽉 채우고 아이콘은 흰색으로 (강조용)
@@ -43,7 +44,7 @@ public class IconBadgeButton : Control
                   ControlStyles.ResizeRedraw | ControlStyles.OptimizedDoubleBuffer |
                   ControlStyles.SupportsTransparentBackColor, true);
         Cursor = Cursors.Hand;
-        Size = new Size(66, 58);
+        Size = new Size(52, 48);
         BackColor = Color.Transparent;
     }
 
@@ -69,8 +70,8 @@ public class IconBadgeButton : Control
         g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.ClearTypeGridFit;
         g.Clear(Parent?.BackColor ?? Color.White);
 
-        var badgeSize = Math.Min(Width - 8, 40);
-        var badgeRect = new Rectangle((Width - badgeSize) / 2, 2, badgeSize, badgeSize);
+        var badgeSize = Math.Min(Math.Min(Width, Height) - 4, 44);
+        var badgeRect = new Rectangle((Width - badgeSize) / 2, (Height - badgeSize) / 2, badgeSize, badgeSize);
 
         var bg = _hover ? ControlPaint.Dark(BadgeColor, 0.04f) : BadgeColor;
         using (var path = RoundedRect(badgeRect, 10))
@@ -83,14 +84,6 @@ public class IconBadgeButton : Control
         var iconAccent = FilledBadge ? Color.White : AccentColor;
         var iconRect = Rectangle.Inflate(badgeRect, -9, -9);
         IconPainter?.Invoke(g, iconRect, iconOutline, iconAccent);
-
-        // 남은 세로 공간을 그대로 캡션 영역으로 사용 - 버튼 높이가 바뀌어도 글자가 잘리지 않도록 동적으로 계산
-        var textTop = badgeRect.Bottom + 2;
-        var textHeight = Math.Max(14, Height - textTop - 1);
-        var textRect = new Rectangle(0, textTop, Width, textHeight);
-        using var textBrush = new SolidBrush(Color.FromArgb(70, 70, 70));
-        var format = new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center };
-        g.DrawString(Text, AppFonts.Caption, textBrush, textRect, format);
     }
 
     private static GraphicsPath RoundedRect(Rectangle bounds, int radius)

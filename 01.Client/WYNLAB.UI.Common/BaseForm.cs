@@ -79,7 +79,7 @@ public class BaseForm : XtraForm
         catch (Exception ex)
         {
             // TODO: 공통 로거(Serilog 등) 연동
-            XtraMessageBox.Show($"[{actionNm}] 처리 중 오류가 발생했습니다.\n{ex.Message}",
+            AppMessageBox.Show($"[{actionNm}] 처리 중 오류가 발생했습니다.\n{ex.Message}",
                 "오류", MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
         finally
@@ -100,7 +100,7 @@ public class BaseForm : XtraForm
         }
         catch (Exception ex)
         {
-            XtraMessageBox.Show($"[{actionNm}] 처리 중 오류가 발생했습니다.\n{ex.Message}",
+            AppMessageBox.Show($"[{actionNm}] 처리 중 오류가 발생했습니다.\n{ex.Message}",
                 "오류", MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
         finally

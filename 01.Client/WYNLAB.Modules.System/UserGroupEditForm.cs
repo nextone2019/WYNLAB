@@ -192,7 +192,7 @@ public class UserGroupEditForm : XtraForm
     {
         if (string.IsNullOrWhiteSpace(txtUserGrpCd.Text) || string.IsNullOrWhiteSpace(txtUserGrpNm.Text))
         {
-            XtraMessageBox.Show("그룹코드와 그룹명은 필수입니다.", "확인");
+            AppMessageBox.Show("그룹코드와 그룹명은 필수입니다.", "확인");
             return;
         }
 
@@ -222,7 +222,7 @@ public class UserGroupEditForm : XtraForm
 
                     if (memberResult == null || !memberResult.Success)
                     {
-                        XtraMessageBox.Show(memberResult?.Message ?? "소속 배정 저장에 실패했습니다.", "저장 실패");
+                        AppMessageBox.Show(memberResult?.Message ?? "소속 배정 저장에 실패했습니다.", "저장 실패");
                         return;
                     }
                 }
@@ -241,7 +241,7 @@ public class UserGroupEditForm : XtraForm
 
             if (result == null || !result.Success)
             {
-                XtraMessageBox.Show(result?.Message ?? "저장에 실패했습니다.", "저장 실패");
+                AppMessageBox.Show(result?.Message ?? "저장에 실패했습니다.", "저장 실패");
                 return;
             }
 

@@ -47,6 +47,7 @@ public class ShellForm : XtraForm
     private readonly ComboBoxEdit cboEnvironment = new();
     private readonly ComboBoxEdit cboSkin = new();
     private readonly LabelControl lblUserInfo = new();
+    private readonly ToolTip toolbarToolTip = new();
 
     /// <summary>
     /// 사용자가 고를 수 있는 테마 목록. DevExpress에는 스킨이 수십 개 있어 전부 나열하면
@@ -77,16 +78,17 @@ public class ShellForm : XtraForm
         WindowState = FormWindowState.Maximized;
         BackColor = Color.White;
 
-        // 가로: 현재 헤더 툴바(홈+조회/입력/저장+삭제+출력 카드+우측 테마/서버선택/사용자정보)가
-        // 겹치지 않고 다 보이는 최소폭. 세로도 업무화면이 너무 눌리지 않도록 최소값을 둠.
-        MinimumSize = new Size(1150, 650);
+        // 가로: 현재 헤더 툴바(홈+조회/입력/저장+삭제+출력 카드+우측 사용자정보)가 겹치지 않고
+        // 다 보이는 최소폭. 서비스선택/테마선택은 좌측 사이드바로 옮겨서 헤더 쪽 최소폭 여유가 늘었다.
+        // 세로도 업무화면이 너무 눌리지 않도록 최소값을 둠.
+        MinimumSize = new Size(880, 650);
 
         tabbedMdiManager.MdiParent = this;
         // MDI 탭 헤더에 X(닫기) 버튼 표시 - Home 탭은 BaseForm/HomeForm.OnFormClosing에서
         // 이미 닫기를 막고 있어서, X가 보여도 실제로는 닫히지 않는다.
         tabbedMdiManager.ClosePageButtonShowMode = ClosePageButtonShowMode.InAllTabPageHeaders;
 
-        headerPanel = new Panel { Dock = DockStyle.Top, Height = 76, BackColor = HeaderBg };
+        headerPanel = new Panel { Dock = DockStyle.Top, Height = 60, BackColor = HeaderBg };
         logoPanel = new Panel { BackColor = HeaderBg, Cursor = Cursors.Hand, Width = 212, Dock = DockStyle.Left };
         sidebarPanel = new Panel { Dock = DockStyle.Left, Width = 212, BackColor = NavDarkBg };
         statusBar = new Panel { Dock = DockStyle.Bottom, Height = 26, BackColor = SidebarBg };
@@ -189,14 +191,81 @@ public class ShellForm : XtraForm
 
     public void SetStatusMessage(string message) => lblStatusMessage.Text = message;
 
-    /// <summary>좌측 사이드바 - 다크 테마. 우측 구분선으로 MDI(흰색) 영역과 시각적으로 분리</summary>
+    /// <summary>좌측 사이드바 - 다크 테마. 우측 구분선으로 MDI(흰색) 영역과 시각적으로 분리.
+    /// 맨 위에는 서비스선택/테마선택 콤보를 두는 도구 영역을 두고, 그 아래에 메뉴 아코디언이 온다.</summary>
     private void BuildSidebar()
     {
         accordionMenu.BackColor = NavDarkBg;
 
         var divider = new Panel { Dock = DockStyle.Right, Width = 1, BackColor = NavDivider };
+
+        var toolPanel = BuildSidebarToolPanel();
+
+        // Dock 추가 순서: Fill(accordionMenu) 먼저, Top(toolPanel)은 나중에 추가해야
+        // 맨 위 가장자리를 정상적으로 차지한다 (PermissionAssignForm에서 겪은 것과 같은 문제 방지).
         sidebarPanel.Controls.Add(accordionMenu);
         sidebarPanel.Controls.Add(divider);
+        sidebarPanel.Controls.Add(toolPanel);
+    }
+
+    /// <summary>
+    /// 서비스선택 + 테마선택 콤보를 다크 사이드바 톤에 맞춰 배치.
+    /// 각 행을 독립된 패널로 분리해뒀기 때문에, 나중에 "메뉴 찾기" 검색창을 추가할 때도
+    /// 이 패널들 사이에 같은 방식으로 한 행만 끼워넣으면 된다.
+    /// </summary>
+    private Panel BuildSidebarToolPanel()
+    {
+        var toolPanel = new Panel { Dock = DockStyle.Top, Height = 112, BackColor = NavDarkBg, Padding = new Padding(14, 10, 14, 10) };
+        var bottomBorder = new Panel { Dock = DockStyle.Bottom, Height = 1, BackColor = NavDivider };
+
+        var envRow = BuildSidebarComboRow("서비스", cboEnvironment);
+        var skinRow = BuildSidebarComboRow("테마", cboSkin);
+
+        cboEnvironment.Properties.Items.AddRange(AppConfig.AvailableEnvironments.Select(GetEnvLabel).ToArray());
+        cboEnvironment.Properties.TextEditStyle = TextEditStyles.DisableTextEditor;
+        cboEnvironment.SelectedItem = GetEnvLabel(AppConfig.CurrentEnvironment);
+        cboEnvironment.SelectedIndexChanged += OnEnvironmentComboChanged;
+
+        // 테마 선택 - 고르는 즉시 UserLookAndFeel이 전역으로 바뀌면서 이미 열려있는 화면들까지
+        // 포함해 앱 전체(메시지박스, 버튼, 탭, 그리드...)에 실시간으로 반영된다.
+        cboSkin.Properties.Items.AddRange(AvailableSkins);
+        cboSkin.Properties.TextEditStyle = TextEditStyles.DisableTextEditor;
+        cboSkin.SelectedItem = DevExpress.LookAndFeel.UserLookAndFeel.Default.ActiveSkinName;
+        cboSkin.SelectedIndexChanged += (s, e) =>
+            DevExpress.LookAndFeel.UserLookAndFeel.Default.SetSkinStyle((string)cboSkin.SelectedItem!);
+
+        // Dock 추가 순서: skinRow(아래쪽 항목) 먼저, envRow(위쪽 항목) 나중에 -
+        // 나중에 추가된 Top이 우선권을 가지므로 이렇게 해야 화면상 envRow가 위, skinRow가 아래로 온다.
+        toolPanel.Controls.Add(skinRow);
+        toolPanel.Controls.Add(envRow);
+        toolPanel.Controls.Add(bottomBorder);
+
+        return toolPanel;
+    }
+
+    /// <summary>다크 배경 위 "라벨 + 콤보" 한 줄. 콤보 자체도 사이드바 톤에 맞게 어둡게 스타일링.</summary>
+    private Panel BuildSidebarComboRow(string label, ComboBoxEdit combo)
+    {
+        var row = new Panel { Dock = DockStyle.Top, Height = 46 };
+
+        var lbl = new LabelControl { Text = label, Dock = DockStyle.Top, Height = 16 };
+        lbl.Appearance.ForeColor = NavTextMuted;
+        lbl.Appearance.Font = AppFonts.Caption;
+
+        combo.Dock = DockStyle.Top;
+        combo.Font = AppFonts.Body;
+        combo.Properties.Appearance.BackColor = NavHoverBg;
+        combo.Properties.Appearance.ForeColor = NavText;
+        combo.Properties.Appearance.Options.UseBackColor = true;
+        combo.Properties.Appearance.Options.UseForeColor = true;
+        combo.Properties.Appearance.BorderColor = NavDivider;
+        combo.Properties.Appearance.Options.UseBorderColor = true;
+
+        // Dock 순서: 콤보 먼저, 라벨은 나중에(Top 우선권) -> 라벨이 위, 콤보가 아래로 배치
+        row.Controls.Add(combo);
+        row.Controls.Add(lbl);
+
+        return row;
     }
 
     /// <summary>좌측 로고 - 클릭할 때마다 좌측 사이드바 전체가 보였다 숨겨졌다 함</summary>
@@ -209,7 +278,7 @@ public class ShellForm : XtraForm
         {
             BackColor = _accentColor,
             Size = new Size(28, 28),
-            Location = new Point(16, 24)
+            Location = new Point(16, 16)
         };
         var badgeLabel = new LabelControl
         {
@@ -226,7 +295,7 @@ public class ShellForm : XtraForm
         var nameLabel = new LabelControl
         {
             Text = "WYN LAB",
-            Location = new Point(52, 29),
+            Location = new Point(52, 19),
             AutoSizeMode = LabelAutoSizeMode.None,
             Size = new Size(150, 22)
         };
@@ -262,32 +331,34 @@ public class ShellForm : XtraForm
         AddDivider(ref x);
 
         // 조회 / 입력 / 저장 - 중립 회색 톤 카드로 한 그룹
-        var queryGroup = AddToolbarGroup(ref x, 64 * 3, SidebarBg);
+        var queryGroup = AddToolbarGroup(ref x, ButtonSize.Width * 3, SidebarBg);
         var qx = 0;
-        AddIconBadgeButton(queryGroup, ref qx, 2, "조회", ToolbarIconPainters.Query, neutralBadge, iconAccent, false, f => f.QueryAsync());
-        AddIconBadgeButton(queryGroup, ref qx, 2, "입력", ToolbarIconPainters.New, blueBadge, iconAccent, false, f => f.NewAsync());
-        AddIconBadgeButton(queryGroup, ref qx, 2, "저장", ToolbarIconPainters.Save, iconAccent, iconAccent, true, f => f.SaveAsync());
+        AddIconBadgeButton(queryGroup, ref qx, 4, "조회", ToolbarIconPainters.Query, neutralBadge, iconAccent, false, f => f.QueryAsync());
+        AddIconBadgeButton(queryGroup, ref qx, 4, "입력", ToolbarIconPainters.New, blueBadge, iconAccent, false, f => f.NewAsync());
+        AddIconBadgeButton(queryGroup, ref qx, 4, "저장", ToolbarIconPainters.Save, iconAccent, iconAccent, true, f => f.SaveAsync());
 
         // 삭제 - "위험한 동작"이라 카드 배경 자체를 옅은 빨강으로 강조
-        var deleteGroup = AddToolbarGroup(ref x, 64, redBadge);
+        var deleteGroup = AddToolbarGroup(ref x, ButtonSize.Width, redBadge);
         var dx = 0;
-        AddIconBadgeButton(deleteGroup, ref dx, 2, "삭제", ToolbarIconPainters.Delete, Color.White, DangerColor, false, f => f.DeleteAsync());
+        AddIconBadgeButton(deleteGroup, ref dx, 4, "삭제", ToolbarIconPainters.Delete, Color.White, DangerColor, false, f => f.DeleteAsync());
 
         // 출력 - 옅은 파랑 카드로 조회 그룹과는 다른 성격임을 표시
-        var printGroup = AddToolbarGroup(ref x, 64, blueBadge);
+        var printGroup = AddToolbarGroup(ref x, ButtonSize.Width, blueBadge);
         var px = 0;
-        AddIconBadgeButton(printGroup, ref px, 2, "출력", ToolbarIconPainters.Print, Color.White, iconAccent, false, f => f.PrintAsync());
+        AddIconBadgeButton(printGroup, ref px, 4, "출력", ToolbarIconPainters.Print, Color.White, iconAccent, false, f => f.PrintAsync());
     }
+
+    private static readonly Size ButtonSize = new(54, 48);
 
     /// <summary>둥근 배경 카드를 만들어 headerPanel에 배치하고, 다음 그룹을 위한 x좌표를 진행시킨다.</summary>
     private RoundedPanel AddToolbarGroup(ref int x, int width, Color backColor)
     {
         var panel = new RoundedPanel
         {
-            Location = new Point(x, 4),
-            Size = new Size(width, 68),
+            Location = new Point(x, 2),
+            Size = new Size(width, ButtonSize.Height + 8),
             BackColor = backColor,
-            CornerRadius = 14
+            CornerRadius = 12
         };
         headerPanel.Controls.Add(panel);
         x += width + 10;
@@ -312,8 +383,9 @@ public class ShellForm : XtraForm
             AccentColor = accentColor,
             FilledBadge = filled,
             Location = new Point(x, y),
-            Size = new Size(64, 64)
+            Size = ButtonSize
         };
+        toolbarToolTip.SetToolTip(btn, text);
 
         btn.Click += async (s, e) =>
         {
@@ -321,7 +393,7 @@ public class ShellForm : XtraForm
             var activeForm = ActiveMdiChild as BaseForm;
             if (activeForm == null && text != "홈")
             {
-                XtraMessageBox.Show("먼저 작업할 화면을 열어주세요.", "안내");
+                AppMessageBox.Show("먼저 작업할 화면을 열어주세요.", "안내");
                 return;
             }
 
@@ -332,7 +404,7 @@ public class ShellForm : XtraForm
             }
             catch (Exception ex)
             {
-                XtraMessageBox.Show($"[{text}] 처리 중 오류가 발생했습니다.\n{ex.Message}", "오류",
+                AppMessageBox.Show($"[{text}] 처리 중 오류가 발생했습니다.\n{ex.Message}", "오류",
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
             finally
@@ -347,33 +419,14 @@ public class ShellForm : XtraForm
 
     private void AddDivider(ref int x)
     {
-        var divider = new Panel { Location = new Point(x, 21), Size = new Size(1, 34), BackColor = DividerColor };
+        var divider = new Panel { Location = new Point(x, 14), Size = new Size(1, 32), BackColor = DividerColor };
         headerPanel.Controls.Add(divider);
         x += 12;
     }
 
-    /// <summary>우측 - 서버전환 콤보 + 사용자정보</summary>
+    /// <summary>우측 - 사용자정보 (서비스/테마 선택은 좌측 사이드바 상단으로 이동함)</summary>
     private void BuildUserArea()
     {
-        cboEnvironment.Properties.Items.AddRange(AppConfig.AvailableEnvironments.Select(GetEnvLabel).ToArray());
-        cboEnvironment.Properties.TextEditStyle = TextEditStyles.DisableTextEditor;
-        cboEnvironment.SelectedItem = GetEnvLabel(AppConfig.CurrentEnvironment);
-        cboEnvironment.Font = AppFonts.Body;
-        cboEnvironment.Size = new Size(112, 26);
-        cboEnvironment.Anchor = AnchorStyles.Top | AnchorStyles.Right;
-        cboEnvironment.SelectedIndexChanged += OnEnvironmentComboChanged;
-
-        // 테마 선택 - 고르는 즉시 UserLookAndFeel이 전역으로 바뀌면서 이미 열려있는 화면들까지
-        // 포함해 앱 전체(메시지박스, 버튼, 탭, 그리드...)에 실시간으로 반영된다.
-        cboSkin.Properties.Items.AddRange(AvailableSkins);
-        cboSkin.Properties.TextEditStyle = TextEditStyles.DisableTextEditor;
-        cboSkin.SelectedItem = DevExpress.LookAndFeel.UserLookAndFeel.Default.ActiveSkinName;
-        cboSkin.Font = AppFonts.Body;
-        cboSkin.Size = new Size(160, 26);
-        cboSkin.Anchor = AnchorStyles.Top | AnchorStyles.Right;
-        cboSkin.SelectedIndexChanged += (s, e) =>
-            DevExpress.LookAndFeel.UserLookAndFeel.Default.SetSkinStyle((string)cboSkin.SelectedItem!);
-
         lblUserInfo.AutoSizeMode = LabelAutoSizeMode.None;
         lblUserInfo.Size = new Size(160, 34);
         lblUserInfo.Appearance.TextOptions.HAlignment = DevExpress.Utils.HorzAlignment.Far;
@@ -383,17 +436,13 @@ public class ShellForm : XtraForm
         lblUserInfo.Anchor = AnchorStyles.Top | AnchorStyles.Right;
 
         headerPanel.Resize += (s, e) => PositionUserArea();
-        headerPanel.Controls.Add(cboEnvironment);
-        headerPanel.Controls.Add(cboSkin);
         headerPanel.Controls.Add(lblUserInfo);
         PositionUserArea();
     }
 
     private void PositionUserArea()
     {
-        cboEnvironment.Location = new Point(headerPanel.Width - cboEnvironment.Width - 16, 25);
-        cboSkin.Location = new Point(cboEnvironment.Left - cboSkin.Width - 10, 25);
-        lblUserInfo.Location = new Point(cboSkin.Left - lblUserInfo.Width - 12, 21);
+        lblUserInfo.Location = new Point(headerPanel.Width - lblUserInfo.Width - 16, 13);
     }
 
     private void RefreshUserInfoLabel()
@@ -420,7 +469,7 @@ public class ShellForm : XtraForm
         var selectedKey = GetEnvKey((string)cboEnvironment.SelectedItem!);
         if (selectedKey == AppConfig.CurrentEnvironment) return;
 
-        var confirm = XtraMessageBox.Show(
+        var confirm = AppMessageBox.Show(
             $"'{GetEnvLabel(selectedKey)}'로 전환하면 현재 열려있는 화면이 모두 닫히고 다시 로그인해야 합니다.\n계속하시겠습니까?",
             "서버 전환", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
 
@@ -589,14 +638,14 @@ public class ShellForm : XtraForm
     {
         if (string.IsNullOrWhiteSpace(menu.FormClassNm))
         {
-            XtraMessageBox.Show("연결된 화면이 없습니다. (FORM_CLASS_NM 미설정)", "안내");
+            AppMessageBox.Show("연결된 화면이 없습니다. (FORM_CLASS_NM 미설정)", "안내");
             return;
         }
 
         var existing = MdiChildren.FirstOrDefault(f => f.Name == menu.MenuCd);
         if (existing != null)
         {
-            var confirm = XtraMessageBox.Show(
+            var confirm = AppMessageBox.Show(
                 $"'{menu.MenuNm}' 화면이 이미 열려있습니다.\n신규로 오픈하시겠습니까?",
                 "화면 중복", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
 
@@ -611,7 +660,7 @@ public class ShellForm : XtraForm
         var formType = Type.GetType(menu.FormClassNm);
         if (formType == null || Activator.CreateInstance(formType) is not BaseForm form)
         {
-            XtraMessageBox.Show($"화면을 찾을 수 없습니다: {menu.FormClassNm}", "오류");
+            AppMessageBox.Show($"화면을 찾을 수 없습니다: {menu.FormClassNm}", "오류");
             return;
         }
 

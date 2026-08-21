@@ -221,7 +221,7 @@ public partial class LoginForm : XtraForm
 
         if (string.IsNullOrWhiteSpace(request.UserId) || string.IsNullOrWhiteSpace(request.Password))
         {
-            XtraMessageBox.Show("아이디와 비밀번호를 입력해주세요.", "확인");
+            AppMessageBox.Show("아이디와 비밀번호를 입력해주세요.", "확인");
             return;
         }
 
@@ -235,13 +235,13 @@ public partial class LoginForm : XtraForm
             }
             catch (HttpRequestException ex)
             {
-                XtraMessageBox.Show($"서버에 연결할 수 없습니다. 네트워크 상태를 확인해주세요.\n{ex.Message}", "연결 오류");
+                AppMessageBox.Show($"서버에 연결할 수 없습니다. 네트워크 상태를 확인해주세요.\n{ex.Message}", "연결 오류");
                 return;
             }
 
             if (response == null || !response.Success)
             {
-                XtraMessageBox.Show(response?.Message ?? "로그인에 실패했습니다.", "로그인 실패");
+                AppMessageBox.Show(response?.Message ?? "로그인에 실패했습니다.", "로그인 실패");
                 return;
             }
 

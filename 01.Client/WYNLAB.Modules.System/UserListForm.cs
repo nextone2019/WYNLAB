@@ -103,11 +103,11 @@ public class UserListForm : BaseGridForm
         var selected = MainGridView.GetFocusedRow() as UserListItemDto;
         if (selected == null)
         {
-            XtraMessageBox.Show("삭제할 사용자를 선택해주세요.", "안내");
+            AppMessageBox.Show("삭제할 사용자를 선택해주세요.", "안내");
             return;
         }
 
-        var confirm = XtraMessageBox.Show($"'{selected.UserNm}({selected.UserId})' 사용자를 사용중지 처리하시겠습니까?",
+        var confirm = AppMessageBox.Show($"'{selected.UserNm}({selected.UserId})' 사용자를 사용중지 처리하시겠습니까?",
             "삭제 확인", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
         if (confirm != DialogResult.Yes) return;
 

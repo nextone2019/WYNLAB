@@ -269,7 +269,7 @@ public class PermissionAssignForm : BaseForm
     {
         if (_selectedCd == null)
         {
-            XtraMessageBox.Show("먼저 왼쪽에서 대상을 선택해주세요.", "안내");
+            AppMessageBox.Show("먼저 왼쪽에서 대상을 선택해주세요.", "안내");
             return;
         }
 
@@ -286,11 +286,11 @@ public class PermissionAssignForm : BaseForm
         var result = await ApiClient.PutAsync<SaveMenuAuthRequest, ApiResult>("api/menu-auth", request);
         if (result == null || !result.Success)
         {
-            XtraMessageBox.Show(result?.Message ?? "저장에 실패했습니다.", "저장 실패");
+            AppMessageBox.Show(result?.Message ?? "저장에 실패했습니다.", "저장 실패");
             return;
         }
 
-        XtraMessageBox.Show($"'{_selectedLabel}'의 권한을 저장했습니다.", "저장 완료");
+        AppMessageBox.Show($"'{_selectedLabel}'의 권한을 저장했습니다.", "저장 완료");
     }
 
     /// <summary>
@@ -310,7 +310,7 @@ public class PermissionAssignForm : BaseForm
 
         if (_selectedCd == null)
         {
-            XtraMessageBox.Show("복사해 넣을 대상을 먼저 왼쪽에서 선택해주세요.", "안내");
+            AppMessageBox.Show("복사해 넣을 대상을 먼저 왼쪽에서 선택해주세요.", "안내");
             return;
         }
 
@@ -336,6 +336,6 @@ public class PermissionAssignForm : BaseForm
         }
 
         authTree.RefreshDataSource();
-        XtraMessageBox.Show($"'{source.Label}'의 권한을 복사했습니다. 확인 후 저장해주세요.", "복사 완료");
+        AppMessageBox.Show($"'{source.Label}'의 권한을 복사했습니다. 확인 후 저장해주세요.", "복사 완료");
     }
 }

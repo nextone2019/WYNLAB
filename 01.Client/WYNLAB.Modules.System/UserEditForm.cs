@@ -216,12 +216,12 @@ public class UserEditForm : XtraForm
     {
         if (string.IsNullOrWhiteSpace(txtUserId.Text) || string.IsNullOrWhiteSpace(txtUserNm.Text))
         {
-            XtraMessageBox.Show("아이디와 이름은 필수입니다.", "확인");
+            AppMessageBox.Show("아이디와 이름은 필수입니다.", "확인");
             return;
         }
         if (!_isEditMode && string.IsNullOrWhiteSpace(txtPassword.Text))
         {
-            XtraMessageBox.Show("비밀번호는 필수입니다.", "확인");
+            AppMessageBox.Show("비밀번호는 필수입니다.", "확인");
             return;
         }
 
@@ -255,7 +255,7 @@ public class UserEditForm : XtraForm
 
                     if (groupResult == null || !groupResult.Success)
                     {
-                        XtraMessageBox.Show(groupResult?.Message ?? "소속 그룹 저장에 실패했습니다.", "저장 실패");
+                        AppMessageBox.Show(groupResult?.Message ?? "소속 그룹 저장에 실패했습니다.", "저장 실패");
                         return;
                     }
                 }
@@ -279,7 +279,7 @@ public class UserEditForm : XtraForm
 
             if (result == null || !result.Success)
             {
-                XtraMessageBox.Show(result?.Message ?? "저장에 실패했습니다.", "저장 실패");
+                AppMessageBox.Show(result?.Message ?? "저장에 실패했습니다.", "저장 실패");
                 return;
             }
 

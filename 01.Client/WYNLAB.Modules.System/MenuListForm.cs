@@ -43,11 +43,11 @@ public class MenuListForm : BaseGridForm
         var selected = MainGridView.GetFocusedRow() as MenuListItemDto;
         if (selected == null)
         {
-            XtraMessageBox.Show("삭제할 메뉴를 선택해주세요.", "안내");
+            AppMessageBox.Show("삭제할 메뉴를 선택해주세요.", "안내");
             return;
         }
 
-        var confirm = XtraMessageBox.Show(
+        var confirm = AppMessageBox.Show(
             $"'{selected.MenuNm}({selected.MenuCd})' 메뉴를 사용중지 처리하시겠습니까?\n하위 메뉴가 있다면 좌측 메뉴트리에서 같이 사라집니다.",
             "삭제 확인", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
         if (confirm != DialogResult.Yes) return;
