@@ -63,6 +63,9 @@ public class ShellForm : XtraForm
     private readonly Panel logoPanel;
     private readonly Panel sidebarPanel;
     private readonly Panel statusBar;
+    // 사이드바 맨 위 여백 - 오른쪽 MDI 탭 줄과 높이를 맞춰서, 그 아래(사용자정보)와
+    // 탭 줄 아래(문서 내용)가 같은 Y좌표에서 시작하도록 CustomDrawTabHeader에서 실측해 맞춘다.
+    private readonly Panel sidebarTopGap = new() { Dock = DockStyle.Top, Height = 30, BackColor = Color.White };
     private readonly LabelControl lblStatusMessage = new();
     private readonly LabelControl lblStatusRight = new();
     private readonly ComboBoxEdit cboEnvironment = new();
@@ -212,6 +215,14 @@ public class ShellForm : XtraForm
     /// </summary>
     private void TabbedMdiManager_CustomDrawTabHeader(object? sender, TabHeaderCustomDrawEventArgs e)
     {
+        // 탭 줄의 실제 높이를 매번 측정해서 사이드바 상단 여백에 반영 - 폰트/스킨이 바뀌어도
+        // 왼쪽(사용자정보)과 오른쪽(문서 내용) 시작 Y좌표가 계속 맞도록 자동으로 따라간다.
+        var rowHeight = e.TabHeaderRowInfo.Bounds.Height;
+        if (rowHeight > 0 && sidebarTopGap.Height != rowHeight)
+        {
+            sidebarTopGap.Height = rowHeight;
+        }
+
         var info = e.TabHeaderInfo;
         var rect = e.Bounds;
         if (rect.Width <= 0 || rect.Height <= 0) return;
@@ -332,9 +343,6 @@ public class ShellForm : XtraForm
         var divider = new Panel { Dock = DockStyle.Right, Width = 1, BackColor = NavDivider };
         var userPanel = BuildSidebarUserPanel();
         var toolPanel = BuildSidebarToolPanel();
-        // 사이드바가 헤더 바로 아래에 딱 붙어서 답답해 보인다는 피드백 - 헤더와 같은 색의
-        // 얇은 여백을 사이드바 맨 위에 둬서 헤더가 살짝 이어지다 사이드바가 시작하는 느낌을 준다.
-        var topGap = new Panel { Dock = DockStyle.Top, Height = 6, BackColor = HeaderBg };
 
         // Dock 추가 순서: Fill(accordionMenu) 먼저, Top/Bottom은 나중에 추가해야
         // 각자 가장자리를 정상적으로 차지한다 (PermissionAssignForm에서 겪은 것과 같은 문제 방지).
@@ -342,7 +350,7 @@ public class ShellForm : XtraForm
         sidebarPanel.Controls.Add(divider);
         sidebarPanel.Controls.Add(toolPanel);
         sidebarPanel.Controls.Add(userPanel);
-        sidebarPanel.Controls.Add(topGap);
+        sidebarPanel.Controls.Add(sidebarTopGap);
     }
 
     /// <summary>사이드바 맨 위 - 로그인 사용자명 + 로그인 시각</summary>
