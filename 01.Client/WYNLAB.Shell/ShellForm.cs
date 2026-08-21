@@ -631,6 +631,7 @@ public class ShellForm : XtraForm
         {
             BuildAccordionMenu();
             Show();
+            loginForm.Splash?.Close();
         }
         else
         {

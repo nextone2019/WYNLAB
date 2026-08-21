@@ -19,11 +19,14 @@ internal static class Program
         Application.EnableVisualStyles();
         Application.SetCompatibleTextRenderingDefault(false);
 
-        // 로그인 성공 시에만 ShellForm(MDI 메인) 기동
+        // 로그인 성공 시에만 ShellForm(MDI 메인) 기동. 로그인창이 닫히면서 띄운 스플래시는
+        // ShellForm이 실제로 화면에 그려진 직후(Shown)에 닫아서, 그 사이 빈 화면이 보이지 않게 한다.
         using var loginForm = new LoginForm();
         if (loginForm.ShowDialog() == DialogResult.OK)
         {
-            Application.Run(new ShellForm());
+            var shell = new ShellForm();
+            shell.Shown += (s, e) => loginForm.Splash?.Close();
+            Application.Run(shell);
         }
     }
 }

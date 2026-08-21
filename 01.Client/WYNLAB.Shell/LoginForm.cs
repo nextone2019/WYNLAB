@@ -20,7 +20,10 @@ public partial class LoginForm : XtraForm
 {
     private static readonly Color BrandColor = ColorHelper.FromHex(AppConfig.ToolbarColor);
 
-    private readonly PanelControl leftPanel = new();
+    // 플레인 WinForms Panel을 씀 - RoundedPanel(배지)이 Parent.BackColor를 그대로 참조해서
+    // 배경을 지우는데, DevExpress PanelControl은 실제 렌더링에 Appearance.BackColor를 쓰고
+    // 베이스 .BackColor는 반영되지 않아 배지 모서리 색이 어긋나 보이는 문제가 있었다.
+    private readonly Panel leftPanel = new();
     private readonly TextEdit txtUserId = new();
     private readonly TextEdit txtPassword = new() { Properties = { PasswordChar = '*' } };
     private readonly ComboBoxEdit cboEnvironment = new();
@@ -36,13 +39,18 @@ public partial class LoginForm : XtraForm
     private Point _dragStart;
     private bool _dragging;
 
+    /// <summary>로그인 성공 시 이 창을 닫기 직전에 띄운 스플래시 - Program.cs가 ShellForm을
+    /// 다 띄운 뒤에 닫아준다. LoginForm 자신의 자식이 아니라 독립된 Form이어야 한다(클래스
+    /// 상단 주석 참고 - 모달 대화상자 도중에 Hide()하면 ShowDialog()가 바로 반환돼버림).</summary>
+    public SplashForm? Splash { get; private set; }
+
     public LoginForm()
     {
         Text = "WYN LAB 로그인";
         FormBorderStyle = FormBorderStyle.None;
         ControlBox = false;
         StartPosition = FormStartPosition.CenterScreen;
-        Size = new Size(860, 500);
+        Size = new Size(640, 420);
         BackColor = Color.White;
 
         BuildLeftPanel();
@@ -52,21 +60,38 @@ public partial class LoginForm : XtraForm
         Controls.Add(leftPanel);
     }
 
-    /// <summary>좌측 브랜드 영역 - 그라데이션 배경 + 로고 + 문구. 드래그로 창 이동 가능.</summary>
+    /// <summary>
+    /// 다이얼로그 전체 테두리를 얇게 그려서 배경과 경계를 분명하게 함
+    /// (AppMessageBox/SplashForm과 같은 패턴 - 이 앱의 모든 커스텀 다이얼로그가 공유하는 규칙).
+    /// </summary>
+    protected override void OnPaint(PaintEventArgs e)
+    {
+        base.OnPaint(e);
+        using var pen = new Pen(Color.FromArgb(225, 226, 230));
+        e.Graphics.DrawRectangle(pen, 0, 0, Width - 1, Height - 1);
+    }
+
+    /// <summary>
+    /// 좌측 브랜드 영역 - 단색 배경(예전엔 그라데이션이었는데, 플랫한 단색이 더 절제되고
+    /// 고급스러워 보인다는 방향으로 정리) + 둥근 배지 로고 + 자간을 띄운 태그라인.
+    /// 드래그로 창 이동 가능.
+    /// </summary>
     private void BuildLeftPanel()
     {
         leftPanel.Dock = DockStyle.Left;
-        leftPanel.Width = 360;
-        leftPanel.Appearance.BackColor = BrandColor;
-        leftPanel.Appearance.BackColor2 = ColorHelper.Adjust(BrandColor, -30);
-        leftPanel.Appearance.GradientMode = System.Drawing.Drawing2D.LinearGradientMode.ForwardDiagonal;
-        leftPanel.Appearance.Options.UseBackColor = true;
-        leftPanel.BorderStyle = DevExpress.XtraEditors.Controls.BorderStyles.NoBorder;
+        leftPanel.Width = 240;
+        leftPanel.BackColor = BrandColor;
 
-        var badge = new Panel { BackColor = Color.White, Size = new Size(56, 56), Location = new Point(48, 90) };
+        var badge = new RoundedPanel
+        {
+            BackColor = Color.White,
+            CornerRadius = 12,
+            Size = new Size(44, 44),
+            Location = new Point(32, 140)
+        };
         var badgeLabel = new LabelControl { Text = "W", Dock = DockStyle.Fill, AutoSizeMode = LabelAutoSizeMode.None };
         badgeLabel.Appearance.ForeColor = BrandColor;
-        badgeLabel.Appearance.Font = AppFonts.LogoGlyphLarge;
+        badgeLabel.Appearance.Font = AppFonts.LogoGlyphSmall;
         badgeLabel.Appearance.TextOptions.HAlignment = DevExpress.Utils.HorzAlignment.Center;
         badgeLabel.Appearance.TextOptions.VAlignment = DevExpress.Utils.VertAlignment.Center;
         badge.Controls.Add(badgeLabel);
@@ -74,35 +99,47 @@ public partial class LoginForm : XtraForm
         var titleLabel = new LabelControl
         {
             Text = "WYN LAB",
-            Location = new Point(48, 168),
+            Location = new Point(32, 196),
             AutoSizeMode = LabelAutoSizeMode.None,
-            Size = new Size(280, 44)
+            Size = new Size(180, 40)
         };
         titleLabel.Appearance.ForeColor = Color.White;
         titleLabel.Appearance.Font = AppFonts.Display;
 
+        // 배지-타이틀 밑에 얇은 포인트 선 하나 - 텍스트 블록에 정돈된 매듭을 지어주는 용도
+        var accentLine = new Panel
+        {
+            Location = new Point(32, 244),
+            Size = new Size(36, 2),
+            BackColor = Color.FromArgb(140, 255, 255, 255)
+        };
+
+        // 글자 사이를 띄운 "킥커" 스타일 태그라인 - WinForms엔 자간(letter-spacing) 속성이
+        // 없어서, 글자 사이에 공백을 직접 넣는 방식으로 흉내낸다. 작은 대문자 캡션이
+        // 큰 타이틀 밑에서 절제된 브랜드 문구처럼 보이게 하는 흔한 로그인 화면 기법.
         var taglineLabel = new LabelControl
         {
-            Text = "What You Need",
-            Location = new Point(48, 222),
+            Text = "W H A T   Y O U   N E E D",
+            Location = new Point(32, 256),
             AutoSizeMode = LabelAutoSizeMode.None,
-            Size = new Size(280, 60)
+            Size = new Size(200, 18)
         };
-        taglineLabel.Appearance.ForeColor = Color.FromArgb(230, 255, 255, 255);
-        taglineLabel.Appearance.Font = AppFonts.Body;
+        taglineLabel.Appearance.ForeColor = Color.FromArgb(200, 255, 255, 255);
+        taglineLabel.Appearance.Font = AppFonts.Caption;
 
         var versionLabel = new LabelControl
         {
             Text = $"v{DateTime.Now:yyyy.MM.dd}",
-            Location = new Point(48, 430),
+            Location = new Point(32, 380),
             AutoSizeMode = LabelAutoSizeMode.None,
-            Size = new Size(200, 20)
+            Size = new Size(180, 18)
         };
-        versionLabel.Appearance.ForeColor = Color.FromArgb(160, 255, 255, 255);
+        versionLabel.Appearance.ForeColor = Color.FromArgb(150, 255, 255, 255);
         versionLabel.Appearance.Font = AppFonts.Caption;
 
         leftPanel.Controls.Add(badge);
         leftPanel.Controls.Add(titleLabel);
+        leftPanel.Controls.Add(accentLine);
         leftPanel.Controls.Add(taglineLabel);
         leftPanel.Controls.Add(versionLabel);
 
@@ -130,33 +167,34 @@ public partial class LoginForm : XtraForm
     /// <summary>우측 로그인 입력 영역</summary>
     private void BuildRightPanel()
     {
-        const int formX = 440;
-        int y = 130;
+        const int formX = 272;
+        const int fieldWidth = 320;
+        int y = 78;
 
         var welcomeLabel = new LabelControl
         {
             Text = "로그인",
             Location = new Point(formX, y),
             AutoSizeMode = LabelAutoSizeMode.None,
-            Size = new Size(300, 34)
+            Size = new Size(fieldWidth, 30)
         };
         welcomeLabel.Appearance.Font = AppFonts.Heading;
         Controls.Add(welcomeLabel);
-        y += 56;
+        y += 40;
 
         AddFieldLabel("아이디", formX, ref y);
         txtUserId.Font = AppFonts.Body;
         txtUserId.Location = new Point(formX, y);
-        txtUserId.Size = new Size(320, 28);
+        txtUserId.Size = new Size(fieldWidth, 26);
         Controls.Add(txtUserId);
-        y += 44;
+        y += 40;
 
         AddFieldLabel("비밀번호", formX, ref y);
         txtPassword.Font = AppFonts.Body;
         txtPassword.Location = new Point(formX, y);
-        txtPassword.Size = new Size(320, 28);
+        txtPassword.Size = new Size(fieldWidth, 26);
         Controls.Add(txtPassword);
-        y += 44;
+        y += 40;
 
         AddFieldLabel("접속 서비스", formX, ref y);
         cboEnvironment.Properties.Items.AddRange(AppConfig.AvailableEnvironments.Select(GetEnvLabel).ToArray());
@@ -164,17 +202,17 @@ public partial class LoginForm : XtraForm
         cboEnvironment.SelectedItem = GetEnvLabel(AppConfig.CurrentEnvironment);
         cboEnvironment.Font = AppFonts.Body;
         cboEnvironment.Location = new Point(formX, y);
-        cboEnvironment.Size = new Size(320, 28);
+        cboEnvironment.Size = new Size(fieldWidth, 26);
         cboEnvironment.SelectedIndexChanged += (s, e) =>
         {
             var key = GetEnvKey((string)cboEnvironment.SelectedItem!);
             AppConfig.SwitchEnvironment(key);
         };
         Controls.Add(cboEnvironment);
-        y += 56;
+        y += 46;
 
         btnLogin.Location = new Point(formX, y);
-        btnLogin.Size = new Size(320, 40);
+        btnLogin.Size = new Size(fieldWidth, 38);
         btnLogin.Appearance.BackColor = BrandColor;
         btnLogin.Appearance.ForeColor = Color.White;
         btnLogin.Appearance.Font = AppFonts.BodyBold;
@@ -188,11 +226,11 @@ public partial class LoginForm : XtraForm
 
     private void AddFieldLabel(string text, int x, ref int y)
     {
-        var lbl = new LabelControl { Text = text, Location = new Point(x, y), AutoSizeMode = LabelAutoSizeMode.None, Size = new Size(200, 18) };
+        var lbl = new LabelControl { Text = text, Location = new Point(x, y), AutoSizeMode = LabelAutoSizeMode.None, Size = new Size(200, 16) };
         lbl.Appearance.ForeColor = Color.FromArgb(110, 110, 110);
         lbl.Appearance.Font = AppFonts.Caption;
         Controls.Add(lbl);
-        y += 22;
+        y += 20;
     }
 
     private string GetEnvLabel(string env) => _envLabels.TryGetValue(env, out var label) ? label : env;
@@ -247,6 +285,12 @@ public partial class LoginForm : XtraForm
 
             SessionManager.Current.SignIn(response);
             ApiClient.SetAuthToken(response.AccessToken!);
+
+            // 로그인창을 닫기 직전에 스플래시를 띄워서, 닫히는 순간 바로 스플래시가 이어받게 한다.
+            Splash = new SplashForm();
+            Splash.Show();
+            Splash.Refresh();
+
             DialogResult = DialogResult.OK;
             Close();
         }
