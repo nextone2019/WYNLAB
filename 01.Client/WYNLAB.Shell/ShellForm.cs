@@ -28,6 +28,15 @@ public class ShellForm : XtraForm
     private static readonly Color SidebarBg = Color.FromArgb(245, 246, 248);
     private static readonly Color DividerColor = Color.FromArgb(225, 225, 225);
 
+    // 좌측 메뉴 다크 테마 - 브랜드 색(ToolbarColor)은 회사마다 밝을 수도 어두울 수도 있어서
+    // 사이드바 텍스트/호버 색으로는 쓰지 않고, 항상 대비가 보장되는 고정 팔레트를 사용한다.
+    private static readonly Color NavDarkBg = Color.FromArgb(22, 24, 29);
+    private static readonly Color NavHoverBg = Color.FromArgb(34, 37, 45);
+    private static readonly Color NavPressedBg = Color.FromArgb(45, 49, 58);
+    private static readonly Color NavText = Color.FromArgb(222, 224, 228);
+    private static readonly Color NavTextMuted = Color.FromArgb(158, 161, 168);
+    private static readonly Color NavDivider = Color.FromArgb(42, 45, 52);
+
     private readonly Panel headerPanel;
     private readonly Panel logoPanel;
     private readonly Panel sidebarPanel;
@@ -60,7 +69,7 @@ public class ShellForm : XtraForm
 
         headerPanel = new Panel { Dock = DockStyle.Top, Height = 76, BackColor = HeaderBg };
         logoPanel = new Panel { BackColor = HeaderBg, Cursor = Cursors.Hand, Width = 212, Dock = DockStyle.Left };
-        sidebarPanel = new Panel { Dock = DockStyle.Left, Width = 212, BackColor = SidebarBg };
+        sidebarPanel = new Panel { Dock = DockStyle.Left, Width = 212, BackColor = NavDarkBg };
         statusBar = new Panel { Dock = DockStyle.Bottom, Height = 26, BackColor = SidebarBg };
 
         BuildLogo();
@@ -161,10 +170,12 @@ public class ShellForm : XtraForm
 
     public void SetStatusMessage(string message) => lblStatusMessage.Text = message;
 
-    /// <summary>좌측 사이드바 - 우측에 명확한 구분선을 둬서 MDI(흰색) 영역과 시각적으로 분리</summary>
+    /// <summary>좌측 사이드바 - 다크 테마. 우측 구분선으로 MDI(흰색) 영역과 시각적으로 분리</summary>
     private void BuildSidebar()
     {
-        var divider = new Panel { Dock = DockStyle.Right, Width = 1, BackColor = ColorHelper.Adjust(SidebarBg, -50) };
+        accordionMenu.BackColor = NavDarkBg;
+
+        var divider = new Panel { Dock = DockStyle.Right, Width = 1, BackColor = NavDivider };
         sidebarPanel.Controls.Add(accordionMenu);
         sidebarPanel.Controls.Add(divider);
     }
@@ -412,6 +423,14 @@ public class ShellForm : XtraForm
         }
     }
 
+    /// <summary>ICON_NM(DB) -> 실제 라인아이콘 매핑. 매칭 안 되면 기본 폴더 아이콘.</summary>
+    private static readonly Dictionary<string, Action<Graphics, Rectangle, Color>> TopMenuIcons = new(StringComparer.OrdinalIgnoreCase)
+    {
+        ["settings"] = MenuIconPainters.Settings,
+        ["shoppingcart"] = MenuIconPainters.Cart,
+        ["tools"] = MenuIconPainters.Tools,
+    };
+
     /// <summary>
     /// SessionManager에 캐싱된 메뉴권한(MenuDto) 목록으로 Accordion 트리를 재귀 구성.
     /// MENU_TYPE = GROUP 이면 상위그룹, FORM이면 클릭 시 화면 오픈.
@@ -430,17 +449,19 @@ public class ShellForm : XtraForm
                 Style = ElementStyle.Group
             };
 
-            // 최상위 모듈만 브랜드 색상 배경으로 강조 - 하위 메뉴와 한눈에 구분되도록.
-            // 회사별 커스터마이징을 위해 헤더의 로고 배지와 동일한 _accentColor(ToolbarColor)를 재사용.
-            group.Appearance.Normal.BackColor = _accentColor;
-            group.Appearance.Normal.ForeColor = Color.White;
+            var painter = (top.IconNm != null && TopMenuIcons.TryGetValue(top.IconNm, out var p)) ? p : MenuIconPainters.Folder;
+            group.ImageOptions.Image = MenuIconPainters.Render(painter, 18, NavText);
+
+            // 최상위 항목 - 다크 배경 위에 아이콘 + 굵은 밝은 글씨. 개별 배경색은 주지 않고
+            // 사이드바 바탕색을 그대로 살려서 평평한 리스트처럼 보이게 한다.
+            group.Appearance.Normal.BackColor = NavDarkBg;
+            group.Appearance.Normal.ForeColor = NavText;
             group.Appearance.Normal.Font = AppFonts.SubHeading;
             group.Appearance.Normal.Options.UseBackColor = true;
             group.Appearance.Normal.Options.UseForeColor = true;
             group.Appearance.Normal.Options.UseFont = true;
 
-            // 마우스 올렸을 때도 톤을 맞춰줌 (약간 밝게)
-            group.Appearance.Hovered.BackColor = ColorHelper.Adjust(_accentColor, 20);
+            group.Appearance.Hovered.BackColor = NavHoverBg;
             group.Appearance.Hovered.ForeColor = Color.White;
             group.Appearance.Hovered.Font = AppFonts.SubHeading;
             group.Appearance.Hovered.Options.UseBackColor = true;
@@ -483,32 +504,38 @@ public class ShellForm : XtraForm
 
             if (child.MenuType == "GROUP")
             {
-                // 2단계 이하 그룹(소분류) - 최상위 그룹과 구분되도록 배경 없이 굵은 글씨만
-                element.Appearance.Normal.ForeColor = Color.FromArgb(60, 60, 60);
+                // 2단계 이하 그룹(소분류) - 최상위 그룹과 구분되도록 아이콘 없이 굵은 글씨만
+                element.Appearance.Normal.BackColor = NavDarkBg;
+                element.Appearance.Normal.ForeColor = NavText;
                 element.Appearance.Normal.Font = AppFonts.BodyBold;
+                element.Appearance.Normal.Options.UseBackColor = true;
                 element.Appearance.Normal.Options.UseForeColor = true;
                 element.Appearance.Normal.Options.UseFont = true;
 
-                element.Appearance.Hovered.ForeColor = _accentColor;
+                element.Appearance.Hovered.BackColor = NavHoverBg;
+                element.Appearance.Hovered.ForeColor = Color.White;
+                element.Appearance.Hovered.Options.UseBackColor = true;
                 element.Appearance.Hovered.Options.UseForeColor = true;
             }
             else
             {
-                // 실제 클릭 가능한 화면(FORM) - 은은한 강조색 호버로 클릭 가능함을 명확히 표시
-                element.Appearance.Normal.ForeColor = Color.FromArgb(80, 80, 80);
+                // 실제 클릭 가능한 화면(FORM) - 호버 시 살짝 밝아지는 배경으로 클릭 가능함을 표시
+                element.Appearance.Normal.BackColor = NavDarkBg;
+                element.Appearance.Normal.ForeColor = NavTextMuted;
                 element.Appearance.Normal.Font = AppFonts.Body;
+                element.Appearance.Normal.Options.UseBackColor = true;
                 element.Appearance.Normal.Options.UseForeColor = true;
                 element.Appearance.Normal.Options.UseFont = true;
 
-                element.Appearance.Hovered.BackColor = ColorHelper.Adjust(SidebarBg, -12);
-                element.Appearance.Hovered.ForeColor = _accentColor;
+                element.Appearance.Hovered.BackColor = NavHoverBg;
+                element.Appearance.Hovered.ForeColor = Color.White;
                 element.Appearance.Hovered.Font = AppFonts.BodyBold;
                 element.Appearance.Hovered.Options.UseBackColor = true;
                 element.Appearance.Hovered.Options.UseForeColor = true;
                 element.Appearance.Hovered.Options.UseFont = true;
 
-                element.Appearance.Pressed.BackColor = ColorHelper.Adjust(SidebarBg, -20);
-                element.Appearance.Pressed.ForeColor = _accentColor;
+                element.Appearance.Pressed.BackColor = NavPressedBg;
+                element.Appearance.Pressed.ForeColor = Color.White;
                 element.Appearance.Pressed.Options.UseBackColor = true;
                 element.Appearance.Pressed.Options.UseForeColor = true;
 
