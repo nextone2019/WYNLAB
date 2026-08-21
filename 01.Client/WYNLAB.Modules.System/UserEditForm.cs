@@ -1,4 +1,6 @@
 using DevExpress.XtraEditors;
+using DevExpress.XtraGrid;
+using DevExpress.XtraGrid.Views.Grid;
 using DevExpress.XtraLayout;
 using WYNLAB.Shared.Dtos;
 using WYNLAB.UI.Common;
@@ -11,6 +13,8 @@ namespace WYNLAB.Modules.System;
 /// LayoutControl로 "계정정보 / 인적사항 / 연락처 / 권한" 4개 그룹으로 항목을 묶어서
 /// 라벨-입력창 정렬이 자동으로 맞춰지도록 구성했다 (기존의 Location 수동배치 방식보다
 /// 훨씬 정돈된 결과가 나오고, 항목이 늘어나도 레이아웃이 안 깨진다).
+/// 수정모드에서는 하단에 "소속 그룹 배정" 체크그리드를 추가로 둔다 - UserGroupEditForm의
+/// 소속 사용자 배정 그리드와 반대 방향(그룹 입장이 아닌 사용자 입장)으로 같은 TSMUSERGRPMAP을 편집.
 /// </summary>
 public class UserEditForm : XtraForm
 {
@@ -34,6 +38,10 @@ public class UserEditForm : XtraForm
     private readonly SimpleButton btnSave = new() { Text = "저장" };
     private readonly SimpleButton btnCancel = new() { Text = "취소", DialogResult = DialogResult.Cancel };
 
+    private readonly GridControl groupGrid = new();
+    private readonly GridView groupGridView = new();
+    private List<UserGroupAssignDto> _groups = new();
+
     /// <summary>신규등록 모드</summary>
     public UserEditForm() : this(null) { }
 
@@ -46,12 +54,13 @@ public class UserEditForm : XtraForm
         Text = _isEditMode ? "사용자 수정" : "사용자 등록";
         StartPosition = FormStartPosition.CenterParent;
         Width = 480;
-        Height = 580;
+        Height = _isEditMode ? 700 : 580;
         FormBorderStyle = FormBorderStyle.FixedDialog;
         MaximizeBox = false;
         MinimizeBox = false;
 
         BuildLayout();
+        if (_isEditMode) BuildGroupGrid();
         BuildHeader();
         BuildFooter();
 
@@ -68,12 +77,52 @@ public class UserEditForm : XtraForm
             txtMobileNo.Text = existing.MobileNo;
             chkIsAdmin.Checked = existing.IsAdminYn;
             chkUseYn.Checked = existing.UseYn;
+
+            Load += async (s, e) => await LoadGroupsAsync();
         }
         else
         {
             chkUseYn.Checked = true;
             chkUseYn.Enabled = false; // 신규는 항상 사용상태로 생성됨(서버에서 'Y' 고정)
         }
+    }
+
+    /// <summary>이 사용자가 속할 그룹 배정 그리드 - LayoutControl(Dock=Fill) 아래쪽에 자리잡는다</summary>
+    private void BuildGroupGrid()
+    {
+        var groupPanel = new Panel { Dock = DockStyle.Bottom, Height = 220 };
+
+        var caption = new LabelControl
+        {
+            Text = "소속 그룹 배정 (체크 후 저장)",
+            Dock = DockStyle.Top,
+            Height = 24,
+            Padding = new Padding(12, 6, 0, 0)
+        };
+        caption.Appearance.Font = AppFonts.BodyBold;
+        caption.Appearance.ForeColor = Color.FromArgb(70, 70, 70);
+
+        groupGrid.MainView = groupGridView;
+        groupGrid.Dock = DockStyle.Fill;
+        groupGridView.OptionsView.ShowGroupPanel = false;
+        groupGridView.OptionsBehavior.Editable = true;
+
+        groupPanel.Controls.Add(groupGrid);
+        groupPanel.Controls.Add(caption);
+        Controls.Add(groupPanel);
+    }
+
+    private async Task LoadGroupsAsync()
+    {
+        _groups = await ApiClient.GetAsync<List<UserGroupAssignDto>>($"api/users/{_originalUserId}/groups") ?? new();
+        groupGrid.DataSource = _groups;
+
+        groupGridView.Columns["UserGrpCd"].Caption = "그룹코드";
+        groupGridView.Columns["UserGrpNm"].Caption = "그룹명";
+        groupGridView.Columns["IsMember"].Caption = "소속";
+        groupGridView.Columns["IsMember"].Width = 50;
+        groupGridView.Columns["UserGrpCd"].OptionsColumn.AllowEdit = false;
+        groupGridView.Columns["UserGrpNm"].OptionsColumn.AllowEdit = false;
     }
 
     private void BuildHeader()
@@ -195,6 +244,21 @@ public class UserEditForm : XtraForm
                     IsAdminYn = chkIsAdmin.Checked
                 };
                 result = await ApiClient.PutAsync<UserUpdateRequest, ApiResult>($"api/users/{_originalUserId}", req);
+
+                if (result != null && result.Success)
+                {
+                    groupGridView.CloseEditor();
+                    groupGridView.UpdateCurrentRow();
+                    var checkedGrpCds = _groups.Where(g => g.IsMember).Select(g => g.UserGrpCd).ToList();
+                    var groupResult = await ApiClient.PutAsync<UpdateUserGroupsRequest, ApiResult>(
+                        $"api/users/{_originalUserId}/groups", new UpdateUserGroupsRequest { UserGrpCds = checkedGrpCds });
+
+                    if (groupResult == null || !groupResult.Success)
+                    {
+                        XtraMessageBox.Show(groupResult?.Message ?? "소속 그룹 저장에 실패했습니다.", "저장 실패");
+                        return;
+                    }
+                }
             }
             else
             {
