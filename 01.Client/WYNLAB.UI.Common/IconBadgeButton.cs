@@ -40,7 +40,8 @@ public class IconBadgeButton : Control
     public IconBadgeButton()
     {
         SetStyle(ControlStyles.AllPaintingInWmPaint | ControlStyles.UserPaint |
-                  ControlStyles.ResizeRedraw | ControlStyles.OptimizedDoubleBuffer, true);
+                  ControlStyles.ResizeRedraw | ControlStyles.OptimizedDoubleBuffer |
+                  ControlStyles.SupportsTransparentBackColor, true);
         Cursor = Cursors.Hand;
         Size = new Size(66, 58);
         BackColor = Color.Transparent;
