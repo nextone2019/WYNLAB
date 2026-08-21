@@ -30,18 +30,18 @@ public class BaseForm : XtraForm
     protected string CurrentPositionNm => Session.PositionNm;
     protected bool CurrentIsAdmin => Session.IsAdmin;
 
-    // ===== MDI 상단 공통 툴바(조회/입력/저장/삭제/행추가/행삭제/출력)가 호출하는 표준 액션 =====
+    // ===== MDI 상단 공통 툴바(조회/입력/삭제/행추가/행삭제/저장/출력)가 호출하는 표준 액션 =====
     // Shell의 툴바 버튼은 현재 활성화된 MDI 자식폼(this)의 아래 메서드를 그대로 호출한다.
     // 화면마다 필요한 것만 override 하면 되고, 안 쓰는 기능은 기본값(아무 동작 안 함)으로 둔다.
     // 행추가/행삭제(NewRowClick/DeleteRowClick)는 그리드 안에서 바로 편집하는(인라인 편집) 화면용 -
     // 서버 저장은 별도로 SaveClick에서 한번에 하고, 이 둘은 그리드 위 행 자체만 늘리고/줄인다.
     public virtual Task QueryClick() => Task.CompletedTask;
     public virtual Task NewClick() => Task.CompletedTask;
-    public virtual Task SaveClick() => Task.CompletedTask;
     public virtual Task DeleteClick() => Task.CompletedTask;
     public virtual Task NewRowClick() => Task.CompletedTask;
     public virtual Task DeleteRowClick() => Task.CompletedTask;
-    public virtual Task PrintAsync() => Task.CompletedTask;
+    public virtual Task SaveClick() => Task.CompletedTask;
+    public virtual Task PrintClick() => Task.CompletedTask;
 
     /// <summary>
     /// 화면 타이틀 바(BuildScreenHeader) 왼쪽에 그려지는 아이콘. 기본은 폴더지만, 화면 성격에

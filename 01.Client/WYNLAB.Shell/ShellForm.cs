@@ -496,12 +496,14 @@ public class ShellForm : XtraForm
     }
 
     /// <summary>
-    /// 모든 버튼(홈/조회/입력/저장/삭제/행추가/행삭제/출력)을 카드로 묶지 않고 각각 독립된
+    /// 모든 버튼(홈/조회/입력/삭제/행추가/행삭제/저장/출력)을 카드로 묶지 않고 각각 독립된
     /// 배지 버튼으로 헤더에 나란히 배치한다. 예전엔 조회/입력/저장을 하나의 카드로 묶고 저장만
     /// 강조색을 꽉 채워 표시했는데, 그룹핑 자체가 산만하다는 피드백에 따라 전부 개별 버튼으로
     /// 풀고 저장도 다른 아이콘과 같은 스타일(연한 배지 + 강조색 아이콘)로 통일했다.
     /// 배지 배경은 순백색 대신 헤더색을 살짝 섞은 연한 톤(IconBadgeBg)을 써서 튀어 보이지
     /// 않게 했다. "성격" 구분은 이제 아이콘 색으로만 표현한다(삭제/행삭제=빨강, 나머지=브랜드 강조색).
+    /// 구분선(|)은 홈 뒤와 출력 앞, 딱 두 군데만 둔다 - 조회~저장까지는 전부 한 화면 안에서
+    /// 이어지는 동작이라 나눌 필요가 없다는 피드백에 따라 사이 구분선을 뺐다.
     /// 클릭하면 현재 활성화된 MDI 자식폼(ActiveMdiChild)의 표준 액션(BaseForm.QueryClick 등)을 호출한다.
     /// </summary>
     private void BuildToolbar()
@@ -516,20 +518,14 @@ public class ShellForm : XtraForm
 
         AddIconBadgeButton(headerPanel, ref x, 6, "조회", ToolbarIconPainters.Query, badgeBg, iconAccent, false, f => f.QueryClick());
         AddIconBadgeButton(headerPanel, ref x, 6, "입력", ToolbarIconPainters.New, badgeBg, iconAccent, false, f => f.NewClick());
+        AddIconBadgeButton(headerPanel, ref x, 6, "삭제", ToolbarIconPainters.Delete, badgeBg, DangerColor, false, f => f.DeleteClick());
+        AddIconBadgeButton(headerPanel, ref x, 6, "행추가", ToolbarIconPainters.RowAdd, badgeBg, iconAccent, false, f => f.NewRowClick());
+        AddIconBadgeButton(headerPanel, ref x, 6, "행삭제", ToolbarIconPainters.RowDelete, badgeBg, DangerColor, false, f => f.DeleteRowClick());
         AddIconBadgeButton(headerPanel, ref x, 6, "저장", ToolbarIconPainters.Save, badgeBg, iconAccent, false, f => f.SaveClick());
         x += 6;
         AddDivider(ref x);
 
-        AddIconBadgeButton(headerPanel, ref x, 6, "삭제", ToolbarIconPainters.Delete, badgeBg, DangerColor, false, f => f.DeleteClick());
-        x += 6;
-        AddDivider(ref x);
-
-        AddIconBadgeButton(headerPanel, ref x, 6, "행추가", ToolbarIconPainters.RowAdd, badgeBg, iconAccent, false, f => f.NewRowClick());
-        AddIconBadgeButton(headerPanel, ref x, 6, "행삭제", ToolbarIconPainters.RowDelete, badgeBg, DangerColor, false, f => f.DeleteRowClick());
-        x += 6;
-        AddDivider(ref x);
-
-        AddIconBadgeButton(headerPanel, ref x, 6, "출력", ToolbarIconPainters.Print, badgeBg, iconAccent, false, f => f.PrintAsync());
+        AddIconBadgeButton(headerPanel, ref x, 6, "출력", ToolbarIconPainters.Print, badgeBg, iconAccent, false, f => f.PrintClick());
     }
 
     private static readonly Size ButtonSize = new(54, 48);

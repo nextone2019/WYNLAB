@@ -10,7 +10,7 @@ namespace WYNLAB.SM.USER;
 /// ShellForm에서 리플렉션으로 동적 오픈된다.
 ///
 /// 화면 자체에는 버튼이 없다 - Shell 상단 공통 툴바(조회/입력/삭제/출력)가 이 화면이 활성화된 상태에서
-/// QueryClick/NewClick/DeleteClick/PrintAsync(BaseGridForm/BaseForm 상속)를 호출하는 구조.
+/// QueryClick/NewClick/DeleteClick/PrintClick(BaseGridForm/BaseForm 상속)를 호출하는 구조.
 /// 검색조건(아이디/이름)만 화면 상단에 직접 두고, 조회 실행 자체는 Shell 툴바 "조회" 버튼과
 /// 이 패널의 "검색" 버튼/Enter 둘 다에서 QueryClick()로 진입하도록 통일했다.
 /// </summary>
