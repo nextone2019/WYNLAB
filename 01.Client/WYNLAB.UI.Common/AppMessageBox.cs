@@ -34,14 +34,6 @@ internal class AppMessageBoxForm : XtraForm
     private const int FooterHeight = 46;
     private const int BodyHeight = 72;
 
-    // 메시지박스 전용 축소 폰트 - 앱 전역 AppFonts(9.5pt 기준)보다 한 단계씩 작게 써서
-    // 전체 다이얼로그 크기를 줄인다. 다른 화면까지 영향받는 AppFonts 자체는 건드리지 않는다.
-    private static readonly Font TitleFont = new("Segoe UI", 9f, FontStyle.Bold);
-    private static readonly Font BodyFont = new("Segoe UI", 8.75f, FontStyle.Regular);
-    private static readonly Font ButtonFont = new("Segoe UI", 8.75f, FontStyle.Regular);
-    private static readonly Font GlyphFont = new("Segoe UI", 8f, FontStyle.Bold);
-    private static readonly Font CloseFont = new("Segoe UI", 8f, FontStyle.Regular);
-
     private readonly PanelControl headerPanel = new();
     private readonly CircleBadge headerBadge = new();
     private readonly LabelControl lblHeaderGlyph = new();
@@ -116,7 +108,7 @@ internal class AppMessageBoxForm : XtraForm
             lblHeaderGlyph.Dock = DockStyle.Fill;
             lblHeaderGlyph.AutoSizeMode = LabelAutoSizeMode.None;
             lblHeaderGlyph.Appearance.ForeColor = Color.White;
-            lblHeaderGlyph.Appearance.Font = GlyphFont;
+            lblHeaderGlyph.Appearance.Font = AppFonts.BodyBold;
             lblHeaderGlyph.Appearance.TextOptions.HAlignment = DevExpress.Utils.HorzAlignment.Center;
             lblHeaderGlyph.Appearance.TextOptions.VAlignment = DevExpress.Utils.VertAlignment.Center;
             headerBadge.Controls.Add(lblHeaderGlyph);
@@ -129,13 +121,13 @@ internal class AppMessageBoxForm : XtraForm
         lblCaption.AutoSizeMode = LabelAutoSizeMode.None;
         lblCaption.Size = new Size(Width - textX - 34, 18);
         lblCaption.Appearance.ForeColor = Color.White;
-        lblCaption.Appearance.Font = TitleFont;
+        lblCaption.Appearance.Font = AppFonts.BodyBold;
 
         lblClose.Location = new Point(Width - 32, 8);
         lblClose.AutoSizeMode = LabelAutoSizeMode.None;
         lblClose.Size = new Size(20, 20);
         lblClose.Appearance.ForeColor = Color.FromArgb(230, 255, 255, 255);
-        lblClose.Appearance.Font = CloseFont;
+        lblClose.Appearance.Font = AppFonts.Caption;
         lblClose.Appearance.TextOptions.HAlignment = DevExpress.Utils.HorzAlignment.Center;
         lblClose.Appearance.TextOptions.VAlignment = DevExpress.Utils.VertAlignment.Center;
         lblClose.Cursor = Cursors.Hand;
@@ -155,7 +147,7 @@ internal class AppMessageBoxForm : XtraForm
         lblMessage.AutoSizeMode = LabelAutoSizeMode.None;
         lblMessage.Size = new Size(Width - 40, BodyHeight);
         lblMessage.Appearance.ForeColor = Color.FromArgb(55, 55, 55);
-        lblMessage.Appearance.Font = BodyFont;
+        lblMessage.Appearance.Font = AppFonts.Body;
         lblMessage.Appearance.TextOptions.WordWrap = DevExpress.Utils.WordWrap.Wrap;
         lblMessage.Appearance.TextOptions.HAlignment = DevExpress.Utils.HorzAlignment.Center;
         lblMessage.Appearance.TextOptions.VAlignment = DevExpress.Utils.VertAlignment.Center;
@@ -181,7 +173,7 @@ internal class AppMessageBoxForm : XtraForm
         foreach (var (label, result) in specs)
         {
             var btn = new SimpleButton { Text = label, Size = new Size(btnWidth, btnHeight), DialogResult = result };
-            btn.Appearance.Font = ButtonFont;
+            btn.Appearance.Font = AppFonts.Body;
             btn.Location = new Point(x, y);
             footerPanel.Controls.Add(btn);
             firstButton ??= btn;

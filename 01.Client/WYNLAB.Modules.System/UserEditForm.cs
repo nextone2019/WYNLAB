@@ -135,7 +135,7 @@ public class UserEditForm : XtraForm
             AutoSizeMode = LabelAutoSizeMode.None,
             Size = new Size(300, 22)
         };
-        titleLabel.Appearance.Font = new Font("Segoe UI", 11, FontStyle.Bold);
+        titleLabel.Appearance.Font = AppFonts.SubHeading;
         headerPanel.Controls.Add(titleLabel);
         Controls.Add(headerPanel);
     }

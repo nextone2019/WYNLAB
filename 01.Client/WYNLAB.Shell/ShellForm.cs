@@ -1,4 +1,4 @@
-﻿using DevExpress.XtraBars.Navigation;
+using DevExpress.XtraBars.Navigation;
 using DevExpress.XtraTab;
 using DevExpress.XtraTabbedMdi;
 using DevExpress.XtraEditors;
@@ -59,17 +59,8 @@ public class ShellForm : XtraForm
     private static readonly Color NavTextMuted = Color.FromArgb(158, 161, 168);
     private Color NavDivider => ColorHelper.Adjust(NavDarkBg, 20);
 
-    // 메뉴트리 전용 축소 폰트 - 앱 전역 AppFonts(최상위 11pt, 하위 9.5pt)를 그대로 쓰니
-    // 참고화면(BAROCRM) 대비 너무 커서 한 화면에 들어가는 메뉴 수가 적었다. 다른 화면까지
-    // 영향받는 AppFonts 자체는 건드리지 않고 이 트리에서만 쓰는 작은 폰트를 별도로 둔다.
-    private static readonly Font MenuTopFont = new("Segoe UI", 9.5f, FontStyle.Bold);
-    private static readonly Font MenuGroupFont = new("Segoe UI", 8.5f, FontStyle.Bold);
-    private static readonly Font MenuItemFont = new("Segoe UI", 8.5f, FontStyle.Regular);
-    private static readonly Font MenuItemHoverFont = new("Segoe UI", 8.5f, FontStyle.Bold);
     private const int MenuTopIconSize = 15;
     private const int MenuLeafDotSize = 9;
-    // MDI 문서 탭 전용 축소 폰트 - 메뉴트리 항목과 같은 크기로 맞춰서 전체적으로 통일감 있게.
-    private static readonly Font MenuTabFont = new("Segoe UI", 8.5f, FontStyle.Regular);
 
     private readonly Panel headerPanel;
     private readonly Panel logoPanel;
@@ -199,7 +190,7 @@ public class ShellForm : XtraForm
     {
         tabbedMdiManager.AppearancePage.Header.BackColor = TabInactiveBg;
         tabbedMdiManager.AppearancePage.Header.ForeColor = TabInactiveFg;
-        tabbedMdiManager.AppearancePage.Header.Font = MenuTabFont;
+        tabbedMdiManager.AppearancePage.Header.Font = AppFonts.Body;
         tabbedMdiManager.AppearancePage.Header.Options.UseBackColor = true;
         tabbedMdiManager.AppearancePage.Header.Options.UseForeColor = true;
         tabbedMdiManager.AppearancePage.Header.Options.UseFont = true;
@@ -211,7 +202,7 @@ public class ShellForm : XtraForm
 
         tabbedMdiManager.AppearancePage.HeaderActive.BackColor = TabActiveBg;
         tabbedMdiManager.AppearancePage.HeaderActive.ForeColor = TabActiveFg;
-        tabbedMdiManager.AppearancePage.HeaderActive.Font = MenuTabFont;
+        tabbedMdiManager.AppearancePage.HeaderActive.Font = AppFonts.Body;
         tabbedMdiManager.AppearancePage.HeaderActive.Options.UseBackColor = true;
         tabbedMdiManager.AppearancePage.HeaderActive.Options.UseForeColor = true;
         tabbedMdiManager.AppearancePage.HeaderActive.Options.UseFont = true;
@@ -378,7 +369,7 @@ public class ShellForm : XtraForm
             Padding = new Padding(14, 0, 10, 0)
         };
         lblUserInline.Appearance.ForeColor = Color.FromArgb(55, 55, 55);
-        lblUserInline.Appearance.Font = MenuItemFont;
+        lblUserInline.Appearance.Font = AppFonts.Body;
         lblUserInline.Appearance.TextOptions.VAlignment = DevExpress.Utils.VertAlignment.Center;
 
         void Refresh()
@@ -680,14 +671,14 @@ public class ShellForm : XtraForm
             // 사이드바 바탕색을 그대로 살려서 평평한 리스트처럼 보이게 한다.
             group.Appearance.Normal.BackColor = NavDarkBg;
             group.Appearance.Normal.ForeColor = NavText;
-            group.Appearance.Normal.Font = MenuTopFont;
+            group.Appearance.Normal.Font = AppFonts.SubHeading;
             group.Appearance.Normal.Options.UseBackColor = true;
             group.Appearance.Normal.Options.UseForeColor = true;
             group.Appearance.Normal.Options.UseFont = true;
 
             group.Appearance.Hovered.BackColor = NavHoverBg;
             group.Appearance.Hovered.ForeColor = Color.White;
-            group.Appearance.Hovered.Font = MenuTopFont;
+            group.Appearance.Hovered.Font = AppFonts.SubHeading;
             group.Appearance.Hovered.Options.UseBackColor = true;
             group.Appearance.Hovered.Options.UseForeColor = true;
             group.Appearance.Hovered.Options.UseFont = true;
@@ -733,7 +724,7 @@ public class ShellForm : XtraForm
                 // 낮춘다. 굵은 글씨는 유지해서 "헤더"라는 느낌은 남긴다.
                 element.Appearance.Normal.BackColor = NavDarkBg;
                 element.Appearance.Normal.ForeColor = NavTextMuted;
-                element.Appearance.Normal.Font = MenuGroupFont;
+                element.Appearance.Normal.Font = AppFonts.BodyBold;
                 element.Appearance.Normal.Options.UseBackColor = true;
                 element.Appearance.Normal.Options.UseForeColor = true;
                 element.Appearance.Normal.Options.UseFont = true;
@@ -752,14 +743,14 @@ public class ShellForm : XtraForm
                 element.ImageOptions.Image = MenuIconPainters.Render(MenuIconPainters.Dot, MenuLeafDotSize, ActionAccent);
                 element.Appearance.Normal.BackColor = NavDarkBg;
                 element.Appearance.Normal.ForeColor = NavText;
-                element.Appearance.Normal.Font = MenuItemFont;
+                element.Appearance.Normal.Font = AppFonts.Body;
                 element.Appearance.Normal.Options.UseBackColor = true;
                 element.Appearance.Normal.Options.UseForeColor = true;
                 element.Appearance.Normal.Options.UseFont = true;
 
                 element.Appearance.Hovered.BackColor = NavHoverBg;
                 element.Appearance.Hovered.ForeColor = Color.White;
-                element.Appearance.Hovered.Font = MenuItemHoverFont;
+                element.Appearance.Hovered.Font = AppFonts.BodyBold;
                 element.Appearance.Hovered.Options.UseBackColor = true;
                 element.Appearance.Hovered.Options.UseForeColor = true;
                 element.Appearance.Hovered.Options.UseFont = true;

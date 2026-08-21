@@ -18,16 +18,16 @@ public static class AppFonts
     public static readonly Font Heading = new(Family, 17f, FontStyle.Bold);
 
     /// <summary>섹션/그룹 헤더 - 좌측 메뉴 최상위 그룹, 헤더 로고명</summary>
-    public static readonly Font SubHeading = new(Family, 11f, FontStyle.Bold);
+    public static readonly Font SubHeading = new(Family, 12f, FontStyle.Bold);
 
     /// <summary>기본 본문 - 버튼, 입력값, 사용자정보, 콤보박스, 메뉴 하위 항목 등</summary>
-    public static readonly Font Body = new(Family, 9.5f, FontStyle.Regular);
+    public static readonly Font Body = new(Family, 10f, FontStyle.Regular);
 
     /// <summary>기본 본문 굵게 - 강조가 필요한 본문 텍스트</summary>
-    public static readonly Font BodyBold = new(Family, 9.5f, FontStyle.Bold);
+    public static readonly Font BodyBold = new(Family, 10f, FontStyle.Bold);
 
     /// <summary>보조 캡션 - 필드 라벨, 상태바, 툴바 아이콘 캡션, 버전 정보</summary>
-    public static readonly Font Caption = new(Family, 8.5f, FontStyle.Regular);
+    public static readonly Font Caption = new(Family, 9f, FontStyle.Regular);
 
     /// <summary>로고 배지 안 글자(W) - 큰 사이즈(로그인 화면 좌측 패널용)</summary>
     public static readonly Font LogoGlyphLarge = new(Family, 22f, FontStyle.Bold);
