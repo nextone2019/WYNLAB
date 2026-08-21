@@ -7,6 +7,13 @@ internal static class Program
     [STAThread]
     private static void Main()
     {
+        // DevExpress 스킨을 앱 전체(메시지박스, 버튼, 탭, 폼 캡션 등)에 적용.
+        // EnableFormSkins()가 없으면 내부 컨트롤만 스킨되고 폼 자체 타이틀바는 계속
+        // 기본 Windows 스타일로 남아서, 지금 겪은 "메시지박스 타이틀/본문이 안 나뉘어 보임"
+        // 문제가 그대로 남는다. 반드시 Application.EnableVisualStyles()보다 먼저 호출.
+        DevExpress.Skins.SkinManager.EnableFormSkins();
+        DevExpress.LookAndFeel.UserLookAndFeel.Default.SetSkinStyle("Office 2019 Colorful");
+
         // .NET Framework용 WinForms 초기화 (net6+의 ApplicationConfiguration.Initialize() 대체)
         Application.EnableVisualStyles();
         Application.SetCompatibleTextRenderingDefault(false);

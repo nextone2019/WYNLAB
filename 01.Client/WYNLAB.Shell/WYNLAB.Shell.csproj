@@ -31,6 +31,10 @@
     <Reference Include="DevExpress.XtraLayout.v20.2">
       <HintPath>C:\Program Files (x86)\DevExpress 20.2\Components\Bin\Framework\DevExpress.XtraLayout.v20.2.dll</HintPath>
     </Reference>
+    <!-- 앱 전체 스킨(메시지박스 포함 모든 DevExpress 컨트롤의 색/테두리/캡션)을 위해 필요 -->
+    <Reference Include="DevExpress.BonusSkins.v20.2">
+      <HintPath>C:\Program Files (x86)\DevExpress 20.2\Components\Bin\Framework\DevExpress.BonusSkins.v20.2.dll</HintPath>
+    </Reference>
   </ItemGroup>
 
   <ItemGroup>
