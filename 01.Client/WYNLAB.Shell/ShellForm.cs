@@ -114,6 +114,8 @@ public class ShellForm : XtraForm
         AppConfig.EnvironmentChanged += () => { RefreshUserInfoLabel(); RefreshTitle(); };
         RefreshUserInfoLabel();
 
+        FormClosing += ShellForm_FormClosing;
+
         OpenHomeForm();
     }
 
@@ -132,6 +134,19 @@ public class ShellForm : XtraForm
 
         _homeForm = new HomeForm { MdiParent = this };
         _homeForm.Show();
+    }
+
+    /// <summary>사용자가 셸의 X버튼으로 직접 닫으려 할 때만 확인 - 서버전환 취소 등 프로그램 내부에서
+    /// Application.Exit()을 호출하는 경우는 이미 그 자리에서 확인을 거친 것이므로 재확인하지 않는다.</summary>
+    private void ShellForm_FormClosing(object? sender, FormClosingEventArgs e)
+    {
+        if (e.CloseReason != CloseReason.UserClosing) return;
+
+        var confirm = AppMessageBox.Show("모든 프로그램을 종료하시겠습니까?", "알림", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+        if (confirm != DialogResult.Yes)
+        {
+            e.Cancel = true;
+        }
     }
 
     private void RefreshTitle()
