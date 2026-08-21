@@ -45,7 +45,18 @@ public class ShellForm : XtraForm
     private readonly LabelControl lblStatusMessage = new();
     private readonly LabelControl lblStatusRight = new();
     private readonly ComboBoxEdit cboEnvironment = new();
+    private readonly ComboBoxEdit cboSkin = new();
     private readonly LabelControl lblUserInfo = new();
+
+    /// <summary>
+    /// 사용자가 고를 수 있는 테마 목록. DevExpress에는 스킨이 수십 개 있어 전부 나열하면
+    /// 오래되거나 브랜드와 안 어울리는 것도 섞여 들어가므로, 최근/모던한 스킨만 선별했다.
+    /// </summary>
+    private static readonly string[] AvailableSkins =
+    {
+        "Office 2019 Colorful", "Office 2019 Black", "Office 2019 Dark Gray", "Office 2019 White",
+        "Visual Studio 2019 Blue", "Visual Studio 2019 Dark", "WXI", "Basic"
+    };
 
     private readonly AccordionControl accordionMenu = new() { Dock = DockStyle.Fill };
     private readonly XtraTabbedMdiManager tabbedMdiManager = new();
@@ -66,9 +77,9 @@ public class ShellForm : XtraForm
         WindowState = FormWindowState.Maximized;
         BackColor = Color.White;
 
-        // 가로: 현재 헤더 툴바(홈+조회/입력/저장+삭제+출력 카드+우측 서버선택/사용자정보)가
+        // 가로: 현재 헤더 툴바(홈+조회/입력/저장+삭제+출력 카드+우측 테마/서버선택/사용자정보)가
         // 겹치지 않고 다 보이는 최소폭. 세로도 업무화면이 너무 눌리지 않도록 최소값을 둠.
-        MinimumSize = new Size(1040, 650);
+        MinimumSize = new Size(1150, 650);
 
         tabbedMdiManager.MdiParent = this;
         // MDI 탭 헤더에 X(닫기) 버튼 표시 - Home 탭은 BaseForm/HomeForm.OnFormClosing에서
@@ -352,6 +363,17 @@ public class ShellForm : XtraForm
         cboEnvironment.Anchor = AnchorStyles.Top | AnchorStyles.Right;
         cboEnvironment.SelectedIndexChanged += OnEnvironmentComboChanged;
 
+        // 테마 선택 - 고르는 즉시 UserLookAndFeel이 전역으로 바뀌면서 이미 열려있는 화면들까지
+        // 포함해 앱 전체(메시지박스, 버튼, 탭, 그리드...)에 실시간으로 반영된다.
+        cboSkin.Properties.Items.AddRange(AvailableSkins);
+        cboSkin.Properties.TextEditStyle = TextEditStyles.DisableTextEditor;
+        cboSkin.SelectedItem = DevExpress.LookAndFeel.UserLookAndFeel.Default.ActiveSkinName;
+        cboSkin.Font = AppFonts.Body;
+        cboSkin.Size = new Size(160, 26);
+        cboSkin.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+        cboSkin.SelectedIndexChanged += (s, e) =>
+            DevExpress.LookAndFeel.UserLookAndFeel.Default.SetSkinStyle((string)cboSkin.SelectedItem!);
+
         lblUserInfo.AutoSizeMode = LabelAutoSizeMode.None;
         lblUserInfo.Size = new Size(160, 34);
         lblUserInfo.Appearance.TextOptions.HAlignment = DevExpress.Utils.HorzAlignment.Far;
@@ -362,6 +384,7 @@ public class ShellForm : XtraForm
 
         headerPanel.Resize += (s, e) => PositionUserArea();
         headerPanel.Controls.Add(cboEnvironment);
+        headerPanel.Controls.Add(cboSkin);
         headerPanel.Controls.Add(lblUserInfo);
         PositionUserArea();
     }
@@ -369,7 +392,8 @@ public class ShellForm : XtraForm
     private void PositionUserArea()
     {
         cboEnvironment.Location = new Point(headerPanel.Width - cboEnvironment.Width - 16, 25);
-        lblUserInfo.Location = new Point(cboEnvironment.Left - lblUserInfo.Width - 12, 21);
+        cboSkin.Location = new Point(cboEnvironment.Left - cboSkin.Width - 10, 25);
+        lblUserInfo.Location = new Point(cboSkin.Left - lblUserInfo.Width - 12, 21);
     }
 
     private void RefreshUserInfoLabel()
