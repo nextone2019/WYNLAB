@@ -1,3 +1,4 @@
+using System.Data;
 using Dapper;
 using WYNLAB.Api.Data;
 
@@ -59,30 +60,21 @@ public class UserRepository : IUserRepository
 
     public async Task UpdateLoginSuccessAsync(string userId)
     {
-        const string sql = @"
-            UPDATE TSMUSER
-            SET LAST_LOGIN_DT = GETDATE(), PWD_FAIL_CNT = 0
-            WHERE USER_ID = @UserId";
         using var conn = _context.CreateConnection();
-        await conn.ExecuteAsync(sql, new { UserId = userId });
+        await conn.ExecuteAsync("USP_SM_LOGIN_S", new { UserId = userId }, commandType: CommandType.StoredProcedure);
     }
 
     public async Task IncreasePwdFailCountAsync(string userId)
     {
-        const string sql = @"
-            UPDATE TSMUSER
-            SET PWD_FAIL_CNT = PWD_FAIL_CNT + 1
-            WHERE USER_ID = @UserId";
         using var conn = _context.CreateConnection();
-        await conn.ExecuteAsync(sql, new { UserId = userId });
+        await conn.ExecuteAsync("USP_SM_LOGIN_S_1", new { UserId = userId }, commandType: CommandType.StoredProcedure);
     }
 
     public async Task InsertLoginHistAsync(string userId, string clientIp, string clientVersion, string resultCd)
     {
-        const string sql = @"
-            INSERT INTO TSMLOGINHIST (USER_ID, CLIENT_IP, CLIENT_VERSION, RESULT_CD)
-            VALUES (@UserId, @ClientIp, @ClientVersion, @ResultCd)";
         using var conn = _context.CreateConnection();
-        await conn.ExecuteAsync(sql, new { UserId = userId, ClientIp = clientIp, ClientVersion = clientVersion, ResultCd = resultCd });
+        await conn.ExecuteAsync("USP_SM_LOGIN_S_2",
+            new { UserId = userId, ClientIp = clientIp, ClientVersion = clientVersion, ResultCd = resultCd },
+            commandType: CommandType.StoredProcedure);
     }
 }

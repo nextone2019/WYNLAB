@@ -60,6 +60,27 @@ public class UsersController : ControllerBase
         return Ok(new ApiResult { Success = true });
     }
 
+    /// <summary>이 사용자의 그룹소속 배정 화면용 - 전체 그룹 + 소속여부(IsMember)</summary>
+    [HttpGet("{userId}/groups")]
+    public async Task<ActionResult<List<UserGroupAssignDto>>> GetGroups(string userId)
+    {
+        var rows = await _repo.GetUserGroupsAsync(userId);
+        return Ok(rows.Select(r => new UserGroupAssignDto
+        {
+            UserGrpCd = r.UserGrpCd,
+            UserGrpNm = r.UserGrpNm,
+            IsMember = r.IsMember
+        }).ToList());
+    }
+
+    /// <summary>체크된 그룹 목록으로 이 사용자의 소속을 치환</summary>
+    [HttpPut("{userId}/groups")]
+    public async Task<ActionResult<ApiResult>> UpdateGroups(string userId, [FromBody] UpdateUserGroupsRequest request)
+    {
+        await _repo.ReplaceUserGroupsAsync(userId, request.UserGrpCds);
+        return Ok(new ApiResult { Success = true });
+    }
+
     private static UserListItemDto MapToDto(UserManageRow row) => new()
     {
         UserId = row.UserId,

@@ -43,3 +43,17 @@ public class UpdateGroupMembersRequest
 {
     public List<string> UserIds { get; set; } = new();
 }
+
+/// <summary>사용자 기준 그룹소속 배정 화면용(반대 방향) - 전체 그룹 + 이 사용자의 소속여부</summary>
+public class UserGroupAssignDto
+{
+    public string UserGrpCd { get; set; } = string.Empty;
+    public string UserGrpNm { get; set; } = string.Empty;
+    public bool IsMember { get; set; }
+}
+
+/// <summary>사용자 기준 그룹소속 저장 요청 - 체크된 UserGrpCd 전체 목록으로 치환(반대 방향)</summary>
+public class UpdateUserGroupsRequest
+{
+    public List<string> UserGrpCds { get; set; } = new();
+}
