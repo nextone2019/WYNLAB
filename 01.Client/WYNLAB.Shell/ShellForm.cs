@@ -405,16 +405,12 @@ public class ShellForm : XtraForm
         // 살짝 섞은 톤으로 바꿔 흰 배경 위에서도 보이게 한다(헤더 툴바 IconBadgeBg와 같은 원리).
         homeButton.BadgeColor = ColorHelper.Mix(_accentColor, Color.White, 0.85f);
         homeButton.AccentColor = ActionAccent;
+        homeButton.Dock = DockStyle.Right; // 절대좌표 계산 대신, 이 파일에서 이미 여러 번 검증된 Dock 방식 사용
         toolbarToolTip.SetToolTip(homeButton, "홈");
         homeButton.Click += (s, e) => OpenHomeForm();
 
-        void PositionHomeButton() =>
-            homeButton.Location = new Point(sidebarTopGap.Width - homeButton.Width - 6, (sidebarTopGap.Height - homeButton.Height) / 2);
-        sidebarTopGap.Resize += (s, e) => PositionHomeButton();
-        PositionHomeButton();
-
-        // lblUserInline(Fill)을 먼저 추가해야 뒤에 추가하는 homeButton이 그 위에 올바르게
-        // 겹쳐 그려진다(같은 위치에 Dock=Fill과 절대좌표 컨트롤이 같이 있을 때의 순서 규칙).
+        // Dock 추가 순서 중요(이 파일 전체에 반복되는 규칙): Fill(lblUserInline) 먼저,
+        // 가장자리에 붙는 컨트롤(homeButton, Dock=Right)은 나중에 추가해야 제자리를 차지한다.
         sidebarTopGap.Controls.Add(lblUserInline);
         sidebarTopGap.Controls.Add(homeButton);
     }
