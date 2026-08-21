@@ -43,11 +43,12 @@ public class ShellForm : XtraForm
     private static readonly Color ActionAccent = Color.FromArgb(41, 121, 255);
 
     // MDI 문서 탭 색 - 비활성 탭은 눌러앉은 느낌의 연회색, 활성 탭은 배경색 하나로만 구분한다.
-    // 순백색(255,255,255)은 밋밋하고 붕 떠 보인다는 피드백이 있어서, 브랜드색을 아주 살짝만
-    // 섞은 오프화이트로 바꿨다 - 완전히 흰 것보다 은은하게 "디자인된" 느낌이 난다.
+    // 순백색(255,255,255)이나 살짝만 섞은 오프화이트는 거의 흰색이나 마찬가지라는 피드백이 있어서,
+    // 사이드바 색(NavDarkBg = 메뉴트리 색과 같은 계열)을 흰색 쪽으로 많이 섞은 옅은 톤으로
+    // 바꿨다 - "메뉴트리와 같은 계열의 아주 연한 색"으로 육안에도 분명히 인지되게 한다.
     private static readonly Color TabInactiveBg = Color.FromArgb(232, 234, 238);
     private static readonly Color TabHotBg = Color.FromArgb(244, 245, 247);
-    private Color TabActiveBg => ColorHelper.Mix(_accentColor, Color.White, 0.96f);
+    private Color TabActiveBg => ColorHelper.Mix(NavDarkBg, Color.White, 0.75f);
     private static readonly Color TabInactiveFg = Color.FromArgb(120, 122, 128);
     private static readonly Color TabActiveFg = Color.FromArgb(35, 35, 38);
 
@@ -235,10 +236,16 @@ public class ShellForm : XtraForm
         var oldMode = g.SmoothingMode;
         g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
 
+        // 테두리 없이 배경색만 있으니 밋밋해 보인다는 피드백 - 배경색 기준으로 살짝 어둡게
+        // 만든 얇은 테두리를 둘러서 탭 하나하나의 경계가 또렷하게 보이게 한다.
         using (var path = TopRoundedRect(rect, 3))
-        using (var brush = new SolidBrush(back))
         {
-            g.FillPath(brush, path);
+            using (var brush = new SolidBrush(back))
+            {
+                g.FillPath(brush, path);
+            }
+            using var pen = new Pen(ColorHelper.Adjust(back, -24));
+            g.DrawPath(pen, path);
         }
 
         g.SmoothingMode = oldMode;
@@ -325,6 +332,9 @@ public class ShellForm : XtraForm
         var divider = new Panel { Dock = DockStyle.Right, Width = 1, BackColor = NavDivider };
         var userPanel = BuildSidebarUserPanel();
         var toolPanel = BuildSidebarToolPanel();
+        // 사이드바가 헤더 바로 아래에 딱 붙어서 답답해 보인다는 피드백 - 헤더와 같은 색의
+        // 얇은 여백을 사이드바 맨 위에 둬서 헤더가 살짝 이어지다 사이드바가 시작하는 느낌을 준다.
+        var topGap = new Panel { Dock = DockStyle.Top, Height = 6, BackColor = HeaderBg };
 
         // Dock 추가 순서: Fill(accordionMenu) 먼저, Top/Bottom은 나중에 추가해야
         // 각자 가장자리를 정상적으로 차지한다 (PermissionAssignForm에서 겪은 것과 같은 문제 방지).
@@ -332,6 +342,7 @@ public class ShellForm : XtraForm
         sidebarPanel.Controls.Add(divider);
         sidebarPanel.Controls.Add(toolPanel);
         sidebarPanel.Controls.Add(userPanel);
+        sidebarPanel.Controls.Add(topGap);
     }
 
     /// <summary>사이드바 맨 위 - 로그인 사용자명 + 로그인 시각</summary>
