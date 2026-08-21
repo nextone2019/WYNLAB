@@ -89,6 +89,11 @@ public class ShellForm : XtraForm
     private readonly XtraTabbedMdiManager tabbedMdiManager = new();
     private HomeForm? _homeForm;
 
+    // 예전엔 헤더 툴바 맨 앞에 있었는데, 메뉴트리 바로 위(사이드바 상단 여백)로 옮기고
+    // 크기도 작게 줄였다 - 다른 업무 액션들과 성격이 달라서(화면 전환이지 데이터 액션이 아님)
+    // 메뉴트리와 더 가까운 자리가 자연스럽다는 피드백.
+    private readonly IconBadgeButton homeButton = new() { Text = "홈", IconPainter = ToolbarIconPainters.Home, Size = new Size(30, 30) };
+
     private readonly Dictionary<string, string> _envLabels = new()
     {
         ["Development"] = "개발서버",
@@ -104,10 +109,10 @@ public class ShellForm : XtraForm
         WindowState = FormWindowState.Maximized;
         BackColor = Color.White;
 
-        // 가로: 현재 헤더 툴바(홈+조회/입력/저장+삭제+행추가/행삭제+출력 카드+우측 사용자정보)가
-        // 겹치지 않고 다 보이는 최소폭. 서비스선택/테마선택은 좌측 사이드바로 옮겨서 헤더 쪽
-        // 최소폭 여유가 늘었다. 세로도 업무화면이 너무 눌리지 않도록 최소값을 둠.
-        MinimumSize = new Size(1000, 650);
+        // 가로: 현재 헤더 툴바(조회/입력/삭제/행추가/행삭제/저장/출력 7개, 구분선 없이 한 줄)가
+        // 겹치지 않고 다 보이는 최소폭. 홈 버튼은 사이드바 메뉴트리 위로 옮겨서 헤더에서 빠졌다.
+        // 세로도 업무화면이 너무 눌리지 않도록 최소값을 둠.
+        MinimumSize = new Size(920, 650);
 
         tabbedMdiManager.MdiParent = this;
         // MDI 탭 헤더에 X(닫기) 버튼 표시 - Home 탭은 BaseForm/HomeForm.OnFormClosing에서
@@ -359,6 +364,8 @@ public class ShellForm : XtraForm
     /// 사이드바 맨 위 흰 여백(오른쪽 탭 줄과 높이를 맞춘 sidebarTopGap) 안에 로그인 사용자명 +
     /// 시각을 넣는다. 원래는 사이드바 안쪽에 별도의 어두운 패널로 표시했는데, 탭 줄과 높이를
     /// 맞추려고 추가한 위쪽 흰 여백이 비어있느니 차라리 그 자리에 넣는 게 낫다는 피드백으로 이동.
+    /// 홈 버튼도 여기(오른쪽 끝, 메뉴트리 바로 위)에 작게 배치한다 - 예전엔 헤더 툴바 맨 앞에
+    /// 있었는데, 다른 업무 액션들과 성격이 달라서 메뉴트리와 더 가까운 자리로 옮겼다.
     /// </summary>
     private void ConfigureSidebarTopGap()
     {
@@ -386,7 +393,18 @@ public class ShellForm : XtraForm
         Refresh();
         AppConfig.EnvironmentChanged += Refresh;
 
+        toolbarToolTip.SetToolTip(homeButton, "홈");
+        homeButton.Click += (s, e) => OpenHomeForm();
+
+        void PositionHomeButton() =>
+            homeButton.Location = new Point(sidebarTopGap.Width - homeButton.Width - 6, (sidebarTopGap.Height - homeButton.Height) / 2);
+        sidebarTopGap.Resize += (s, e) => PositionHomeButton();
+        PositionHomeButton();
+
+        // lblUserInline(Fill)을 먼저 추가해야 뒤에 추가하는 homeButton이 그 위에 올바르게
+        // 겹쳐 그려진다(같은 위치에 Dock=Fill과 절대좌표 컨트롤이 같이 있을 때의 순서 규칙).
         sidebarTopGap.Controls.Add(lblUserInline);
+        sidebarTopGap.Controls.Add(homeButton);
     }
 
     /// <summary>
@@ -496,14 +514,15 @@ public class ShellForm : XtraForm
     }
 
     /// <summary>
-    /// 모든 버튼(홈/조회/입력/삭제/행추가/행삭제/저장/출력)을 카드로 묶지 않고 각각 독립된
-    /// 배지 버튼으로 헤더에 나란히 배치한다. 예전엔 조회/입력/저장을 하나의 카드로 묶고 저장만
-    /// 강조색을 꽉 채워 표시했는데, 그룹핑 자체가 산만하다는 피드백에 따라 전부 개별 버튼으로
-    /// 풀고 저장도 다른 아이콘과 같은 스타일(연한 배지 + 강조색 아이콘)로 통일했다.
+    /// 조회/입력/삭제/행추가/행삭제/저장/출력을 카드로 묶지 않고 각각 독립된 배지 버튼으로
+    /// 헤더에 나란히 배치한다. 예전엔 조회/입력/저장을 하나의 카드로 묶고 저장만 강조색을
+    /// 꽉 채워 표시했는데, 그룹핑 자체가 산만하다는 피드백에 따라 전부 개별 버튼으로 풀고
+    /// 저장도 다른 아이콘과 같은 스타일(연한 배지 + 강조색 아이콘)로 통일했다.
     /// 배지 배경은 순백색 대신 헤더색을 살짝 섞은 연한 톤(IconBadgeBg)을 써서 튀어 보이지
     /// 않게 했다. "성격" 구분은 이제 아이콘 색으로만 표현한다(삭제/행삭제=빨강, 나머지=브랜드 강조색).
-    /// 구분선(|)은 홈 뒤와 출력 앞, 딱 두 군데만 둔다 - 조회~저장까지는 전부 한 화면 안에서
-    /// 이어지는 동작이라 나눌 필요가 없다는 피드백에 따라 사이 구분선을 뺐다.
+    /// 구분선(|) 없이 전부 한 줄로 이어서 배치한다 - 홈은 화면 전환용이라 별도로 사이드바
+    /// 메뉴트리 위(ConfigureSidebarTopGap)로 옮겼고, 남은 7개는 전부 한 화면 안에서 이어지는
+    /// 데이터 액션이라 사이를 나눌 필요가 없다는 피드백에 따름.
     /// 클릭하면 현재 활성화된 MDI 자식폼(ActiveMdiChild)의 표준 액션(BaseForm.QueryClick 등)을 호출한다.
     /// </summary>
     private void BuildToolbar()
@@ -512,19 +531,12 @@ public class ShellForm : XtraForm
         var badgeBg = IconBadgeBg;
 
         var x = 228;
-        AddIconBadgeButton(headerPanel, ref x, 6, "홈", ToolbarIconPainters.Home, badgeBg, iconAccent, false, f => { OpenHomeForm(); return Task.CompletedTask; });
-        x += 6;
-        AddDivider(ref x);
-
         AddIconBadgeButton(headerPanel, ref x, 6, "조회", ToolbarIconPainters.Query, badgeBg, iconAccent, false, f => f.QueryClick());
         AddIconBadgeButton(headerPanel, ref x, 6, "입력", ToolbarIconPainters.New, badgeBg, iconAccent, false, f => f.NewClick());
         AddIconBadgeButton(headerPanel, ref x, 6, "삭제", ToolbarIconPainters.Delete, badgeBg, DangerColor, false, f => f.DeleteClick());
         AddIconBadgeButton(headerPanel, ref x, 6, "행추가", ToolbarIconPainters.RowAdd, badgeBg, iconAccent, false, f => f.NewRowClick());
         AddIconBadgeButton(headerPanel, ref x, 6, "행삭제", ToolbarIconPainters.RowDelete, badgeBg, DangerColor, false, f => f.DeleteRowClick());
         AddIconBadgeButton(headerPanel, ref x, 6, "저장", ToolbarIconPainters.Save, badgeBg, iconAccent, false, f => f.SaveClick());
-        x += 6;
-        AddDivider(ref x);
-
         AddIconBadgeButton(headerPanel, ref x, 6, "출력", ToolbarIconPainters.Print, badgeBg, iconAccent, false, f => f.PrintClick());
     }
 
