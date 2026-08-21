@@ -10,7 +10,6 @@ public static class UiTheme
 {
     public static Color RequiredFieldBackColor => ColorHelper.FromHex(AppConfig.Theme.RequiredFieldBackColor);
     public static Color RequiredFieldForeColor => ColorHelper.FromHex(AppConfig.Theme.RequiredFieldForeColor);
-    public static Color RequiredHeaderForeColor => ColorHelper.FromHex(AppConfig.Theme.RequiredHeaderForeColor);
 
     public static Color TreeGroupBackColor => ColorHelper.FromHex(AppConfig.Theme.TreeGroupBackColor);
     public static Color TreeGroupForeColor => ColorHelper.FromHex(AppConfig.Theme.TreeGroupForeColor);

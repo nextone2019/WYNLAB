@@ -91,9 +91,6 @@ public class UiThemeConfig
     /// <summary>필수입력 컨트롤의 글자색</summary>
     public string RequiredFieldForeColor { get; set; } = "#000000";
 
-    /// <summary>필수입력 항목의 라벨/그리드 헤더 글자색</summary>
-    public string RequiredHeaderForeColor { get; set; } = "#C0392B";
-
     /// <summary>
     /// 트리 화면(메뉴관리 등)에서 "그룹(폴더, 클릭해도 화면이 안 열림)" 행의 배경/글자색 -
     /// 화면(leaf)보다 차분하게 낮춰서 "구획 라벨"이라는 느낌을 준다. 트리를 쓰는 화면이 이후
