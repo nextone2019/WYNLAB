@@ -1,7 +1,7 @@
 using DevExpress.XtraEditors;
 using DevExpress.XtraEditors.Controls;
 using WYNLAB.Shared.Dtos;
-using WYNLAB.UI.Common;
+using WYNLAB.Base;
 using System.Drawing;
 using System.Net.Http;
 

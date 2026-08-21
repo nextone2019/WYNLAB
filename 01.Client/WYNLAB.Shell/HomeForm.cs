@@ -1,5 +1,5 @@
 using DevExpress.XtraEditors;
-using WYNLAB.UI.Common;
+using WYNLAB.Base;
 using System.Drawing;
 
 namespace WYNLAB.Shell;

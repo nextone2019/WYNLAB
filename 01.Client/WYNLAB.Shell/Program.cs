@@ -1,5 +1,5 @@
 using System.Windows.Forms;
-using WYNLAB.UI.Common;
+using WYNLAB.Base;
 
 namespace WYNLAB.Shell;
 
