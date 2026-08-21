@@ -8,6 +8,10 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <RootNamespace>WYNLAB.Shell</RootNamespace>
+    <!-- 프로젝트/폴더/네임스페이스는 WYNLAB.Shell로 그대로 두고, 실행 파일 이름만
+         WYNLAB.exe가 되도록 지정 (WYNLAB.BaseForm 때와 같은 방식 - 결과물 파일명과
+         내부 네임스페이스를 분리). -->
+    <AssemblyName>WYNLAB</AssemblyName>
     <ApplicationManifest>app.manifest</ApplicationManifest>
   </PropertyGroup>
 
