@@ -59,6 +59,15 @@ public class ShellForm : XtraForm
     private static readonly Color NavTextMuted = Color.FromArgb(158, 161, 168);
     private Color NavDivider => ColorHelper.Adjust(NavDarkBg, 20);
 
+    // 메뉴트리 전용 축소 폰트 - 앱 전역 AppFonts(최상위 11pt, 하위 9.5pt)를 그대로 쓰니
+    // 참고화면(BAROCRM) 대비 너무 커서 한 화면에 들어가는 메뉴 수가 적었다. 다른 화면까지
+    // 영향받는 AppFonts 자체는 건드리지 않고 이 트리에서만 쓰는 작은 폰트를 별도로 둔다.
+    private static readonly Font MenuTopFont = new("Segoe UI", 9.5f, FontStyle.Bold);
+    private static readonly Font MenuGroupFont = new("Segoe UI", 8.5f, FontStyle.Bold);
+    private static readonly Font MenuItemFont = new("Segoe UI", 8.5f, FontStyle.Regular);
+    private static readonly Font MenuItemHoverFont = new("Segoe UI", 8.5f, FontStyle.Bold);
+    private const int MenuTopIconSize = 15;
+
     private readonly Panel headerPanel;
     private readonly Panel logoPanel;
     private readonly Panel sidebarPanel;
@@ -660,20 +669,20 @@ public class ShellForm : XtraForm
             };
 
             var painter = (top.IconNm != null && TopMenuIcons.TryGetValue(top.IconNm, out var p)) ? p : MenuIconPainters.Folder;
-            group.ImageOptions.Image = MenuIconPainters.Render(painter, 18, NavText);
+            group.ImageOptions.Image = MenuIconPainters.Render(painter, MenuTopIconSize, NavText);
 
             // 최상위 항목 - 다크 배경 위에 아이콘 + 굵은 밝은 글씨. 개별 배경색은 주지 않고
             // 사이드바 바탕색을 그대로 살려서 평평한 리스트처럼 보이게 한다.
             group.Appearance.Normal.BackColor = NavDarkBg;
             group.Appearance.Normal.ForeColor = NavText;
-            group.Appearance.Normal.Font = AppFonts.SubHeading;
+            group.Appearance.Normal.Font = MenuTopFont;
             group.Appearance.Normal.Options.UseBackColor = true;
             group.Appearance.Normal.Options.UseForeColor = true;
             group.Appearance.Normal.Options.UseFont = true;
 
             group.Appearance.Hovered.BackColor = NavHoverBg;
             group.Appearance.Hovered.ForeColor = Color.White;
-            group.Appearance.Hovered.Font = AppFonts.SubHeading;
+            group.Appearance.Hovered.Font = MenuTopFont;
             group.Appearance.Hovered.Options.UseBackColor = true;
             group.Appearance.Hovered.Options.UseForeColor = true;
             group.Appearance.Hovered.Options.UseFont = true;
@@ -717,7 +726,7 @@ public class ShellForm : XtraForm
                 // 2단계 이하 그룹(소분류) - 최상위 그룹과 구분되도록 아이콘 없이 굵은 글씨만
                 element.Appearance.Normal.BackColor = NavDarkBg;
                 element.Appearance.Normal.ForeColor = NavText;
-                element.Appearance.Normal.Font = AppFonts.BodyBold;
+                element.Appearance.Normal.Font = MenuGroupFont;
                 element.Appearance.Normal.Options.UseBackColor = true;
                 element.Appearance.Normal.Options.UseForeColor = true;
                 element.Appearance.Normal.Options.UseFont = true;
@@ -732,14 +741,14 @@ public class ShellForm : XtraForm
                 // 실제 클릭 가능한 화면(FORM) - 호버 시 살짝 밝아지는 배경으로 클릭 가능함을 표시
                 element.Appearance.Normal.BackColor = NavDarkBg;
                 element.Appearance.Normal.ForeColor = NavTextMuted;
-                element.Appearance.Normal.Font = AppFonts.Body;
+                element.Appearance.Normal.Font = MenuItemFont;
                 element.Appearance.Normal.Options.UseBackColor = true;
                 element.Appearance.Normal.Options.UseForeColor = true;
                 element.Appearance.Normal.Options.UseFont = true;
 
                 element.Appearance.Hovered.BackColor = NavHoverBg;
                 element.Appearance.Hovered.ForeColor = Color.White;
-                element.Appearance.Hovered.Font = AppFonts.BodyBold;
+                element.Appearance.Hovered.Font = MenuItemHoverFont;
                 element.Appearance.Hovered.Options.UseBackColor = true;
                 element.Appearance.Hovered.Options.UseForeColor = true;
                 element.Appearance.Hovered.Options.UseFont = true;
