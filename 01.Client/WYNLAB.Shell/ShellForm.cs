@@ -10,22 +10,27 @@ using System.Drawing;
 namespace WYNLAB.Shell;
 
 /// <summary>
-/// MDI 메인 셸 (디자인: 화이트 리본 툴바 - Outlook/오피스 스타일).
+/// MDI 메인 셸 (디자인: 브랜드 컬러 헤더 + 흰색 카드형 툴바).
 ///
 /// 레이아웃 구조 (위→아래):
-///  1. headerPanel  - 로고(클릭시 좌측메뉴 토글) + 조회/입력/저장 | 삭제 | 출력 툴바 + 서버전환 콤보 + 사용자정보
-///  2. sidebarPanel - 좌측 메뉴(연한 회색 배경 + 우측 구분선으로 MDI 영역과 명확히 분리). 로고 클릭으로 표시/숨김
+///  1. headerPanel  - 로고 + 조회/입력/저장 | 삭제 | 출력 툴바. 사용자정보는 좌측 사이드바로 이동됨.
+///  2. sidebarPanel - 좌측 메뉴(다크 배경 + 우측 구분선으로 MDI 영역과 명확히 분리). 로고 클릭으로 표시/숨김
 ///  3. MDI 클라이언트 영역(흰색) - 업무화면들이 뜨는 공간
 ///
-/// 헤더 배경은 흰색으로 고정하고, 회사별 커스터마이징은 로고 배지 색상 / 툴바 강조색에
-/// appsettings.json의 ToolbarColor 값을 적용하는 방식으로 처리한다. 삭제 버튼은 항상 빨간색 고정
-/// (브랜드 색과 무관하게 "위험한 동작"이라는 UX 관례를 지키기 위함).
+/// 헤더 배경 전체를 appsettings.json의 ToolbarColor(회사별 브랜드색)로 채운다. 그 위에 놓이는
+/// 툴바 카드(RoundedPanel)는 전부 흰색으로 통일해서 예전처럼 그룹마다 카드색이 제각각(빨강/파랑/회색)
+/// 이던 산만함을 없앴고, "성격" 구분은 카드 안 아이콘 색으로만 표현한다(삭제=빨강 아이콘, 저장=강조색
+/// 꽉 채움). 삭제 아이콘 색은 브랜드 색과 무관하게 항상 빨간색 고정(위험한 동작이라는 UX 관례 유지).
 /// </summary>
 public class ShellForm : XtraForm
 {
     private readonly Color _accentColor = ColorHelper.FromHex(AppConfig.ToolbarColor);
+    // 헤더 전체 배경을 브랜드색(_accentColor)으로 채우므로, 그 위에 놓이는 구분선/카드는
+    // 이 색 기준으로 살짝 밝게 조정해서 만든다(어떤 브랜드색이 들어와도 자연스럽게 어울리도록).
+    private Color HeaderBg => _accentColor;
+    private Color HeaderDividerColor => ColorHelper.Adjust(_accentColor, 28);
+    private static readonly Color CardBg = Color.White;
     private static readonly Color DangerColor = Color.FromArgb(192, 57, 43);
-    private static readonly Color HeaderBg = Color.White;
     private static readonly Color SidebarBg = Color.FromArgb(245, 246, 248);
     private static readonly Color DividerColor = Color.FromArgb(225, 225, 225);
 
@@ -46,7 +51,6 @@ public class ShellForm : XtraForm
     private readonly LabelControl lblStatusRight = new();
     private readonly ComboBoxEdit cboEnvironment = new();
     private readonly ComboBoxEdit cboSkin = new();
-    private readonly LabelControl lblUserInfo = new();
     private readonly ToolTip toolbarToolTip = new();
 
     /// <summary>
@@ -95,14 +99,13 @@ public class ShellForm : XtraForm
 
         BuildLogo();
         BuildToolbar();
-        BuildUserArea();
         BuildSidebar();
         BuildAccordionMenu();
         BuildStatusBar();
 
         headerPanel.Controls.Add(logoPanel);
 
-        var headerBottomBorder = new Panel { Dock = DockStyle.Bottom, Height = 1, BackColor = DividerColor };
+        var headerBottomBorder = new Panel { Dock = DockStyle.Bottom, Height = 1, BackColor = HeaderDividerColor };
         headerPanel.Controls.Add(headerBottomBorder);
 
         // 순서 중요: 상단바를 먼저 추가해야 전체 폭을 차지하고, 그 아래에 좌측 메뉴가 배치됨
@@ -111,8 +114,7 @@ public class ShellForm : XtraForm
         Controls.Add(sidebarPanel);
         Controls.Add(headerPanel);
 
-        AppConfig.EnvironmentChanged += () => { RefreshUserInfoLabel(); RefreshTitle(); };
-        RefreshUserInfoLabel();
+        AppConfig.EnvironmentChanged += RefreshTitle;
 
         FormClosing += ShellForm_FormClosing;
 
@@ -321,12 +323,14 @@ public class ShellForm : XtraForm
     /// <summary>좌측 로고 - 클릭할 때마다 좌측 사이드바 전체가 보였다 숨겨졌다 함</summary>
     private void BuildLogo()
     {
-        var separator = new Panel { Dock = DockStyle.Right, Width = 1, BackColor = DividerColor };
+        var separator = new Panel { Dock = DockStyle.Right, Width = 1, BackColor = HeaderDividerColor };
         logoPanel.Controls.Add(separator);
 
+        // 로고 영역 배경이 이제 헤더와 같은 브랜드색이라, 배지도 같은 색으로 채우면
+        // 눈에 안 띄게 된다. 흰색 배지 위에 브랜드색 글자를 얹어 대비를 확보.
         var badge = new Panel
         {
-            BackColor = _accentColor,
+            BackColor = Color.White,
             Size = new Size(28, 28),
             Location = new Point(16, 16)
         };
@@ -338,7 +342,7 @@ public class ShellForm : XtraForm
         };
         badgeLabel.Appearance.TextOptions.HAlignment = DevExpress.Utils.HorzAlignment.Center;
         badgeLabel.Appearance.TextOptions.VAlignment = DevExpress.Utils.VertAlignment.Center;
-        badgeLabel.Appearance.ForeColor = Color.White;
+        badgeLabel.Appearance.ForeColor = _accentColor;
         badgeLabel.Appearance.Font = AppFonts.LogoGlyphSmall;
         badge.Controls.Add(badgeLabel);
 
@@ -349,7 +353,7 @@ public class ShellForm : XtraForm
             AutoSizeMode = LabelAutoSizeMode.None,
             Size = new Size(150, 22)
         };
-        nameLabel.Appearance.ForeColor = Color.FromArgb(35, 35, 35);
+        nameLabel.Appearance.ForeColor = Color.White;
         nameLabel.Appearance.Font = AppFonts.SubHeading;
 
         logoPanel.Controls.Add(badge);
@@ -363,39 +367,40 @@ public class ShellForm : XtraForm
     }
 
     /// <summary>
-    /// 홈은 상단바에 단독 배치하고, 조회/입력/저장 · 삭제 · 출력은 각각 둥근 배경 카드
+    /// 홈은 상단바에 단독 배치하고, 조회/입력/저장 · 삭제 · 출력은 각각 둥근 흰색 카드
     /// (RoundedPanel)로 묶어서 "그룹"임이 한눈에 보이도록 구성한다.
-    /// 삭제 카드는 옅은 빨강, 출력 카드는 옅은 파랑 배경으로 성격을 색으로도 구분한다.
+    /// 예전엔 그룹마다 카드 배경색(회색/빨강/파랑)이 달라서 툴바 전체가 산만해 보였는데,
+    /// 헤더 자체가 브랜드색으로 채워진 지금은 카드를 전부 흰색으로 통일하고,
+    /// 대신 "성격"은 카드 안 아이콘 색으로만 구분한다(삭제=빨강 아이콘, 나머지=브랜드 강조색,
+    /// 저장만 강조색을 꽉 채워 가장 중요한 동작임을 강조).
     /// 클릭하면 현재 활성화된 MDI 자식폼(ActiveMdiChild)의 표준 액션(BaseForm.QueryAsync 등)을 호출한다.
     /// </summary>
     private void BuildToolbar()
     {
         var iconAccent = Color.FromArgb(41, 121, 255);
         var neutralBadge = Color.FromArgb(241, 243, 245);
-        var blueBadge = Color.FromArgb(232, 240, 254);
-        var redBadge = Color.FromArgb(253, 236, 234);
 
         var x = 228;
-        AddIconBadgeButton(headerPanel, ref x, 6, "홈", ToolbarIconPainters.Home, neutralBadge, iconAccent, false, f => { OpenHomeForm(); return Task.CompletedTask; });
+        AddIconBadgeButton(headerPanel, ref x, 6, "홈", ToolbarIconPainters.Home, Color.White, iconAccent, false, f => { OpenHomeForm(); return Task.CompletedTask; });
         x += 6;
         AddDivider(ref x);
 
-        // 조회 / 입력 / 저장 - 중립 회색 톤 카드로 한 그룹
-        var queryGroup = AddToolbarGroup(ref x, ButtonSize.Width * 3, SidebarBg);
+        // 조회 / 입력 / 저장 - 흰 카드 한 그룹, 저장만 강조색으로 채워 구분
+        var queryGroup = AddToolbarGroup(ref x, ButtonSize.Width * 3, CardBg);
         var qx = 0;
         AddIconBadgeButton(queryGroup, ref qx, 4, "조회", ToolbarIconPainters.Query, neutralBadge, iconAccent, false, f => f.QueryAsync());
-        AddIconBadgeButton(queryGroup, ref qx, 4, "입력", ToolbarIconPainters.New, blueBadge, iconAccent, false, f => f.NewAsync());
+        AddIconBadgeButton(queryGroup, ref qx, 4, "입력", ToolbarIconPainters.New, neutralBadge, iconAccent, false, f => f.NewAsync());
         AddIconBadgeButton(queryGroup, ref qx, 4, "저장", ToolbarIconPainters.Save, iconAccent, iconAccent, true, f => f.SaveAsync());
 
-        // 삭제 - "위험한 동작"이라 카드 배경 자체를 옅은 빨강으로 강조
-        var deleteGroup = AddToolbarGroup(ref x, ButtonSize.Width, redBadge);
+        // 삭제 - 카드는 다른 그룹과 같은 흰색, "위험한 동작"이라는 의미는 빨간 아이콘으로만 표현
+        var deleteGroup = AddToolbarGroup(ref x, ButtonSize.Width, CardBg);
         var dx = 0;
-        AddIconBadgeButton(deleteGroup, ref dx, 4, "삭제", ToolbarIconPainters.Delete, Color.White, DangerColor, false, f => f.DeleteAsync());
+        AddIconBadgeButton(deleteGroup, ref dx, 4, "삭제", ToolbarIconPainters.Delete, neutralBadge, DangerColor, false, f => f.DeleteAsync());
 
-        // 출력 - 옅은 파랑 카드로 조회 그룹과는 다른 성격임을 표시
-        var printGroup = AddToolbarGroup(ref x, ButtonSize.Width, blueBadge);
+        // 출력 - 카드는 동일한 흰색, 나머지 아이콘과 같은 브랜드 강조색을 사용
+        var printGroup = AddToolbarGroup(ref x, ButtonSize.Width, CardBg);
         var px = 0;
-        AddIconBadgeButton(printGroup, ref px, 4, "출력", ToolbarIconPainters.Print, Color.White, iconAccent, false, f => f.PrintAsync());
+        AddIconBadgeButton(printGroup, ref px, 4, "출력", ToolbarIconPainters.Print, neutralBadge, iconAccent, false, f => f.PrintAsync());
     }
 
     private static readonly Size ButtonSize = new(54, 48);
@@ -469,38 +474,9 @@ public class ShellForm : XtraForm
 
     private void AddDivider(ref int x)
     {
-        var divider = new Panel { Location = new Point(x, 14), Size = new Size(1, 32), BackColor = DividerColor };
+        var divider = new Panel { Location = new Point(x, 14), Size = new Size(1, 32), BackColor = HeaderDividerColor };
         headerPanel.Controls.Add(divider);
         x += 12;
-    }
-
-    /// <summary>우측 - 사용자정보 (서비스/테마 선택은 좌측 사이드바 상단으로 이동함)</summary>
-    private void BuildUserArea()
-    {
-        lblUserInfo.AutoSizeMode = LabelAutoSizeMode.None;
-        lblUserInfo.Size = new Size(160, 34);
-        lblUserInfo.Appearance.TextOptions.HAlignment = DevExpress.Utils.HorzAlignment.Far;
-        lblUserInfo.Appearance.TextOptions.VAlignment = DevExpress.Utils.VertAlignment.Center;
-        lblUserInfo.Appearance.ForeColor = Color.FromArgb(45, 45, 45);
-        lblUserInfo.Appearance.Font = AppFonts.Body;
-        lblUserInfo.Anchor = AnchorStyles.Top | AnchorStyles.Right;
-
-        headerPanel.Resize += (s, e) => PositionUserArea();
-        headerPanel.Controls.Add(lblUserInfo);
-        PositionUserArea();
-    }
-
-    private void PositionUserArea()
-    {
-        lblUserInfo.Location = new Point(headerPanel.Width - lblUserInfo.Width - 16, 13);
-    }
-
-    private void RefreshUserInfoLabel()
-    {
-        var user = SessionManager.Current.UserInfo;
-        lblUserInfo.Text = user == null
-            ? string.Empty
-            : $"{user.UserNm} {user.PositionNm}\n{user.DeptNm}";
     }
 
     private string GetEnvLabel(string env) => _envLabels.TryGetValue(env, out var label) ? label : env;
@@ -545,7 +521,6 @@ public class ShellForm : XtraForm
         if (loginForm.ShowDialog() == DialogResult.OK)
         {
             BuildAccordionMenu();
-            RefreshUserInfoLabel();
             Show();
         }
         else
