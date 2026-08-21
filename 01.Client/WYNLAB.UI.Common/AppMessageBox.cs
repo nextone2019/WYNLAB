@@ -27,13 +27,18 @@ public static class AppMessageBox
 
 internal class AppMessageBoxForm : XtraForm
 {
+    private const int HeaderHeight = 44;
+    private const int FooterHeight = 60;
+    private const int BodyHeight = 110;
+
     private readonly PanelControl headerPanel = new();
     private readonly LabelControl lblCaption = new();
     private readonly LabelControl lblClose = new() { Text = "✕" };
+    private readonly Panel bodyPanel = new() { Dock = DockStyle.Fill, BackColor = Color.White };
     private readonly Panel badge = new();
     private readonly LabelControl lblBadgeGlyph = new();
     private readonly LabelControl lblMessage = new();
-    private readonly Panel footerPanel = new() { Dock = DockStyle.Bottom, Height = 60 };
+    private readonly Panel footerPanel = new() { Dock = DockStyle.Bottom, Height = FooterHeight };
 
     private Point _dragStart;
     private bool _dragging;
@@ -44,15 +49,23 @@ internal class AppMessageBoxForm : XtraForm
         StartPosition = FormStartPosition.CenterParent;
         BackColor = Color.White;
         Width = 420;
+        Height = HeaderHeight + BodyHeight + FooterHeight;
         ShowInTaskbar = false;
 
         var (accentColor, glyph) = GetIconStyle(icon);
 
-        BuildHeader(caption, accentColor);
-        BuildBody(text, accentColor, glyph, icon);
+        BuildBody(text, glyph, icon);
         BuildFooter(buttons, accentColor);
+        BuildHeader(caption, accentColor);
 
-        ResizeToFitMessage();
+        // Dock 추가 순서 중요(이 프로젝트 전반의 규칙): Fill(bodyPanel)을 먼저 추가하고
+        // Top/Bottom은 나중에 추가해야 각자 자기 가장자리를 정상적으로 차지한다.
+        // 예전 버전은 badge/lblMessage를 폼에 절대좌표로 바로 얹어놨었는데, headerPanel과
+        // 같은 좌표 공간(Y=26)에서 겹쳐 텍스트가 헤더 밑에 완전히 가려지는 문제가 있었다 -
+        // 그래서 이번에 bodyPanel이라는 별도 Fill 컨테이너로 확실히 분리했다.
+        Controls.Add(bodyPanel);
+        Controls.Add(footerPanel);
+        Controls.Add(headerPanel);
     }
 
     private static (Color accent, string glyph) GetIconStyle(MessageBoxIcon icon) => icon switch
@@ -67,7 +80,7 @@ internal class AppMessageBoxForm : XtraForm
     private void BuildHeader(string caption, Color accentColor)
     {
         headerPanel.Dock = DockStyle.Top;
-        headerPanel.Height = 44;
+        headerPanel.Height = HeaderHeight;
         headerPanel.Appearance.BackColor = accentColor;
         headerPanel.Appearance.Options.UseBackColor = true;
         headerPanel.BorderStyle = DevExpress.XtraEditors.Controls.BorderStyles.NoBorder;
@@ -94,17 +107,17 @@ internal class AppMessageBoxForm : XtraForm
 
         EnableDrag(headerPanel);
         EnableDrag(lblCaption);
-
-        Controls.Add(headerPanel);
     }
 
-    private void BuildBody(string text, Color accentColor, string glyph, MessageBoxIcon icon)
+    private void BuildBody(string text, string glyph, MessageBoxIcon icon)
     {
+        var textX = 20;
+
         if (icon != MessageBoxIcon.None)
         {
             badge.Size = new Size(40, 40);
-            badge.Location = new Point(20, 26);
-            badge.BackColor = accentColor;
+            badge.Location = new Point(20, 22);
+            badge.BackColor = GetIconStyle(icon).accent;
             lblBadgeGlyph.Text = glyph;
             lblBadgeGlyph.Dock = DockStyle.Fill;
             lblBadgeGlyph.AutoSizeMode = LabelAutoSizeMode.None;
@@ -113,18 +126,19 @@ internal class AppMessageBoxForm : XtraForm
             lblBadgeGlyph.Appearance.TextOptions.HAlignment = DevExpress.Utils.HorzAlignment.Center;
             lblBadgeGlyph.Appearance.TextOptions.VAlignment = DevExpress.Utils.VertAlignment.Center;
             badge.Controls.Add(lblBadgeGlyph);
-            Controls.Add(badge);
+            bodyPanel.Controls.Add(badge);
+            textX = 74;
         }
 
-        var textX = icon != MessageBoxIcon.None ? 74 : 20;
         lblMessage.Text = text;
-        lblMessage.Location = new Point(textX, 26);
+        lblMessage.Location = new Point(textX, 22);
         lblMessage.AutoSizeMode = LabelAutoSizeMode.None;
-        lblMessage.Size = new Size(Width - textX - 20, 20);
+        lblMessage.Size = new Size(Width - textX - 20, BodyHeight - 30);
         lblMessage.Appearance.ForeColor = Color.FromArgb(55, 55, 55);
         lblMessage.Appearance.Font = AppFonts.Body;
         lblMessage.Appearance.TextOptions.WordWrap = DevExpress.Utils.WordWrap.Wrap;
-        Controls.Add(lblMessage);
+        lblMessage.Appearance.TextOptions.VAlignment = DevExpress.Utils.VertAlignment.Top;
+        bodyPanel.Controls.Add(lblMessage);
     }
 
     private void BuildFooter(MessageBoxButtons buttons, Color accentColor)
@@ -158,7 +172,6 @@ internal class AppMessageBoxForm : XtraForm
 
         if (firstButton != null) AcceptButton = firstButton;
         CancelButton = new SimpleButton { DialogResult = DialogResult.Cancel, Visible = false };
-        Controls.Add(footerPanel);
     }
 
     /// <summary>(버튼텍스트, DialogResult, 강조여부) - 배열의 마지막 항목이 화면상 가장 오른쪽(주 액션)</summary>
@@ -169,20 +182,6 @@ internal class AppMessageBoxForm : XtraForm
         MessageBoxButtons.YesNoCancel => new[] { ("취소", DialogResult.Cancel, false), ("아니요", DialogResult.No, false), ("예", DialogResult.Yes, true) },
         _ => new[] { ("확인", DialogResult.OK, true) }
     };
-
-    private void ResizeToFitMessage()
-    {
-        var textX = badge.Parent != null ? 74 : 20;
-        var maxWidth = Width - textX - 20;
-        var measured = TextRenderer.MeasureText(lblMessage.Text, new Font("Segoe UI", 9.5f),
-            new Size(maxWidth, 0), TextFormatFlags.WordBreak);
-
-        var textHeight = Math.Max(20, measured.Height);
-        lblMessage.Size = new Size(maxWidth, textHeight);
-
-        var bodyHeight = Math.Max(textHeight, 40) + 52; // 위아래 여백 포함
-        Height = headerPanel.Height + bodyHeight + footerPanel.Height;
-    }
 
     private void EnableDrag(Control control)
     {
