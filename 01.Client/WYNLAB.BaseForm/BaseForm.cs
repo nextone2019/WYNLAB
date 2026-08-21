@@ -20,15 +20,15 @@ public class BaseForm : XtraForm
 
     /// <summary>
     /// 로그인 세션값 - 모든 업무화면(모듈 DLL 포함)에서 그대로 사용.
-    /// 값의 실제 출처는 서버의 USP_SM_GetUserSession 프로시저 결과.
+    /// 값의 실제 출처는 서버의 USP_SM_GetUserSession 프로시저 결과(Session 클래스 참고).
     /// </summary>
-    protected string CurrentUserId => SessionManager.Current.UserInfo?.UserId ?? string.Empty;
-    protected string CurrentUserNm => SessionManager.Current.UserInfo?.UserNm ?? string.Empty;
-    protected string CurrentEmpNo => SessionManager.Current.UserInfo?.EmpNo ?? string.Empty;
-    protected string CurrentDeptCd => SessionManager.Current.UserInfo?.DeptCd ?? string.Empty;
-    protected string CurrentDeptNm => SessionManager.Current.UserInfo?.DeptNm ?? string.Empty;
-    protected string CurrentPositionNm => SessionManager.Current.UserInfo?.PositionNm ?? string.Empty;
-    protected bool CurrentIsAdmin => SessionManager.Current.UserInfo?.IsAdminYn ?? false;
+    protected string CurrentUserId => Session.UserId;
+    protected string CurrentUserNm => Session.UserNm;
+    protected string CurrentEmpNo => Session.EmpNo;
+    protected string CurrentDeptCd => Session.DeptCd;
+    protected string CurrentDeptNm => Session.DeptNm;
+    protected string CurrentPositionNm => Session.PositionNm;
+    protected bool CurrentIsAdmin => Session.IsAdmin;
 
     // ===== MDI 상단 공통 툴바(조회/입력/저장/삭제/출력)가 호출하는 표준 액션 =====
     // Shell의 툴바 버튼은 현재 활성화된 MDI 자식폼(this)의 아래 메서드를 그대로 호출한다.
