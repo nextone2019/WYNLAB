@@ -1,4 +1,5 @@
 using DevExpress.XtraEditors;
+using System.Drawing;
 
 namespace WYNLAB.UI.Common;
 
@@ -63,6 +64,55 @@ public class BaseForm : XtraForm
         CanUpdate = auth?.UpdateYn ?? false;
         CanDelete = auth?.DeleteYn ?? false;
         CanExcel = auth?.ExcelYn ?? false;
+    }
+
+    /// <summary>
+    /// 모든 업무화면 공통 타이틀 바 - 폴더 아이콘 + 화면명(Text) + 화면코드(MenuCd, 대괄호).
+    /// 화면마다 제목 영역을 제각각 만들지 않고 이 메서드 하나로 통일해서, 어떤 화면을 열어도
+    /// 같은 위치/스타일로 "지금 보고 있는 화면이 뭔지" 바로 알 수 있게 한다.
+    /// 반드시 다른 Dock=Top 패널(조회조건 등)보다 나중에 Controls.Add 해야 맨 위를 차지한다.
+    /// </summary>
+    protected Panel BuildScreenHeader()
+    {
+        var header = new Panel { Dock = DockStyle.Top, Height = 34, BackColor = Color.FromArgb(247, 248, 249) };
+        var bottomBorder = new Panel { Dock = DockStyle.Bottom, Height = 1, BackColor = Color.FromArgb(228, 229, 232) };
+        header.Controls.Add(bottomBorder);
+
+        var icon = new PictureBox
+        {
+            Image = MenuIconPainters.Render(MenuIconPainters.Folder, 16, Color.FromArgb(120, 124, 132)),
+            SizeMode = PictureBoxSizeMode.CenterImage,
+            Location = new Point(14, 4),
+            Size = new Size(20, 20),
+            BackColor = Color.Transparent
+        };
+
+        var lblTitle = new LabelControl
+        {
+            Text = Text,
+            Location = new Point(38, 6),
+            AutoSizeMode = LabelAutoSizeMode.None,
+            Size = new Size(220, 18)
+        };
+        lblTitle.Appearance.Font = AppFonts.BodyBold;
+        lblTitle.Appearance.ForeColor = Color.FromArgb(55, 55, 55);
+
+        var lblCode = new LabelControl
+        {
+            Text = string.IsNullOrEmpty(MenuCd) ? string.Empty : $"[{MenuCd}]",
+            AutoSizeMode = LabelAutoSizeMode.None,
+            Size = new Size(140, 18)
+        };
+        lblCode.Appearance.Font = AppFonts.Caption;
+        lblCode.Appearance.ForeColor = Color.FromArgb(150, 150, 150);
+
+        header.Controls.Add(icon);
+        header.Controls.Add(lblTitle);
+        header.Controls.Add(lblCode);
+        header.Layout += (s, e) => lblCode.Location = new Point(lblTitle.Right + 4, 6);
+        lblCode.Location = new Point(lblTitle.Right + 4, 6);
+
+        return header;
     }
 
     /// <summary>

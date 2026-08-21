@@ -27,7 +27,8 @@ public class MenuListForm : BaseForm
     private string? _lastSelectedCd;  // 트리에서 마지막으로 선택된 메뉴 (신규 시 상위메뉴 후보)
     private string? _newParentCd;     // 신규모드일 때 실제 적용될 상위메뉴코드 (null = 최상위)
 
-    private readonly Panel leftPanel = new() { Dock = DockStyle.Left, Width = 300 };
+    private readonly SplitContainerControl splitContainer = new() { Dock = DockStyle.Fill };
+    private readonly Panel leftPanel = new() { Dock = DockStyle.Fill };
     private readonly Panel rightPanel = new() { Dock = DockStyle.Fill };
     private readonly TreeList menuTree = new();
     private readonly TreeListColumn colMenuNm = new() { FieldName = "MenuNm", Caption = "메뉴명" };
@@ -61,8 +62,15 @@ public class MenuListForm : BaseForm
 
         BuildLeftPanel();
         BuildRightPanel();
-        Controls.Add(rightPanel);
-        Controls.Add(leftPanel);
+        splitContainer.Panel1.Controls.Add(leftPanel);
+        splitContainer.Panel2.Controls.Add(rightPanel);
+        splitContainer.Panel1.MinSize = 220;
+        splitContainer.Panel2.MinSize = 320;
+        splitContainer.SplitterPosition = 300;
+
+        // Dock 추가 순서: Fill(splitContainer) 먼저, Top(타이틀바)은 나중에 추가해야 맨 위를 차지한다
+        Controls.Add(splitContainer);
+        Controls.Add(BuildScreenHeader());
 
         EnterNewMode(null);
         Load += async (s, e) => await QueryAsync();

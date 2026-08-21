@@ -29,6 +29,9 @@ public class UserGroupListForm : BaseGridForm
         MainGridView.DoubleClick += async (s, e) => await OpenEditPopupAsync();
 
         Load += async (s, e) => await QueryAsync();
+
+        // 공통 타이틀 바 - 검색패널보다 나중에 추가해야 맨 위를 차지한다
+        Controls.Add(BuildScreenHeader());
     }
 
     private void BuildSearchPanel()

@@ -38,7 +38,8 @@ public class PermissionAssignForm : BaseForm
     private List<TargetItem> _targets = new();
     private List<MenuAuthItemDto> _authItems = new();
 
-    private readonly Panel leftPanel = new() { Dock = DockStyle.Left, Width = 260 };
+    private readonly SplitContainerControl splitContainer = new() { Dock = DockStyle.Fill };
+    private readonly Panel leftPanel = new() { Dock = DockStyle.Fill };
     private readonly Panel rightPanel = new() { Dock = DockStyle.Fill };
 
     private readonly SimpleButton btnTabUser = new() { Text = "사용자" };
@@ -60,8 +61,15 @@ public class PermissionAssignForm : BaseForm
 
         BuildLeftPanel();
         BuildRightPanel();
-        Controls.Add(rightPanel);
-        Controls.Add(leftPanel);
+        splitContainer.Panel1.Controls.Add(leftPanel);
+        splitContainer.Panel2.Controls.Add(rightPanel);
+        splitContainer.Panel1.MinSize = 200;
+        splitContainer.Panel2.MinSize = 400;
+        splitContainer.SplitterPosition = 260;
+
+        // Dock 추가 순서: Fill(splitContainer) 먼저, Top(타이틀바)은 나중에 추가해야 맨 위를 차지한다
+        Controls.Add(splitContainer);
+        Controls.Add(BuildScreenHeader());
 
         Load += async (s, e) => await QueryAsync();
     }

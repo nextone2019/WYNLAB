@@ -35,6 +35,9 @@ public class UserListForm : BaseGridForm
 
         // 화면이 열리자마자 목록을 바로 보여주는 게 사용성이 좋음 (Shell 툴바 "조회" 안 눌러도 되도록)
         Load += async (s, e) => await QueryAsync();
+
+        // 공통 타이틀 바 - 검색패널보다 나중에 추가해야 맨 위를 차지한다
+        Controls.Add(BuildScreenHeader());
     }
 
     /// <summary>검색조건(아이디/이름) 입력 영역. BaseGridForm 생성자에서 MainGrid(Dock=Fill)가
