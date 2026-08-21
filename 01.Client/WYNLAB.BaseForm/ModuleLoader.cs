@@ -37,7 +37,9 @@ public static class ModuleLoader
 
         if (string.IsNullOrWhiteSpace(folderPath) || !Directory.Exists(folderPath)) return;
 
-        foreach (var dllPath in Directory.GetFiles(folderPath, "*.dll"))
+        // 하위 폴더까지 재귀 탐색 - 배포 폴더를 SM/BA/SA/PR/MA 등 모듈별 하위 폴더로
+        // 나눠서 관리하는 구조(99.SOURCE\{모듈}\{화면}\ 소스 구조와 대응)를 그대로 지원한다.
+        foreach (var dllPath in Directory.GetFiles(folderPath, "*.dll", SearchOption.AllDirectories))
         {
             try
             {
