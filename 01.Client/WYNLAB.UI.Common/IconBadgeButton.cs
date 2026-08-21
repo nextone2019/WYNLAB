@@ -65,6 +65,8 @@ public class IconBadgeButton : Control
     {
         var g = e.Graphics;
         g.SmoothingMode = SmoothingMode.AntiAlias;
+        g.PixelOffsetMode = PixelOffsetMode.HighQuality;
+        g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.ClearTypeGridFit;
         g.Clear(Parent?.BackColor ?? Color.White);
 
         var badgeSize = Math.Min(Width - 8, 40);
@@ -82,11 +84,13 @@ public class IconBadgeButton : Control
         var iconRect = Rectangle.Inflate(badgeRect, -9, -9);
         IconPainter?.Invoke(g, iconRect, iconOutline, iconAccent);
 
-        var textRect = new Rectangle(0, badgeRect.Bottom + 3, Width, 16);
-        using var textBrush = new SolidBrush(Color.FromArgb(75, 75, 75));
-        using var font = new Font("Segoe UI", 7.7f);
+        // 남은 세로 공간을 그대로 캡션 영역으로 사용 - 버튼 높이가 바뀌어도 글자가 잘리지 않도록 동적으로 계산
+        var textTop = badgeRect.Bottom + 2;
+        var textHeight = Math.Max(14, Height - textTop - 1);
+        var textRect = new Rectangle(0, textTop, Width, textHeight);
+        using var textBrush = new SolidBrush(Color.FromArgb(70, 70, 70));
         var format = new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center };
-        g.DrawString(Text, font, textBrush, textRect, format);
+        g.DrawString(Text, AppFonts.Caption, textBrush, textRect, format);
     }
 
     private static GraphicsPath RoundedRect(Rectangle bounds, int radius)

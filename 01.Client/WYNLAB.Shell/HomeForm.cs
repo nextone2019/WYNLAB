@@ -25,7 +25,7 @@ public class HomeForm : BaseForm
             Text = "HOME 화면\n\n여기에 회사별 대시보드, 결재리스트, 공지사항 등을\n자유롭게 구성할 수 있습니다.",
             Dock = DockStyle.Fill
         };
-        label.Appearance.Font = new Font("Segoe UI", 14, FontStyle.Regular);
+        label.Appearance.Font = AppFonts.Heading;
         label.Appearance.ForeColor = Color.FromArgb(120, 120, 120);
         label.Appearance.TextOptions.HAlignment = DevExpress.Utils.HorzAlignment.Center;
         label.Appearance.TextOptions.VAlignment = DevExpress.Utils.VertAlignment.Center;

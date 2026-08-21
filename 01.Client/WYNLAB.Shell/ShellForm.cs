@@ -58,9 +58,9 @@ public class ShellForm : XtraForm
 
         tabbedMdiManager.MdiParent = this;
 
-        headerPanel = new Panel { Dock = DockStyle.Top, Height = 64, BackColor = HeaderBg };
-        logoPanel = new Panel { BackColor = HeaderBg, Cursor = Cursors.Hand, Width = 190, Dock = DockStyle.Left };
-        sidebarPanel = new Panel { Dock = DockStyle.Left, Width = 190, BackColor = SidebarBg };
+        headerPanel = new Panel { Dock = DockStyle.Top, Height = 76, BackColor = HeaderBg };
+        logoPanel = new Panel { BackColor = HeaderBg, Cursor = Cursors.Hand, Width = 212, Dock = DockStyle.Left };
+        sidebarPanel = new Panel { Dock = DockStyle.Left, Width = 212, BackColor = SidebarBg };
         statusBar = new Panel { Dock = DockStyle.Bottom, Height = 26, BackColor = SidebarBg };
 
         BuildLogo();
@@ -124,13 +124,13 @@ public class ShellForm : XtraForm
         lblStatusMessage.AutoSizeMode = LabelAutoSizeMode.None;
         lblStatusMessage.Size = new Size(500, 18);
         lblStatusMessage.Appearance.ForeColor = Color.FromArgb(90, 90, 90);
-        lblStatusMessage.Appearance.Font = new Font("Segoe UI", 8.25f);
+        lblStatusMessage.Appearance.Font = AppFonts.Caption;
 
         lblStatusRight.AutoSizeMode = LabelAutoSizeMode.None;
         lblStatusRight.Size = new Size(320, 18);
         lblStatusRight.Appearance.TextOptions.HAlignment = DevExpress.Utils.HorzAlignment.Far;
         lblStatusRight.Appearance.ForeColor = Color.FromArgb(120, 120, 120);
-        lblStatusRight.Appearance.Font = new Font("Segoe UI", 8.25f);
+        lblStatusRight.Appearance.Font = AppFonts.Caption;
         RefreshStatusRight();
 
         statusBar.Resize += (s, e) => PositionStatusBar();
@@ -179,7 +179,7 @@ public class ShellForm : XtraForm
         {
             BackColor = _accentColor,
             Size = new Size(28, 28),
-            Location = new Point(16, 18)
+            Location = new Point(16, 24)
         };
         var badgeLabel = new LabelControl
         {
@@ -190,18 +190,18 @@ public class ShellForm : XtraForm
         badgeLabel.Appearance.TextOptions.HAlignment = DevExpress.Utils.HorzAlignment.Center;
         badgeLabel.Appearance.TextOptions.VAlignment = DevExpress.Utils.VertAlignment.Center;
         badgeLabel.Appearance.ForeColor = Color.White;
-        badgeLabel.Appearance.Font = new Font("Segoe UI", 11, FontStyle.Bold);
+        badgeLabel.Appearance.Font = AppFonts.LogoGlyphSmall;
         badge.Controls.Add(badgeLabel);
 
         var nameLabel = new LabelControl
         {
             Text = "WYN LAB",
-            Location = new Point(52, 24),
+            Location = new Point(52, 29),
             AutoSizeMode = LabelAutoSizeMode.None,
-            Size = new Size(130, 20)
+            Size = new Size(150, 22)
         };
-        nameLabel.Appearance.ForeColor = Color.FromArgb(45, 45, 45);
-        nameLabel.Appearance.Font = new Font("Segoe UI", 9.5f, FontStyle.Bold);
+        nameLabel.Appearance.ForeColor = Color.FromArgb(35, 35, 35);
+        nameLabel.Appearance.Font = AppFonts.SubHeading;
 
         logoPanel.Controls.Add(badge);
         logoPanel.Controls.Add(nameLabel);
@@ -214,8 +214,9 @@ public class ShellForm : XtraForm
     }
 
     /// <summary>
-    /// 홈 | 조회/입력/저장 | 삭제 | 출력 - 아이콘마다 둥근 배지 배경을 가진 카드형 버튼(IconBadgeButton)으로 구성.
-    /// 삭제는 옅은 빨강 배지+빨간 아이콘, 저장은 진한 파랑 배지+흰 아이콘으로 강조.
+    /// 홈은 상단바에 단독 배치하고, 조회/입력/저장 · 삭제 · 출력은 각각 둥근 배경 카드
+    /// (RoundedPanel)로 묶어서 "그룹"임이 한눈에 보이도록 구성한다.
+    /// 삭제 카드는 옅은 빨강, 출력 카드는 옅은 파랑 배경으로 성격을 색으로도 구분한다.
     /// 클릭하면 현재 활성화된 MDI 자식폼(ActiveMdiChild)의 표준 액션(BaseForm.QueryAsync 등)을 호출한다.
     /// </summary>
     private void BuildToolbar()
@@ -225,24 +226,52 @@ public class ShellForm : XtraForm
         var blueBadge = Color.FromArgb(232, 240, 254);
         var redBadge = Color.FromArgb(253, 236, 234);
 
-        var x = 206;
-        AddIconBadgeButton(ref x, "홈", ToolbarIconPainters.Home, neutralBadge, iconAccent, false, f => { OpenHomeForm(); return Task.CompletedTask; });
+        var x = 228;
+        AddIconBadgeButton(headerPanel, ref x, 6, "홈", ToolbarIconPainters.Home, neutralBadge, iconAccent, false, f => { OpenHomeForm(); return Task.CompletedTask; });
+        x += 6;
         AddDivider(ref x);
-        AddIconBadgeButton(ref x, "조회", ToolbarIconPainters.Query, neutralBadge, iconAccent, false, f => f.QueryAsync());
-        AddIconBadgeButton(ref x, "입력", ToolbarIconPainters.New, blueBadge, iconAccent, false, f => f.NewAsync());
-        AddIconBadgeButton(ref x, "저장", ToolbarIconPainters.Save, iconAccent, iconAccent, true, f => f.SaveAsync());
-        AddDivider(ref x);
-        AddIconBadgeButton(ref x, "삭제", ToolbarIconPainters.Delete, redBadge, DangerColor, false, f => f.DeleteAsync());
-        AddDivider(ref x);
-        AddIconBadgeButton(ref x, "출력", ToolbarIconPainters.Print, blueBadge, iconAccent, false, f => f.PrintAsync());
+
+        // 조회 / 입력 / 저장 - 중립 회색 톤 카드로 한 그룹
+        var queryGroup = AddToolbarGroup(ref x, 64 * 3, SidebarBg);
+        var qx = 0;
+        AddIconBadgeButton(queryGroup, ref qx, 2, "조회", ToolbarIconPainters.Query, neutralBadge, iconAccent, false, f => f.QueryAsync());
+        AddIconBadgeButton(queryGroup, ref qx, 2, "입력", ToolbarIconPainters.New, blueBadge, iconAccent, false, f => f.NewAsync());
+        AddIconBadgeButton(queryGroup, ref qx, 2, "저장", ToolbarIconPainters.Save, iconAccent, iconAccent, true, f => f.SaveAsync());
+
+        // 삭제 - "위험한 동작"이라 카드 배경 자체를 옅은 빨강으로 강조
+        var deleteGroup = AddToolbarGroup(ref x, 64, redBadge);
+        var dx = 0;
+        AddIconBadgeButton(deleteGroup, ref dx, 2, "삭제", ToolbarIconPainters.Delete, Color.White, DangerColor, false, f => f.DeleteAsync());
+
+        // 출력 - 옅은 파랑 카드로 조회 그룹과는 다른 성격임을 표시
+        var printGroup = AddToolbarGroup(ref x, 64, blueBadge);
+        var px = 0;
+        AddIconBadgeButton(printGroup, ref px, 2, "출력", ToolbarIconPainters.Print, Color.White, iconAccent, false, f => f.PrintAsync());
+    }
+
+    /// <summary>둥근 배경 카드를 만들어 headerPanel에 배치하고, 다음 그룹을 위한 x좌표를 진행시킨다.</summary>
+    private RoundedPanel AddToolbarGroup(ref int x, int width, Color backColor)
+    {
+        var panel = new RoundedPanel
+        {
+            Location = new Point(x, 4),
+            Size = new Size(width, 68),
+            BackColor = backColor,
+            CornerRadius = 14
+        };
+        headerPanel.Controls.Add(panel);
+        x += width + 10;
+        return panel;
     }
 
     /// <summary>
     /// action 파라미터는 BaseForm을 받지만, "홈" 버튼처럼 활성화면과 무관하게 항상 동작해야 하는
     /// 경우도 있어서, 실제로는 델리게이트 내부에서 ActiveMdiChild를 쓸지 말지 자유롭게 결정한다.
     /// (홈 버튼은 activeForm 인자를 무시하고 항상 OpenHomeForm()만 호출)
+    /// container: 이 버튼을 실제로 담을 컨트롤(headerPanel 직접 또는 AddToolbarGroup으로 만든 카드).
+    /// x/y는 container 기준 로컬 좌표.
     /// </summary>
-    private void AddIconBadgeButton(ref int x, string text, Action<Graphics, Rectangle, Color, Color> painter,
+    private void AddIconBadgeButton(Control container, ref int x, int y, string text, Action<Graphics, Rectangle, Color, Color> painter,
         Color badgeColor, Color accentColor, bool filled, Func<BaseForm, Task> action)
     {
         var btn = new IconBadgeButton
@@ -252,8 +281,8 @@ public class ShellForm : XtraForm
             BadgeColor = badgeColor,
             AccentColor = accentColor,
             FilledBadge = filled,
-            Location = new Point(x, 4),
-            Size = new Size(64, 56)
+            Location = new Point(x, y),
+            Size = new Size(64, 64)
         };
 
         btn.Click += async (s, e) =>
@@ -282,13 +311,13 @@ public class ShellForm : XtraForm
             }
         };
 
-        headerPanel.Controls.Add(btn);
+        container.Controls.Add(btn);
         x += btn.Width;
     }
 
     private void AddDivider(ref int x)
     {
-        var divider = new Panel { Location = new Point(x, 14), Size = new Size(1, 34), BackColor = DividerColor };
+        var divider = new Panel { Location = new Point(x, 21), Size = new Size(1, 34), BackColor = DividerColor };
         headerPanel.Controls.Add(divider);
         x += 12;
     }
@@ -299,15 +328,17 @@ public class ShellForm : XtraForm
         cboEnvironment.Properties.Items.AddRange(AppConfig.AvailableEnvironments.Select(GetEnvLabel).ToArray());
         cboEnvironment.Properties.TextEditStyle = TextEditStyles.DisableTextEditor;
         cboEnvironment.SelectedItem = GetEnvLabel(AppConfig.CurrentEnvironment);
-        cboEnvironment.Size = new Size(100, 26);
+        cboEnvironment.Font = AppFonts.Body;
+        cboEnvironment.Size = new Size(112, 26);
         cboEnvironment.Anchor = AnchorStyles.Top | AnchorStyles.Right;
         cboEnvironment.SelectedIndexChanged += OnEnvironmentComboChanged;
 
         lblUserInfo.AutoSizeMode = LabelAutoSizeMode.None;
-        lblUserInfo.Size = new Size(150, 34);
+        lblUserInfo.Size = new Size(160, 34);
         lblUserInfo.Appearance.TextOptions.HAlignment = DevExpress.Utils.HorzAlignment.Far;
         lblUserInfo.Appearance.TextOptions.VAlignment = DevExpress.Utils.VertAlignment.Center;
         lblUserInfo.Appearance.ForeColor = Color.FromArgb(45, 45, 45);
+        lblUserInfo.Appearance.Font = AppFonts.Body;
         lblUserInfo.Anchor = AnchorStyles.Top | AnchorStyles.Right;
 
         headerPanel.Resize += (s, e) => PositionUserArea();
@@ -318,8 +349,8 @@ public class ShellForm : XtraForm
 
     private void PositionUserArea()
     {
-        cboEnvironment.Location = new Point(headerPanel.Width - cboEnvironment.Width - 16, 19);
-        lblUserInfo.Location = new Point(cboEnvironment.Left - lblUserInfo.Width - 12, 15);
+        cboEnvironment.Location = new Point(headerPanel.Width - cboEnvironment.Width - 16, 25);
+        lblUserInfo.Location = new Point(cboEnvironment.Left - lblUserInfo.Width - 12, 21);
     }
 
     private void RefreshUserInfoLabel()
@@ -403,7 +434,7 @@ public class ShellForm : XtraForm
             // 회사별 커스터마이징을 위해 헤더의 로고 배지와 동일한 _accentColor(ToolbarColor)를 재사용.
             group.Appearance.Normal.BackColor = _accentColor;
             group.Appearance.Normal.ForeColor = Color.White;
-            group.Appearance.Normal.Font = new Font("Segoe UI", 9.5f, FontStyle.Bold);
+            group.Appearance.Normal.Font = AppFonts.SubHeading;
             group.Appearance.Normal.Options.UseBackColor = true;
             group.Appearance.Normal.Options.UseForeColor = true;
             group.Appearance.Normal.Options.UseFont = true;
@@ -411,8 +442,10 @@ public class ShellForm : XtraForm
             // 마우스 올렸을 때도 톤을 맞춰줌 (약간 밝게)
             group.Appearance.Hovered.BackColor = ColorHelper.Adjust(_accentColor, 20);
             group.Appearance.Hovered.ForeColor = Color.White;
+            group.Appearance.Hovered.Font = AppFonts.SubHeading;
             group.Appearance.Hovered.Options.UseBackColor = true;
             group.Appearance.Hovered.Options.UseForeColor = true;
+            group.Appearance.Hovered.Options.UseFont = true;
 
             AddChildMenus(group, menus, top.MenuCd);
             accordionMenu.Elements.Add(group);
@@ -448,8 +481,37 @@ public class ShellForm : XtraForm
                 Style = child.MenuType == "GROUP" ? ElementStyle.Group : ElementStyle.Item
             };
 
-            if (child.MenuType == "FORM")
+            if (child.MenuType == "GROUP")
             {
+                // 2단계 이하 그룹(소분류) - 최상위 그룹과 구분되도록 배경 없이 굵은 글씨만
+                element.Appearance.Normal.ForeColor = Color.FromArgb(60, 60, 60);
+                element.Appearance.Normal.Font = AppFonts.BodyBold;
+                element.Appearance.Normal.Options.UseForeColor = true;
+                element.Appearance.Normal.Options.UseFont = true;
+
+                element.Appearance.Hovered.ForeColor = _accentColor;
+                element.Appearance.Hovered.Options.UseForeColor = true;
+            }
+            else
+            {
+                // 실제 클릭 가능한 화면(FORM) - 은은한 강조색 호버로 클릭 가능함을 명확히 표시
+                element.Appearance.Normal.ForeColor = Color.FromArgb(80, 80, 80);
+                element.Appearance.Normal.Font = AppFonts.Body;
+                element.Appearance.Normal.Options.UseForeColor = true;
+                element.Appearance.Normal.Options.UseFont = true;
+
+                element.Appearance.Hovered.BackColor = ColorHelper.Adjust(SidebarBg, -12);
+                element.Appearance.Hovered.ForeColor = _accentColor;
+                element.Appearance.Hovered.Font = AppFonts.BodyBold;
+                element.Appearance.Hovered.Options.UseBackColor = true;
+                element.Appearance.Hovered.Options.UseForeColor = true;
+                element.Appearance.Hovered.Options.UseFont = true;
+
+                element.Appearance.Pressed.BackColor = ColorHelper.Adjust(SidebarBg, -20);
+                element.Appearance.Pressed.ForeColor = _accentColor;
+                element.Appearance.Pressed.Options.UseBackColor = true;
+                element.Appearance.Pressed.Options.UseForeColor = true;
+
                 element.Click += (s, e) => OpenMenuForm(child);
             }
 

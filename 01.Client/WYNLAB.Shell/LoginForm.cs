@@ -66,7 +66,7 @@ public partial class LoginForm : XtraForm
         var badge = new Panel { BackColor = Color.White, Size = new Size(56, 56), Location = new Point(48, 90) };
         var badgeLabel = new LabelControl { Text = "W", Dock = DockStyle.Fill, AutoSizeMode = LabelAutoSizeMode.None };
         badgeLabel.Appearance.ForeColor = BrandColor;
-        badgeLabel.Appearance.Font = new Font("Segoe UI", 22, FontStyle.Bold);
+        badgeLabel.Appearance.Font = AppFonts.LogoGlyphLarge;
         badgeLabel.Appearance.TextOptions.HAlignment = DevExpress.Utils.HorzAlignment.Center;
         badgeLabel.Appearance.TextOptions.VAlignment = DevExpress.Utils.VertAlignment.Center;
         badge.Controls.Add(badgeLabel);
@@ -76,20 +76,20 @@ public partial class LoginForm : XtraForm
             Text = "WYN LAB",
             Location = new Point(48, 168),
             AutoSizeMode = LabelAutoSizeMode.None,
-            Size = new Size(280, 40)
+            Size = new Size(280, 44)
         };
         titleLabel.Appearance.ForeColor = Color.White;
-        titleLabel.Appearance.Font = new Font("Segoe UI", 20, FontStyle.Bold);
+        titleLabel.Appearance.Font = AppFonts.Display;
 
         var taglineLabel = new LabelControl
         {
             Text = "What You Need",
-            Location = new Point(48, 214),
+            Location = new Point(48, 222),
             AutoSizeMode = LabelAutoSizeMode.None,
             Size = new Size(280, 60)
         };
         taglineLabel.Appearance.ForeColor = Color.FromArgb(230, 255, 255, 255);
-        taglineLabel.Appearance.Font = new Font("Segoe UI", 11);
+        taglineLabel.Appearance.Font = AppFonts.Body;
 
         var versionLabel = new LabelControl
         {
@@ -99,7 +99,7 @@ public partial class LoginForm : XtraForm
             Size = new Size(200, 20)
         };
         versionLabel.Appearance.ForeColor = Color.FromArgb(160, 255, 255, 255);
-        versionLabel.Appearance.Font = new Font("Segoe UI", 8.5f);
+        versionLabel.Appearance.Font = AppFonts.Caption;
 
         leftPanel.Controls.Add(badge);
         leftPanel.Controls.Add(titleLabel);
@@ -118,7 +118,7 @@ public partial class LoginForm : XtraForm
         lblClose.AutoSizeMode = LabelAutoSizeMode.None;
         lblClose.Size = new Size(28, 28);
         lblClose.Appearance.ForeColor = Color.FromArgb(150, 150, 150);
-        lblClose.Appearance.Font = new Font("Segoe UI", 11);
+        lblClose.Appearance.Font = AppFonts.SubHeading;
         lblClose.Appearance.TextOptions.HAlignment = DevExpress.Utils.HorzAlignment.Center;
         lblClose.Appearance.TextOptions.VAlignment = DevExpress.Utils.VertAlignment.Center;
         lblClose.Cursor = Cursors.Hand;
@@ -140,17 +140,19 @@ public partial class LoginForm : XtraForm
             AutoSizeMode = LabelAutoSizeMode.None,
             Size = new Size(300, 34)
         };
-        welcomeLabel.Appearance.Font = new Font("Segoe UI", 16, FontStyle.Bold);
+        welcomeLabel.Appearance.Font = AppFonts.Heading;
         Controls.Add(welcomeLabel);
         y += 56;
 
         AddFieldLabel("아이디", formX, ref y);
+        txtUserId.Font = AppFonts.Body;
         txtUserId.Location = new Point(formX, y);
         txtUserId.Size = new Size(320, 28);
         Controls.Add(txtUserId);
         y += 44;
 
         AddFieldLabel("비밀번호", formX, ref y);
+        txtPassword.Font = AppFonts.Body;
         txtPassword.Location = new Point(formX, y);
         txtPassword.Size = new Size(320, 28);
         Controls.Add(txtPassword);
@@ -160,6 +162,7 @@ public partial class LoginForm : XtraForm
         cboEnvironment.Properties.Items.AddRange(AppConfig.AvailableEnvironments.Select(GetEnvLabel).ToArray());
         cboEnvironment.Properties.TextEditStyle = TextEditStyles.DisableTextEditor;
         cboEnvironment.SelectedItem = GetEnvLabel(AppConfig.CurrentEnvironment);
+        cboEnvironment.Font = AppFonts.Body;
         cboEnvironment.Location = new Point(formX, y);
         cboEnvironment.Size = new Size(320, 28);
         cboEnvironment.SelectedIndexChanged += (s, e) =>
@@ -174,7 +177,7 @@ public partial class LoginForm : XtraForm
         btnLogin.Size = new Size(320, 40);
         btnLogin.Appearance.BackColor = BrandColor;
         btnLogin.Appearance.ForeColor = Color.White;
-        btnLogin.Appearance.Font = new Font("Segoe UI", 10, FontStyle.Bold);
+        btnLogin.Appearance.Font = AppFonts.BodyBold;
         btnLogin.Appearance.Options.UseBackColor = true;
         btnLogin.Appearance.Options.UseForeColor = true;
         btnLogin.Click += BtnLogin_Click;
@@ -187,7 +190,7 @@ public partial class LoginForm : XtraForm
     {
         var lbl = new LabelControl { Text = text, Location = new Point(x, y), AutoSizeMode = LabelAutoSizeMode.None, Size = new Size(200, 18) };
         lbl.Appearance.ForeColor = Color.FromArgb(110, 110, 110);
-        lbl.Appearance.Font = new Font("Segoe UI", 8.5f);
+        lbl.Appearance.Font = AppFonts.Caption;
         Controls.Add(lbl);
         y += 22;
     }
