@@ -39,6 +39,12 @@ public class BaseForm : XtraForm
     public virtual Task DeleteAsync() => Task.CompletedTask;
     public virtual Task PrintAsync() => Task.CompletedTask;
 
+    /// <summary>
+    /// 화면 타이틀 바(BuildScreenHeader) 왼쪽에 그려지는 아이콘. 기본은 폴더지만, 화면 성격에
+    /// 더 맞는 아이콘이 있으면(예: 메뉴관리의 트리 아이콘) 화면 클래스에서 override한다.
+    /// </summary>
+    protected virtual Action<Graphics, Rectangle, Color> ScreenIconPainter => MenuIconPainters.Folder;
+
     public BaseForm()
     {
         this.MdiParent = null; // Shell에서 폼 생성 후 주입
@@ -74,25 +80,28 @@ public class BaseForm : XtraForm
     /// </summary>
     protected Panel BuildScreenHeader()
     {
-        var header = new Panel { Dock = DockStyle.Top, Height = 34, BackColor = Color.FromArgb(247, 248, 249) };
+        // 흰 배경(회색 배경이면 아래 본문과 색이 끊겨 보인다는 피드백)으로 본문과 자연스럽게
+        // 이어지게 하고, 아래쪽 얇은 선 하나로만 구분한다.
+        var header = new Panel { Dock = DockStyle.Top, Height = 34, BackColor = Color.White };
         var bottomBorder = new Panel { Dock = DockStyle.Bottom, Height = 1, BackColor = Color.FromArgb(228, 229, 232) };
         header.Controls.Add(bottomBorder);
 
         var icon = new PictureBox
         {
-            Image = MenuIconPainters.Render(MenuIconPainters.Folder, 16, Color.FromArgb(120, 124, 132)),
+            Image = MenuIconPainters.Render(ScreenIconPainter, 16, Color.FromArgb(120, 124, 132)),
             SizeMode = PictureBoxSizeMode.CenterImage,
             Location = new Point(14, 4),
             Size = new Size(20, 20),
             BackColor = Color.Transparent
         };
 
+        // AutoSizeMode.Default로 실제 텍스트 길이만큼만 폭을 차지하게 해서, 화면명이 짧을 때
+        // (예: "메뉴관리") 코드 라벨([SM_MENU])이 옆에 붙지 않고 멀리 떨어져 보이던 문제를 없앤다.
         var lblTitle = new LabelControl
         {
             Text = Text,
             Location = new Point(38, 6),
-            AutoSizeMode = LabelAutoSizeMode.None,
-            Size = new Size(220, 18)
+            AutoSizeMode = LabelAutoSizeMode.Default
         };
         lblTitle.Appearance.Font = AppFonts.BodyBold;
         lblTitle.Appearance.ForeColor = Color.FromArgb(55, 55, 55);
@@ -100,8 +109,7 @@ public class BaseForm : XtraForm
         var lblCode = new LabelControl
         {
             Text = string.IsNullOrEmpty(MenuCd) ? string.Empty : $"[{MenuCd}]",
-            AutoSizeMode = LabelAutoSizeMode.None,
-            Size = new Size(140, 18)
+            AutoSizeMode = LabelAutoSizeMode.Default
         };
         lblCode.Appearance.Font = AppFonts.Caption;
         lblCode.Appearance.ForeColor = Color.FromArgb(150, 150, 150);
@@ -109,8 +117,9 @@ public class BaseForm : XtraForm
         header.Controls.Add(icon);
         header.Controls.Add(lblTitle);
         header.Controls.Add(lblCode);
-        header.Layout += (s, e) => lblCode.Location = new Point(lblTitle.Right + 4, 6);
-        lblCode.Location = new Point(lblTitle.Right + 4, 6);
+        void PositionCode() => lblCode.Location = new Point(lblTitle.Right + 8, 8);
+        header.Layout += (s, e) => PositionCode();
+        PositionCode();
 
         return header;
     }

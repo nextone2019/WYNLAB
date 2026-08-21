@@ -28,11 +28,11 @@ public static class LayoutGroupExtensions
     /// 고정으로 유지된다 - 등록/수정 폼에서 필드가 창 크기 따라 늘었다 줄었다 할 필요는 없다는
     /// 방침. 이 앱 전체(사용자등록, 메뉴관리 등) LayoutControl 화면에서 공통으로 사용한다.
     /// </summary>
-    public static LayoutControlItem FixedControlWidth(this LayoutControlItem item, int width)
+    public static LayoutControlItem FixedControlWidth(this LayoutControlItem item, int width, int height = 22)
     {
         item.SizeConstraintsType = SizeConstraintsType.Custom;
-        item.ControlMinSize = new Size(width, 0);
-        item.ControlMaxSize = new Size(width, 0);
+        item.ControlMinSize = new Size(width, height);
+        item.ControlMaxSize = new Size(width, height);
         return item;
     }
 }

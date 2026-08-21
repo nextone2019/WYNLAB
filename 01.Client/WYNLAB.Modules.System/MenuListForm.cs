@@ -27,9 +27,12 @@ public class MenuListForm : BaseForm
     private string? _lastSelectedCd;  // 트리에서 마지막으로 선택된 메뉴 (신규 시 상위메뉴 후보)
     private string? _newParentCd;     // 신규모드일 때 실제 적용될 상위메뉴코드 (null = 최상위)
 
-    private readonly SplitContainerControl splitContainer = new() { Dock = DockStyle.Fill };
+    // 우측 편집 패널은 고정폭(Dock=Right)으로 두고, 좌측 트리가 나머지 공간을 다 채운다(Dock=Fill).
+    // 예전엔 SplitContainerControl로 사용자가 드래그해서 폭을 조절할 수 있었는데, 그러면 MDI
+    // 창 크기가 바뀔 때마다 우측 입력 필드들 위치도 같이 흔들려서 고정폭 방식으로 바꿨다.
+    private const int RightPanelWidth = 600;
     private readonly Panel leftPanel = new() { Dock = DockStyle.Fill };
-    private readonly Panel rightPanel = new() { Dock = DockStyle.Fill };
+    private readonly Panel rightPanel = new() { Dock = DockStyle.Right, Width = RightPanelWidth };
     private readonly TreeList menuTree = new();
     private readonly TreeListColumn colMenuNm = new() { FieldName = "MenuNm", Caption = "메뉴명" };
 
@@ -52,6 +55,9 @@ public class MenuListForm : BaseForm
     private readonly SimpleButton btnSaveInline = new() { Text = "저장" };
     private readonly SimpleButton btnCancelEdit = new() { Text = "취소" };
 
+    // 화면 타이틀의 기본 폴더 아이콘 대신 "계층 구조를 관리한다"는 의미가 더 명확한 트리 아이콘을 사용.
+    protected override Action<Graphics, Rectangle, Color> ScreenIconPainter => MenuIconPainters.MenuTree;
+
     public MenuListForm()
     {
         Text = "메뉴관리";
@@ -62,14 +68,11 @@ public class MenuListForm : BaseForm
 
         BuildLeftPanel();
         BuildRightPanel();
-        splitContainer.Panel1.Controls.Add(leftPanel);
-        splitContainer.Panel2.Controls.Add(rightPanel);
-        splitContainer.Panel1.MinSize = 220;
-        splitContainer.Panel2.MinSize = 320;
-        splitContainer.SplitterPosition = 300;
 
-        // Dock 추가 순서: Fill(splitContainer) 먼저, Top(타이틀바)은 나중에 추가해야 맨 위를 차지한다
-        Controls.Add(splitContainer);
+        // Dock 추가 순서: Fill(leftPanel) 먼저, Right(rightPanel)와 Top(타이틀바)은 나중에
+        // 추가해야 각자 가장자리를 정상적으로 차지한다.
+        Controls.Add(leftPanel);
+        Controls.Add(rightPanel);
         Controls.Add(BuildScreenHeader());
 
         EnterNewMode(null);

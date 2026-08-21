@@ -66,6 +66,22 @@ public static class MenuIconPainters
         gg.FillEllipse(brush, 9.5f, 9.5f, 5, 5);
     });
 
+    /// <summary>메뉴(트리) 관리 화면 타이틀용 아이콘 - 세로 줄기에서 가지 3개가 뻗어나가는 형태로
+    /// "계층 구조를 관리한다"는 의미를 폴더 아이콘보다 명확하게 전달한다.</summary>
+    public static void MenuTree(Graphics g, Rectangle rect, Color color) => DrawScaled(g, rect, gg =>
+    {
+        using var pen = new Pen(color, 1.6f) { StartCap = LineCap.Round, EndCap = LineCap.Round, LineJoin = LineJoin.Round };
+        gg.DrawLine(pen, 5, 4, 5, 20);
+        gg.DrawLine(pen, 5, 7, 10, 7);
+        gg.DrawLine(pen, 5, 13, 10, 13);
+        gg.DrawLine(pen, 5, 19, 10, 19);
+
+        using var brush = new SolidBrush(color);
+        gg.FillRectangle(brush, 10, 5.3f, 8, 3.4f);
+        gg.FillRectangle(brush, 10, 11.3f, 8, 3.4f);
+        gg.FillRectangle(brush, 10, 17.3f, 8, 3.4f);
+    });
+
     /// <summary>24x24 가상 좌표계 -> 실제 rect 크기로 자동 스케일링해서 그려주는 헬퍼</summary>
     private static void DrawScaled(Graphics g, Rectangle rect, Action<Graphics> draw)
     {
