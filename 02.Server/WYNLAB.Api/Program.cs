@@ -11,6 +11,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddSingleton<IDapperContext, DapperContext>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IUserManageRepository, UserManageRepository>();
+builder.Services.AddScoped<IUserGroupManageRepository, UserGroupManageRepository>();
 builder.Services.AddScoped<IMenuManageRepository, MenuManageRepository>();
 builder.Services.AddScoped<IMenuRepository, MenuRepository>();
 builder.Services.AddScoped<IAuthService, AuthService>();

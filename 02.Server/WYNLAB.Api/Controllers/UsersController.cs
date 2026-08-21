@@ -21,9 +21,9 @@ public class UsersController : ControllerBase
     public UsersController(IUserManageRepository repo) => _repo = repo;
 
     [HttpGet]
-    public async Task<ActionResult<List<UserListItemDto>>> GetAll()
+    public async Task<ActionResult<List<UserListItemDto>>> GetAll([FromQuery] string? userId, [FromQuery] string? userNm)
     {
-        var rows = await _repo.GetAllAsync();
+        var rows = await _repo.GetAllAsync(userId, userNm);
         return Ok(rows.Select(MapToDto).ToList());
     }
 

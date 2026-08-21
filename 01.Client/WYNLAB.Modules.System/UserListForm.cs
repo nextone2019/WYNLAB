@@ -1,6 +1,7 @@
 using DevExpress.XtraEditors;
 using WYNLAB.Shared.Dtos;
 using WYNLAB.UI.Common;
+using System.Drawing;
 
 namespace WYNLAB.Modules.System;
 
@@ -10,15 +11,24 @@ namespace WYNLAB.Modules.System;
 ///
 /// 화면 자체에는 버튼이 없다 - Shell 상단 공통 툴바(조회/입력/삭제/출력)가 이 화면이 활성화된 상태에서
 /// QueryAsync/NewAsync/DeleteAsync/PrintAsync(BaseGridForm/BaseForm 상속)를 호출하는 구조.
+/// 검색조건(아이디/이름)만 화면 상단에 직접 두고, 조회 실행 자체는 Shell 툴바 "조회" 버튼과
+/// 이 패널의 "검색" 버튼/Enter 둘 다에서 QueryAsync()로 진입하도록 통일했다.
 /// </summary>
 public class UserListForm : BaseGridForm
 {
     private List<UserListItemDto> _currentList = new();
 
+    private readonly Panel searchPanel = new() { Dock = DockStyle.Top, Height = 46, BackColor = Color.FromArgb(250, 250, 251) };
+    private readonly TextEdit txtSearchUserId = new();
+    private readonly TextEdit txtSearchUserNm = new();
+    private readonly SimpleButton btnSearch = new() { Text = "검색" };
+
     public UserListForm()
     {
         Text = "사용자관리";
         MenuCd = "SM_USER"; // TSMMENU 등록 코드와 일치해야 권한이 정상 반영됨
+
+        BuildSearchPanel();
 
         MainGridView.OptionsBehavior.Editable = false; // 그리드 직접편집 금지, 팝업으로만 수정
         MainGridView.DoubleClick += async (s, e) => await OpenEditPopupAsync();
@@ -27,9 +37,55 @@ public class UserListForm : BaseGridForm
         Load += async (s, e) => await QueryAsync();
     }
 
+    /// <summary>검색조건(아이디/이름) 입력 영역. BaseGridForm 생성자에서 MainGrid(Dock=Fill)가
+    /// 먼저 추가되므로, 여기서 Dock=Top 패널을 나중에 추가하면 자연스럽게 그리드 위쪽에 자리잡는다.</summary>
+    private void BuildSearchPanel()
+    {
+        var bottomBorder = new Panel { Dock = DockStyle.Bottom, Height = 1, BackColor = Color.FromArgb(228, 229, 232) };
+        searchPanel.Controls.Add(bottomBorder);
+
+        AddSearchLabel("아이디", 16);
+        txtSearchUserId.Font = AppFonts.Body;
+        txtSearchUserId.Location = new Point(58, 11);
+        txtSearchUserId.Size = new Size(140, 24);
+        searchPanel.Controls.Add(txtSearchUserId);
+
+        AddSearchLabel("이름", 216);
+        txtSearchUserNm.Font = AppFonts.Body;
+        txtSearchUserNm.Location = new Point(250, 11);
+        txtSearchUserNm.Size = new Size(140, 24);
+        searchPanel.Controls.Add(txtSearchUserNm);
+
+        btnSearch.Font = AppFonts.Body;
+        btnSearch.Location = new Point(408, 10);
+        btnSearch.Size = new Size(72, 26);
+        btnSearch.Click += async (s, e) => await QueryAsync();
+        searchPanel.Controls.Add(btnSearch);
+
+        void SearchOnEnter(object? s, KeyEventArgs e)
+        {
+            if (e.KeyCode != Keys.Enter) return;
+            e.Handled = true;
+            _ = QueryAsync();
+        }
+        txtSearchUserId.KeyDown += SearchOnEnter;
+        txtSearchUserNm.KeyDown += SearchOnEnter;
+
+        Controls.Add(searchPanel);
+    }
+
+    private void AddSearchLabel(string text, int x)
+    {
+        var lbl = new LabelControl { Text = text, Location = new Point(x, 15), AutoSizeMode = LabelAutoSizeMode.None, Size = new Size(40, 18) };
+        lbl.Appearance.ForeColor = Color.FromArgb(100, 100, 100);
+        lbl.Appearance.Font = AppFonts.Caption;
+        searchPanel.Controls.Add(lbl);
+    }
+
     public override async Task QueryAsync()
     {
-        _currentList = await ApiClient.GetAsync<List<UserListItemDto>>("api/users") ?? new();
+        var query = $"api/users?userId={Uri.EscapeDataString(txtSearchUserId.Text.Trim())}&userNm={Uri.EscapeDataString(txtSearchUserNm.Text.Trim())}";
+        _currentList = await ApiClient.GetAsync<List<UserListItemDto>>(query) ?? new();
         MainGrid.DataSource = _currentList;
     }
 

@@ -5,7 +5,7 @@ namespace WYNLAB.Api.Repositories;
 
 public interface IUserManageRepository
 {
-    Task<List<UserManageRow>> GetAllAsync();
+    Task<List<UserManageRow>> GetAllAsync(string? userId = null, string? userNm = null);
     Task<bool> ExistsAsync(string userId);
     Task CreateAsync(string userId, string userNm, string passwordHash, string? empNo,
         string? deptCd, string? positionNm, string? email, string? mobileNo, bool isAdminYn);
@@ -36,7 +36,8 @@ public class UserManageRepository : IUserManageRepository
 
     public UserManageRepository(IDapperContext context) => _context = context;
 
-    public async Task<List<UserManageRow>> GetAllAsync()
+    /// <summary>userId/userNm 둘 다 부분일치(LIKE) 검색 - 값이 없으면(null/공백) 해당 조건은 무시</summary>
+    public async Task<List<UserManageRow>> GetAllAsync(string? userId = null, string? userNm = null)
     {
         const string sql = @"
             SELECT U.USER_ID AS UserId, U.USER_NM AS UserNm, U.EMP_NO AS EmpNo,
@@ -45,10 +46,16 @@ public class UserManageRepository : IUserManageRepository
                    U.IS_ADMIN_YN AS IsAdminYn, U.LAST_LOGIN_DT AS LastLoginDt
             FROM TSMUSER U
             LEFT JOIN TBADEPT D ON D.DEPT_CD = U.DEPT_CD
+            WHERE (@UserId IS NULL OR U.USER_ID LIKE '%' + @UserId + '%')
+              AND (@UserNm IS NULL OR U.USER_NM LIKE '%' + @UserNm + '%')
             ORDER BY U.REG_DT DESC";
 
         using var conn = _context.CreateConnection();
-        var result = await conn.QueryAsync<UserManageRow>(sql);
+        var result = await conn.QueryAsync<UserManageRow>(sql, new
+        {
+            UserId = string.IsNullOrWhiteSpace(userId) ? null : userId,
+            UserNm = string.IsNullOrWhiteSpace(userNm) ? null : userNm
+        });
         return result.ToList();
     }
 
