@@ -1,4 +1,5 @@
 using DevExpress.XtraBars.Navigation;
+using DevExpress.XtraTab;
 using DevExpress.XtraTabbedMdi;
 using DevExpress.XtraEditors;
 using DevExpress.XtraEditors.Controls;
@@ -65,7 +66,14 @@ public class ShellForm : XtraForm
         WindowState = FormWindowState.Maximized;
         BackColor = Color.White;
 
+        // 가로: 현재 헤더 툴바(홈+조회/입력/저장+삭제+출력 카드+우측 서버선택/사용자정보)가
+        // 겹치지 않고 다 보이는 최소폭. 세로도 업무화면이 너무 눌리지 않도록 최소값을 둠.
+        MinimumSize = new Size(1040, 650);
+
         tabbedMdiManager.MdiParent = this;
+        // MDI 탭 헤더에 X(닫기) 버튼 표시 - Home 탭은 BaseForm/HomeForm.OnFormClosing에서
+        // 이미 닫기를 막고 있어서, X가 보여도 실제로는 닫히지 않는다.
+        tabbedMdiManager.ClosePageButtonShowMode = ClosePageButtonShowMode.InAllTabPageHeaders;
 
         headerPanel = new Panel { Dock = DockStyle.Top, Height = 76, BackColor = HeaderBg };
         logoPanel = new Panel { BackColor = HeaderBg, Cursor = Cursors.Hand, Width = 212, Dock = DockStyle.Left };
