@@ -58,6 +58,14 @@ public static class MenuIconPainters
         });
     });
 
+    /// <summary>작은 채워진 점 - 메뉴트리에서 "그룹(폴더)"이 아니라 실제로 클릭 가능한 화면임을
+    /// 표시하는 불릿 마커. 들여쓰기를 깊게 하지 않고도 그룹과 화면을 구분하기 위한 용도.</summary>
+    public static void Dot(Graphics g, Rectangle rect, Color color) => DrawScaled(g, rect, gg =>
+    {
+        using var brush = new SolidBrush(color);
+        gg.FillEllipse(brush, 9.5f, 9.5f, 5, 5);
+    });
+
     /// <summary>24x24 가상 좌표계 -> 실제 rect 크기로 자동 스케일링해서 그려주는 헬퍼</summary>
     private static void DrawScaled(Graphics g, Rectangle rect, Action<Graphics> draw)
     {

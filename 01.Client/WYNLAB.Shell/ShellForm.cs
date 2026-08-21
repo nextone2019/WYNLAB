@@ -67,6 +67,7 @@ public class ShellForm : XtraForm
     private static readonly Font MenuItemFont = new("Segoe UI", 8.5f, FontStyle.Regular);
     private static readonly Font MenuItemHoverFont = new("Segoe UI", 8.5f, FontStyle.Bold);
     private const int MenuTopIconSize = 15;
+    private const int MenuLeafDotSize = 9;
     // MDI 문서 탭 전용 축소 폰트 - 메뉴트리 항목과 같은 크기로 맞춰서 전체적으로 통일감 있게.
     private static readonly Font MenuTabFont = new("Segoe UI", 8.5f, FontStyle.Regular);
 
@@ -727,9 +728,11 @@ public class ShellForm : XtraForm
 
             if (child.MenuType == "GROUP")
             {
-                // 2단계 이하 그룹(소분류) - 최상위 그룹과 구분되도록 아이콘 없이 굵은 글씨만
+                // 2단계 이하 그룹(소분류) - 클릭해서 화면이 열리는 게 아니라 펼치기만 하는
+                // "구획 라벨"이라는 걸 보여주려고, 오히려 화면(leaf)보다 차분한(muted) 색으로
+                // 낮춘다. 굵은 글씨는 유지해서 "헤더"라는 느낌은 남긴다.
                 element.Appearance.Normal.BackColor = NavDarkBg;
-                element.Appearance.Normal.ForeColor = NavText;
+                element.Appearance.Normal.ForeColor = NavTextMuted;
                 element.Appearance.Normal.Font = MenuGroupFont;
                 element.Appearance.Normal.Options.UseBackColor = true;
                 element.Appearance.Normal.Options.UseForeColor = true;
@@ -742,9 +745,13 @@ public class ShellForm : XtraForm
             }
             else
             {
-                // 실제 클릭 가능한 화면(FORM) - 호버 시 살짝 밝아지는 배경으로 클릭 가능함을 표시
+                // 실제 클릭 가능한 화면(FORM) - 들여쓰기를 깊게 하지 않고도 그룹과 구분되도록
+                // 작은 점 불릿(강조색)을 붙이고, 글자색도 그룹보다 밝게 해서 "여기가 실제
+                // 이동 가능한 화면"이라는 게 한눈에 보이게 한다. 호버 시 살짝 밝아지는 배경으로
+                // 클릭 가능함을 한 번 더 보강.
+                element.ImageOptions.Image = MenuIconPainters.Render(MenuIconPainters.Dot, MenuLeafDotSize, ActionAccent);
                 element.Appearance.Normal.BackColor = NavDarkBg;
-                element.Appearance.Normal.ForeColor = NavTextMuted;
+                element.Appearance.Normal.ForeColor = NavText;
                 element.Appearance.Normal.Font = MenuItemFont;
                 element.Appearance.Normal.Options.UseBackColor = true;
                 element.Appearance.Normal.Options.UseForeColor = true;
