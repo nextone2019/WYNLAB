@@ -17,6 +17,7 @@ builder.Services.AddScoped<IMenuAuthAssignRepository, MenuAuthAssignRepository>(
 builder.Services.AddScoped<IMenuRepository, MenuRepository>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IJwtTokenService, JwtTokenService>();
+builder.Services.AddScoped<IMenuPermissionService, MenuPermissionService>();
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();

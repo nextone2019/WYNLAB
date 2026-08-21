@@ -1,11 +1,15 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using WYNLAB.Api.Authorization;
 using WYNLAB.Api.Repositories;
 using WYNLAB.Shared.Dtos;
 
 namespace WYNLAB.Api.Controllers;
 
-/// <summary>메뉴관리 화면(TSMMENU)용 CRUD API. 로그인 필수(JWT).</summary>
+/// <summary>
+/// 메뉴관리 화면(TSMMENU)용 CRUD API. 로그인 필수(JWT).
+/// 각 액션은 [RequireMenuPermission("SM_MENU", ...)]로 TSMMENUAUTH 기준 권한을 서버에서도 검증한다.
+/// </summary>
 [ApiController]
 [Route("api/menus")]
 [Authorize]
@@ -16,6 +20,7 @@ public class MenusController : ControllerBase
     public MenusController(IMenuManageRepository repo) => _repo = repo;
 
     [HttpGet]
+    [RequireMenuPermission("SM_MENU", MenuAction.View)]
     public async Task<ActionResult<List<MenuListItemDto>>> GetAll()
     {
         var rows = await _repo.GetAllAsync();
@@ -23,6 +28,7 @@ public class MenusController : ControllerBase
     }
 
     [HttpPost]
+    [RequireMenuPermission("SM_MENU", MenuAction.Insert)]
     public async Task<ActionResult<ApiResult>> Create([FromBody] MenuCreateRequest request)
     {
         if (await _repo.ExistsAsync(request.MenuCd))
@@ -35,6 +41,7 @@ public class MenusController : ControllerBase
     }
 
     [HttpPut("{menuCd}")]
+    [RequireMenuPermission("SM_MENU", MenuAction.Update)]
     public async Task<ActionResult<ApiResult>> Update(string menuCd, [FromBody] MenuUpdateRequest request)
     {
         if (!await _repo.ExistsAsync(menuCd))
@@ -47,6 +54,7 @@ public class MenusController : ControllerBase
     }
 
     [HttpDelete("{menuCd}")]
+    [RequireMenuPermission("SM_MENU", MenuAction.Delete)]
     public async Task<ActionResult<ApiResult>> Delete(string menuCd)
     {
         await _repo.SetUseYnAsync(menuCd, useYn: false);
