@@ -6,5 +6,5 @@
 
 INSERT INTO TSMMENU (MENU_CD, MENU_NM, UPPER_MENU_CD, MENU_LEVEL, MENU_TYPE, FORM_CLASS_NM, ICON_NM, SORT_ORDER) VALUES
 ('SM_USER', N'사용자관리', 'SM', 2, 'FORM',
- 'NEXTFramework.Modules.System.UserListForm, NEXTFramework.Modules.System',
+ 'WYNLAB.Modules.System.UserListForm, WYNLAB.Modules.System',
  NULL, 10);

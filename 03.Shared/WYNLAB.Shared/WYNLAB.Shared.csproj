@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <!-- netstandard2.0: .NET Framework 4.8(클라이언트)과 .NET 8(서버 API) 양쪽에서
+         동시에 참조 가능한 최대공약수 타겟. net8.0으로 두면 net48 프로젝트가 참조 불가능해짐. -->
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <RootNamespace>WYNLAB.Shared</RootNamespace>
+  </PropertyGroup>
+
+</Project>

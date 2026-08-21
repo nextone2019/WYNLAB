@@ -1,4 +1,4 @@
-# NEXTFramework — 7단계 (MDI 셸 디자인 개선 + 서버 실시간 전환)
+# WYN LAB — 7단계 (MDI 셸 디자인 개선 + 서버 실시간 전환)
 
 ## 이번 변경
 - **시안 A(다크 헤더 + 세그먼트 툴바) 적용** — `ShellForm.cs` 전면 재구성
@@ -54,7 +54,7 @@ public class XxxListForm : BaseGridForm
 ## 구조 정리 (이번에 중요하게 바뀐 것)
 - **`ApiClient`, `AppConfig`를 `Shell` → `UI.Common`으로 이동** — 이제 어떤 업무모듈(DLL)에서도 API를 호출할 수 있음
 - **`BaseGridForm`에 표준 CRUD 툴바 추가** — 조회/신규/수정/삭제/엑셀 버튼 + `OnSearchClickAsync` 등 4개 가상 메서드만 override하면 목록형 화면 하나가 완성되는 패턴 확립
-- **첫 업무모듈 프로젝트 `NEXTFramework.Modules.System` 생성** — 사용자관리 화면(`UserListForm`, `UserEditForm`)이 여기 위치. 앞으로 모듈(영업관리, 생산관리 등)이 늘어날 때마다 이런 프로젝트를 하나씩 추가하면 됨
+- **첫 업무모듈 프로젝트 `WYNLAB.Modules.System` 생성** — 사용자관리 화면(`UserListForm`, `UserEditForm`)이 여기 위치. 앞으로 모듈(영업관리, 생산관리 등)이 늘어날 때마다 이런 프로젝트를 하나씩 추가하면 됨
 
 ## 사용자관리 화면
 - `UserListForm` (`BaseGridForm` 상속) — 목록조회, 더블클릭으로 수정팝업, 삭제(소프트삭제: USE_YN='N')
@@ -64,7 +64,7 @@ public class XxxListForm : BaseGridForm
 
 ## 지금 바로 하실 것 (사장님)
 1. `004_UserManage_Menu.sql`을 개발 DB에 실행
-2. 압축본 받아서 개발 PC 프로젝트 갱신 (새 프로젝트 `NEXTFramework.Modules.System`이 추가됐어요 — **솔루션을 완전히 닫았다가 다시 열어야** 인식됩니다)
+2. 압축본 받아서 개발 PC 프로젝트 갱신 (새 프로젝트 `WYNLAB.Modules.System`이 추가됐어요 — **솔루션을 완전히 닫았다가 다시 열어야** 인식됩니다)
 3. Shell을 다시 게시 → 서버에 배포 → 로그인 후 좌측 메뉴에서 "사용자관리" 클릭
 
 ## DevExpress 참조 관련 안내
@@ -78,10 +78,10 @@ DevExpress 20.2는 .NET 6/7/8을 지원하지 않아(공식 지원은 v23.1부�
 
 | 프로젝트 | 타겟 프레임워크 | 비고 |
 |---|---|---|
-| `NEXTFramework.Shell` | `net48` | .NET Framework 4.8 필요 |
-| `NEXTFramework.UI.Common` | `net48` | 동일 |
-| `NEXTFramework.Shared` | `netstandard2.0` | net48 클라이언트 / net8.0 서버 양쪽에서 참조 가능한 공통 타겟 |
-| `NEXTFramework.Api` | `net8.0` | **변경 없음** - DevExpress와 무관한 서버 프로젝트라 최신 .NET 유지 |
+| `WYNLAB.Shell` | `net48` | .NET Framework 4.8 필요 |
+| `WYNLAB.UI.Common` | `net48` | 동일 |
+| `WYNLAB.Shared` | `netstandard2.0` | net48 클라이언트 / net8.0 서버 양쪽에서 참조 가능한 공통 타겟 |
+| `WYNLAB.Api` | `net8.0` | **변경 없음** - DevExpress와 무관한 서버 프로젝트라 최신 .NET 유지 |
 
 ### 코드 변경 사항
 - `Program.cs` : `ApplicationConfiguration.Initialize()`(net6+ 전용) → `Application.EnableVisualStyles()` + `Application.SetCompatibleTextRenderingDefault(false)`(classic 방식)로 교체
@@ -107,14 +107,14 @@ DevExpress 20.2는 .NET 6/7/8을 지원하지 않아(공식 지원은 v23.1부�
 ## 포함된 것
 
 ### 클라이언트
-- `01.Client/NEXTFramework.Shell` : 실행 프로젝트 (로그인 → MDI 셸)
+- `01.Client/WYNLAB.Shell` : 실행 프로젝트 (로그인 → MDI 셸)
   - `Program.cs` / `LoginForm.cs`(실제 API 호출로 연동됨) / `ApiClient.cs`(HttpClient 래퍼)
   - `SessionManager.cs` : 로그인 세션/메뉴권한 캐시 (싱글턴)
   - `ShellForm.cs` : MDI 메인폼, Accordion 메뉴를 메뉴권한(MenuDto) 기준으로 동적 생성
-- `01.Client/NEXTFramework.UI.Common` : `BaseForm.cs`, `BaseGridForm.cs` (공통 베이스)
+- `01.Client/WYNLAB.UI.Common` : `BaseForm.cs`, `BaseGridForm.cs` (공통 베이스)
 
 ### 서버
-- `02.Server/NEXTFramework.Api` : ASP.NET Core Web API (.NET 8)
+- `02.Server/WYNLAB.Api` : ASP.NET Core Web API (.NET 8)
   - `Controllers/AuthController.cs` : `POST /api/auth/login`
   - `Services/AuthService.cs` : 로그인 인증 + 관리자 전체권한 처리 오케스트레이션
   - `Services/MenuPermissionMerger.cs` : **그룹(OR 합산) + 개인권한(우선 덮어쓰기)** 병합 로직
@@ -124,7 +124,7 @@ DevExpress 20.2는 .NET 6/7/8을 지원하지 않아(공식 지원은 v23.1부�
   - `appsettings.json` : 연결문자열/JWT 시크릿 (배포 전 반드시 값 교체 필요)
 
 ### 공용
-- `03.Shared/NEXTFramework.Shared` : `MenuDto.cs`, `AuthDto.cs`
+- `03.Shared/WYNLAB.Shared` : `MenuDto.cs`, `AuthDto.cs`
 
 ### DB
 - `04.Database/001_Base_Tables.sql` : `TBADEPT`, `TSMUSER`(EMP_NO 포함), `TSMUSERGRP`, `TSMUSERGRPMAP`, `TSMMENU`, `TSMMENUAUTH`, `TSMLOGINHIST`
@@ -144,7 +144,7 @@ DevExpress 20.2는 .NET 6/7/8을 지원하지 않아(공식 지원은 v23.1부�
 - ClickOnce 게시도 `Properties/PublishProfiles/Dev.pubxml` / `Prod.pubxml` 로 분리 — Visual Studio 게시 화면에서 프로필만 선택하면 됨
 - Dev 빌드로 로그인하면 셸 타이틀바에 `[개발서버]` + 경고 문구가 표시되어, 운영 데이터로 착각하는 사고를 방지
 
-### 서버 (NEXTFramework.Api)
+### 서버 (WYNLAB.Api)
 - ASP.NET Core 표준 방식 그대로 사용: `appsettings.json`(공통, 민감정보 없음) + `appsettings.Development.json` / `appsettings.Production.json`(환경별 DB 연결정보·JWT 시크릿)
 - 실행 시 `ASPNETCORE_ENVIRONMENT` 환경변수 값에 따라 자동 병합됨 (커스텀 코드 불필요)
 - **IIS 설정**: 개발용 API와 운영용 API를 **서로 다른 IIS 사이트(또는 앱풀)**로 분리해서 배포하고, 각 사이트의 `web.config`에 아래처럼 환경변수를 지정
@@ -162,7 +162,7 @@ DevExpress 20.2는 .NET 6/7/8을 지원하지 않아(공식 지원은 v23.1부�
 
 - **DB 연결문자열에 `Server=localhost`만 쓰면 Named Pipes 프로토콜을 먼저 시도하다 실패할 수 있음**
   → `Server=tcp:localhost,1433`처럼 **`tcp:`와 포트를 명시**하면 TCP로 바로 접속해서 해결됨.
-  같은 서버에서 다른 DB(NEXTFW 등)에 붙는 API를 새로 만들 때도 이 패턴을 기본으로 사용할 것.
+  같은 서버에서 다른 DB(WYNLAB 등)에 붙는 API를 새로 만들 때도 이 패턴을 기본으로 사용할 것.
 - appsettings 수정 후에는 **반드시 해당 IIS 사이트(또는 앱풀)를 재시작**해야 반영됨.
   `Restart-WebAppPool -Name "사이트명-pool"` 이 `iisreset`(서버 전체 재시작)보다 안전 — 다른 사이트(MES, BARO 등)에 영향 없음.
 - Swagger가 안 뜨면 `web.config`의 `<aspNetCore>` 태그 안에 `ASPNETCORE_ENVIRONMENT=Development` 환경변수가 제대로 들어갔는지 먼저 확인.
