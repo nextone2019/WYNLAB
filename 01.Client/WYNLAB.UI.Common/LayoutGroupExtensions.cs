@@ -20,4 +20,19 @@ public static class LayoutGroupExtensions
         group.AppearanceGroup.Options.UseForeColor = true;
         return group;
     }
+
+    /// <summary>
+    /// 입력 컨트롤의 폭을 입력될 값의 길이에 맞는 고정폭으로 지정한다. 지정하지 않으면
+    /// LayoutControl 기본 동작대로 그룹/화면 폭에 맞춰 늘어나 버려서, 코드나 콤보처럼 짧은
+    /// 값까지 화면 끝까지 늘어져 밋밋하고 헐렁해 보인다. 창(MDI) 크기가 바뀌어도 이 폭은
+    /// 고정으로 유지된다 - 등록/수정 폼에서 필드가 창 크기 따라 늘었다 줄었다 할 필요는 없다는
+    /// 방침. 이 앱 전체(사용자등록, 메뉴관리 등) LayoutControl 화면에서 공통으로 사용한다.
+    /// </summary>
+    public static LayoutControlItem FixedControlWidth(this LayoutControlItem item, int width)
+    {
+        item.SizeConstraintsType = SizeConstraintsType.Custom;
+        item.ControlMinSize = new Size(width, 0);
+        item.ControlMaxSize = new Size(width, 0);
+        return item;
+    }
 }

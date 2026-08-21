@@ -89,11 +89,28 @@ public class MenuListForm : BaseForm
         // 컬럼 하나만 쓰고 패널 폭에 맞춰 자동으로 늘어나게 해서, 컬럼이 패널보다 넓어져
         // 처음부터(내용이 적을 때도) 가로 스크롤바가 생기는 일이 없도록 한다.
         menuTree.OptionsView.AutoWidth = true;
+        menuTree.RowHeight = 26; // 기본 행높이는 다소 빡빡해 보여서 살짝 여유를 줌
+        menuTree.Appearance.Row.Font = AppFonts.Body;
         colMenuNm.Visible = true;
         colMenuNm.VisibleIndex = 0;
         menuTree.Columns.Add(colMenuNm);
         menuTree.OptionsView.ShowColumns = false; // 컬럼이 하나뿐이라 헤더 자체가 불필요
         menuTree.FocusedNodeChanged += (s, e) => OnTreeSelectionChanged();
+
+        // 그룹(폴더, 클릭해도 화면이 안 열림) 행과 실제 화면(leaf) 행을 배경/글자색으로 구분한다.
+        // 색은 UiTheme(=appsettings.json Theme 섹션)에서 가져와서, 트리를 쓰는 다른 화면이
+        // 늘어나도 전부 같은 톤을 재사용하게 한다.
+        menuTree.NodeCellStyle += (s, e) =>
+        {
+            var menuType = e.Node.GetValue("MenuType") as string;
+            var isGroup = menuType == "GROUP";
+            e.Appearance.BackColor = isGroup ? UiTheme.TreeGroupBackColor : UiTheme.TreeLeafBackColor;
+            e.Appearance.ForeColor = isGroup ? UiTheme.TreeGroupForeColor : UiTheme.TreeLeafForeColor;
+            e.Appearance.Font = isGroup ? AppFonts.BodyBold : AppFonts.Body;
+            e.Appearance.Options.UseBackColor = true;
+            e.Appearance.Options.UseForeColor = true;
+            e.Appearance.Options.UseFont = true;
+        };
 
         leftPanel.Controls.Add(menuTree); // Fill 먼저
         leftPanel.Controls.Add(divider);
@@ -139,17 +156,28 @@ public class MenuListForm : BaseForm
         root.TextVisible = false;
         root.Padding = new DevExpress.XtraLayout.Utils.Padding(4, 4, 4, 4);
 
+        // 입력 컨트롤 폰트를 앱 공통 스케일(AppFonts.Body)로 통일 - 지정하지 않으면
+        // DevExpress 기본 폰트(Tahoma 8.25pt)로 표시되어 화면마다 크기가 들쭉날쭉해 보였다.
+        foreach (var edit in new BaseEdit[] { txtMenuCd, txtMenuNm, txtUpperMenuCd, spnMenuLevel, cboMenuType, txtFormClassNm, txtIconNm, spnSortOrder, chkUseYn })
+        {
+            edit.Properties.Appearance.Font = AppFonts.Body;
+            edit.Properties.Appearance.Options.UseFont = true;
+        }
+
+        // 각 필드에 입력될 값의 실제 길이를 고려한 고정폭 - LayoutControl 기본 동작(그룹 폭까지
+        // 무조건 늘어남)을 끄고, 짧은 코드/콤보는 짧게, 긴 클래스명은 넉넉하게 잡는다.
+        // 창 크기가 바뀌어도 이 폭은 그대로 유지된다(FixedControlWidth 참고).
         var groupBasic = root.AddGroup("기본정보").StyleAsSection();
-        groupBasic.AddItem("메뉴코드", txtMenuCd).MarkRequired();
-        groupBasic.AddItem("메뉴명", txtMenuNm).MarkRequired();
-        groupBasic.AddItem("상위메뉴코드", txtUpperMenuCd);
-        groupBasic.AddItem("메뉴레벨", spnMenuLevel);
-        groupBasic.AddItem("메뉴유형", cboMenuType).MarkRequired();
+        groupBasic.AddItem("메뉴코드", txtMenuCd).MarkRequired().FixedControlWidth(160);
+        groupBasic.AddItem("메뉴명", txtMenuNm).MarkRequired().FixedControlWidth(220);
+        groupBasic.AddItem("상위메뉴코드", txtUpperMenuCd).FixedControlWidth(160);
+        groupBasic.AddItem("메뉴레벨", spnMenuLevel).FixedControlWidth(70);
+        groupBasic.AddItem("메뉴유형", cboMenuType).MarkRequired().FixedControlWidth(130);
 
         var groupAdvanced = root.AddGroup("연결정보").StyleAsSection();
-        groupAdvanced.AddItem("화면 클래스명", txtFormClassNm);
-        groupAdvanced.AddItem("아이콘명", txtIconNm);
-        groupAdvanced.AddItem("정렬순서", spnSortOrder);
+        groupAdvanced.AddItem("화면 클래스명", txtFormClassNm).FixedControlWidth(420);
+        groupAdvanced.AddItem("아이콘명", txtIconNm).FixedControlWidth(150);
+        groupAdvanced.AddItem("정렬순서", spnSortOrder).FixedControlWidth(70);
 
         var groupStatus = root.AddGroup("상태").StyleAsSection();
         var itemUseYn = groupStatus.AddItem(string.Empty, chkUseYn);
