@@ -92,7 +92,15 @@ public class ShellForm : XtraForm
     // 예전엔 헤더 툴바 맨 앞에 있었는데, 메뉴트리 바로 위(사이드바 상단 여백)로 옮기고
     // 크기도 작게 줄였다 - 다른 업무 액션들과 성격이 달라서(화면 전환이지 데이터 액션이 아님)
     // 메뉴트리와 더 가까운 자리가 자연스럽다는 피드백.
-    private readonly IconBadgeButton homeButton = new() { Text = "홈", IconPainter = ToolbarIconPainters.Home, Size = new Size(30, 30) };
+    // IconInset을 기본값(9, 헤더 54x48 버튼 기준)보다 훨씬 줄여야 이 작은 크기에서도 아이콘이
+    // 실제로 보인다 - 처음엔 기본값 그대로 썼다가 아이콘이 점처럼 작아져 거의 안 보였다.
+    private readonly IconBadgeButton homeButton = new()
+    {
+        Text = "홈",
+        IconPainter = ToolbarIconPainters.Home,
+        Size = new Size(28, 28),
+        IconInset = 5
+    };
 
     private readonly Dictionary<string, string> _envLabels = new()
     {
@@ -393,6 +401,10 @@ public class ShellForm : XtraForm
         Refresh();
         AppConfig.EnvironmentChanged += Refresh;
 
+        // 배지 기본색(241,243,245)은 흰 배경(sidebarTopGap)과 거의 구분이 안 돼서, 브랜드색을
+        // 살짝 섞은 톤으로 바꿔 흰 배경 위에서도 보이게 한다(헤더 툴바 IconBadgeBg와 같은 원리).
+        homeButton.BadgeColor = ColorHelper.Mix(_accentColor, Color.White, 0.85f);
+        homeButton.AccentColor = ActionAccent;
         toolbarToolTip.SetToolTip(homeButton, "홈");
         homeButton.Click += (s, e) => OpenHomeForm();
 

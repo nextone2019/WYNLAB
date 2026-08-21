@@ -32,6 +32,13 @@ public class IconBadgeButton : Control
     /// <summary>실제 아이콘 모양을 그리는 델리게이트 - ToolbarIconPainters의 정적 메서드를 그대로 연결</summary>
     public Action<Graphics, Rectangle, Color, Color>? IconPainter { get; set; }
 
+    /// <summary>
+    /// 배지 안에서 아이콘이 차지할 여백. 기본값 9는 헤더 툴바 버튼(54x48) 기준으로 잡은 값이라,
+    /// 그보다 훨씬 작게 쓰는 버튼(예: 사이드바의 작은 홈 버튼)에서 그대로 두면 아이콘이 몇
+    /// 픽셀짜리 점처럼 보여 거의 안 보이게 된다 - 그런 경우 이 값을 줄여서 호출한다.
+    /// </summary>
+    public int IconInset { get; set; } = 9;
+
     /// <summary>배지(둥근 사각형) 배경색 - 옅은 파스텔톤 추천</summary>
     public Color BadgeColor { get; set; } = Color.FromArgb(241, 243, 245);
 
@@ -129,7 +136,7 @@ public class IconBadgeButton : Control
 
         var iconOutline = !Enabled ? DisabledIconColor : (FilledBadge ? Color.White : OutlineColor);
         var iconAccent = !Enabled ? DisabledIconColor : (FilledBadge ? Color.White : AccentColor);
-        var iconRect = Rectangle.Inflate(badgeRect, -9, -9);
+        var iconRect = Rectangle.Inflate(badgeRect, -IconInset, -IconInset);
         IconPainter?.Invoke(g, iconRect, iconOutline, iconAccent);
     }
 
