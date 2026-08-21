@@ -1,0 +1,54 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net48</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <UseWindowsForms>true</UseWindowsForms>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <RootNamespace>NEXTFramework.Shell</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- DevExpress 20.2 로컬 설치 기반 참조 -->
+    <Reference Include="DevExpress.Data.v20.2">
+      <HintPath>C:\Program Files (x86)\DevExpress 20.2\Components\Bin\Framework\DevExpress.Data.v20.2.dll</HintPath>
+    </Reference>
+    <Reference Include="DevExpress.Utils.v20.2">
+      <HintPath>C:\Program Files (x86)\DevExpress 20.2\Components\Bin\Framework\DevExpress.Utils.v20.2.dll</HintPath>
+    </Reference>
+    <Reference Include="DevExpress.XtraBars.v20.2">
+      <HintPath>C:\Program Files (x86)\DevExpress 20.2\Components\Bin\Framework\DevExpress.XtraBars.v20.2.dll</HintPath>
+    </Reference>
+    <Reference Include="DevExpress.XtraEditors.v20.2">
+      <HintPath>C:\Program Files (x86)\DevExpress 20.2\Components\Bin\Framework\DevExpress.XtraEditors.v20.2.dll</HintPath>
+    </Reference>
+    <Reference Include="DevExpress.XtraGrid.v20.2">
+      <HintPath>C:\Program Files (x86)\DevExpress 20.2\Components\Bin\Framework\DevExpress.XtraGrid.v20.2.dll</HintPath>
+    </Reference>
+    <Reference Include="DevExpress.XtraLayout.v20.2">
+      <HintPath>C:\Program Files (x86)\DevExpress 20.2\Components\Bin\Framework\DevExpress.XtraLayout.v20.2.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\NEXTFramework.UI.Common\NEXTFramework.UI.Common.csproj" />
+    <ProjectReference Include="..\NEXTFramework.Modules.System\NEXTFramework.Modules.System.csproj" />
+    <ProjectReference Include="..\..\03.Shared\NEXTFramework.Shared\NEXTFramework.Shared.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- 빌드 구성에 따라 다른 서버를 바라보도록 환경별 설정파일을 분리.
+         Debug 빌드(사장님/개발자 평소 F5) -> 개발서버
+         Release 빌드(ClickOnce 운영 게시) -> 운영서버
+         둘 다 출력폴더에는 동일하게 "appsettings.json" 이름으로 복사됨(Link) -->
+    <None Include="appsettings.Dev.json" Link="appsettings.json" Condition="'$(Configuration)'=='Debug'">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="appsettings.Prod.json" Link="appsettings.json" Condition="'$(Configuration)'=='Release'">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+</Project>

@@ -1,0 +1,4 @@
+INSERT INTO TSMMENU (MENU_CD, MENU_NM, UPPER_MENU_CD, MENU_LEVEL, MENU_TYPE, FORM_CLASS_NM, ICON_NM, SORT_ORDER) VALUES
+('SM_MENU', N'메뉴관리', 'SM', 2, 'FORM',
+ 'NEXTFramework.Modules.System.MenuListForm, NEXTFramework.Modules.System',
+ NULL, 20);
