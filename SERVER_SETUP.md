@@ -183,18 +183,31 @@ DLL(+pdb)을 서버의 해당 모듈 폴더로 옮긴다. 예:
 
 ### 6-4. 클라이언트(WYNLAB.exe) ClickOnce 게시
 
-Visual Studio에서 `WYNLAB.Shell` 프로젝트 우클릭 → "게시(Publish)" → `Prod` 프로필 선택 →
-게시. VS가 `PublishUrl`(`http://192.168.160.10:8091/`)로 직접 업로드를 시도하는데, 이건 그
-URL이 실제로 쓰기 가능한 게시 지점으로 열려있어야 동작한다(IIS의 웹 배포 게시 또는 FTP) - 4번에서
-만든 사이트는 "정적 파일 서빙"만 되는 평범한 사이트라 VS가 직접 업로드하지 못할 수 있다. 그
-경우엔:
+**VS의 "게시(Publish)" 메뉴로는 안 된다** - `WYNLAB.Shell`이 SDK 스타일 .NET Framework
+프로젝트라서, VS의 새 게시 화면(우클릭 → 게시 → "+ 새 프로필")에는 ClickOnce 옵션 자체가
+없다(.NET 5+ 프로젝트에만 지원됨, "ClickOnce 게시" 개별 구성요소가 설치되어 있어도 마찬가지).
+대신 `MSBuild.exe`로 직접 게시해야 한다(PowerShell, VS 설치 경로는 버전에 따라 다를 수 있음):
 
-1. 게시 프로필을 "폴더" 방식으로 로컬에 먼저 게시(`dotnet publish` 또는 VS의 폴더 프로필)
-2. 그 결과물(`.application`, `.exe.manifest`, `Application Files\` 폴더 등)을 서버의
-   `D:\WYNLAB\ClickOnce\`로 통째로 복사
+```powershell
+$msbuild = "C:\Program Files\Microsoft Visual Studio\2022\Community\MSBuild\Current\Bin\amd64\MSBuild.exe"
+Set-Location "D:\01. SOURCE\00. WYNLAB\01.Client\WYNLAB.Shell"
+& $msbuild WYNLAB.Shell.csproj /t:Publish /p:PublishProfile=ProdLocal
+```
 
-둘 중 뭐가 더 편할지, 그리고 VS가 직접 업로드하는 방식을 쓰고 싶으면(웹 배포/FTP 세팅 추가
-필요) 여기서 막히면 바로 물어봐줘 - 상황 보고 같이 정하면 된다.
+결과물은 항상 `01.Client\WYNLAB.Shell\bin\Release\net48\publish\`에 나온다
+(`WYNLAB.application` + `Application Files\` + `WYNLAB.exe`). 이 폴더 안 내용물 전체를 서버의
+`D:\WYNLAB\ClickOnce\`로 복사하면 된다.
+
+`ProdLocal.pubxml`에 `PublishProtocol=ClickOnce`/`GenerateManifests`/`SignManifests`를
+명시적으로 넣어둔 게 핵심이다 - 이게 없으면 CLI에서 조용히 일반 파일복사 게시로 빠져버려서
+`.application` 매니페스트가 안 생긴다(실제로 이 문제로 한 번 헤맸음). `WYNLAB.application`
+안의 업데이트 확인 주소는 `InstallUrl`(`http://192.168.160.10:8091/`) 그대로 정확히
+반영된다 - 로컬에 게시해도 클라이언트는 정상적으로 서버로 업데이트를 확인하러 간다.
+
+**`publish.htm`(설치 안내 페이지)은 생성되지 않는다** - VS 게시 마법사가 만들어주는 건데 CLI
+게시에는 없다. 그래서 브라우저로 접속할 때 루트 주소(`http://192.168.160.10:8091/`)가 아니라
+**`http://192.168.160.10:8091/WYNLAB.application`**로 직접 접속해야 설치가 시작된다(또는
+5번처럼 `WYNLAB.application`을 IIS 기본 문서로 등록해두면 루트 주소로도 됨).
 
 ---
 
@@ -204,7 +217,7 @@ URL이 실제로 쓰기 가능한 게시 지점으로 열려있어야 동작한�
 - [ ] `\\192.168.160.10\WYNLAB\Modules\SM\` 폴더가 다른 PC 탐색기에서 보임
 - [ ] 서버에서 `iisreset` 후에도 2개 사이트가 다시 정상 기동(자동 시작)
 - [ ] 화면 DLL을 `Modules\SM\`에 넣고 클라이언트(운영 환경)로 로그인 → 메뉴 클릭 시 화면이 뜸
-- [ ] ClickOnce 설치 URL(`:8091`)로 브라우저 접속 시 설치 페이지가 뜸
+- [ ] ClickOnce 설치 URL(`http://192.168.160.10:8091/WYNLAB.application`)로 브라우저 접속 시 설치가 시작됨
 
 막히는 단계가 있으면 그 번호(예: "4번에서 New-Website 실행했는데 이런 에러 났어")로 알려주면
 바로 짚어줄게.
