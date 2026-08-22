@@ -1,6 +1,6 @@
-# 원격 서버(115.23.220.115) 세팅 가이드
+# 원격 서버(192.168.160.10) 세팅 가이드
 
-목표: 로컬 PC에서 API를 직접 켜서 테스트할 필요 없이, 서버(`115.23.220.115`)에서 항상 떠 있는
+목표: 로컬 PC에서 API를 직접 켜서 테스트할 필요 없이, 서버(`192.168.160.10`)에서 항상 떠 있는
 구조로 만든다. 클라이언트(`WYNLAB.exe`)만 실행하면 되고, API는 IIS가 알아서 계속 띄워둔다.
 
 이 문서는 제가 직접 그 서버에 접속할 수 없어서, 서버 콘솔(RDP)에서 직접 실행할 명령과 설정을
@@ -12,17 +12,23 @@
 .NET 8 Hosting Bundle은 이미 설치되어 있는 걸 확인했다(8.0.30, IIS에 정상 등록됨) - 그 단계는
 건너뛴다.
 
+**IP 관련**: KT 회선에서 외부 포트가 열려있지 않아서, 외부 IP(`115.23.220.115`)로는 당장 접속
+테스트가 안 된다. 그래서 우선 서버 내부 IP(`192.168.160.10`)를 기준으로 진행하고, 클라이언트도
+서버 자체(또는 같은 내부망의 다른 PC)에 설치해서 테스트한다. 외부 접속(KT 포트포워딩)은 별도로
+해결되면 그때 외부 IP로 다시 바꾸면 된다 - 클라이언트 설정(`appsettings.*.json`, `*.pubxml`)은
+이미 내부 IP로 맞춰뒀다.
+
 ---
 
 ## 0. 최종 그림
 
 ```
-\\115.23.220.115\WYNLAB          <- 운영 공유 루트
+\\192.168.160.10\WYNLAB          <- 운영 공유 루트
 
 D:\WYNLAB\
   Api\        -> IIS 사이트 "WYNLAB-Api",      포트 8090   (WYNLAB.Api, Release 게시물)
   ClickOnce\  -> IIS 사이트 "WYNLAB-ClickOnce", 포트 8091   (WYNLAB.Shell ClickOnce, Release)
-  Modules\    -> \\115.23.220.115\WYNLAB\Modules로 노출
+  Modules\    -> \\192.168.160.10\WYNLAB\Modules로 노출
     SM\  BA\  SA\  PR\  MA\             <- 화면 DLL을 모듈별로 여기 배포
 ```
 
@@ -31,8 +37,8 @@ D:\WYNLAB\
 
 클라이언트 설정(`appsettings.Dev.json`/`Prod.json`)과 게시 프로필(`Prod.pubxml`)은 이미 이
 포트에 맞춰뒀다:
-- Production 환경 → `ApiBaseUrl: http://115.23.220.115:8090/`, `ModulesPath: \\115.23.220.115\WYNLAB\Modules`
-- ClickOnce 게시 URL(`Prod.pubxml`) → `http://115.23.220.115:8091/`
+- Production 환경 → `ApiBaseUrl: http://192.168.160.10:8090/`, `ModulesPath: \\192.168.160.10\WYNLAB\Modules`
+- ClickOnce 게시 URL(`Prod.pubxml`) → `http://192.168.160.10:8091/`
 
 ---
 
@@ -48,7 +54,7 @@ New-Item -ItemType Directory -Force -Path `
 
 ## 2. 네트워크 공유
 
-클라이언트(각 직원 PC)가 `\\115.23.220.115\WYNLAB\Modules\...` 경로로 화면 DLL을 읽어가야
+클라이언트(각 직원 PC)가 `\\192.168.160.10\WYNLAB\Modules\...` 경로로 화면 DLL을 읽어가야
 하므로, `D:\WYNLAB`을 `WYNLAB`이라는 이름으로 공유한다.
 
 ```powershell
@@ -59,7 +65,7 @@ New-SmbShare -Name "WYNLAB" -Path "D:\WYNLAB" -FullAccess "Administrators" -Read
 - 배포(=DLL 갱신)는 서버에 직접 로그인해서 파일을 복사하는 방식으로 할 거라 쓰기 권한은
   Administrators만 있으면 된다.
 
-확인: 다른 PC에서 탐색기 주소창에 `\\115.23.220.115\WYNLAB\Modules` 입력해서 폴더가 보이는지 체크.
+확인: 다른 PC에서 탐색기 주소창에 `\\192.168.160.10\WYNLAB\Modules` 입력해서 폴더가 보이는지 체크.
 
 ---
 
@@ -158,7 +164,7 @@ dotnet publish -c Release -o "publish-prod"
 Restart-WebAppPool -Name "WYNLAB-Api"
 ```
 
-확인: 브라우저로 `http://115.23.220.115:8090/` 접속해서 응답 오는지 확인(Production 환경이라
+확인: 브라우저로 `http://192.168.160.10:8090/` 접속해서 응답 오는지 확인(Production 환경이라
 Swagger는 꺼져있는 게 정상 - `Program.cs` 참고).
 
 ### 6-3. 화면(모듈) DLL 배포
@@ -178,7 +184,7 @@ DLL(+pdb)을 서버의 해당 모듈 폴더로 옮긴다. 예:
 ### 6-4. 클라이언트(WYNLAB.exe) ClickOnce 게시
 
 Visual Studio에서 `WYNLAB.Shell` 프로젝트 우클릭 → "게시(Publish)" → `Prod` 프로필 선택 →
-게시. VS가 `PublishUrl`(`http://115.23.220.115:8091/`)로 직접 업로드를 시도하는데, 이건 그
+게시. VS가 `PublishUrl`(`http://192.168.160.10:8091/`)로 직접 업로드를 시도하는데, 이건 그
 URL이 실제로 쓰기 가능한 게시 지점으로 열려있어야 동작한다(IIS의 웹 배포 게시 또는 FTP) - 4번에서
 만든 사이트는 "정적 파일 서빙"만 되는 평범한 사이트라 VS가 직접 업로드하지 못할 수 있다. 그
 경우엔:
@@ -194,8 +200,8 @@ URL이 실제로 쓰기 가능한 게시 지점으로 열려있어야 동작한�
 
 ## 7. 검증 체크리스트
 
-- [ ] `http://115.23.220.115:8090/` 접속 시 API가 응답(404여도 괜찮음 - "연결 자체"가 되는지가 핵심)
-- [ ] `\\115.23.220.115\WYNLAB\Modules\SM\` 폴더가 다른 PC 탐색기에서 보임
+- [ ] `http://192.168.160.10:8090/` 접속 시 API가 응답(404여도 괜찮음 - "연결 자체"가 되는지가 핵심)
+- [ ] `\\192.168.160.10\WYNLAB\Modules\SM\` 폴더가 다른 PC 탐색기에서 보임
 - [ ] 서버에서 `iisreset` 후에도 2개 사이트가 다시 정상 기동(자동 시작)
 - [ ] 화면 DLL을 `Modules\SM\`에 넣고 클라이언트(운영 환경)로 로그인 → 메뉴 클릭 시 화면이 뜸
 - [ ] ClickOnce 설치 URL(`:8091`)로 브라우저 접속 시 설치 페이지가 뜸
@@ -211,6 +217,6 @@ URL이 실제로 쓰기 가능한 게시 지점으로 열려있어야 동작한�
   정리된 백로그니, 실제 서비스 오픈 전에 그쪽을 보고 진행하면 된다.
 - **개발/테스트 환경(WYNLAB_TEST)**: 나중에 필요해지면 위 1~6번을 그대로 반복하되 경로/사이트
   이름/포트만 `WYNLAB_TEST`/`8092`(API)/`8093`(ClickOnce)로 바꾸면 된다. 클라이언트의
-  `Development` 환경 항목이 이미 그 경로(`\\115.23.220.115\WYNLAB_TEST\Modules`,
+  `Development` 환경 항목이 이미 그 경로(`\\192.168.160.10\WYNLAB_TEST\Modules`,
   `:8092`)를 가리키도록 세팅되어 있어서, 서버에 실제로 만들고 나면 클라이언트에서 환경 전환만
   하면 바로 붙는다.
