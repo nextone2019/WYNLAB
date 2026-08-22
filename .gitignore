@@ -3,3 +3,4 @@
 *.user
 .vs/
 publish-*/
+_publish/
