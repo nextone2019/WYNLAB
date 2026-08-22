@@ -51,16 +51,34 @@
   </ItemGroup>
 
   <ItemGroup>
+    <!-- SDK 스타일 프로젝트는 폴더 안의 모든 파일을 기본적으로 None 항목으로 암시적 글롭
+         포함시킨다 - appsettings.Dev.json/Prod.json도 이 자동 포함 대상이라, 아래에서
+         다시 선언해도 "메타데이터 없는 자동 포함 항목"이 같은 Identity로 하나 더 잡혀서
+         충돌한다. 자동 포함에서 이 두 파일만 먼저 빼야 한다. -->
+    <None Remove="appsettings.Dev.json" />
+    <None Remove="appsettings.Prod.json" />
+  </ItemGroup>
+
+  <ItemGroup>
     <!-- 빌드 구성에 따라 다른 서버를 바라보도록 환경별 설정파일을 분리.
          Debug 빌드(사장님/개발자 평소 F5) -> 개발서버
          Release 빌드(ClickOnce 운영 게시) -> 운영서버
-         둘 다 출력폴더에는 동일하게 "appsettings.json" 이름으로 복사됨(Link) -->
-    <None Include="appsettings.Dev.json" Link="appsettings.json" Condition="'$(Configuration)'=='Debug'">
+         둘 다 출력폴더에는 동일하게 "appsettings.json" 이름으로 복사됨(Link).
+
+         반드시 <Content>여야 한다 - <None>으로 두면(Publish=true를 줘도) 일반 빌드/게시
+         (bin\ 폴더)엔 정상 복사되면서도 ClickOnce 매니페스트(Application Files\)에는
+         조용히 빠진다. 실제로 이 문제 때문에 서버에 설치된 앱이 시작하자마자
+         AppConfig.Load()에서 appsettings.json을 못 찾아 FileNotFoundException으로 죽는
+         걸 직접 겪었다 - <Content> + Publish=true 조합으로 바꾸고 나서야 ClickOnce
+         Application Files\ 안에 appsettings.json.deploy로 정상 포함되는 걸 확인했다. -->
+    <Content Include="appsettings.Dev.json" Link="appsettings.json" Condition="'$(Configuration)'=='Debug'">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="appsettings.Prod.json" Link="appsettings.json" Condition="'$(Configuration)'=='Release'">
+      <Publish>true</Publish>
+    </Content>
+    <Content Include="appsettings.Prod.json" Link="appsettings.json" Condition="'$(Configuration)'=='Release'">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
+      <Publish>true</Publish>
+    </Content>
   </ItemGroup>
 
 </Project>
