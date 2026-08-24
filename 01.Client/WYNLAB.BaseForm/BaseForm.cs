@@ -136,7 +136,7 @@ public class BaseForm : XtraForm
     {
         try
         {
-            this.Cursor = Cursors.WaitCursor;
+            ShowBusy();
             action();
         }
         catch (Exception ex)
@@ -147,7 +147,7 @@ public class BaseForm : XtraForm
         }
         finally
         {
-            this.Cursor = Cursors.Default;
+            HideBusy();
         }
     }
 
@@ -158,7 +158,7 @@ public class BaseForm : XtraForm
     {
         try
         {
-            this.Cursor = Cursors.WaitCursor;
+            ShowBusy();
             await action();
         }
         catch (Exception ex)
@@ -168,7 +168,44 @@ public class BaseForm : XtraForm
         }
         finally
         {
-            this.Cursor = Cursors.Default;
+            HideBusy();
         }
+    }
+
+    private Panel? _busyOverlay;
+    private SpinnerControl? _busySpinner;
+
+    /// <summary>
+    /// 화면 내용(그리드/입력영역) 위에 반투명하게 덮이는 오버레이 + 회전 스피너를 띄운다.
+    /// 예전엔 이 자리에서 전체 창 커서를 Cursors.WaitCursor로 바꿔서 "로딩 중"을 표시했는데,
+    /// 커서 모양 변화만으로는 눈에 잘 안 띈다는 피드백에 따라 실제로 화면에 보이는 오버레이로
+    /// 바꿨다. Shell 상단 툴바(ShellForm.AddIconBadgeButton)와 SafeExecute/SafeExecuteAsync
+    /// 양쪽에서 공통으로 호출한다.
+    /// </summary>
+    public void ShowBusy()
+    {
+        if (_busyOverlay == null)
+        {
+            _busyOverlay = new Panel { Dock = DockStyle.Fill, BackColor = Color.FromArgb(246, 247, 248) };
+            _busySpinner = new SpinnerControl { SpinnerColor = Color.FromArgb(41, 121, 255) };
+            _busyOverlay.Controls.Add(_busySpinner);
+            _busyOverlay.Resize += (s, e) => CenterBusySpinner();
+            Controls.Add(_busyOverlay);
+        }
+
+        CenterBusySpinner();
+        _busyOverlay.Visible = true;
+        _busyOverlay.BringToFront();
+    }
+
+    public void HideBusy()
+    {
+        if (_busyOverlay != null) _busyOverlay.Visible = false;
+    }
+
+    private void CenterBusySpinner()
+    {
+        if (_busyOverlay == null || _busySpinner == null) return;
+        _busySpinner.Location = new Point((_busyOverlay.Width - _busySpinner.Width) / 2, (_busyOverlay.Height - _busySpinner.Height) / 2);
     }
 }

@@ -1,0 +1,23 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net48</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <UseWindowsForms>true</UseWindowsForms>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <RootNamespace>WYNLAB.Bootstrap</RootNamespace>
+  </PropertyGroup>
+
+  <!-- 이 프로젝트는 WYNLAB.BaseForm/WYNLAB.Shared/WYNLAB.Controls를 절대 참조하지 않는다 - 그게 이
+       프로젝트가 존재하는 이유다. Shell.exe가 컴파일타임에 유일하게 정적참조하는 대상을 이 작고
+       거의 안 바뀌는 프로젝트 하나로 좁혀둬야, 자주 바뀌는 프레임워크 본체 3개(BaseForm/Shared/
+       Controls)를 실행 중인 프로세스가 그 타입을 아직 하나도 안 건드린 시점에 파일째로 교체할 수
+       있다. BaseForm/Shared를 참조하는 화면 모듈(WYNLAB.SM.*)이 리플렉션으로 로드되어 핫스왑
+       가능한 것과 같은 원리를 프레임워크 자체에도 적용한 것. 새 코드 추가할 때 절대
+       "using WYNLAB.Base"를 넣지 말 것 - 넣는 순간 이 프로젝트의 존재 의미가 없어진다. -->
+  <ItemGroup>
+    <PackageReference Include="System.Text.Json" Version="8.0.5" />
+  </ItemGroup>
+
+</Project>

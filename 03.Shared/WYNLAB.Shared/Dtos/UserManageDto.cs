@@ -47,4 +47,12 @@ public class ApiResult
 {
     public bool Success { get; set; }
     public string? Message { get; set; }
+
+    /// <summary>신규등록(Create) 응답에서만 사용 - 채번/확정된 PK값(지금은 입력값 그대로 에코)</summary>
+    public string? GeneratedCode { get; set; }
+
+    /// <summary>실패 시에만 채워짐 - 프로시저 TRY/CATCH가 잡은 SQL 오류번호(ERROR_NUMBER(), 예:
+    /// PK 중복이면 2627). 화면에서 특정 오류번호별로 다른 안내를 보여주고 싶을 때 참고용 - 0이면
+    /// SQL 예외가 아니라 업무로직 판단(ReturnCode)만으로 실패한 것.</summary>
+    public int ErrorCode { get; set; }
 }

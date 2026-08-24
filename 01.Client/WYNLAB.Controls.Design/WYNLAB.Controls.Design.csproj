@@ -1,0 +1,59 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net48</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <UseWindowsForms>true</UseWindowsForms>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <RootNamespace>WYNLAB.Controls.Design</RootNamespace>
+    <!-- 디자인 타임 전용 어셈블리 - VS 디자이너가 GridControlWyn.cs의 [Designer("...")] 문자열
+         속성으로 이 dll을 찾아서 쓴다(WYNLAB.Controls.dll 자체는 이 dll을 컴파일타임에 전혀
+         모름 - DevExpress가 자기 컨트롤/*.Design.dll을 분리해둔 것과 같은 패턴). 배포판
+         ClickOnce/CoreAssembly에는 포함시킬 필요 없다 - 개발 PC의 bin 폴더에만 있으면 됨. -->
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- DevExpress 21.2 런타임 + 이 특정 디자이너 클래스가 필요한 디자인타임 전용 어셈블리 -->
+    <Reference Include="DevExpress.Data.v21.2">
+      <HintPath>C:\Program Files (x86)\DevExpress 21.2\Components\Bin\Framework\DevExpress.Data.v21.2.dll</HintPath>
+    </Reference>
+    <Reference Include="DevExpress.Utils.v21.2">
+      <HintPath>C:\Program Files (x86)\DevExpress 21.2\Components\Bin\Framework\DevExpress.Utils.v21.2.dll</HintPath>
+    </Reference>
+    <Reference Include="DevExpress.XtraEditors.v21.2">
+      <HintPath>C:\Program Files (x86)\DevExpress 21.2\Components\Bin\Framework\DevExpress.XtraEditors.v21.2.dll</HintPath>
+    </Reference>
+    <Reference Include="DevExpress.XtraGrid.v21.2">
+      <HintPath>C:\Program Files (x86)\DevExpress 21.2\Components\Bin\Framework\DevExpress.XtraGrid.v21.2.dll</HintPath>
+    </Reference>
+    <Reference Include="DevExpress.XtraGrid.v21.2.Design">
+      <HintPath>C:\Program Files (x86)\DevExpress 21.2\Components\Bin\Framework\Design\DevExpress.XtraGrid.v21.2.Design.dll</HintPath>
+    </Reference>
+    <!-- GridControlDesigner : EditorContainerDesigner : ... : BaseControlDesigner 계층을
+         전부 컴파일러가 찾을 수 있어야 해서 필요 -->
+    <Reference Include="DevExpress.XtraEditors.v21.2.Design">
+      <HintPath>C:\Program Files (x86)\DevExpress 21.2\Components\Bin\Framework\Design\DevExpress.XtraEditors.v21.2.Design.dll</HintPath>
+    </Reference>
+    <Reference Include="DevExpress.Design.v21.2">
+      <HintPath>C:\Program Files (x86)\DevExpress 21.2\Components\Bin\Framework\Design\DevExpress.Design.v21.2.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Design" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\WYNLAB.Controls\WYNLAB.Controls.csproj" />
+  </ItemGroup>
+
+  <!-- VS가 [Designer("...")] 문자열을 보고 이 dll을 찾을 때, WYNLAB.Controls.dll이 실제로
+       참조되고 있는 그 폴더(=WYNLAB.Controls 프로젝트 자신의 출력 폴더)에 이 dll도 같이
+       있어야 확실히 찾는다. 그래서 빌드 후 그 폴더로 자동 복사해준다. -->
+  <Target Name="CopyToControlsOutputFolder" AfterTargets="Build">
+    <ItemGroup>
+      <DesignOutputFiles Include="$(TargetDir)$(TargetName).dll" />
+      <DesignOutputFiles Include="$(TargetDir)$(TargetName).pdb" Condition="Exists('$(TargetDir)$(TargetName).pdb')" />
+    </ItemGroup>
+    <Copy SourceFiles="@(DesignOutputFiles)" DestinationFolder="$(MSBuildProjectDirectory)\..\WYNLAB.Controls\bin\$(Configuration)\net48\" SkipUnchangedFiles="true" />
+  </Target>
+
+</Project>

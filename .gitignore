@@ -4,3 +4,5 @@
 .vs/
 publish-*/
 _publish/
+_deploy/
+*.zip

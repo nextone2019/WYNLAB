@@ -46,6 +46,7 @@ public partial class UserGroupListForm : BaseGridForm
         if (form.ShowDialog() == DialogResult.OK)
         {
             await QueryClick();
+            Toast.Show("그룹이 등록되었습니다.");
         }
     }
 
@@ -65,6 +66,7 @@ public partial class UserGroupListForm : BaseGridForm
 
         await ApiClient.DeleteAsync($"api/user-groups/{selected.UserGrpCd}");
         await QueryClick();
+        Toast.Show("사용중지 처리되었습니다.");
     }
 
     private async Task OpenEditPopupAsync()
@@ -76,6 +78,7 @@ public partial class UserGroupListForm : BaseGridForm
         if (form.ShowDialog() == DialogResult.OK)
         {
             await QueryClick();
+            Toast.Show("수정되었습니다.");
         }
     }
 }

@@ -259,6 +259,7 @@ public class MenuListForm : BaseForm
 
         await ApiClient.DeleteAsync($"api/menus/{_editingMenuCd}");
         await QueryClick();
+        Toast.Show("사용중지 처리되었습니다.");
     }
 
     private void OnTreeSelectionChanged()
@@ -336,11 +337,30 @@ public class MenuListForm : BaseForm
             return;
         }
 
+        // 화면 클래스명은 "Namespace.클래스명, 어셈블리명" 형태의 손입력 텍스트라 오타가 나도
+        // 저장 시점엔 아무 에러가 안 나고, 나중에 그 메뉴를 클릭했을 때서야 화면을 못 찾는다는
+        // 에러로 드러난다 - 저장 전에 미리 Type.GetType으로 실제 존재하는 클래스인지 확인해서
+        // 막는다. Shell.exe가 시작할 때 ModuleLoader.LoadAll이 Modules\ 폴더의 모든 화면 dll을
+        // 이미 로드해뒀고 AssemblyResolve 훅도 걸어놔서(ModuleLoader.cs 참고), 여기서
+        // Type.GetType을 호출하면 ShellForm.OpenMenuForm이 실제 메뉴 클릭 시 찾는 것과 완전히
+        // 같은 경로로 찾아본다 - 여기서 못 찾으면 실제 클릭해도 못 찾는다는 뜻.
+        if ((string)cboMenuType.SelectedItem == "FORM"
+            && !string.IsNullOrWhiteSpace(txtFormClassNm.Text)
+            && Type.GetType(txtFormClassNm.Text) == null)
+        {
+            AppMessageBox.Show(
+                $"화면 클래스명을 찾을 수 없습니다: {txtFormClassNm.Text}\n" +
+                "\"Namespace.클래스명, 어셈블리명\" 형식이 맞는지, 해당 화면 모듈(dll)이 배포되어 있는지 확인해주세요.",
+                "확인");
+            return;
+        }
+
         btnSaveInline.Enabled = false;
         try
         {
             ApiResult? result;
             string savedMenuCd;
+            var wasNew = _editingMenuCd == null;
 
             if (_editingMenuCd != null)
             {
@@ -385,6 +405,8 @@ public class MenuListForm : BaseForm
 
             var savedNode = menuTree.FindNodeByKeyID(savedMenuCd);
             if (savedNode != null) menuTree.FocusedNode = savedNode;
+
+            Toast.Show(wasNew ? "메뉴가 등록되었습니다." : "수정되었습니다.");
         }
         finally
         {

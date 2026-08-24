@@ -33,9 +33,9 @@ public interface IUserRepository
     /// 로그인 처리(AuthService)에서 이 메서드 하나로 세션 구성에 필요한 데이터를 전부 가져온다.
     /// </summary>
     Task<UserSessionResult> GetSessionAsync(string userId);
-    Task UpdateLoginSuccessAsync(string userId);
-    Task IncreasePwdFailCountAsync(string userId);
-    Task InsertLoginHistAsync(string userId, string clientIp, string clientVersion, string resultCd);
+    Task<ProcResult> UpdateLoginSuccessAsync(string userId);
+    Task<ProcResult> IncreasePwdFailCountAsync(string userId);
+    Task<ProcResult> InsertLoginHistAsync(string userId, string clientIp, string clientVersion, string resultCd);
 }
 
 public class UserRepository : IUserRepository
@@ -49,7 +49,7 @@ public class UserRepository : IUserRepository
         using var conn = _context.CreateConnection();
         using var multi = await conn.QueryMultipleAsync(
             "USP_SM_GetUserSession",
-            new { USER_ID = userId },
+            new { p_work_type = "Q", p_user_id = userId },
             commandType: System.Data.CommandType.StoredProcedure);
 
         var user = await multi.ReadSingleOrDefaultAsync<UserRow>();
@@ -58,23 +58,42 @@ public class UserRepository : IUserRepository
         return new UserSessionResult { User = user, GroupCodes = groupCodes };
     }
 
-    public async Task UpdateLoginSuccessAsync(string userId)
+    public async Task<ProcResult> UpdateLoginSuccessAsync(string userId)
     {
         using var conn = _context.CreateConnection();
-        await conn.ExecuteAsync("USP_SM_LOGIN_S", new { UserId = userId }, commandType: CommandType.StoredProcedure);
+        var p = new DynamicParameters();
+        p.Add("p_work_type", "U");
+        p.Add("p_user_id", userId);
+        p.AddStandardOutputs(pascalCase: true);
+
+        await conn.ExecuteAsync("USP_SM_LOGIN_S", p, commandType: CommandType.StoredProcedure);
+        return p.ReadStandardOutputs(pascalCase: true);
     }
 
-    public async Task IncreasePwdFailCountAsync(string userId)
+    public async Task<ProcResult> IncreasePwdFailCountAsync(string userId)
     {
         using var conn = _context.CreateConnection();
-        await conn.ExecuteAsync("USP_SM_LOGIN_S_1", new { UserId = userId }, commandType: CommandType.StoredProcedure);
+        var p = new DynamicParameters();
+        p.Add("p_work_type", "U");
+        p.Add("p_user_id", userId);
+        p.AddStandardOutputs(pascalCase: true);
+
+        await conn.ExecuteAsync("USP_SM_LOGIN_S_1", p, commandType: CommandType.StoredProcedure);
+        return p.ReadStandardOutputs(pascalCase: true);
     }
 
-    public async Task InsertLoginHistAsync(string userId, string clientIp, string clientVersion, string resultCd)
+    public async Task<ProcResult> InsertLoginHistAsync(string userId, string clientIp, string clientVersion, string resultCd)
     {
         using var conn = _context.CreateConnection();
-        await conn.ExecuteAsync("USP_SM_LOGIN_S_2",
-            new { UserId = userId, ClientIp = clientIp, ClientVersion = clientVersion, ResultCd = resultCd },
-            commandType: CommandType.StoredProcedure);
+        var p = new DynamicParameters();
+        p.Add("p_work_type", "N");
+        p.Add("p_user_id", userId);
+        p.Add("p_client_ip", clientIp);
+        p.Add("p_client_version", clientVersion);
+        p.Add("p_result_cd", resultCd);
+        p.AddStandardOutputs(pascalCase: true);
+
+        await conn.ExecuteAsync("USP_SM_LOGIN_S_2", p, commandType: CommandType.StoredProcedure);
+        return p.ReadStandardOutputs(pascalCase: true);
     }
 }

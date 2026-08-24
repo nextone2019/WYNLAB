@@ -45,7 +45,8 @@ public class MenuRepository : IMenuRepository
     public async Task<List<MenuRow>> GetAllActiveMenusAsync()
     {
         using var conn = _context.CreateConnection();
-        var result = await conn.QueryAsync<MenuRow>("USP_SM_MENU_Q_2", commandType: CommandType.StoredProcedure);
+        var result = await conn.QueryAsync<MenuRow>("USP_SM_MENU_Q_2",
+            new { p_work_type = "Q" }, commandType: CommandType.StoredProcedure);
         return result.ToList();
     }
 
@@ -53,7 +54,7 @@ public class MenuRepository : IMenuRepository
     {
         using var conn = _context.CreateConnection();
         var result = await conn.QueryAsync<MenuAuthRow>("USP_SM_MENUAUTH_Q",
-            new { UserId = userId, GroupCodes = groupCodes.Count > 0 ? string.Join(",", groupCodes) : null },
+            new { p_work_type = "Q", p_user_id = userId, p_group_codes = groupCodes.Count > 0 ? string.Join(",", groupCodes) : null },
             commandType: CommandType.StoredProcedure);
         return result.ToList();
     }

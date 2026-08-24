@@ -8,7 +8,7 @@ namespace WYNLAB.Api.Repositories;
 public interface IMenuAuthAssignRepository
 {
     Task<List<MenuAuthAssignRow>> GetAuthAsync(string targetType, string targetCd);
-    Task SaveAuthAsync(string targetType, string targetCd, List<MenuAuthAssignItem> items);
+    Task<ProcResult> SaveAuthAsync(string targetType, string targetCd, List<MenuAuthAssignItem> items);
 }
 
 public class MenuAuthAssignRow
@@ -50,17 +50,24 @@ public class MenuAuthAssignRepository : IMenuAuthAssignRepository
     {
         using var conn = _context.CreateConnection();
         var result = await conn.QueryAsync<MenuAuthAssignRow>("USP_SM_MENUAUTH_Q_1",
-            new { TargetType = targetType, TargetCd = targetCd }, commandType: CommandType.StoredProcedure);
+            new { p_work_type = "Q", p_target_type = targetType, p_target_cd = targetCd }, commandType: CommandType.StoredProcedure);
         return result.ToList();
     }
 
-    public async Task SaveAuthAsync(string targetType, string targetCd, List<MenuAuthAssignItem> items)
+    /// <summary>권한 전체 치환 - work_type='U'</summary>
+    public async Task<ProcResult> SaveAuthAsync(string targetType, string targetCd, List<MenuAuthAssignItem> items)
     {
         var itemsJson = JsonSerializer.Serialize(items);
 
         using var conn = _context.CreateConnection();
-        await conn.ExecuteAsync("USP_SM_MENUAUTH_S_1",
-            new { TargetType = targetType, TargetCd = targetCd, ItemsJson = itemsJson },
-            commandType: CommandType.StoredProcedure);
+        var p = new DynamicParameters();
+        p.Add("p_work_type", "U");
+        p.Add("p_target_type", targetType);
+        p.Add("p_target_cd", targetCd);
+        p.Add("p_items_json", itemsJson);
+        p.AddStandardOutputs(pascalCase: true);
+
+        await conn.ExecuteAsync("USP_SM_MENUAUTH_S_1", p, commandType: CommandType.StoredProcedure);
+        return p.ReadStandardOutputs(pascalCase: true);
     }
 }

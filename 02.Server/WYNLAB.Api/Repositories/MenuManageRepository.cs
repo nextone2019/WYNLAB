@@ -8,11 +8,11 @@ public interface IMenuManageRepository
 {
     Task<List<MenuManageRow>> GetAllAsync();
     Task<bool> ExistsAsync(string menuCd);
-    Task CreateAsync(string menuCd, string menuNm, string? upperMenuCd, int menuLevel,
+    Task<ProcResult> CreateAsync(string menuCd, string menuNm, string? upperMenuCd, int menuLevel,
         string menuType, string? formClassNm, string? iconNm, int sortOrder);
-    Task UpdateAsync(string menuCd, string menuNm, string? upperMenuCd, int menuLevel,
+    Task<ProcResult> UpdateAsync(string menuCd, string menuNm, string? upperMenuCd, int menuLevel,
         string menuType, string? formClassNm, string? iconNm, int sortOrder, bool useYn);
-    Task SetUseYnAsync(string menuCd, bool useYn);
+    Task<ProcResult> SetUseYnAsync(string menuCd, bool useYn);
 }
 
 /// <summary>DB 조회 전용 - 관리화면 목록 표시용</summary>
@@ -42,7 +42,8 @@ public class MenuManageRepository : IMenuManageRepository
     public async Task<List<MenuManageRow>> GetAllAsync()
     {
         using var conn = _context.CreateConnection();
-        var result = await conn.QueryAsync<MenuManageRow>("USP_SM_MENU_Q", commandType: CommandType.StoredProcedure);
+        var result = await conn.QueryAsync<MenuManageRow>("USP_SM_MENU_Q",
+            new { p_work_type = "Q" }, commandType: CommandType.StoredProcedure);
         return result.ToList();
     }
 
@@ -50,52 +51,62 @@ public class MenuManageRepository : IMenuManageRepository
     {
         using var conn = _context.CreateConnection();
         var count = await conn.ExecuteScalarAsync<int>("USP_SM_MENU_Q_1",
-            new { MenuCd = menuCd }, commandType: CommandType.StoredProcedure);
+            new { p_work_type = "Q", p_menu_cd = menuCd }, commandType: CommandType.StoredProcedure);
         return count > 0;
     }
 
-    public async Task CreateAsync(string menuCd, string menuNm, string? upperMenuCd, int menuLevel,
+    public async Task<ProcResult> CreateAsync(string menuCd, string menuNm, string? upperMenuCd, int menuLevel,
         string menuType, string? formClassNm, string? iconNm, int sortOrder)
     {
         using var conn = _context.CreateConnection();
-        await conn.ExecuteAsync("USP_SM_MENU_S", new
-        {
-            Mode = "C",
-            MenuCd = menuCd,
-            MenuNm = menuNm,
-            UpperMenuCd = string.IsNullOrWhiteSpace(upperMenuCd) ? null : upperMenuCd,
-            MenuLevel = menuLevel,
-            MenuType = menuType,
-            FormClassNm = formClassNm,
-            IconNm = iconNm,
-            SortOrder = sortOrder
-        }, commandType: CommandType.StoredProcedure);
+        var p = new DynamicParameters();
+        p.Add("p_work_type", "N");
+        p.Add("p_menu_cd", menuCd);
+        p.Add("p_menu_nm", menuNm);
+        p.Add("p_upper_menu_cd", string.IsNullOrWhiteSpace(upperMenuCd) ? null : upperMenuCd);
+        p.Add("p_menu_level", menuLevel);
+        p.Add("p_menu_type", menuType);
+        p.Add("p_form_class_nm", formClassNm);
+        p.Add("p_icon_nm", iconNm);
+        p.Add("p_sort_order", sortOrder);
+        p.AddStandardOutputs(withGeneratedCode: true, pascalCase: true);
+
+        await conn.ExecuteAsync("USP_SM_MENU_S", p, commandType: CommandType.StoredProcedure);
+        return p.ReadStandardOutputs(withGeneratedCode: true, pascalCase: true);
     }
 
-    public async Task UpdateAsync(string menuCd, string menuNm, string? upperMenuCd, int menuLevel,
+    public async Task<ProcResult> UpdateAsync(string menuCd, string menuNm, string? upperMenuCd, int menuLevel,
         string menuType, string? formClassNm, string? iconNm, int sortOrder, bool useYn)
     {
         using var conn = _context.CreateConnection();
-        await conn.ExecuteAsync("USP_SM_MENU_S", new
-        {
-            Mode = "U",
-            MenuCd = menuCd,
-            MenuNm = menuNm,
-            UpperMenuCd = string.IsNullOrWhiteSpace(upperMenuCd) ? null : upperMenuCd,
-            MenuLevel = menuLevel,
-            MenuType = menuType,
-            FormClassNm = formClassNm,
-            IconNm = iconNm,
-            SortOrder = sortOrder,
-            UseYn = useYn ? "Y" : "N"
-        }, commandType: CommandType.StoredProcedure);
+        var p = new DynamicParameters();
+        p.Add("p_work_type", "U");
+        p.Add("p_menu_cd", menuCd);
+        p.Add("p_menu_nm", menuNm);
+        p.Add("p_upper_menu_cd", string.IsNullOrWhiteSpace(upperMenuCd) ? null : upperMenuCd);
+        p.Add("p_menu_level", menuLevel);
+        p.Add("p_menu_type", menuType);
+        p.Add("p_form_class_nm", formClassNm);
+        p.Add("p_icon_nm", iconNm);
+        p.Add("p_sort_order", sortOrder);
+        p.Add("p_use_yn", useYn ? "Y" : "N");
+        p.AddStandardOutputs(withGeneratedCode: true, pascalCase: true);
+
+        await conn.ExecuteAsync("USP_SM_MENU_S", p, commandType: CommandType.StoredProcedure);
+        return p.ReadStandardOutputs(withGeneratedCode: true, pascalCase: true);
     }
 
-    /// <summary>물리삭제 대신 USE_YN='N' 처리 - 하위 메뉴 참조무결성 보존을 위한 표준 삭제 방식</summary>
-    public async Task SetUseYnAsync(string menuCd, bool useYn)
+    /// <summary>물리삭제 대신 USE_YN='N' 처리 - 하위 메뉴 참조무결성 보존을 위한 표준 삭제 방식(work_type='D')</summary>
+    public async Task<ProcResult> SetUseYnAsync(string menuCd, bool useYn)
     {
         using var conn = _context.CreateConnection();
-        await conn.ExecuteAsync("USP_SM_MENU_S_1",
-            new { MenuCd = menuCd, UseYn = useYn ? "Y" : "N" }, commandType: CommandType.StoredProcedure);
+        var p = new DynamicParameters();
+        p.Add("p_work_type", "D");
+        p.Add("p_menu_cd", menuCd);
+        p.Add("p_use_yn", useYn ? "Y" : "N");
+        p.AddStandardOutputs(pascalCase: true);
+
+        await conn.ExecuteAsync("USP_SM_MENU_S_1", p, commandType: CommandType.StoredProcedure);
+        return p.ReadStandardOutputs(pascalCase: true);
     }
 }

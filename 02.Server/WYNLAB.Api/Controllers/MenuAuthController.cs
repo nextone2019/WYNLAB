@@ -63,7 +63,10 @@ public class MenuAuthController : ControllerBase
             ExcelYn = i.ExcelYn ? "Y" : "N"
         }).ToList();
 
-        await _repo.SaveAuthAsync(request.TargetType, request.TargetCd, items);
+        var result = await _repo.SaveAuthAsync(request.TargetType, request.TargetCd, items);
+        if (!result.IsSuccess)
+            return Ok(new ApiResult { Success = false, Message = result.FailMessage });
+
         return Ok(new ApiResult { Success = true });
     }
 }

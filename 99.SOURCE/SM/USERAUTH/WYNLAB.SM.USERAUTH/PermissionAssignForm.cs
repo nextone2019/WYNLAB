@@ -298,7 +298,7 @@ public class PermissionAssignForm : BaseForm
             return;
         }
 
-        AppMessageBox.Show($"'{_selectedLabel}'의 권한을 저장했습니다.", "저장 완료");
+        Toast.Show($"'{_selectedLabel}'의 권한을 저장했습니다.");
     }
 
     /// <summary>

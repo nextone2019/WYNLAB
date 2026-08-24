@@ -34,8 +34,11 @@ public class UserGroupsController : ControllerBase
         if (await _repo.ExistsAsync(request.UserGrpCd))
             return Ok(new ApiResult { Success = false, Message = "이미 존재하는 그룹코드입니다." });
 
-        await _repo.CreateAsync(request.UserGrpCd, request.UserGrpNm, request.Description, request.SortOrder);
-        return Ok(new ApiResult { Success = true });
+        var result = await _repo.CreateAsync(request.UserGrpCd, request.UserGrpNm, request.Description, request.SortOrder);
+        if (!result.IsSuccess)
+            return Ok(new ApiResult { Success = false, Message = result.FailMessage });
+
+        return Ok(new ApiResult { Success = true, GeneratedCode = result.GeneratedCode });
     }
 
     [HttpPut("{userGrpCd}")]
@@ -45,7 +48,10 @@ public class UserGroupsController : ControllerBase
         if (!await _repo.ExistsAsync(userGrpCd))
             return Ok(new ApiResult { Success = false, Message = "존재하지 않는 그룹입니다." });
 
-        await _repo.UpdateAsync(userGrpCd, request.UserGrpNm, request.Description, request.SortOrder, request.UseYn);
+        var result = await _repo.UpdateAsync(userGrpCd, request.UserGrpNm, request.Description, request.SortOrder, request.UseYn);
+        if (!result.IsSuccess)
+            return Ok(new ApiResult { Success = false, Message = result.FailMessage });
+
         return Ok(new ApiResult { Success = true });
     }
 
@@ -53,7 +59,10 @@ public class UserGroupsController : ControllerBase
     [RequireMenuPermission("SM_USERGRP", MenuAction.Delete)]
     public async Task<ActionResult<ApiResult>> Delete(string userGrpCd)
     {
-        await _repo.SetUseYnAsync(userGrpCd, useYn: false);
+        var result = await _repo.SetUseYnAsync(userGrpCd, useYn: false);
+        if (!result.IsSuccess)
+            return Ok(new ApiResult { Success = false, Message = result.FailMessage });
+
         return Ok(new ApiResult { Success = true });
     }
 
@@ -80,7 +89,10 @@ public class UserGroupsController : ControllerBase
         if (!await _repo.ExistsAsync(userGrpCd))
             return Ok(new ApiResult { Success = false, Message = "존재하지 않는 그룹입니다." });
 
-        await _repo.ReplaceMembersAsync(userGrpCd, request.UserIds);
+        var result = await _repo.ReplaceMembersAsync(userGrpCd, request.UserIds);
+        if (!result.IsSuccess)
+            return Ok(new ApiResult { Success = false, Message = result.FailMessage });
+
         return Ok(new ApiResult { Success = true });
     }
 

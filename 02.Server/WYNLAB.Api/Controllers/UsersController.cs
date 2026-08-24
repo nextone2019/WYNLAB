@@ -38,10 +38,13 @@ public class UsersController : ControllerBase
             return Ok(new ApiResult { Success = false, Message = "이미 존재하는 아이디입니다." });
 
         var passwordHash = BCrypt.Net.BCrypt.HashPassword(request.Password);
-        await _repo.CreateAsync(request.UserId, request.UserNm, passwordHash, request.EmpNo,
+        var result = await _repo.CreateAsync(request.UserId, request.UserNm, passwordHash, request.EmpNo,
             request.DeptCd, request.PositionNm, request.Email, request.MobileNo, request.IsAdminYn);
 
-        return Ok(new ApiResult { Success = true });
+        if (!result.IsSuccess)
+            return Ok(new ApiResult { Success = false, Message = result.FailMessage });
+
+        return Ok(new ApiResult { Success = true, GeneratedCode = result.GeneratedCode });
     }
 
     [HttpPut("{userId}")]
@@ -51,8 +54,11 @@ public class UsersController : ControllerBase
         if (!await _repo.ExistsAsync(userId))
             return Ok(new ApiResult { Success = false, Message = "존재하지 않는 사용자입니다." });
 
-        await _repo.UpdateAsync(userId, request.UserNm, request.EmpNo, request.DeptCd,
+        var result = await _repo.UpdateAsync(userId, request.UserNm, request.EmpNo, request.DeptCd,
             request.PositionNm, request.Email, request.MobileNo, request.UseYn, request.IsAdminYn);
+
+        if (!result.IsSuccess)
+            return Ok(new ApiResult { Success = false, Message = result.FailMessage });
 
         return Ok(new ApiResult { Success = true });
     }
@@ -62,7 +68,10 @@ public class UsersController : ControllerBase
     [RequireMenuPermission("SM_USER", MenuAction.Delete)]
     public async Task<ActionResult<ApiResult>> Delete(string userId)
     {
-        await _repo.SetUseYnAsync(userId, useYn: false);
+        var result = await _repo.SetUseYnAsync(userId, useYn: false);
+        if (!result.IsSuccess)
+            return Ok(new ApiResult { Success = false, Message = result.FailMessage });
+
         return Ok(new ApiResult { Success = true });
     }
 
@@ -85,7 +94,10 @@ public class UsersController : ControllerBase
     [RequireMenuPermission("SM_USER", MenuAction.Update)]
     public async Task<ActionResult<ApiResult>> UpdateGroups(string userId, [FromBody] UpdateUserGroupsRequest request)
     {
-        await _repo.ReplaceUserGroupsAsync(userId, request.UserGrpCds);
+        var result = await _repo.ReplaceUserGroupsAsync(userId, request.UserGrpCds);
+        if (!result.IsSuccess)
+            return Ok(new ApiResult { Success = false, Message = result.FailMessage });
+
         return Ok(new ApiResult { Success = true });
     }
 

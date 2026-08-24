@@ -26,6 +26,12 @@ public sealed class SessionManager
 
     public bool IsSignedIn => UserInfo != null;
 
+    /// <summary>최근 열어본 화면(최신순, 최대 RecentMenusMaxCount개) - 홈 대시보드 "최근 사용" 카드용.
+    /// 로그인 세션 안에서만 유지되고 서버엔 저장하지 않는다(가벼운 UX 편의 기능).</summary>
+    public IReadOnlyList<MenuDto> RecentMenus => _recentMenus;
+    private readonly List<MenuDto> _recentMenus = new();
+    private const int RecentMenusMaxCount = 8;
+
     private SessionManager() { }
 
     public void SignIn(LoginResponse response)
@@ -39,11 +45,21 @@ public sealed class SessionManager
     public MenuDto? GetMenuAuth(string menuCd) =>
         Menus.FirstOrDefault(m => m.MenuCd == menuCd);
 
+    /// <summary>화면을 열 때마다 호출 - 이미 목록에 있으면 맨 앞으로 이동(MRU), 없으면 앞에 추가하고 초과분은 버림</summary>
+    public void AddRecentMenu(MenuDto menu)
+    {
+        _recentMenus.RemoveAll(m => m.MenuCd == menu.MenuCd);
+        _recentMenus.Insert(0, menu);
+        if (_recentMenus.Count > RecentMenusMaxCount)
+            _recentMenus.RemoveRange(RecentMenusMaxCount, _recentMenus.Count - RecentMenusMaxCount);
+    }
+
     public void SignOut()
     {
         UserInfo = null;
         AccessToken = null;
         Menus.Clear();
+        _recentMenus.Clear();
         SignInTime = null;
     }
 }

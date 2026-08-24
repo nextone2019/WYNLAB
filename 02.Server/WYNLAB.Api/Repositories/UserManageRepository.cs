@@ -8,13 +8,13 @@ public interface IUserManageRepository
 {
     Task<List<UserManageRow>> GetAllAsync(string? userId = null, string? userNm = null);
     Task<bool> ExistsAsync(string userId);
-    Task CreateAsync(string userId, string userNm, string passwordHash, string? empNo,
+    Task<ProcResult> CreateAsync(string userId, string userNm, string passwordHash, string? empNo,
         string? deptCd, string? positionNm, string? email, string? mobileNo, bool isAdminYn);
-    Task UpdateAsync(string userId, string userNm, string? empNo, string? deptCd,
+    Task<ProcResult> UpdateAsync(string userId, string userNm, string? empNo, string? deptCd,
         string? positionNm, string? email, string? mobileNo, bool useYn, bool isAdminYn);
-    Task SetUseYnAsync(string userId, bool useYn);
+    Task<ProcResult> SetUseYnAsync(string userId, bool useYn);
     Task<List<UserGroupAssignRow>> GetUserGroupsAsync(string userId);
-    Task ReplaceUserGroupsAsync(string userId, List<string> userGrpCds);
+    Task<ProcResult> ReplaceUserGroupsAsync(string userId, List<string> userGrpCds);
 }
 
 /// <summary>DB 조회 전용 - 목록 화면 표시용 (비밀번호 해시는 절대 포함하지 않음)</summary>
@@ -57,8 +57,9 @@ public class UserManageRepository : IUserManageRepository
         var result = await conn.QueryAsync<UserManageRow>("USP_SM_USER_Q",
             new
             {
-                UserId = string.IsNullOrWhiteSpace(userId) ? null : userId,
-                UserNm = string.IsNullOrWhiteSpace(userNm) ? null : userNm
+                p_work_type = "Q",
+                p_user_id = string.IsNullOrWhiteSpace(userId) ? null : userId,
+                p_user_nm = string.IsNullOrWhiteSpace(userNm) ? null : userNm
             },
             commandType: CommandType.StoredProcedure);
         return result.ToList();
@@ -68,72 +69,85 @@ public class UserManageRepository : IUserManageRepository
     {
         using var conn = _context.CreateConnection();
         var count = await conn.ExecuteScalarAsync<int>("USP_SM_USER_Q_1",
-            new { UserId = userId }, commandType: CommandType.StoredProcedure);
+            new { p_work_type = "Q", p_user_id = userId }, commandType: CommandType.StoredProcedure);
         return count > 0;
     }
 
-    public async Task CreateAsync(string userId, string userNm, string passwordHash, string? empNo,
+    public async Task<ProcResult> CreateAsync(string userId, string userNm, string passwordHash, string? empNo,
         string? deptCd, string? positionNm, string? email, string? mobileNo, bool isAdminYn)
     {
         using var conn = _context.CreateConnection();
-        await conn.ExecuteAsync("USP_SM_USER_S", new
-        {
-            Mode = "C",
-            UserId = userId,
-            UserNm = userNm,
-            PasswordHash = passwordHash,
-            EmpNo = empNo,
-            DeptCd = deptCd,
-            PositionNm = positionNm,
-            Email = email,
-            MobileNo = mobileNo,
-            IsAdminYn = isAdminYn ? "Y" : "N"
-        }, commandType: CommandType.StoredProcedure);
+        var p = new DynamicParameters();
+        p.Add("p_work_type", "N");
+        p.Add("p_user_id", userId);
+        p.Add("p_user_nm", userNm);
+        p.Add("p_password_hash", passwordHash);
+        p.Add("p_emp_no", empNo);
+        p.Add("p_dept_cd", deptCd);
+        p.Add("p_position_nm", positionNm);
+        p.Add("p_email", email);
+        p.Add("p_mobile_no", mobileNo);
+        p.Add("p_is_admin_yn", isAdminYn ? "Y" : "N");
+        p.AddStandardOutputs(withGeneratedCode: true, pascalCase: true);
+
+        await conn.ExecuteAsync("USP_SM_USER_S", p, commandType: CommandType.StoredProcedure);
+        return p.ReadStandardOutputs(withGeneratedCode: true, pascalCase: true);
     }
 
-    public async Task UpdateAsync(string userId, string userNm, string? empNo, string? deptCd,
+    public async Task<ProcResult> UpdateAsync(string userId, string userNm, string? empNo, string? deptCd,
         string? positionNm, string? email, string? mobileNo, bool useYn, bool isAdminYn)
     {
         using var conn = _context.CreateConnection();
-        await conn.ExecuteAsync("USP_SM_USER_S", new
-        {
-            Mode = "U",
-            UserId = userId,
-            UserNm = userNm,
-            EmpNo = empNo,
-            DeptCd = deptCd,
-            PositionNm = positionNm,
-            Email = email,
-            MobileNo = mobileNo,
-            UseYn = useYn ? "Y" : "N",
-            IsAdminYn = isAdminYn ? "Y" : "N"
-        }, commandType: CommandType.StoredProcedure);
+        var p = new DynamicParameters();
+        p.Add("p_work_type", "U");
+        p.Add("p_user_id", userId);
+        p.Add("p_user_nm", userNm);
+        p.Add("p_emp_no", empNo);
+        p.Add("p_dept_cd", deptCd);
+        p.Add("p_position_nm", positionNm);
+        p.Add("p_email", email);
+        p.Add("p_mobile_no", mobileNo);
+        p.Add("p_use_yn", useYn ? "Y" : "N");
+        p.Add("p_is_admin_yn", isAdminYn ? "Y" : "N");
+        p.AddStandardOutputs(withGeneratedCode: true, pascalCase: true);
+
+        await conn.ExecuteAsync("USP_SM_USER_S", p, commandType: CommandType.StoredProcedure);
+        return p.ReadStandardOutputs(withGeneratedCode: true, pascalCase: true);
     }
 
-    /// <summary>물리삭제 대신 USE_YN='N' 처리 - 이력/참조무결성 보존을 위한 표준 삭제 방식</summary>
-    public async Task SetUseYnAsync(string userId, bool useYn)
+    /// <summary>물리삭제 대신 USE_YN='N' 처리 - 이력/참조무결성 보존을 위한 표준 삭제 방식(work_type='D')</summary>
+    public async Task<ProcResult> SetUseYnAsync(string userId, bool useYn)
     {
         using var conn = _context.CreateConnection();
-        await conn.ExecuteAsync("USP_SM_USER_S_1",
-            new { UserId = userId, UseYn = useYn ? "Y" : "N" }, commandType: CommandType.StoredProcedure);
+        var p = new DynamicParameters();
+        p.Add("p_work_type", "D");
+        p.Add("p_user_id", userId);
+        p.Add("p_use_yn", useYn ? "Y" : "N");
+        p.AddStandardOutputs(pascalCase: true);
+
+        await conn.ExecuteAsync("USP_SM_USER_S_1", p, commandType: CommandType.StoredProcedure);
+        return p.ReadStandardOutputs(pascalCase: true);
     }
 
     public async Task<List<UserGroupAssignRow>> GetUserGroupsAsync(string userId)
     {
         using var conn = _context.CreateConnection();
         var result = await conn.QueryAsync<UserGroupAssignRow>("USP_SM_USER_Q_2",
-            new { UserId = userId }, commandType: CommandType.StoredProcedure);
+            new { p_work_type = "Q", p_user_id = userId }, commandType: CommandType.StoredProcedure);
         return result.ToList();
     }
 
-    /// <summary>체크된 그룹코드 목록으로 이 사용자의 소속을 치환(콤마구분 문자열로 프로시저 전달)</summary>
-    public async Task ReplaceUserGroupsAsync(string userId, List<string> userGrpCds)
+    /// <summary>체크된 그룹코드 목록으로 이 사용자의 소속을 치환(콤마구분 문자열로 프로시저 전달, work_type='U')</summary>
+    public async Task<ProcResult> ReplaceUserGroupsAsync(string userId, List<string> userGrpCds)
     {
         using var conn = _context.CreateConnection();
-        await conn.ExecuteAsync("USP_SM_USER_S_2", new
-        {
-            UserId = userId,
-            UserGrpCds = userGrpCds.Count > 0 ? string.Join(",", userGrpCds) : null
-        }, commandType: CommandType.StoredProcedure);
+        var p = new DynamicParameters();
+        p.Add("p_work_type", "U");
+        p.Add("p_user_id", userId);
+        p.Add("p_user_grp_cds", userGrpCds.Count > 0 ? string.Join(",", userGrpCds) : null);
+        p.AddStandardOutputs(pascalCase: true);
+
+        await conn.ExecuteAsync("USP_SM_USER_S_2", p, commandType: CommandType.StoredProcedure);
+        return p.ReadStandardOutputs(pascalCase: true);
     }
 }

@@ -14,6 +14,7 @@ builder.Services.AddScoped<IUserManageRepository, UserManageRepository>();
 builder.Services.AddScoped<IUserGroupManageRepository, UserGroupManageRepository>();
 builder.Services.AddScoped<IMenuManageRepository, MenuManageRepository>();
 builder.Services.AddScoped<IMenuAuthAssignRepository, MenuAuthAssignRepository>();
+builder.Services.AddScoped<ICodeManageRepository, CodeManageRepository>();
 builder.Services.AddScoped<IMenuRepository, MenuRepository>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IJwtTokenService, JwtTokenService>();

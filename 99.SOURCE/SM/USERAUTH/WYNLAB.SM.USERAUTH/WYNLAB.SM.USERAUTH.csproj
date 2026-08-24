@@ -10,28 +10,28 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <!-- DevExpress 20.2 로컬 설치 기반 참조 -->
-    <Reference Include="DevExpress.Data.v20.2">
-      <HintPath>C:\Program Files (x86)\DevExpress 20.2\Components\Bin\Framework\DevExpress.Data.v20.2.dll</HintPath>
+    <!-- DevExpress 21.2 로컬 설치 기반 참조 -->
+    <Reference Include="DevExpress.Data.v21.2">
+      <HintPath>C:\Program Files (x86)\DevExpress 21.2\Components\Bin\Framework\DevExpress.Data.v21.2.dll</HintPath>
     </Reference>
-    <Reference Include="DevExpress.Utils.v20.2">
-      <HintPath>C:\Program Files (x86)\DevExpress 20.2\Components\Bin\Framework\DevExpress.Utils.v20.2.dll</HintPath>
+    <Reference Include="DevExpress.Utils.v21.2">
+      <HintPath>C:\Program Files (x86)\DevExpress 21.2\Components\Bin\Framework\DevExpress.Utils.v21.2.dll</HintPath>
     </Reference>
-    <Reference Include="DevExpress.XtraBars.v20.2">
-      <HintPath>C:\Program Files (x86)\DevExpress 20.2\Components\Bin\Framework\DevExpress.XtraBars.v20.2.dll</HintPath>
+    <Reference Include="DevExpress.XtraBars.v21.2">
+      <HintPath>C:\Program Files (x86)\DevExpress 21.2\Components\Bin\Framework\DevExpress.XtraBars.v21.2.dll</HintPath>
     </Reference>
-    <Reference Include="DevExpress.XtraEditors.v20.2">
-      <HintPath>C:\Program Files (x86)\DevExpress 20.2\Components\Bin\Framework\DevExpress.XtraEditors.v20.2.dll</HintPath>
+    <Reference Include="DevExpress.XtraEditors.v21.2">
+      <HintPath>C:\Program Files (x86)\DevExpress 21.2\Components\Bin\Framework\DevExpress.XtraEditors.v21.2.dll</HintPath>
     </Reference>
-    <Reference Include="DevExpress.XtraGrid.v20.2">
-      <HintPath>C:\Program Files (x86)\DevExpress 20.2\Components\Bin\Framework\DevExpress.XtraGrid.v20.2.dll</HintPath>
+    <Reference Include="DevExpress.XtraGrid.v21.2">
+      <HintPath>C:\Program Files (x86)\DevExpress 21.2\Components\Bin\Framework\DevExpress.XtraGrid.v21.2.dll</HintPath>
     </Reference>
-    <Reference Include="DevExpress.XtraLayout.v20.2">
-      <HintPath>C:\Program Files (x86)\DevExpress 20.2\Components\Bin\Framework\DevExpress.XtraLayout.v20.2.dll</HintPath>
+    <Reference Include="DevExpress.XtraLayout.v21.2">
+      <HintPath>C:\Program Files (x86)\DevExpress 21.2\Components\Bin\Framework\DevExpress.XtraLayout.v21.2.dll</HintPath>
     </Reference>
     <!-- 권한트리(TreeList)용 -->
-    <Reference Include="DevExpress.XtraTreeList.v20.2">
-      <HintPath>C:\Program Files (x86)\DevExpress 20.2\Components\Bin\Framework\DevExpress.XtraTreeList.v20.2.dll</HintPath>
+    <Reference Include="DevExpress.XtraTreeList.v21.2">
+      <HintPath>C:\Program Files (x86)\DevExpress 21.2\Components\Bin\Framework\DevExpress.XtraTreeList.v21.2.dll</HintPath>
     </Reference>
   </ItemGroup>
 

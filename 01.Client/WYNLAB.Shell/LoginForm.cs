@@ -27,6 +27,7 @@ public partial class LoginForm : XtraForm
     private readonly TextEdit txtUserId = new();
     private readonly TextEdit txtPassword = new() { Properties = { PasswordChar = '*' } };
     private readonly ComboBoxEdit cboEnvironment = new();
+    private readonly LabelControl lnkManageSites = new() { Text = "서비스 관리" };
     private readonly SimpleButton btnLogin = new() { Text = "로그인" };
     private readonly LabelControl lblClose = new() { Text = "✕" };
 
@@ -197,18 +198,34 @@ public partial class LoginForm : XtraForm
         y += 40;
 
         AddFieldLabel("접속 서비스", formX, ref y);
-        cboEnvironment.Properties.Items.AddRange(AppConfig.AvailableEnvironments.Select(GetEnvLabel).ToArray());
+        RefreshEnvironmentItems();
         cboEnvironment.Properties.TextEditStyle = TextEditStyles.DisableTextEditor;
-        cboEnvironment.SelectedItem = GetEnvLabel(AppConfig.CurrentEnvironment);
         cboEnvironment.Font = AppFonts.Body;
         cboEnvironment.Location = new Point(formX, y);
-        cboEnvironment.Size = new Size(fieldWidth, 26);
+        cboEnvironment.Size = new Size(fieldWidth - 84, 26);
         cboEnvironment.SelectedIndexChanged += (s, e) =>
         {
-            var key = GetEnvKey((string)cboEnvironment.SelectedItem!);
+            if (cboEnvironment.SelectedItem == null) return;
+            var key = GetEnvKey((string)cboEnvironment.SelectedItem);
             AppConfig.SwitchEnvironment(key);
         };
         Controls.Add(cboEnvironment);
+
+        // 개발자가 이 PC에서 접속할 서비스를 직접 추가/삭제하는 화면으로 - appsettings.json에
+        // 내장 안 된 고객사 서버를 재배포 없이 늘려갈 때 씀(AppConfig.AddSite 참고).
+        lnkManageSites.Location = new Point(formX + fieldWidth - 78, y + 5);
+        lnkManageSites.AutoSizeMode = LabelAutoSizeMode.None;
+        lnkManageSites.Size = new Size(78, 16);
+        lnkManageSites.Appearance.ForeColor = BrandColor;
+        lnkManageSites.Appearance.Font = AppFonts.Caption;
+        lnkManageSites.Cursor = Cursors.Hand;
+        lnkManageSites.Click += (s, e) =>
+        {
+            using var siteManager = new SiteManagerForm();
+            siteManager.ShowDialog(this);
+            RefreshEnvironmentItems();
+        };
+        Controls.Add(lnkManageSites);
         y += 46;
 
         btnLogin.Location = new Point(formX, y);
@@ -235,6 +252,23 @@ public partial class LoginForm : XtraForm
 
     private string GetEnvLabel(string env) => _envLabels.TryGetValue(env, out var label) ? label : env;
     private string GetEnvKey(string label) => _envLabels.FirstOrDefault(kv => kv.Value == label).Key ?? label;
+
+    /// <summary>서비스 관리 화면에서 추가/삭제하고 돌아왔을 때 드롭다운 목록을 다시 채운다 -
+    /// 지금 선택되어 있던 서비스가 삭제됐으면 AppConfig.CurrentEnvironment(기본값)로 되돌린다.</summary>
+    private void RefreshEnvironmentItems()
+    {
+        var previouslySelectedKey = cboEnvironment.SelectedItem != null
+            ? GetEnvKey((string)cboEnvironment.SelectedItem)
+            : AppConfig.CurrentEnvironment;
+
+        cboEnvironment.Properties.Items.Clear();
+        cboEnvironment.Properties.Items.AddRange(AppConfig.AvailableEnvironments.Select(GetEnvLabel).ToArray());
+
+        var selectedKey = AppConfig.AvailableEnvironments.Contains(previouslySelectedKey)
+            ? previouslySelectedKey
+            : AppConfig.CurrentEnvironment;
+        cboEnvironment.SelectedItem = GetEnvLabel(selectedKey);
+    }
 
     /// <summary>타이틀바가 없어서 창을 못 옮기므로, 지정한 컨트롤을 드래그하면 창이 같이 움직이도록 처리</summary>
     private void EnableDrag(Control control)

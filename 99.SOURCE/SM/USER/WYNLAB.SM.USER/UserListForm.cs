@@ -98,6 +98,7 @@ public class UserListForm : BaseGridForm
         if (form.ShowDialog() == DialogResult.OK)
         {
             await QueryClick();
+            Toast.Show("사용자가 등록되었습니다.");
         }
     }
 
@@ -116,6 +117,7 @@ public class UserListForm : BaseGridForm
 
         await ApiClient.DeleteAsync($"api/users/{selected.UserId}");
         await QueryClick();
+        Toast.Show("사용중지 처리되었습니다.");
     }
 
     /// <summary>더블클릭으로 수정 팝업 오픈 - Shell 툴바가 아닌 그리드 자체 동작</summary>
@@ -128,6 +130,7 @@ public class UserListForm : BaseGridForm
         if (form.ShowDialog() == DialogResult.OK)
         {
             await QueryClick();
+            Toast.Show("수정되었습니다.");
         }
     }
 }

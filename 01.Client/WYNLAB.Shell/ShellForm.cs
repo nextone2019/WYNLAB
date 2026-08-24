@@ -61,11 +61,28 @@ public class ShellForm : XtraForm
 
     private const int MenuTopIconSize = 15;
     private const int MenuLeafDotSize = 9;
+    private const int RailIconSize = 13;
+
+    // 사이드바 접힘/펼침 폭. 예전엔 로고 클릭시 사이드바 자체가 Visible=false로 완전히
+    // 사라졌는데(폭 0), 접혀도 최상위 메뉴 아이콘만 남는 "아이콘 레일"로 바꿔서 접힌 상태에서도
+    // 길을 잃지 않고 계속 다른 모듈로 이동할 수 있게 한다(요즘 관리자 UI들의 표준 패턴).
+    private const int SidebarExpandedWidth = 212;
+    private const int SidebarCollapsedWidth = 60;
+    private bool _sidebarCollapsed;
 
     private readonly Panel headerPanel;
     private readonly Panel logoPanel;
+    private readonly Panel headerRightPanel = new() { Dock = DockStyle.Right, Width = 210 };
+    private readonly LabelControl lblEnvBadge = new();
+    private readonly Panel avatarBadge = new() { Size = new Size(30, 30) };
+    private readonly LabelControl lblAvatarInitial = new();
     private readonly Panel sidebarPanel;
     private readonly Panel statusBar;
+    // 접힌 상태에서 accordionMenu 대신 보여주는 아이콘 전용 레일 - 최상위 메뉴당 아이콘 버튼 1개.
+    // 클릭하면 사이드바를 다시 펼친다(하위 메뉴까지 좁은 폭에 다 담기는 어려워, 펼침으로 위임).
+    private readonly Panel sidebarIconRail = new() { Dock = DockStyle.Fill, Visible = false };
+    private Panel? _sidebarToolPanel;
+    private LabelControl? _lblUserInline;
     // 사이드바 맨 위 여백 - 오른쪽 MDI 탭 줄과 높이를 맞춰서, 그 아래(사용자정보)와
     // 탭 줄 아래(문서 내용)가 같은 Y좌표에서 시작하도록 CustomDrawTabHeader에서 실측해 맞춘다.
     private readonly Panel sidebarTopGap = new() { Dock = DockStyle.Top, Height = 30, BackColor = Color.White };
@@ -123,9 +140,10 @@ public class ShellForm : XtraForm
         MinimumSize = new Size(920, 650);
 
         tabbedMdiManager.MdiParent = this;
-        // MDI 탭 헤더에 X(닫기) 버튼 표시 - Home 탭은 BaseForm/HomeForm.OnFormClosing에서
-        // 이미 닫기를 막고 있어서, X가 보여도 실제로는 닫히지 않는다.
-        tabbedMdiManager.ClosePageButtonShowMode = ClosePageButtonShowMode.InAllTabPageHeaders;
+        // MDI 탭 헤더에 X(닫기) 버튼 표시 + 탭 영역 맨 오른쪽에 "현재 탭 닫기" 버튼도 같이
+        // 표시(InAllTabPagesAndTabControlHeader) - Home 탭은 BaseForm/HomeForm.OnFormClosing에서
+        // 이미 닫기를 막고 있어서, 두 버튼 다 눌러도 실제로는 안 닫힌다.
+        tabbedMdiManager.ClosePageButtonShowMode = ClosePageButtonShowMode.InAllTabPagesAndTabControlHeader;
         ConfigureTabAppearance();
 
         headerPanel = new Panel { Dock = DockStyle.Top, Height = 60, BackColor = HeaderBg };
@@ -135,11 +153,13 @@ public class ShellForm : XtraForm
 
         BuildLogo();
         BuildToolbar();
+        BuildHeaderRight();
         BuildSidebar();
         BuildAccordionMenu();
         BuildStatusBar();
 
         headerPanel.Controls.Add(logoPanel);
+        headerPanel.Controls.Add(headerRightPanel);
 
         var headerBottomBorder = new Panel { Dock = DockStyle.Bottom, Height = 1, BackColor = HeaderDividerColor };
         headerPanel.Controls.Add(headerBottomBorder);
@@ -356,15 +376,26 @@ public class ShellForm : XtraForm
         // (메뉴가 많아져서 실제로 넘치면 마우스 휠 스크롤 자체는 그대로 동작함)
         accordionMenu.ScrollBarMode = DevExpress.XtraBars.Navigation.ScrollBarMode.Hidden;
 
+        // 그룹(Style=Group)은 DevExpress 기본 동작 그대로 한 번 클릭하면 펼침/접힘이 되고,
+        // 화면(Style=Item)은 AddChildMenus에서 Click을 안 걸어뒀으므로 한 번 클릭으론 아무 일도
+        // 안 일어난다 - 실수로 스치듯 클릭했다가 화면이 열리는 걸 막기 위해 더블클릭으로만
+        // 열리게 한다. AccordionControlElement 자체엔 DoubleClick 이벤트가 없어서(Click만
+        // 있음), 컨트롤 레벨 MouseDoubleClick + CalcHitInfo로 더블클릭 지점의 실제 엘리먼트를
+        // 찾아낸다.
+        accordionMenu.MouseDoubleClick += AccordionMenu_MouseDoubleClick;
+
+        sidebarIconRail.BackColor = NavDarkBg;
+
         var divider = new Panel { Dock = DockStyle.Right, Width = 1, BackColor = NavDivider };
-        var toolPanel = BuildSidebarToolPanel();
+        _sidebarToolPanel = BuildSidebarToolPanel();
         ConfigureSidebarTopGap();
 
-        // Dock 추가 순서: Fill(accordionMenu) 먼저, Top/Bottom은 나중에 추가해야
+        // Dock 추가 순서: Fill(accordionMenu/sidebarIconRail) 먼저, Top/Bottom은 나중에 추가해야
         // 각자 가장자리를 정상적으로 차지한다 (PermissionAssignForm에서 겪은 것과 같은 문제 방지).
         sidebarPanel.Controls.Add(accordionMenu);
+        sidebarPanel.Controls.Add(sidebarIconRail);
         sidebarPanel.Controls.Add(divider);
-        sidebarPanel.Controls.Add(toolPanel);
+        sidebarPanel.Controls.Add(_sidebarToolPanel);
         sidebarPanel.Controls.Add(sidebarTopGap);
     }
 
@@ -386,6 +417,7 @@ public class ShellForm : XtraForm
         lblUserInline.Appearance.ForeColor = Color.FromArgb(55, 55, 55);
         lblUserInline.Appearance.Font = AppFonts.Body;
         lblUserInline.Appearance.TextOptions.VAlignment = DevExpress.Utils.VertAlignment.Center;
+        _lblUserInline = lblUserInline;
 
         void Refresh()
         {
@@ -514,11 +546,29 @@ public class ShellForm : XtraForm
         logoPanel.Controls.Add(badge);
         logoPanel.Controls.Add(nameLabel);
 
-        void ToggleMenu(object? s, EventArgs e) => sidebarPanel.Visible = !sidebarPanel.Visible;
+        void ToggleMenu(object? s, EventArgs e) => ToggleSidebarCollapsed();
         logoPanel.Click += ToggleMenu;
         badge.Click += ToggleMenu;
         badgeLabel.Click += ToggleMenu;
         nameLabel.Click += ToggleMenu;
+    }
+
+    /// <summary>
+    /// 사이드바 접힘/펼침 전환. 접힌 상태에선 폭만 줄이는 게 아니라 accordionMenu(트리) 대신
+    /// sidebarIconRail(최상위 아이콘만)을 보여준다 - 하위 메뉴/서비스·테마 선택 콤보는 좁은
+    /// 폭에 담기 어려워서 함께 숨기고, 사용자명 텍스트도 잘려 보이므로 같이 숨긴다.
+    /// </summary>
+    private void ToggleSidebarCollapsed()
+    {
+        _sidebarCollapsed = !_sidebarCollapsed;
+
+        sidebarPanel.Width = _sidebarCollapsed ? SidebarCollapsedWidth : SidebarExpandedWidth;
+        accordionMenu.Visible = !_sidebarCollapsed;
+        sidebarIconRail.Visible = _sidebarCollapsed;
+        if (_sidebarToolPanel != null)
+            _sidebarToolPanel.Visible = !_sidebarCollapsed;
+        if (_lblUserInline != null)
+            _lblUserInline.Visible = !_sidebarCollapsed;
     }
 
     /// <summary>
@@ -584,7 +634,7 @@ public class ShellForm : XtraForm
 
             try
             {
-                Cursor = Cursors.WaitCursor;
+                activeForm?.ShowBusy();
                 await action(activeForm!);
             }
             catch (Exception ex)
@@ -594,7 +644,7 @@ public class ShellForm : XtraForm
             }
             finally
             {
-                Cursor = Cursors.Default;
+                activeForm?.HideBusy();
             }
         };
 
@@ -607,6 +657,88 @@ public class ShellForm : XtraForm
         var divider = new Panel { Location = new Point(x, 14), Size = new Size(1, 32), BackColor = HeaderDividerColor };
         headerPanel.Controls.Add(divider);
         x += 12;
+    }
+
+    /// <summary>
+    /// 헤더 우측 - 전역검색(Ctrl+K와 동일 동작) 아이콘, 현재 접속 환경(운영/개발) 표시,
+    /// 로그인 사용자 아바타(이니셜)를 배치한다. 예전엔 헤더 우측이 통째로 비어있어서 밋밋해
+    /// 보인다는 피드백에 따라 추가 - 환경/사용자명 자체는 이미 사이드바 하단/상단에도 있지만,
+    /// 여기 배지는 화면 전환 없이 항상 눈에 들어오는 요약 정보 역할.
+    /// Dock=Right는 나중에 추가한 컨트롤일수록 더 오른쪽 끝을 차지한다(이 파일 전체의 규칙) -
+    /// 그래서 왼쪽부터 보이길 원하는 순서(검색/환경/아바타)의 역순으로 추가한다.
+    /// </summary>
+    private void BuildHeaderRight()
+    {
+        headerRightPanel.BackColor = HeaderBg;
+        // Fill(스페이서)을 가장 먼저 둬서 나머지 빈 공간을 흡수 - headerRightPanel 자체 폭(210)과
+        // 무관하게 아래 항목들이 항상 오른쪽 정렬로 보이게 한다.
+        headerRightPanel.Controls.Add(new Panel { Dock = DockStyle.Fill });
+
+        var searchButton = new IconBadgeButton
+        {
+            IconPainter = ToolbarIconPainters.Query,
+            BadgeColor = IconBadgeBg,
+            AccentColor = ActionAccent,
+            Size = new Size(36, 36),
+            IconInset = 8
+        };
+        toolbarToolTip.SetToolTip(searchButton, "화면 검색 (Ctrl+K)");
+        searchButton.Click += (s, e) => OpenQuickMenuSearch();
+        AddHeaderRightItem(searchButton, rightPadding: 10);
+
+        lblEnvBadge.AutoSizeMode = LabelAutoSizeMode.None;
+        lblEnvBadge.Size = new Size(72, 24);
+        lblEnvBadge.Appearance.Font = AppFonts.Caption;
+        lblEnvBadge.Appearance.ForeColor = Color.White;
+        lblEnvBadge.Appearance.BackColor = Color.FromArgb(255, 255, 255, 40);
+        lblEnvBadge.Appearance.Options.UseBackColor = true;
+        lblEnvBadge.Appearance.TextOptions.HAlignment = DevExpress.Utils.HorzAlignment.Center;
+        lblEnvBadge.Appearance.TextOptions.VAlignment = DevExpress.Utils.VertAlignment.Center;
+        void RefreshEnvBadge() => lblEnvBadge.Text = GetEnvLabel(AppConfig.CurrentEnvironment);
+        RefreshEnvBadge();
+        AppConfig.EnvironmentChanged += RefreshEnvBadge;
+        AddHeaderRightItem(lblEnvBadge, rightPadding: 12);
+
+        avatarBadge.BackColor = Color.White;
+        // Panel은 기본적으로 사각형이라, 원형 아바타처럼 보이게 그리기 영역 자체를 원으로 잘라낸다
+        using (var circlePath = new System.Drawing.Drawing2D.GraphicsPath())
+        {
+            circlePath.AddEllipse(0, 0, avatarBadge.Width, avatarBadge.Height);
+            avatarBadge.Region = new Region(circlePath);
+        }
+        lblAvatarInitial.Dock = DockStyle.Fill;
+        lblAvatarInitial.AutoSizeMode = LabelAutoSizeMode.None;
+        lblAvatarInitial.Appearance.Font = AppFonts.SubHeading;
+        lblAvatarInitial.Appearance.ForeColor = _accentColor;
+        lblAvatarInitial.Appearance.TextOptions.HAlignment = DevExpress.Utils.HorzAlignment.Center;
+        lblAvatarInitial.Appearance.TextOptions.VAlignment = DevExpress.Utils.VertAlignment.Center;
+        avatarBadge.Controls.Add(lblAvatarInitial);
+
+        void RefreshAvatar()
+        {
+            var user = SessionManager.Current.UserInfo;
+            lblAvatarInitial.Text = !string.IsNullOrEmpty(user?.UserNm) ? user!.UserNm.Substring(0, 1) : "?";
+            var time = SessionManager.Current.SignInTime is { } t ? $" [{t:yyyy-MM-dd HH:mm} 로그인]" : string.Empty;
+            toolbarToolTip.SetToolTip(avatarBadge, $"{user?.UserNm}{time}");
+            toolbarToolTip.SetToolTip(lblAvatarInitial, $"{user?.UserNm}{time}");
+        }
+        RefreshAvatar();
+        AppConfig.EnvironmentChanged += RefreshAvatar;
+        AddHeaderRightItem(avatarBadge, rightPadding: 16);
+    }
+
+    /// <summary>
+    /// 작은 컨트롤(검색버튼/배지/아바타)을 헤더 우측에 배치 - Dock=Right는 컨트롤 높이를
+    /// 부모(headerPanel, Height=60) 전체로 늘려버려서 작은 원형 아바타 등이 찌그러지므로,
+    /// Dock 대신 폭 고정 래퍼 패널을 만들고 그 안에서 세로 중앙 정렬만 좌표로 계산한다.
+    /// headerPanel.Height는 실행 중 바뀌지 않아 한 번만 계산해도 안전하다.
+    /// </summary>
+    private void AddHeaderRightItem(Control control, int rightPadding)
+    {
+        var wrapper = new Panel { Dock = DockStyle.Right, Width = control.Width + rightPadding, BackColor = HeaderBg };
+        control.Location = new Point(0, (headerPanel.Height - control.Height) / 2);
+        wrapper.Controls.Add(control);
+        headerRightPanel.Controls.Add(wrapper);
     }
 
     private string GetEnvLabel(string env) => _envLabels.TryGetValue(env, out var label) ? label : env;
@@ -677,6 +809,9 @@ public class ShellForm : XtraForm
         var menus = SessionManager.Current.Menus.Where(m => m.ViewYn).ToList();
         var topMenus = menus.Where(m => m.UpperMenuCd == null).OrderBy(m => m.SortOrder);
 
+        sidebarIconRail.Controls.Clear();
+        var railY = 8;
+
         foreach (var top in topMenus)
         {
             var group = new AccordionControlElement
@@ -688,6 +823,7 @@ public class ShellForm : XtraForm
 
             var painter = (top.IconNm != null && TopMenuIcons.TryGetValue(top.IconNm, out var p)) ? p : MenuIconPainters.Folder;
             group.ImageOptions.Image = MenuIconPainters.Render(painter, MenuTopIconSize, NavText);
+            AddSidebarRailButton(top.MenuNm, painter, ref railY);
 
             // 최상위 항목 - 다크 배경 위에 아이콘 + 굵은 밝은 글씨. 개별 배경색은 주지 않고
             // 사이드바 바탕색을 그대로 살려서 평평한 리스트처럼 보이게 한다.
@@ -708,6 +844,48 @@ public class ShellForm : XtraForm
             AddChildMenus(group, menus, top.MenuCd);
             accordionMenu.Elements.Add(group);
         }
+    }
+
+    /// <summary>
+    /// 접힌 사이드바(아이콘 레일)에 최상위 메뉴 하나당 아이콘 버튼 하나를 세로로 쌓아 배치.
+    /// 하위 메뉴까지 좁은 폭에 담기는 어려워, 클릭하면 그냥 사이드바를 펼치는 것으로 위임한다.
+    /// </summary>
+    private void AddSidebarRailButton(string tooltipText, Action<Graphics, Rectangle, Color> painter, ref int y)
+    {
+        const int size = 40;
+        var btn = new Panel
+        {
+            Size = new Size(size, size),
+            Location = new Point((SidebarCollapsedWidth - size) / 2, y),
+            BackColor = NavDarkBg,
+            Cursor = Cursors.Hand
+        };
+        var pic = new PictureBox
+        {
+            Dock = DockStyle.Fill,
+            SizeMode = PictureBoxSizeMode.CenterImage,
+            Image = MenuIconPainters.Render(painter, MenuTopIconSize + 4, NavText),
+            Cursor = Cursors.Hand
+        };
+        btn.Controls.Add(pic);
+        toolbarToolTip.SetToolTip(pic, tooltipText);
+
+        void ExpandSidebar(object? s, EventArgs e)
+        {
+            if (_sidebarCollapsed) ToggleSidebarCollapsed();
+        }
+        void Hover(object? s, EventArgs e) => btn.BackColor = NavHoverBg;
+        void Unhover(object? s, EventArgs e) => btn.BackColor = NavDarkBg;
+
+        btn.Click += ExpandSidebar;
+        pic.Click += ExpandSidebar;
+        btn.MouseEnter += Hover;
+        pic.MouseEnter += Hover;
+        btn.MouseLeave += Unhover;
+        pic.MouseLeave += Unhover;
+
+        sidebarIconRail.Controls.Add(btn);
+        y += size + 8;
     }
 
     private void AddChildMenus(AccordionControlElement parent, List<MenuDto> allMenus, string upperMenuCd)
@@ -789,8 +967,6 @@ public class ShellForm : XtraForm
                 element.Appearance.Pressed.Options.UseBackColor = true;
                 element.Appearance.Pressed.Options.UseForeColor = true;
                 element.Appearance.Pressed.Options.UseFont = true;
-
-                element.Click += (s, e) => OpenMenuForm(child);
             }
 
             AddChildMenus(element, allMenus, child.MenuCd, visited);
@@ -800,13 +976,70 @@ public class ShellForm : XtraForm
         }
     }
 
+    /// <summary>더블클릭한 지점이 실제 화면(Item) 엘리먼트일 때만 그 메뉴를 연다 - 그룹
+    /// 헤더를 더블클릭하면 DevExpress 기본 동작(펼침/접힘)만 두 번 일어날 뿐, 화면이 열리진
+    /// 않는다. AccordionControlElement 자체엔 DoubleClick 이벤트가 없어서 컨트롤 레벨에서
+    /// 좌표로 히트테스트한다.</summary>
+    private void AccordionMenu_MouseDoubleClick(object? sender, MouseEventArgs e)
+    {
+        var hitInfo = accordionMenu.CalcHitInfo(e.Location);
+        if (hitInfo.HitTest != AccordionControlHitTest.Item) return;
+
+        var element = hitInfo.ItemInfo?.Element;
+        if (element?.Name == null) return;
+
+        var menu = SessionManager.Current.GetMenuAuth(element.Name);
+        if (menu != null) OpenMenuForm(menu);
+    }
+
+    /// <summary>
+    /// Ctrl+K - 전역 메뉴 빠른 검색 팔레트. MDI 자식(그리드 등)에 포커스가 있어도 잡히도록
+    /// ProcessCmdKey에서 가로챈다(KeyDown은 포커스를 가진 자식 컨트롤이 먼저 소비해버릴 수 있음).
+    /// </summary>
+    protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
+    {
+        if (keyData == (Keys.Control | Keys.K))
+        {
+            OpenQuickMenuSearch();
+            return true;
+        }
+        return base.ProcessCmdKey(ref msg, keyData);
+    }
+
+    private void OpenQuickMenuSearch()
+    {
+        var leafMenus = SessionManager.Current.Menus
+            .Where(m => m.ViewYn && m.MenuType != "GROUP" && !string.IsNullOrWhiteSpace(m.FormClassNm))
+            .ToList();
+        if (leafMenus.Count == 0) return;
+
+        using var search = new QuickMenuSearchForm(leafMenus);
+        if (search.ShowDialog(this) == DialogResult.OK && search.Result != null)
+        {
+            OpenMenuForm(search.Result);
+        }
+    }
+
+    /// <summary>HomeForm 대시보드의 바로가기/최근사용 카드에서 호출 - 메뉴코드로 화면을 연다</summary>
+    public void OpenMenuByCode(string menuCd)
+    {
+        var menu = SessionManager.Current.Menus.FirstOrDefault(m => m.MenuCd == menuCd);
+        if (menu == null)
+        {
+            AppMessageBox.Show("연결된 메뉴를 찾을 수 없습니다.", "안내");
+            return;
+        }
+        OpenMenuForm(menu);
+    }
+
     /// <summary>
     /// MENU.FORM_CLASS_NM (예: "WYNLAB.Modules.System.UserListForm, WYNLAB.Modules.System") 을
     /// 리플렉션으로 로딩해서 MDI 자식으로 오픈. 이미 열려있으면 해당 탭으로 포커스만 이동.
     /// </summary>
     private void OpenMenuForm(MenuDto menu)
     {
-        if (string.IsNullOrWhiteSpace(menu.FormClassNm))
+        var formClassNm = menu.FormClassNm;
+        if (string.IsNullOrWhiteSpace(formClassNm))
         {
             AppMessageBox.Show("연결된 화면이 없습니다. (FORM_CLASS_NM 미설정)", "안내");
             return;
@@ -827,7 +1060,21 @@ public class ShellForm : XtraForm
             // "예"를 선택하면 아래로 내려가서 새 인스턴스를 만든다 (기존 탭은 그대로 둠)
         }
 
-        var formType = Type.GetType(menu.FormClassNm);
+        // 메뉴를 열 때마다 Modules 폴더의 dll이 그 사이 바뀌었는지 확인하고, 바뀌었으면 최신
+        // 코드로 다시 로드한다(ModuleLoader 클래스 설명 참고) - 재로그인 없이도 배포 직후
+        // 바로 반영된다. 이미 열려있던 기존 인스턴스는 자기가 만들어질 때의 코드로 계속
+        // 동작하고, 이 메뉴를 "새로" 여는 순간부터만 최신 코드가 적용된다.
+        //
+        // 반드시 EnsureLoaded가 돌려준 Assembly 객체에서 직접 GetType(타입명)을 호출해야
+        // 한다 - Type.GetType(전체문자열)을 쓰면 CLR이 "WYNLAB.SM.CODE" 같은 어셈블리
+        // 단순 이름의 첫 해석 결과를 내부적으로 캐싱해버려서, 두 번째 열 때부터는
+        // EnsureLoaded로 최신 dll을 새로 읽어와도 무시되고 계속 예전 화면이 뜬다(실제로
+        // 겪은 버그 - ModuleLoader 클래스 설명 참고).
+        var nameParts = formClassNm.Split(',');
+        var typeName = nameParts[0].Trim();
+        var assembly = nameParts.Length > 1 ? ModuleLoader.EnsureLoaded(nameParts[1].Trim()) : null;
+
+        var formType = assembly?.GetType(typeName);
         if (formType == null || Activator.CreateInstance(formType) is not BaseForm form)
         {
             AppMessageBox.Show($"화면을 찾을 수 없습니다: {menu.FormClassNm}", "오류");
@@ -838,5 +1085,7 @@ public class ShellForm : XtraForm
         form.MenuCd = menu.MenuCd;
         form.MdiParent = this;
         form.Show();
+
+        SessionManager.Current.AddRecentMenu(menu);
     }
 }

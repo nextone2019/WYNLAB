@@ -1,0 +1,74 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net48</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <UseWindowsForms>true</UseWindowsForms>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <RootNamespace>WYNLAB.SM.TEMPLATE</RootNamespace>
+    <!-- SvgIcon처럼 문자열이 아닌(이미지 등) 리소스를 .resx에 넣으면 SDK 스타일 프로젝트는
+         기본적으로 못 읽는다 - 이 옵션 + System.Resources.Extensions 패키지가 있어야 됨.
+         이 프로젝트를 복사해서 새 화면을 만들 때도 이 설정을 유지할 것. -->
+    <GenerateResourceUsePreserializedResources>true</GenerateResourceUsePreserializedResources>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="System.Resources.Extensions" Version="8.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- DevExpress 21.2 로컬 설치 기반 참조 -->
+    <Reference Include="DevExpress.Data.v21.2">
+      <HintPath>C:\Program Files (x86)\DevExpress 21.2\Components\Bin\Framework\DevExpress.Data.v21.2.dll</HintPath>
+    </Reference>
+    <Reference Include="DevExpress.Data.Desktop.v21.2">
+      <HintPath>C:\Program Files (x86)\DevExpress 21.2\Components\Bin\Framework\DevExpress.Data.Desktop.v21.2.dll</HintPath>
+    </Reference>
+    <Reference Include="DevExpress.Utils.v21.2">
+      <HintPath>C:\Program Files (x86)\DevExpress 21.2\Components\Bin\Framework\DevExpress.Utils.v21.2.dll</HintPath>
+    </Reference>
+    <Reference Include="DevExpress.XtraBars.v21.2">
+      <HintPath>C:\Program Files (x86)\DevExpress 21.2\Components\Bin\Framework\DevExpress.XtraBars.v21.2.dll</HintPath>
+    </Reference>
+    <Reference Include="DevExpress.XtraEditors.v21.2">
+      <HintPath>C:\Program Files (x86)\DevExpress 21.2\Components\Bin\Framework\DevExpress.XtraEditors.v21.2.dll</HintPath>
+    </Reference>
+    <Reference Include="DevExpress.XtraGrid.v21.2">
+      <HintPath>C:\Program Files (x86)\DevExpress 21.2\Components\Bin\Framework\DevExpress.XtraGrid.v21.2.dll</HintPath>
+    </Reference>
+    <Reference Include="DevExpress.XtraLayout.v21.2">
+      <HintPath>C:\Program Files (x86)\DevExpress 21.2\Components\Bin\Framework\DevExpress.XtraLayout.v21.2.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\..\01.Client\WYNLAB.BaseForm\WYNLAB.BaseForm.csproj" />
+    <ProjectReference Include="..\..\..\..\03.Shared\WYNLAB.Shared\WYNLAB.Shared.csproj" />
+  </ItemGroup>
+
+  <!-- TemplateForm.cs를 디자이너로 열 수 있게 명시 지정 - SDK 스타일 프로젝트의 자동인식이
+       가끔 안 걸리는 경우가 있어서(WYNLAB.SM.CODE에서 실제로 겪음) 처음부터 박아둔다. -->
+  <ItemGroup>
+    <Compile Update="TemplateForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="TemplateForm.Designer.cs">
+      <DependentUpon>TemplateForm.cs</DependentUpon>
+    </Compile>
+    <EmbeddedResource Update="TemplateForm.resx">
+      <DependentUpon>TemplateForm.cs</DependentUpon>
+    </EmbeddedResource>
+  </ItemGroup>
+
+  <Target Name="CopyToModulesFolder" AfterTargets="Build">
+    <ItemGroup>
+      <ModuleOutputFiles Include="$(TargetDir)$(TargetName).dll" />
+      <ModuleOutputFiles Include="$(TargetDir)$(TargetName).pdb" Condition="Exists('$(TargetDir)$(TargetName).pdb')" />
+    </ItemGroup>
+    <Copy SourceFiles="@(ModuleOutputFiles)"
+          DestinationFolder="$(SolutionDir)..\..\..\01.Client\WYNLAB.Shell\bin\$(Configuration)\net48\Modules\"
+          SkipUnchangedFiles="true" />
+  </Target>
+
+</Project>
