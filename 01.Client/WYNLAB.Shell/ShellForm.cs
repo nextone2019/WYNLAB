@@ -147,6 +147,14 @@ public class ShellForm : XtraForm
         ConfigureTabAppearance();
 
         headerPanel = new Panel { Dock = DockStyle.Top, Height = 60, BackColor = HeaderBg };
+        // 관리자가 IconAssetProvider.AssetsFolder에 toolbar_background.png를 넣어두면 그 위에
+        // 그려서 배경을 이미지로 바꿀 수 있게 한다 - 없으면(기본 상태) 그냥 BackColor(HeaderBg)
+        // 그대로 보인다. Dock=Fill처럼 헤더 전체 크기에 맞춰 늘려 그린다.
+        headerPanel.Paint += (s, e) =>
+        {
+            var bg = IconAssetProvider.GetImage("toolbar_background");
+            if (bg != null) e.Graphics.DrawImage(bg, headerPanel.ClientRectangle);
+        };
         logoPanel = new Panel { BackColor = HeaderBg, Cursor = Cursors.Hand, Width = 212, Dock = DockStyle.Left };
         sidebarPanel = new Panel { Dock = DockStyle.Left, Width = 212, BackColor = NavDarkBg };
         statusBar = new Panel { Dock = DockStyle.Bottom, Height = 26, BackColor = SidebarBg };
@@ -173,6 +181,10 @@ public class ShellForm : XtraForm
         AppConfig.EnvironmentChanged += RefreshTitle;
 
         FormClosing += ShellForm_FormClosing;
+
+        // 활성 업무화면이 바뀔 때마다(다른 탭 클릭, 화면 열기/닫기 등) 툴바 아이콘의
+        // 활성/비활성을 그 화면의 권한으로 다시 계산한다.
+        MdiChildActivate += (s, e) => UpdateToolbarPermissions();
 
         OpenHomeForm();
     }
@@ -515,23 +527,38 @@ public class ShellForm : XtraForm
 
         // 로고 영역 배경이 이제 헤더와 같은 브랜드색이라, 배지도 같은 색으로 채우면
         // 눈에 안 띄게 된다. 흰색 배지 위에 브랜드색 글자를 얹어 대비를 확보.
+        // 관리자가 IconAssetProvider.AssetsFolder에 logo.png를 넣어두면 이 흰 배지+"W" 글자
+        // 대신 그 이미지를 그린다 - 회사별 로고를 파일 하나 교체만으로 반영할 수 있게.
         var badge = new Panel
         {
             BackColor = Color.White,
             Size = new Size(28, 28),
             Location = new Point(16, 16)
         };
-        var badgeLabel = new LabelControl
+        var customLogo = IconAssetProvider.GetImage("logo");
+        if (customLogo != null)
         {
-            Text = "W",
-            AutoSizeMode = LabelAutoSizeMode.None,
-            Dock = DockStyle.Fill
-        };
-        badgeLabel.Appearance.TextOptions.HAlignment = DevExpress.Utils.HorzAlignment.Center;
-        badgeLabel.Appearance.TextOptions.VAlignment = DevExpress.Utils.VertAlignment.Center;
-        badgeLabel.Appearance.ForeColor = _accentColor;
-        badgeLabel.Appearance.Font = AppFonts.LogoGlyphSmall;
-        badge.Controls.Add(badgeLabel);
+            // Panel은 기본적으로 BackColor=Transparent를 진짜 투명하게 처리하지 않으므로(그리는
+            // 자체가 아니라 부모 배경색으로 대체될 뿐), 굳이 투명 처리를 시도하지 않고 이미지로
+            // badge 영역 전체를 덮어 그린다 - 로고 이미지에 투명 배경이 있다면 그 뒤로는 원래
+            // 흰색(White) 그대로 비쳐 보이므로 자연스럽다.
+            badge.Paint += (s, e) => e.Graphics.DrawImage(customLogo, badge.ClientRectangle);
+        }
+        else
+        {
+            var badgeLabel = new LabelControl
+            {
+                Text = "W",
+                AutoSizeMode = LabelAutoSizeMode.None,
+                Dock = DockStyle.Fill
+            };
+            badgeLabel.Appearance.TextOptions.HAlignment = DevExpress.Utils.HorzAlignment.Center;
+            badgeLabel.Appearance.TextOptions.VAlignment = DevExpress.Utils.VertAlignment.Center;
+            badgeLabel.Appearance.ForeColor = _accentColor;
+            badgeLabel.Appearance.Font = AppFonts.LogoGlyphSmall;
+            badge.Controls.Add(badgeLabel);
+            badgeLabel.Click += ToggleMenu;
+        }
 
         var nameLabel = new LabelControl
         {
@@ -549,7 +576,6 @@ public class ShellForm : XtraForm
         void ToggleMenu(object? s, EventArgs e) => ToggleSidebarCollapsed();
         logoPanel.Click += ToggleMenu;
         badge.Click += ToggleMenu;
-        badgeLabel.Click += ToggleMenu;
         nameLabel.Click += ToggleMenu;
     }
 
@@ -589,14 +615,25 @@ public class ShellForm : XtraForm
         var badgeBg = IconBadgeBg;
 
         var x = 228;
-        AddIconBadgeButton(headerPanel, ref x, 6, "조회", ToolbarIconPainters.Query, badgeBg, iconAccent, false, f => f.QueryClick());
-        AddIconBadgeButton(headerPanel, ref x, 6, "입력", ToolbarIconPainters.New, badgeBg, iconAccent, false, f => f.NewClick());
-        AddIconBadgeButton(headerPanel, ref x, 6, "삭제", ToolbarIconPainters.Delete, badgeBg, DangerColor, false, f => f.DeleteClick());
-        AddIconBadgeButton(headerPanel, ref x, 6, "행추가", ToolbarIconPainters.RowAdd, badgeBg, iconAccent, false, f => f.NewRowClick());
-        AddIconBadgeButton(headerPanel, ref x, 6, "행삭제", ToolbarIconPainters.RowDelete, badgeBg, DangerColor, false, f => f.DeleteRowClick());
-        AddIconBadgeButton(headerPanel, ref x, 6, "저장", ToolbarIconPainters.Save, badgeBg, iconAccent, false, f => f.SaveClick());
-        AddIconBadgeButton(headerPanel, ref x, 6, "출력", ToolbarIconPainters.Print, badgeBg, iconAccent, false, f => f.PrintClick());
+        btnQuery = AddIconBadgeButton(headerPanel, ref x, 6, "조회", "query", ToolbarIconPainters.Query, badgeBg, iconAccent, false, f => f.QueryClick());
+        btnNew = AddIconBadgeButton(headerPanel, ref x, 6, "입력", "new", ToolbarIconPainters.New, badgeBg, iconAccent, false, f => f.NewClick());
+        btnDelete = AddIconBadgeButton(headerPanel, ref x, 6, "삭제", "delete", ToolbarIconPainters.Delete, badgeBg, DangerColor, false, f => f.DeleteClick());
+        btnRowAdd = AddIconBadgeButton(headerPanel, ref x, 6, "행추가", "rowadd", ToolbarIconPainters.RowAdd, badgeBg, iconAccent, false, f => f.NewRowClick());
+        btnRowDelete = AddIconBadgeButton(headerPanel, ref x, 6, "행삭제", "rowdelete", ToolbarIconPainters.RowDelete, badgeBg, DangerColor, false, f => f.DeleteRowClick());
+        btnSave = AddIconBadgeButton(headerPanel, ref x, 6, "저장", "save", ToolbarIconPainters.Save, badgeBg, iconAccent, false, f => f.SaveClick());
+        btnPrint = AddIconBadgeButton(headerPanel, ref x, 6, "출력", "print", ToolbarIconPainters.Print, badgeBg, iconAccent, false, f => f.PrintClick());
     }
+
+    // 화면(MDI 자식)이 바뀔 때마다 UpdateToolbarPermissions()가 이 참조들의 Enabled를
+    // 그 화면의 BaseForm.CanInsert/CanUpdate/CanDelete로 다시 계산해서 켜고 끈다.
+    // AddIconBadgeButton 내부 지역변수였던 것을 필드로 승격 - 나중에 다시 손댈 수 있어야 해서.
+    private IconBadgeButton btnQuery = null!;
+    private IconBadgeButton btnNew = null!;
+    private IconBadgeButton btnDelete = null!;
+    private IconBadgeButton btnRowAdd = null!;
+    private IconBadgeButton btnRowDelete = null!;
+    private IconBadgeButton btnSave = null!;
+    private IconBadgeButton btnPrint = null!;
 
     private static readonly Size ButtonSize = new(54, 48);
 
@@ -605,14 +642,16 @@ public class ShellForm : XtraForm
     /// 경우도 있어서, 실제로는 델리게이트 내부에서 ActiveMdiChild를 쓸지 말지 자유롭게 결정한다.
     /// (홈 버튼은 activeForm 인자를 무시하고 항상 OpenHomeForm()만 호출)
     /// container: 이 버튼을 실제로 담을 컨트롤(headerPanel 직접 또는 AddToolbarGroup으로 만든 카드).
-    /// x/y는 container 기준 로컬 좌표.
+    /// x/y는 container 기준 로컬 좌표. 반환값은 UpdateToolbarPermissions()에서 Enabled를
+    /// 다시 계산할 수 있도록 호출측(BuildToolbar)이 필드에 보관해두기 위함.
     /// </summary>
-    private void AddIconBadgeButton(Control container, ref int x, int y, string text, Action<Graphics, Rectangle, Color, Color> painter,
+    private IconBadgeButton AddIconBadgeButton(Control container, ref int x, int y, string text, string iconName, Action<Graphics, Rectangle, Color, Color> painter,
         Color badgeColor, Color accentColor, bool filled, Func<BaseForm, Task> action)
     {
         var btn = new IconBadgeButton
         {
             Text = text,
+            IconName = iconName,
             IconPainter = painter,
             BadgeColor = badgeColor,
             AccentColor = accentColor,
@@ -650,6 +689,36 @@ public class ShellForm : XtraForm
 
         container.Controls.Add(btn);
         x += btn.Width;
+        return btn;
+    }
+
+    /// <summary>
+    /// 활성 MDI 자식(현재 열려있는 업무화면)이 바뀔 때마다 호출되어 7개 툴바 아이콘의
+    /// Enabled를 그 화면의 권한(BaseForm.CanInsert/CanUpdate/CanDelete)에 맞춰 다시 계산한다.
+    /// 조회/출력은 별도 권한 플래그가 없다 - ViewYn은 이미 "이 메뉴를 열 수 있는지" 자체를
+    /// 가리자원, 화면이 열려 있다는 것 자체가 조회 권한이 있다는 뜻이라 항상 켜둔다(출력도 동일
+    /// 취급 - PrintYn이라는 필드 자체가 없음). 저장은 신규/수정 두 흐름을 다 섬기므로
+    /// CanInsert 또는 CanUpdate 둘 중 하나만 있어도 켠다.
+    /// 활성 업무화면이 없는 경우(홈 화면이거나 열린 화면이 하나도 없을 때)는 조회/출력만 남기고
+    /// 나머지 5개는 전부 끈다 - 대상 데이터가 없는 상태에서 입력/삭제/저장을 누르게 둘 이유가 없다.
+    /// </summary>
+    private void UpdateToolbarPermissions()
+    {
+        var activeForm = ActiveMdiChild as BaseForm;
+        var hasTarget = activeForm != null;
+
+        btnQuery.Enabled = true;
+        btnPrint.Enabled = true;
+
+        var canInsert = hasTarget && activeForm!.CanInsert;
+        var canUpdate = hasTarget && activeForm!.CanUpdate;
+        var canDelete = hasTarget && activeForm!.CanDelete;
+
+        btnNew.Enabled = canInsert;
+        btnRowAdd.Enabled = canInsert;
+        btnDelete.Enabled = canDelete;
+        btnRowDelete.Enabled = canDelete;
+        btnSave.Enabled = canInsert || canUpdate;
     }
 
     private void AddDivider(ref int x)

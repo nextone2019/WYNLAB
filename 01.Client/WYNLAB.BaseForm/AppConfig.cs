@@ -67,6 +67,12 @@ public static class AppConfig
     /// </summary>
     public static string CoreAssemblyPath => ResolveCurrent().CoreAssemblyPath;
 
+    /// <summary>툴바 아이콘/로고/배경 이미지가 있는 서버 공유폴더 - AssetSyncer가 앱 시작 시
+    /// 이 폴더를 읽어서 %LocalAppData%\WYNLAB\Assets\(IconAssetProvider.AssetsFolder)로
+    /// 복사해둔다. 관리자는 여기(서버) 한 곳에만 이미지를 올려두면 되고, 각 PC에 일일이
+    /// 파일을 옮길 필요가 없다.</summary>
+    public static string AssetsPath => ResolveCurrent().AssetsPath;
+
     public static string ToolbarColor => _config.Value.ToolbarColor;
 
     public static UiThemeConfig Theme => _config.Value.Theme;
@@ -98,7 +104,7 @@ public static class AppConfig
     /// 개발자가 새 고객사/서버를 이 PC에 추가한다 - appsettings.json을 안 건드리므로 재배포
     /// 없이 바로 쓸 수 있다. 이름은 내장 서비스/기존 사용자 서비스와 안 겹쳐야 한다.
     /// </summary>
-    public static void AddSite(string name, string apiBaseUrl, string modulesPath = "Modules", string coreAssemblyPath = "")
+    public static void AddSite(string name, string apiBaseUrl, string modulesPath = "Modules", string coreAssemblyPath = "", string assetsPath = "")
     {
         if (string.IsNullOrWhiteSpace(name)) throw new ArgumentException("이름을 입력해주세요.");
         if (string.IsNullOrWhiteSpace(apiBaseUrl)) throw new ArgumentException("API 주소를 입력해주세요.");
@@ -110,7 +116,8 @@ public static class AppConfig
             Name = name,
             ApiBaseUrl = apiBaseUrl,
             ModulesPath = modulesPath,
-            CoreAssemblyPath = coreAssemblyPath
+            CoreAssemblyPath = coreAssemblyPath,
+            AssetsPath = assetsPath
         });
         SaveUserSites();
         SitesChanged?.Invoke();
@@ -126,14 +133,14 @@ public static class AppConfig
 
     /// <summary>appsettings.json 내장 목록 -> 사용자 추가 목록 순으로 찾아서 현재 선택된 서비스의
     /// 접속 정보를 돌려준다.</summary>
-    private static (string ApiBaseUrl, string ModulesPath, string CoreAssemblyPath) ResolveCurrent()
+    private static (string ApiBaseUrl, string ModulesPath, string CoreAssemblyPath, string AssetsPath) ResolveCurrent()
     {
         if (_config.Value.Environments.TryGetValue(CurrentEnvironment, out var env))
-            return (env.ApiBaseUrl, env.ModulesPath, env.CoreAssemblyPath);
+            return (env.ApiBaseUrl, env.ModulesPath, env.CoreAssemblyPath, env.AssetsPath);
 
         var site = _userSites.Value.FirstOrDefault(s => s.Name == CurrentEnvironment);
         if (site != null)
-            return (site.ApiBaseUrl, site.ModulesPath, site.CoreAssemblyPath);
+            return (site.ApiBaseUrl, site.ModulesPath, site.CoreAssemblyPath, site.AssetsPath);
 
         throw new InvalidOperationException($"'{CurrentEnvironment}' 환경 설정을 찾을 수 없습니다.");
     }
@@ -226,6 +233,7 @@ public static class AppConfig
         public string ApiBaseUrl { get; set; } = string.Empty;
         public string ModulesPath { get; set; } = string.Empty;
         public string CoreAssemblyPath { get; set; } = string.Empty;
+        public string AssetsPath { get; set; } = string.Empty;
     }
 }
 
@@ -240,6 +248,7 @@ public class UserSiteEntry
     public string ApiBaseUrl { get; set; } = string.Empty;
     public string ModulesPath { get; set; } = "Modules";
     public string CoreAssemblyPath { get; set; } = string.Empty;
+    public string AssetsPath { get; set; } = string.Empty;
 }
 
 /// <summary>

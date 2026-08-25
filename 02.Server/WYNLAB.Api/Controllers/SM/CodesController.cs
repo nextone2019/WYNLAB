@@ -2,10 +2,10 @@ using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using WYNLAB.Api.Authorization;
-using WYNLAB.Api.Repositories;
+using WYNLAB.Api.Repositories.SM;
 using WYNLAB.Shared.Dtos;
 
-namespace WYNLAB.Api.Controllers;
+namespace WYNLAB.Api.Controllers.SM;
 
 /// <summary>
 /// 기초코드등록 화면(TSMMAJOR/TSMMINOR)용 API. 로그인 필수(JWT).
@@ -27,6 +27,16 @@ public class CodesController : ControllerBase
         [FromQuery] string? majorCd, [FromQuery] string? majorNm, [FromQuery] string? selectedMajorCd)
     {
         var result = await _repo.GetAsync(majorCd, majorNm, selectedMajorCd);
+        return Ok(result);
+    }
+
+    /// <summary>대분류 그리드(grd1) 포커스 행만 바뀌었을 때 쓰는 가벼운 조회 - 대분류
+    /// 목록은 안 건드리고 이 대분류의 소분류 목록만 돌려준다.</summary>
+    [HttpGet("{majorCd}/minors")]
+    [RequireMenuPermission("SM_CODE_BASE", MenuAction.View)]
+    public async Task<ActionResult<List<MinorItemDto>>> GetMinors(string majorCd)
+    {
+        var result = await _repo.GetMinorsAsync(majorCd);
         return Ok(result);
     }
 

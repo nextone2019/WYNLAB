@@ -2,7 +2,7 @@ using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using WYNLAB.Api.Data;
-using WYNLAB.Api.Repositories;
+using WYNLAB.Api.Repositories.SM;
 using WYNLAB.Api.Services;
 
 var builder = WebApplication.CreateBuilder(args);

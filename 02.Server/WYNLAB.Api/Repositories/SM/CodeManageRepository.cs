@@ -8,6 +8,7 @@ namespace WYNLAB.Api.Repositories;
 public interface ICodeManageRepository
 {
     Task<CodeQueryResponse> GetAsync(string? majorCd, string? majorNm, string? selectedMajorCd);
+    Task<List<MinorItemDto>> GetMinorsAsync(string majorCd);
     Task<ProcResult> SaveMajorAsync(string workType, MajorSaveRequest request, string userId, string? clientPc);
     Task<ProcResult> SaveMinorsAsync(string majorCd, List<MinorItemDto> items, string userId, string? clientPc);
     Task<List<CodeLookupItemDto>> GetLookupAsync(string where);
@@ -40,11 +41,27 @@ public class CodeManageRepository : ICodeManageRepository
 
         var minors = string.IsNullOrWhiteSpace(selectedMajorCd)
             ? new List<MinorItemDto>()
-            : (await conn.QueryAsync<MinorItemDto>("USP_SM_CODE_Q",
-                new { p_work_type = "Q1", p_major_cd = selectedMajorCd },
-                commandType: CommandType.StoredProcedure)).ToList();
+            : await GetMinorsAsync(selectedMajorCd, conn);
 
         return new CodeQueryResponse { Majors = majors, Minors = minors };
+    }
+
+    /// <summary>대분류 그리드(grd1)에서 포커스 행만 바뀌었을 때 쓰는 가벼운 조회 - 대분류
+    /// 목록은 그대로 두고 소분류(grd2)만 새로 받아온다. GetAsync처럼 대분류까지 같이
+    /// 돌려주면 화면에서 grd1.DataSource를 매번 재할당하게 되어, 행을 클릭할 때마다
+    /// grd1 자체도 리프레시되는 것처럼 보이는 문제가 있었다(실제로 겪음).</summary>
+    public async Task<List<MinorItemDto>> GetMinorsAsync(string majorCd)
+    {
+        using var conn = _context.CreateConnection();
+        return await GetMinorsAsync(majorCd, conn);
+    }
+
+    private static async Task<List<MinorItemDto>> GetMinorsAsync(string majorCd, IDbConnection conn)
+    {
+        var minors = await conn.QueryAsync<MinorItemDto>("USP_SM_CODE_Q",
+            new { p_work_type = "Q1", p_major_cd = majorCd },
+            commandType: CommandType.StoredProcedure);
+        return minors.ToList();
     }
 
     public async Task<ProcResult> SaveMajorAsync(string workType, MajorSaveRequest request, string userId, string? clientPc)

@@ -67,6 +67,16 @@ public class SectionHeaderWyn : Control
         }
     }
 
+    /// <summary>UserPaint 컨트롤은 Text가 바뀌어도 자동으로 다시 그려지지 않는다(네이티브
+    /// 텍스트 렌더링을 안 쓰므로) - 사용자그룹관리처럼 런타임에 제목을 바꿔가며 재사용하는
+    /// 화면(신규/수정 모드 전환)이 생기면서 필요해졌다. 지금까지는 전부 디자이너에서 한 번만
+    /// 설정하고 끝이라 드러나지 않았던 부분.</summary>
+    protected override void OnTextChanged(EventArgs e)
+    {
+        base.OnTextChanged(e);
+        Invalidate();
+    }
+
     protected override void OnPaint(PaintEventArgs e)
     {
         var iconRect = new Rectangle(0, (Height - IconSize) / 2, IconSize, IconSize);

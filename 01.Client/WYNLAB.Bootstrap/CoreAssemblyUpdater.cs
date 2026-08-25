@@ -1,3 +1,4 @@
+using System.Linq;
 using System.Security.Cryptography;
 using System.Text.Json;
 using System.Windows.Forms;
@@ -25,15 +26,15 @@ public static class CoreAssemblyUpdater
         try
         {
             var coreAssemblyPath = ReadCoreAssemblyPath();
-            if (string.IsNullOrWhiteSpace(coreAssemblyPath)) return;
+            if (string.IsNullOrWhiteSpace(coreAssemblyPath)) { Log("건너뜀: appsettings.json에 CoreAssemblyPath가 없음"); return; }
 
             var manifestPath = Path.Combine(coreAssemblyPath, "manifest.json");
-            if (!File.Exists(manifestPath)) return;
+            if (!File.Exists(manifestPath)) { Log($"건너뜀: manifest.json을 못 찾음 ({manifestPath})"); return; }
 
             var manifest = JsonSerializer.Deserialize<CoreAssemblyManifest>(
                 File.ReadAllText(manifestPath),
                 new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
-            if (manifest?.Files == null) return;
+            if (manifest?.Files == null) { Log("건너뜀: manifest.json 파싱 결과가 비어있음"); return; }
 
             var appDir = AppContext.BaseDirectory;
             var filesToUpdate = new List<CoreAssemblyManifestFile>();
@@ -49,7 +50,7 @@ public static class CoreAssemblyUpdater
                 }
             }
 
-            if (filesToUpdate.Count == 0) return;
+            if (filesToUpdate.Count == 0) { Log("이미 최신 상태"); return; }
 
             // 로드되기 전에 교체해야 하므로(클래스 설명 참고) 이 시점에 파일이 잠겨있다면
             // 그건 "다른 이미 실행 중인 WYNLAB 인스턴스"가 들고 있다는 뜻뿐이다.
@@ -58,6 +59,7 @@ public static class CoreAssemblyUpdater
                 var localPath = Path.Combine(appDir, file.FileName);
                 if (File.Exists(localPath) && IsFileLocked(localPath))
                 {
+                    Log($"중단: {file.FileName}이(가) 잠겨있어 업데이트 필요 안내 후 종료");
                     MessageBox.Show(
                         "프로그램 업데이트가 있습니다.\n실행 중인 다른 WYN LAB 창을 모두 닫은 후 다시 실행해주세요.",
                         "업데이트 필요", MessageBoxButtons.OK, MessageBoxIcon.Information);
@@ -70,10 +72,33 @@ public static class CoreAssemblyUpdater
             {
                 UpdateFile(coreAssemblyPath, appDir, file);
             }
+
+            Log($"업데이트 완료: {string.Join(", ", filesToUpdate.Select(f => f.FileName))}");
+        }
+        catch (Exception ex)
+        {
+            // 갱신 확인/적용 실패는 무시하고 로컬에 있는 버전으로 계속 진행한다(클래스 설명
+            // 참고) - 하지만 "왜" 실패했는지조차 안 남기면, 클라이언트가 예전 dll을 계속
+            // 들고 있는 걸 나중에 우연히 발견하기 전까진 아무도 모른다(실제로 겪음 - 원인
+            // 파악에 몇 차례의 수동 파일 비교가 필요했다). 로그 자체도 실패할 수 있으니
+            // 이중으로 삼킨다 - 이 메서드는 어떤 경우에도 예외를 밖으로 던지면 안 된다.
+            Log($"갱신 실패: {ex}");
+        }
+    }
+
+    /// <summary>최선노력 로그 - 실패해도(디스크 접근 불가 등) 절대 위로 예외를 던지지 않는다.
+    /// 매 실행마다 새로 쓰지 않고 이어 붙여서, 문제가 간헐적으로 재발할 때 이전 시도 기록도
+    /// 같이 보인다(오늘 겪은 것처럼 "이번엔 됐는데 다음번엔 왜 또 안 되지" 같은 패턴 파악용).</summary>
+    private static void Log(string message)
+    {
+        try
+        {
+            var dir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "WYNLAB");
+            Directory.CreateDirectory(dir);
+            File.AppendAllText(Path.Combine(dir, "core-assembly-update.log"), $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] {message}{Environment.NewLine}");
         }
         catch
         {
-            // 갱신 확인 실패는 무시하고 로컬에 있는 버전으로 계속 진행한다(클래스 설명 참고).
         }
     }
 

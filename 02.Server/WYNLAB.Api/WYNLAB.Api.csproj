@@ -32,4 +32,11 @@
     <ProjectReference Include="..\..\03.Shared\WYNLAB.Shared\WYNLAB.Shared.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Controllers\BA\" />
+    <Folder Include="Controllers\MA\" />
+    <Folder Include="Controllers\PR\" />
+    <Folder Include="Controllers\SA\" />
+  </ItemGroup>
+
 </Project>

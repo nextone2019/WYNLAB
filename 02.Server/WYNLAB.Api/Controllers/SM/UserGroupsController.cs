@@ -1,10 +1,10 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using WYNLAB.Api.Authorization;
-using WYNLAB.Api.Repositories;
+using WYNLAB.Api.Repositories.SM;
 using WYNLAB.Shared.Dtos;
 
-namespace WYNLAB.Api.Controllers;
+namespace WYNLAB.Api.Controllers.SM;
 
 /// <summary>
 /// 사용자그룹관리 화면(TSMUSERGRP + TSMUSERGRPMAP)용 CRUD/배정 API. 로그인 필수(JWT).

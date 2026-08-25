@@ -29,8 +29,15 @@ public class IconBadgeButton : Control
     private static readonly Color DisabledBadgeColor = Color.FromArgb(240, 241, 243);
     private static readonly Color DisabledIconColor = Color.FromArgb(195, 197, 201);
 
-    /// <summary>실제 아이콘 모양을 그리는 델리게이트 - ToolbarIconPainters의 정적 메서드를 그대로 연결</summary>
+    /// <summary>실제 아이콘 모양을 그리는 델리게이트 - ToolbarIconPainters의 정적 메서드를 그대로 연결.
+    /// IconName으로 지정한 이미지 파일이 없을 때(관리자가 아직 커스텀 이미지를 안 넣었을 때)의
+    /// 폴백으로 쓰인다.</summary>
     public Action<Graphics, Rectangle, Color, Color>? IconPainter { get; set; }
+
+    /// <summary>IconAssetProvider에서 찾을 파일명(확장자/상태 접미사 제외, 예: "query") - null이면
+    /// 이미지를 아예 안 찾고 항상 IconPainter로만 그린다(홈 버튼처럼 이미지 커스터마이즈 대상이
+    /// 아닌 버튼용).</summary>
+    public string? IconName { get; set; }
 
     /// <summary>
     /// 배지 안에서 아이콘이 차지할 여백. 기본값 9는 헤더 툴바 버튼(54x48) 기준으로 잡은 값이라,
@@ -134,10 +141,35 @@ public class IconBadgeButton : Control
             g.FillPath(overlay, path);
         }
 
-        var iconOutline = !Enabled ? DisabledIconColor : (FilledBadge ? Color.White : OutlineColor);
-        var iconAccent = !Enabled ? DisabledIconColor : (FilledBadge ? Color.White : AccentColor);
         var iconRect = Rectangle.Inflate(badgeRect, -IconInset, -IconInset);
-        IconPainter?.Invoke(g, iconRect, iconOutline, iconAccent);
+        var image = ResolveIconImage();
+        if (image != null)
+        {
+            g.DrawImage(image, iconRect);
+        }
+        else
+        {
+            var iconOutline = !Enabled ? DisabledIconColor : (FilledBadge ? Color.White : OutlineColor);
+            var iconAccent = !Enabled ? DisabledIconColor : (FilledBadge ? Color.White : AccentColor);
+            IconPainter?.Invoke(g, iconRect, iconOutline, iconAccent);
+        }
+    }
+
+    /// <summary>현재 상태(비활성/눌림/호버)에 맞는 이미지를 우선순위대로 찾는다 - 상태별 이미지가
+    /// 없으면 기본({IconName}.png)으로, 그것도 없으면 null(호출부가 IconPainter로 폴백).</summary>
+    private Image? ResolveIconImage()
+    {
+        if (string.IsNullOrEmpty(IconName)) return null;
+        var iconName = IconName;
+
+        var stateSuffix = !Enabled ? "_disabled" : _pressed ? "_pressed" : _hover ? "_hover" : null;
+        if (stateSuffix != null)
+        {
+            var stateImage = IconAssetProvider.GetImage(iconName + stateSuffix);
+            if (stateImage != null) return stateImage;
+        }
+
+        return IconAssetProvider.GetImage(iconName);
     }
 
     private static GraphicsPath RoundedRect(Rectangle bounds, int radius)

@@ -46,6 +46,11 @@ Copy-Item "$root\01.Client\WYNLAB.BaseForm\bin\Release\net48\WYNLAB.BaseForm.pdb
 Copy-Item "$root\01.Client\WYNLAB.Controls\bin\Release\net48\WYNLAB.Controls.dll" "$deploy\CoreAssembly\" -Force
 Copy-Item "$root\03.Shared\WYNLAB.Shared\bin\Release\netstandard2.0\WYNLAB.Shared.dll" "$deploy\CoreAssembly\" -Force
 
+# manifest.json 생성 스크립트도 같이 넣어둔다 - 서버에서 매번 따로 안 챙겨도 되게.
+# 실행은 여전히 서버에서 사람이 해야 한다(그 시점 CoreAssembly 폴더의 실제 파일 기준으로
+# 해시를 계산해야 의미가 있어서, 로컬에서 미리 실행해봐야 소용없다 - 위 설명 참고).
+Copy-Item "$root\01.Client\WYNLAB.Bootstrap\Generate-CoreAssemblyManifest.ps1" "$deploy\CoreAssembly\" -Force
+
 Write-Host "=== 3) 화면(SM) 모듈 ===" -ForegroundColor Cyan
 $smSolutions = Get-ChildItem "$root\99.SOURCE\SM" -Directory | ForEach-Object {
     Get-ChildItem $_.FullName -Filter "*.sln" | Select-Object -First 1

@@ -2,7 +2,7 @@ using System.Data;
 using Dapper;
 using WYNLAB.Api.Data;
 
-namespace WYNLAB.Api.Repositories;
+namespace WYNLAB.Api.Repositories.SM;
 
 public interface IUserManageRepository
 {
@@ -30,6 +30,7 @@ public class UserManageRow
     public string? MobileNo { get; set; }
     public string UseYn { get; set; } = "Y";
     public string IsAdminYn { get; set; } = "N";
+    public string UserType { get; set; } = "U";
     public DateTime? LastLoginDt { get; set; }
 }
 
@@ -88,6 +89,9 @@ public class UserManageRepository : IUserManageRepository
         p.Add("p_email", email);
         p.Add("p_mobile_no", mobileNo);
         p.Add("p_is_admin_yn", isAdminYn ? "Y" : "N");
+        // USER_TYPE(A=관리자/U=일반)은 IsAdminYn 체크박스 하나로만 정해진다 - 화면/DTO에
+        // 별도 입력을 새로 안 만들고, 여기서 그대로 파생시켜서 둘이 어긋날 일이 없게 한다.
+        p.Add("p_user_type", isAdminYn ? "A" : "U");
         p.AddStandardOutputs(withGeneratedCode: true, pascalCase: true);
 
         await conn.ExecuteAsync("USP_SM_USER_S", p, commandType: CommandType.StoredProcedure);
@@ -109,6 +113,7 @@ public class UserManageRepository : IUserManageRepository
         p.Add("p_mobile_no", mobileNo);
         p.Add("p_use_yn", useYn ? "Y" : "N");
         p.Add("p_is_admin_yn", isAdminYn ? "Y" : "N");
+        p.Add("p_user_type", isAdminYn ? "A" : "U");
         p.AddStandardOutputs(withGeneratedCode: true, pascalCase: true);
 
         await conn.ExecuteAsync("USP_SM_USER_S", p, commandType: CommandType.StoredProcedure);

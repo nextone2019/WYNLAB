@@ -101,7 +101,7 @@ DevExpress 20.2는 .NET 6/7/8을 지원하지 않아(공식 지원은 v23.1부�
 ## 세션 구조 (신규)
 - **`UI.Common/SessionManager.cs`** — 로그인 세션 싱글턴. `Shell`이 아닌 `UI.Common`에 위치해서 모든 업무모듈 DLL에서 접근 가능
 - **`UI.Common/BaseForm.cs`** — `CurrentUserId`, `CurrentUserNm`, `CurrentEmpNo`, `CurrentDeptCd`, `CurrentDeptNm`, `CurrentPositionNm`, `CurrentIsAdmin` 속성 제공. 모든 업무화면에서 `this.CurrentUserId`처럼 바로 사용
-- **`04.Database/003_Session_Procedure.sql`** — `USP_SM_GetUserSession` 프로시저. 로그인 시 사용자 기본정보(결과셋1) + 소속그룹 목록(결과셋2)을 한 번에 반환
+- **`04.Database/003_Session_Procedure.sql`** — `SSP_WYNLAB_GetSession` 프로시저. 로그인 시 사용자 기본정보(결과셋1) + 소속그룹 목록(결과셋2)을 한 번에 반환
 - 서버(`AuthService`)는 이제 개별 쿼리 대신 이 프로시저 하나만 호출해서 세션 데이터를 구성
 
 ## 포함된 것
@@ -129,7 +129,7 @@ DevExpress 20.2는 .NET 6/7/8을 지원하지 않아(공식 지원은 v23.1부�
 ### DB
 - `04.Database/001_Base_Tables.sql` : `TBADEPT`, `TSMUSER`(EMP_NO 포함), `TSMUSERGRP`, `TSMUSERGRPMAP`, `TSMMENU`, `TSMMENUAUTH`, `TSMLOGINHIST`
 - `04.Database/002_Seed_Admin_User.sql` : 테스트 관리자 계정 (`admin` / `1234`)
-- `04.Database/003_Session_Procedure.sql` : `USP_SM_GetUserSession` 세션조회 프로시저
+- `04.Database/003_Session_Procedure.sql` : `SSP_WYNLAB_GetSession` 세션조회 프로시저
 
 ## 권한 병합 규칙 (중요)
 1. 사용자가 속한 **모든 그룹의 권한을 OR로 합산** — 하나의 그룹에서라도 Y면 최종 Y

@@ -1,4 +1,4 @@
-using WYNLAB.Api.Repositories;
+using WYNLAB.Api.Repositories.SM;
 using WYNLAB.Shared.Dtos;
 
 namespace WYNLAB.Api.Services;
@@ -41,7 +41,7 @@ public class MenuPermissionService : IMenuPermissionService
         if (user == null || user.UseYn != "Y") return new List<MenuDto>();
 
         var menus = await _menuRepo.GetAllActiveMenusAsync();
-        var isAdmin = user.IsAdminYn == "Y";
+        var isAdmin = user.UserType == "A";
 
         if (isAdmin)
         {

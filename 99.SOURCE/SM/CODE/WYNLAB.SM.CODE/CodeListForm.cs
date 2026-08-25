@@ -1,3 +1,4 @@
+using System.ComponentModel;
 using DevExpress.XtraGrid.Views.Base;
 using WYNLAB.Base;
 using WYNLAB.Base.Controls;
@@ -20,13 +21,16 @@ public partial class CodeListForm : BaseForm
     private const int RelCount = 10;
 
     private List<MajorListItemDto> _majors = new();
-    private List<MinorItemDto> _minors = new();
+    // BindingList여야 grd2에서 행추가/행삭제(gvw2.AddNewRow/DeleteRow)가 실제로 동작한다 -
+    // 일반 List<T>는 IBindingList를 구현하지 않아서 DevExpress 그리드가 바인딩된 목록에
+    // 행을 추가/제거하지 못한다(버튼을 눌러도 아무 반응이 없던 원인 - 실제로 겪음).
+    private BindingList<MinorItemDto> _minors = new();
     private string? _editingMajorCd; // null이면 신규모드
 
     // 관리항목1~10 컨트롤 - Designer에서 2열x5행으로 이미 배치돼 있어서(참조1~5=왼쪽, 참조6~10=오른쪽),
     // 인덱스 순서로 접근할 수 있게 배열로만 묶는다(런타임에 새로 만들지 않음).
     private TextEditWyn[] TxtRelTitle => new[] { txtrel_title1, txtrel_title2, txtrel_title3, txtrel_title4, txtrel_title5, txtrel_title6, txtrel_title7, txtrel_title8, txtrel_title9, txtrel_title10 };
-    private LookUpEditWyn[] CboRelCdType => new[] { cborel_cd_type1, cborel_cd_type2, cborel_cd_type3, cborel_cd_type4, cborel_cd_type5, cborel_cd_type6, cborel_cd_type7, cborel_cd_type8, cborel_cd_type9, cborel_cd_type10 };
+    private LookUpEditWyn[] CboRelCdType => new[] { cborel_cd_type1, cborel_cd_type2, cborel_cd_type3, cborel_cd_type4, cborel_cd_type5, cborel_cd_type6, cborel_cd_type7, cborel_cd_type8, cborel_cd_type9, cborel_cd_type10};
     private TextEditWyn[] TxtRelCd => new[] { txtrel_cd1, txtrel_cd2, txtrel_cd3, txtrel_cd4, txtrel_cd5, txtrel_cd6, txtrel_cd7, txtrel_cd8, txtrel_cd9, txtrel_cd10 };
 
     public CodeListForm()
@@ -38,10 +42,9 @@ public partial class CodeListForm : BaseForm
 
         gvw1.FocusedRowObjectChanged += Gvw1_FocusedRowObjectChanged;
 
-        // 소분류 그리드 헤더의 +/x 버튼 - Shell 툴바의 행추가/행삭제와 완전히 같은 동작이라
-        // 기존 오버라이드(NewRowClick/DeleteRowClick)를 그대로 호출한다(로직 중복 없음).
-        btnAddRow2.Click += btnAddRow2_Click;
-        btnDeletRow2.Click += btnDeletRow2_Click;
+        // 소분류 그리드 헤더의 +/x 버튼 클릭 연결은 Designer.cs(InitializeComponent)가 이미
+        // 하고 있다 - 여기서 또 구독하면 클릭 한 번에 NewRowClick/DeleteRowClick이 두 번씩
+        // 불려서(행이 2개 추가되거나, 삭제가 어긋나는 등) 문제가 생긴다(실제로 겪음).
 
         var relCdTypeItems = new[]
         {
@@ -62,7 +65,7 @@ public partial class CodeListForm : BaseForm
         var query = $"api/codes?majorCd={Uri.EscapeDataString(keyword)}&majorNm={Uri.EscapeDataString(keyword)}&selectedMajorCd={Uri.EscapeDataString(_editingMajorCd ?? string.Empty)}";
         var result = await ApiClient.GetAsync<CodeQueryResponse>(query) ?? new();
         _majors = result.Majors;
-        _minors = result.Minors;
+        _minors = new BindingList<MinorItemDto>(result.Minors);
         grd1.DataSource = _majors;
         grd2.DataSource = _minors;
 
@@ -143,6 +146,7 @@ public partial class CodeListForm : BaseForm
         var titles = TxtRelTitle;
         var types = CboRelCdType;
         var codes = TxtRelCd;
+
         for (var i = 0; i < RelCount; i++)
         {
             titles[i].Text = relTitles[i] ?? string.Empty;
@@ -150,12 +154,22 @@ public partial class CodeListForm : BaseForm
             codes[i].Text = relCodes[i] ?? string.Empty;
         }
 
-        // 소분류는 QueryClick이 selectedMajorCd로 다시 받아와야 정확하다(그리드에서 편집 중인
-        // 내용을 잃더라도, 대분류를 바꿔 선택했다는 건 이전 미저장 소분류 변경은 버린다는 뜻).
+        // 소분류는 이 대분류 기준으로 다시 받아와야 정확하다(그리드에서 편집 중인 내용을
+        // 잃더라도, 대분류를 바꿔 선택했다는 건 이전 미저장 소분류 변경은 버린다는 뜻).
+        // QueryClick() 대신 소분류 전용 API를 쓴다 - QueryClick은 대분류(grd1)까지 같이
+        // 다시 받아와서 grd1.DataSource를 매번 재할당하는 바람에, grd1에서 행을 클릭할
+        // 때마다 grd1 자체도 리프레시되는 것처럼 보이는 문제가 있었다(실제로 겪음).
         if (!isSameMajor)
         {
-            _ = QueryClick();
+            _ = LoadMinors(major.major_cd);
         }
+    }
+
+    private async Task LoadMinors(string majorCd)
+    {
+        var minors = await ApiClient.GetAsync<List<MinorItemDto>>($"api/codes/{majorCd}/minors") ?? new();
+        _minors = new BindingList<MinorItemDto>(minors);
+        grd2.DataSource = _minors;
     }
 
     public override async Task SaveClick()
@@ -204,7 +218,7 @@ public partial class CodeListForm : BaseForm
         gvw2.CloseEditor();
         gvw2.UpdateCurrentRow();
         var minorResult = await ApiClient.PutAsync<SaveMinorsRequest, ApiResult>(
-            $"api/codes/{savedMajorCd}/minors", new SaveMinorsRequest { Items = _minors });
+            $"api/codes/{savedMajorCd}/minors", new SaveMinorsRequest { Items = _minors.ToList() });
 
         if (minorResult == null || !minorResult.Success)
         {

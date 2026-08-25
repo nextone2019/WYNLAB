@@ -41,6 +41,11 @@ internal static class Program
         using var loginForm = new LoginForm();
         if (loginForm.ShowDialog() == DialogResult.OK)
         {
+            // 로그인 화면 자체는 이 이미지들을 안 쓰므로, 느리거나 접속 안 되는 서버 때문에
+            // 로그인 창이 늦게 뜨는 일이 없도록 로그인 성공 후(ShellForm의 툴바/로고를
+            // 그리기 직전)에 동기화한다.
+            AssetSyncer.SyncFromServer();
+
             var shell = new ShellForm();
             shell.Shown += (s, e) => loginForm.Splash?.Close();
             Application.Run(shell);

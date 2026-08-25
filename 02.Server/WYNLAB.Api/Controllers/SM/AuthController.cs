@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using WYNLAB.Api.Services;
 using WYNLAB.Shared.Dtos;
 
-namespace WYNLAB.Api.Controllers;
+namespace WYNLAB.Api.Controllers.SM;
 
 [ApiController]
 [Route("api/auth")]

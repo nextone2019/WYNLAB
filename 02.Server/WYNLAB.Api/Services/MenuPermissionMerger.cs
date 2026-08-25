@@ -1,4 +1,4 @@
-using WYNLAB.Api.Repositories;
+using WYNLAB.Api.Repositories.SM;
 using WYNLAB.Shared.Dtos;
 
 namespace WYNLAB.Api.Services;

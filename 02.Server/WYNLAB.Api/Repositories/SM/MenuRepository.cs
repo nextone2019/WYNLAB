@@ -2,7 +2,7 @@ using System.Data;
 using Dapper;
 using WYNLAB.Api.Data;
 
-namespace WYNLAB.Api.Repositories;
+namespace WYNLAB.Api.Repositories.SM;
 
 public class MenuRow
 {

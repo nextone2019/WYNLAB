@@ -34,12 +34,19 @@ internal class AppMessageBoxForm : XtraForm
     private const int FooterHeight = 46;
     private const int BodyHeight = 72;
 
+    // 본문/버튼 영역을 순수 흰색(255,255,255)이 아니라 아주 살짝 톤 다운된 색으로 통일한다 -
+    // 이 앱의 화면 대부분이 흰 배경이라, 메시지박스도 순백이면 뒤 화면과 거의 구분이 안 돼서
+    // 대화상자가 떠 있다는 느낌이 약했다(실제 피드백). 예전엔 body=흰색/footer=회색으로
+    // 서로 달라서 그 자체도 이질감이 있었는데, 이제 하나로 합쳤다.
+    private static readonly Color SurfaceColor = Color.FromArgb(250, 250, 251);
+    private static readonly Color BorderColor = Color.FromArgb(196, 199, 205);
+
     private readonly PanelControl headerPanel = new();
     private readonly CircleBadge headerBadge = new();
     private readonly LabelControl lblHeaderGlyph = new();
     private readonly LabelControl lblCaption = new();
     private readonly LabelControl lblClose = new() { Text = "✕" };
-    private readonly Panel bodyPanel = new() { Dock = DockStyle.Fill, BackColor = Color.White };
+    private readonly Panel bodyPanel = new() { Dock = DockStyle.Fill, BackColor = SurfaceColor };
     private readonly LabelControl lblMessage = new();
     private readonly Panel footerPanel = new() { Dock = DockStyle.Bottom, Height = FooterHeight };
 
@@ -50,7 +57,7 @@ internal class AppMessageBoxForm : XtraForm
     {
         FormBorderStyle = FormBorderStyle.None;
         StartPosition = FormStartPosition.CenterParent;
-        BackColor = Color.White;
+        BackColor = SurfaceColor;
         Width = 360;
         Height = HeaderHeight + BodyHeight + FooterHeight;
         ShowInTaskbar = false;
@@ -77,7 +84,7 @@ internal class AppMessageBoxForm : XtraForm
     protected override void OnPaint(PaintEventArgs e)
     {
         base.OnPaint(e);
-        using var pen = new Pen(Color.FromArgb(210, 212, 217));
+        using var pen = new Pen(BorderColor);
         e.Graphics.DrawRectangle(pen, 0, 0, Width - 1, Height - 1);
     }
 
@@ -157,8 +164,8 @@ internal class AppMessageBoxForm : XtraForm
     /// <summary>참고 화면(캡처)처럼 버튼을 전부 같은 톤(강조색 없음)으로, 가운데 정렬한다.</summary>
     private void BuildFooter(MessageBoxButtons buttons)
     {
-        footerPanel.BackColor = Color.FromArgb(248, 249, 250);
-        var topBorder = new Panel { Dock = DockStyle.Top, Height = 1, BackColor = Color.FromArgb(230, 231, 234) };
+        footerPanel.BackColor = SurfaceColor;
+        var topBorder = new Panel { Dock = DockStyle.Top, Height = 1, BackColor = BorderColor };
         footerPanel.Controls.Add(topBorder);
 
         var specs = GetButtonSpecs(buttons);

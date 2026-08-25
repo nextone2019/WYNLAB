@@ -6,3 +6,7 @@ publish-*/
 _publish/
 _deploy/
 *.zip
+
+# 운영 DB 접속정보/JWT 키가 평문으로 들어가는 파일 - publish 시 자동 보존용으로 프로젝트
+# 루트에 두지만 git엔 절대 올리지 않는다(SERVER_SETUP.md 6-2 참고).
+02.Server/WYNLAB.Api/web.config

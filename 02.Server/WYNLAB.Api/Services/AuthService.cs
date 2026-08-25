@@ -1,4 +1,4 @@
-using WYNLAB.Api.Repositories;
+using WYNLAB.Api.Repositories.SM;
 using WYNLAB.Shared.Dtos;
 
 namespace WYNLAB.Api.Services;
@@ -55,7 +55,7 @@ public class AuthService : IAuthService
         }
 
         // 인증 성공 - 메뉴권한 병합 (MenuPermissionService가 API 액션 권한체크와 동일한 로직을 씀)
-        var isAdmin = user.IsAdminYn == "Y";
+        var isAdmin = user.UserType == "A";
         var menuDtos = await _menuPermissionService.GetEffectivePermissionsAsync(user.UserId);
 
         await _userRepo.UpdateLoginSuccessAsync(user.UserId);

@@ -2,7 +2,7 @@ using System.Data;
 using Dapper;
 using WYNLAB.Api.Data;
 
-namespace WYNLAB.Api.Repositories;
+namespace WYNLAB.Api.Repositories.SM;
 
 /// <summary>DB 조회 전용 내부 모델 - TSMUSER 원본 행 (해시 비밀번호 포함)</summary>
 public class UserRow
@@ -16,10 +16,13 @@ public class UserRow
     public string PasswordHash { get; set; } = string.Empty;
     public string UseYn { get; set; } = "Y";
     public string IsAdminYn { get; set; } = "N";
+    /// <summary>A=관리자, U=일반사용자 - 관리자 우회(전체 메뉴/전체 권한 허용) 판단은
+    /// 이제 IsAdminYn이 아니라 이 값 기준이다(MenuPermissionService/AuthService 참고).</summary>
+    public string UserType { get; set; } = "U";
     public int PwdFailCnt { get; set; }
 }
 
-/// <summary>USP_SM_GetUserSession 프로시저의 결과셋 2개를 담는 조합 모델</summary>
+/// <summary>SSP_WYNLAB_GetSession 프로시저의 결과셋 2개를 담는 조합 모델</summary>
 public class UserSessionResult
 {
     public UserRow? User { get; set; }
@@ -29,7 +32,7 @@ public class UserSessionResult
 public interface IUserRepository
 {
     /// <summary>
-    /// USP_SM_GetUserSession 프로시저 호출 - 사용자 기본정보 + 소속그룹 목록을 한 번에 조회.
+    /// SSP_WYNLAB_GetSession 프로시저 호출 - 사용자 기본정보 + 소속그룹 목록을 한 번에 조회.
     /// 로그인 처리(AuthService)에서 이 메서드 하나로 세션 구성에 필요한 데이터를 전부 가져온다.
     /// </summary>
     Task<UserSessionResult> GetSessionAsync(string userId);
@@ -48,9 +51,9 @@ public class UserRepository : IUserRepository
     {
         using var conn = _context.CreateConnection();
         using var multi = await conn.QueryMultipleAsync(
-            "USP_SM_GetUserSession",
+            "SSP_WYNLAB_GetSession",
             new { p_work_type = "Q", p_user_id = userId },
-            commandType: System.Data.CommandType.StoredProcedure);
+            commandType: CommandType.StoredProcedure);
 
         var user = await multi.ReadSingleOrDefaultAsync<UserRow>();
         var groupCodes = (await multi.ReadAsync<string>()).ToList();

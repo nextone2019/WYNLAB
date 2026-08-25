@@ -104,6 +104,7 @@ public partial class CodeListForm
             this.labelControl1 = new DevExpress.XtraEditors.LabelControl();
             this.paTitle = new WYNLAB.Base.Controls.PanelWyn();
             this.sectionHeaderWyn1 = new WYNLAB.Base.Controls.SectionHeaderWyn();
+            this.panelWyn7 = new WYNLAB.Base.Controls.PanelWyn();
             ((System.ComponentModel.ISupportInitialize)(this.panBase)).BeginInit();
             this.panBase.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.panelWyn3)).BeginInit();
@@ -161,6 +162,8 @@ public partial class CodeListForm
             ((System.ComponentModel.ISupportInitialize)(this.txtminor_cd_q.Properties)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.paTitle)).BeginInit();
             this.paTitle.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.panelWyn7)).BeginInit();
+            this.panelWyn7.SuspendLayout();
             this.SuspendLayout();
             // 
             // panBase
@@ -209,6 +212,7 @@ public partial class CodeListForm
             this.gridColumn2});
             this.gvw1.GridControl = this.grd1;
             this.gvw1.Name = "gvw1";
+            this.gvw1.OptionsSelection.InvertSelection = true;
             this.gvw1.OptionsView.ShowGroupPanel = false;
             // 
             // gridColumn1
@@ -242,7 +246,7 @@ public partial class CodeListForm
             // 
             this.sectionHeaderWyn4.BackColor = System.Drawing.Color.White;
             this.sectionHeaderWyn4.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.sectionHeaderWyn4.Font = new System.Drawing.Font("맑은 고딕", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
+            this.sectionHeaderWyn4.Font = new System.Drawing.Font("맑은 고딕", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
             this.sectionHeaderWyn4.Icon = WYNLAB.Base.Controls.SectionHeaderIcon.Folder;
             this.sectionHeaderWyn4.Location = new System.Drawing.Point(5, 0);
             this.sectionHeaderWyn4.Name = "sectionHeaderWyn4";
@@ -341,9 +345,8 @@ public partial class CodeListForm
             // 
             // panelWyn1
             // 
-            this.panelWyn1.Controls.Add(this.btnDeletRow2);
             this.panelWyn1.Controls.Add(this.sectionHeaderWyn2);
-            this.panelWyn1.Controls.Add(this.btnAddRow2);
+            this.panelWyn1.Controls.Add(this.panelWyn7);
             this.panelWyn1.Dock = System.Windows.Forms.DockStyle.Top;
             this.panelWyn1.EdgeLineColor = System.Drawing.Color.FromArgb(((int)(((byte)(228)))), ((int)(((byte)(229)))), ((int)(((byte)(232)))));
             this.panelWyn1.Location = new System.Drawing.Point(0, 218);
@@ -358,12 +361,11 @@ public partial class CodeListForm
             this.btnDeletRow2.Appearance.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(253)))), ((int)(((byte)(236)))), ((int)(((byte)(234)))));
             this.btnDeletRow2.Appearance.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(245)))), ((int)(((byte)(198)))), ((int)(((byte)(193)))));
             this.btnDeletRow2.Appearance.Font = new System.Drawing.Font("Segoe MDL2 Assets", 11F);
-            this.btnDeletRow2.Appearance.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(198)))), ((int)(((byte)(40)))), ((int)(((byte)(40)))));
             this.btnDeletRow2.Appearance.Options.UseBackColor = true;
             this.btnDeletRow2.Appearance.Options.UseBorderColor = true;
             this.btnDeletRow2.Appearance.Options.UseFont = true;
-            this.btnDeletRow2.Appearance.Options.UseForeColor = true;
-            this.btnDeletRow2.Location = new System.Drawing.Point(738, 3);
+            this.btnDeletRow2.ImageOptions.Image = ((System.Drawing.Image)(resources.GetObject("btnDeletRow2.ImageOptions.Image")));
+            this.btnDeletRow2.Location = new System.Drawing.Point(32, 3);
             this.btnDeletRow2.Name = "btnDeletRow2";
             this.btnDeletRow2.Size = new System.Drawing.Size(24, 22);
             this.btnDeletRow2.TabIndex = 0;
@@ -374,12 +376,12 @@ public partial class CodeListForm
             // sectionHeaderWyn2
             // 
             this.sectionHeaderWyn2.BackColor = System.Drawing.Color.White;
-            this.sectionHeaderWyn2.Dock = System.Windows.Forms.DockStyle.Left;
-            this.sectionHeaderWyn2.Font = new System.Drawing.Font("맑은 고딕", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
+            this.sectionHeaderWyn2.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.sectionHeaderWyn2.Font = new System.Drawing.Font("맑은 고딕", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
             this.sectionHeaderWyn2.Icon = WYNLAB.Base.Controls.SectionHeaderIcon.Folder;
             this.sectionHeaderWyn2.Location = new System.Drawing.Point(5, 0);
             this.sectionHeaderWyn2.Name = "sectionHeaderWyn2";
-            this.sectionHeaderWyn2.Size = new System.Drawing.Size(425, 27);
+            this.sectionHeaderWyn2.Size = new System.Drawing.Size(703, 27);
             this.sectionHeaderWyn2.SvgIcon = ((DevExpress.Utils.Svg.SvgImage)(resources.GetObject("sectionHeaderWyn2.SvgIcon")));
             this.sectionHeaderWyn2.TabIndex = 8;
             this.sectionHeaderWyn2.Text = "소분류 등록";
@@ -390,12 +392,11 @@ public partial class CodeListForm
             this.btnAddRow2.Appearance.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(228)))), ((int)(((byte)(245)))), ((int)(((byte)(231)))));
             this.btnAddRow2.Appearance.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(198)))), ((int)(((byte)(231)))), ((int)(((byte)(203)))));
             this.btnAddRow2.Appearance.Font = new System.Drawing.Font("Segoe MDL2 Assets", 11F);
-            this.btnAddRow2.Appearance.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(46)))), ((int)(((byte)(125)))), ((int)(((byte)(50)))));
             this.btnAddRow2.Appearance.Options.UseBackColor = true;
             this.btnAddRow2.Appearance.Options.UseBorderColor = true;
             this.btnAddRow2.Appearance.Options.UseFont = true;
-            this.btnAddRow2.Appearance.Options.UseForeColor = true;
-            this.btnAddRow2.Location = new System.Drawing.Point(710, 3);
+            this.btnAddRow2.ImageOptions.Image = ((System.Drawing.Image)(resources.GetObject("btnAddRow2.ImageOptions.Image")));
+            this.btnAddRow2.Location = new System.Drawing.Point(4, 3);
             this.btnAddRow2.Name = "btnAddRow2";
             this.btnAddRow2.Size = new System.Drawing.Size(24, 22);
             this.btnAddRow2.TabIndex = 0;
@@ -857,7 +858,7 @@ public partial class CodeListForm
             // 
             this.sectionHeaderWyn3.BackColor = System.Drawing.Color.White;
             this.sectionHeaderWyn3.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.sectionHeaderWyn3.Font = new System.Drawing.Font("맑은 고딕", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
+            this.sectionHeaderWyn3.Font = new System.Drawing.Font("맑은 고딕", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
             this.sectionHeaderWyn3.Icon = WYNLAB.Base.Controls.SectionHeaderIcon.Folder;
             this.sectionHeaderWyn3.Location = new System.Drawing.Point(5, 0);
             this.sectionHeaderWyn3.Name = "sectionHeaderWyn3";
@@ -910,7 +911,7 @@ public partial class CodeListForm
             // sectionHeaderWyn1
             // 
             this.sectionHeaderWyn1.BackColor = System.Drawing.Color.White;
-            this.sectionHeaderWyn1.Font = new System.Drawing.Font("맑은 고딕", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
+            this.sectionHeaderWyn1.Font = new System.Drawing.Font("맑은 고딕", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
             this.sectionHeaderWyn1.Icon = WYNLAB.Base.Controls.SectionHeaderIcon.Folder;
             this.sectionHeaderWyn1.Location = new System.Drawing.Point(5, 6);
             this.sectionHeaderWyn1.Name = "sectionHeaderWyn1";
@@ -918,6 +919,17 @@ public partial class CodeListForm
             this.sectionHeaderWyn1.SvgIcon = ((DevExpress.Utils.Svg.SvgImage)(resources.GetObject("sectionHeaderWyn1.SvgIcon")));
             this.sectionHeaderWyn1.TabIndex = 8;
             this.sectionHeaderWyn1.Text = "기초코드 등록";
+            // 
+            // panelWyn7
+            // 
+            this.panelWyn7.Controls.Add(this.btnDeletRow2);
+            this.panelWyn7.Controls.Add(this.btnAddRow2);
+            this.panelWyn7.Dock = System.Windows.Forms.DockStyle.Right;
+            this.panelWyn7.EdgeLineColor = System.Drawing.Color.FromArgb(((int)(((byte)(228)))), ((int)(((byte)(229)))), ((int)(((byte)(232)))));
+            this.panelWyn7.Location = new System.Drawing.Point(708, 0);
+            this.panelWyn7.Name = "panelWyn7";
+            this.panelWyn7.Size = new System.Drawing.Size(59, 27);
+            this.panelWyn7.TabIndex = 9;
             // 
             // CodeListForm
             // 
@@ -983,6 +995,8 @@ public partial class CodeListForm
             ((System.ComponentModel.ISupportInitialize)(this.txtminor_cd_q.Properties)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.paTitle)).EndInit();
             this.paTitle.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.panelWyn7)).EndInit();
+            this.panelWyn7.ResumeLayout(false);
             this.ResumeLayout(false);
 
     }
@@ -1059,4 +1073,5 @@ public partial class CodeListForm
     private DevExpress.XtraEditors.LabelControl labelControl1;
     private DevExpress.XtraEditors.SimpleButton btnDeletRow2;
     private DevExpress.XtraEditors.SimpleButton btnAddRow2;
+    private PanelWyn panelWyn7;
 }

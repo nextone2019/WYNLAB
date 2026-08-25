@@ -20,7 +20,7 @@ public class BaseForm : XtraForm
 
     /// <summary>
     /// 로그인 세션값 - 모든 업무화면(모듈 DLL 포함)에서 그대로 사용.
-    /// 값의 실제 출처는 서버의 USP_SM_GetUserSession 프로시저 결과(Session 클래스 참고).
+    /// 값의 실제 출처는 서버의 SSP_WYNLAB_GetSession 프로시저 결과(Session 클래스 참고).
     /// </summary>
     protected string CurrentUserId => Session.UserId;
     protected string CurrentUserNm => Session.UserNm;

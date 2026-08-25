@@ -10,7 +10,7 @@ namespace WYNLAB.Base;
 /// (Shell 프로젝트에만 두면 모듈 DLL에서 접근 불가 - 참조 방향이 반대가 되어버림)
 ///
 /// UserInfo의 각 필드(UserId, EmpNo, DeptCd 등)는 로그인시 서버의
-/// USP_SM_GetUserSession 프로시저 조회 결과를 그대로 담고 있다.
+/// SSP_WYNLAB_GetSession 프로시저 조회 결과를 그대로 담고 있다.
 /// </summary>
 public sealed class SessionManager
 {

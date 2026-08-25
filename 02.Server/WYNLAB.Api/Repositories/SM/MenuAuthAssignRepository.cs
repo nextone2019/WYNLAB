@@ -3,7 +3,7 @@ using System.Text.Json;
 using Dapper;
 using WYNLAB.Api.Data;
 
-namespace WYNLAB.Api.Repositories;
+namespace WYNLAB.Api.Repositories.SM;
 
 public interface IMenuAuthAssignRepository
 {

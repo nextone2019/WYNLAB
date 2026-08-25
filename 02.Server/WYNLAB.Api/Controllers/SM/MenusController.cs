@@ -1,10 +1,10 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using WYNLAB.Api.Authorization;
-using WYNLAB.Api.Repositories;
+using WYNLAB.Api.Repositories.SM;
 using WYNLAB.Shared.Dtos;
 
-namespace WYNLAB.Api.Controllers;
+namespace WYNLAB.Api.Controllers.SM;
 
 /// <summary>
 /// 메뉴관리 화면(TSMMENU)용 CRUD API. 로그인 필수(JWT).

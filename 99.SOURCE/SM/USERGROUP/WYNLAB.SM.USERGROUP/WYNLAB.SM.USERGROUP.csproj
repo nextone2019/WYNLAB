@@ -14,6 +14,12 @@
     <Reference Include="DevExpress.Data.v21.2">
       <HintPath>C:\Program Files (x86)\DevExpress 21.2\Components\Bin\Framework\DevExpress.Data.v21.2.dll</HintPath>
     </Reference>
+    <!-- GridControl/GridView를 ISupportInitialize로 캐스트(BeginInit/EndInit)하려면 필요 -
+         Data.v21.2만으로는 GridControl의 전체 타입 계층(IControlRowSource 등)을 컴파일러가
+         다 못 찾는다(WYNLAB.SM.CODE에서 겪은 것과 같은 원인 - 그쪽 csproj 주석 참고). -->
+    <Reference Include="DevExpress.Data.Desktop.v21.2">
+      <HintPath>C:\Program Files (x86)\DevExpress 21.2\Components\Bin\Framework\DevExpress.Data.Desktop.v21.2.dll</HintPath>
+    </Reference>
     <Reference Include="DevExpress.Utils.v21.2">
       <HintPath>C:\Program Files (x86)\DevExpress 21.2\Components\Bin\Framework\DevExpress.Utils.v21.2.dll</HintPath>
     </Reference>
@@ -33,6 +39,9 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\..\..\01.Client\WYNLAB.BaseForm\WYNLAB.BaseForm.csproj" />
+    <!-- 기초코드등록(CodeListForm) 화면과 같은 디자인(PanelWyn/SectionHeaderWyn/GridControlWyn/
+         SplitContainerWyn)을 쓰기 위해 새로 추가 - 이전엔 순정 DevExpress 컨트롤만 써서 필요 없었다. -->
+    <ProjectReference Include="..\..\..\..\01.Client\WYNLAB.Controls\WYNLAB.Controls.csproj" />
     <ProjectReference Include="..\..\..\..\03.Shared\WYNLAB.Shared\WYNLAB.Shared.csproj" />
   </ItemGroup>
 
