@@ -12,10 +12,13 @@
 #
 # 끝나면 _deploy\ 폴더를 통째로 서버 D:\WYNLAB\ 밑에 같은 이름의 하위폴더로 덮어쓰면 된다
 # (_deploy\CoreAssembly\* -> D:\WYNLAB\CoreAssembly\, _deploy\Modules\* -> D:\WYNLAB\Modules\,
-#  _deploy\ClickOnce\*(있으면) -> D:\WYNLAB\ClickOnce\). 그 다음 서버에서 CoreAssembly
-# 폴더로 가서 Generate-CoreAssemblyManifest.ps1을 실행해야 클라이언트가 변경을 인식한다
-# (이 스크립트가 자동으로 안 해주는 이유: manifest는 서버에 실제로 파일이 도착한 뒤에
-# 생성해야 의미가 있어서, 로컬 스크립트가 미리 만들어봐야 소용없다).
+#  _deploy\ClickOnce\*(있으면) -> D:\WYNLAB\ClickOnce\). manifest.json은 이 스크립트가 여기서
+# 미리 만들어서 파일들과 같이 넣어주므로, 서버에서 따로 실행할 스크립트는 없다.
+#
+# [예전 방식과 달라진 점] 전에는 파일을 서버에 복사한 다음 서버에서 매니페스트 생성
+# 스크립트를 사람이 실행했다. 그러면 "파일 복사"와 "매니페스트 생성"이 별개 단계라 그 사이가
+# 어긋날 수 있었고, 실제로 클라이언트 로그에 '해시 불일치'로 갱신이 실패하는 일이 반복됐다
+# (2026-08-24~25). 이제는 파일과 매니페스트를 한 벌로 묶어서 옮기므로 그 어긋남 자체가 없다.
 
 param(
     [switch]$IncludeShell
@@ -46,10 +49,9 @@ Copy-Item "$root\01.Client\WYNLAB.BaseForm\bin\Release\net48\WYNLAB.BaseForm.pdb
 Copy-Item "$root\01.Client\WYNLAB.Controls\bin\Release\net48\WYNLAB.Controls.dll" "$deploy\CoreAssembly\" -Force
 Copy-Item "$root\03.Shared\WYNLAB.Shared\bin\Release\netstandard2.0\WYNLAB.Shared.dll" "$deploy\CoreAssembly\" -Force
 
-# manifest.json 생성 스크립트도 같이 넣어둔다 - 서버에서 매번 따로 안 챙겨도 되게.
-# 실행은 여전히 서버에서 사람이 해야 한다(그 시점 CoreAssembly 폴더의 실제 파일 기준으로
-# 해시를 계산해야 의미가 있어서, 로컬에서 미리 실행해봐야 소용없다 - 위 설명 참고).
-Copy-Item "$root\01.Client\WYNLAB.Bootstrap\Generate-CoreAssemblyManifest.ps1" "$deploy\CoreAssembly\" -Force
+# 서버 Assets 폴더(관리자가 아이콘 이미지를 직접 올리는 곳)는 이 스크립트가 다루지 않으므로,
+# 그쪽 manifest.json을 만들 수 있도록 생성 스크립트를 같이 넣어둔다.
+Copy-Item "$root\Generate-Manifest.ps1" "$deploy\" -Force
 
 Write-Host "=== 3) 화면(SM) 모듈 ===" -ForegroundColor Cyan
 $smSolutions = Get-ChildItem "$root\99.SOURCE\SM" -Directory | ForEach-Object {
@@ -106,12 +108,24 @@ if ($IncludeShell) {
         # 트리 구조를 있는 그대로 복사한다.
         robocopy "bin\Release\net48\publish" "$deploy\ClickOnce" /E /NFL /NDL /NJH /NJS | Out-Null
         if ($LASTEXITCODE -ge 8) { throw "ClickOnce 파일 복사 실패 (robocopy 종료 코드 $LASTEXITCODE)" }
+
+        # robocopy는 성공해도 0이 아닌 코드를 남긴다(1 = 파일을 복사함, 3 = 복사+스킵 등. 8 미만은
+        # 전부 성공). 그런데 PowerShell은 스크립트가 끝날 때 $LASTEXITCODE를 그대로 자기 종료
+        # 코드로 물려주기 때문에, 이걸 안 지우면 배포가 멀쩡히 끝났는데도 "종료 코드 1 = 실패"로
+        # 보인다(실제로 겪음). 여기까지 왔다는 건 이미 성공이므로 0으로 되돌린다.
+        $global:LASTEXITCODE = 0
         Write-Host "  게시 버전: 1.0.$build.$revision"
     }
     finally {
         Pop-Location
     }
 }
+
+Write-Host "=== 5) manifest.json 생성 ===" -ForegroundColor Cyan
+& "$root\Generate-Manifest.ps1" -TargetDir "$deploy\CoreAssembly" -Quiet
+Write-Host "  CoreAssembly\manifest.json"
+& "$root\Generate-Manifest.ps1" -TargetDir "$deploy\Modules" -Quiet
+Write-Host "  Modules\manifest.json"
 
 Write-Host ""
 Write-Host "=== 완료 - _deploy 폴더 내용 ===" -ForegroundColor Green
@@ -128,5 +142,6 @@ Write-Host "  $step. _deploy\Modules\*       ->  D:\WYNLAB\Modules\"; $step++
 if ($IncludeShell) {
     Write-Host "  $step. _deploy\ClickOnce\*     ->  D:\WYNLAB\ClickOnce\"; $step++
 }
-Write-Host "  $step. Set-Location D:\WYNLAB\CoreAssembly; .\Generate-CoreAssemblyManifest.ps1"; $step++
 Write-Host "  $step. 실행 중인 WYNLAB.exe를 전부 종료 후 재실행"
+Write-Host ""
+Write-Host "  manifest.json은 위 폴더에 이미 포함되어 있습니다 - 서버에서 따로 실행할 스크립트 없음" -ForegroundColor DarkGray

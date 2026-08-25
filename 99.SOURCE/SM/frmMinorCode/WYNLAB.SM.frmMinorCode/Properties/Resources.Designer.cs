@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace WYNLAB.SM.CODE.Properties {
+namespace WYNLAB.SM.frmMinorCode.Properties {
     using System;
     
     
@@ -39,7 +39,7 @@ namespace WYNLAB.SM.CODE.Properties {
         internal static global::System.Resources.ResourceManager ResourceManager {
             get {
                 if (object.ReferenceEquals(resourceMan, null)) {
-                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("WYNLAB.SM.CODE.Properties.Resources", typeof(Resources).Assembly);
+                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("WYNLAB.SM.frmMinorCode.Properties.Resources", typeof(Resources).Assembly);
                     resourceMan = temp;
                 }
                 return resourceMan;

@@ -56,6 +56,17 @@ public class GridViewWyn : GridView
         set => _behavior.HighlightUnsavedCells = value;
     }
 
+    /// <summary>지금 포커스된 행 전체를 배경색(UiTheme.GridFocusedRowBackColor)으로 강조할지 여부.
+    /// CellSelect 모드에서도(셀 일부만 드래그 선택하는 것과 무관하게) 항상 적용된다.</summary>
+    [Category("WYNLAB")]
+    [Description("포커스된 행 전체를 배경색으로 강조합니다(CellSelect 모드에서도 동작).")]
+    [DefaultValue(false)]
+    public bool HighlightFocusedRow
+    {
+        get => _behavior.HighlightFocusedRow;
+        set => _behavior.HighlightFocusedRow = value;
+    }
+
     /// <summary>저장 성공 후 호출 - 수정 강조 표시를 전부 지운다.</summary>
     public void ClearDirtyMarks() => _behavior.ClearDirtyMarks();
 

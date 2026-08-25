@@ -35,8 +35,16 @@
   <ItemGroup>
     <Folder Include="Controllers\BA\" />
     <Folder Include="Controllers\MA\" />
+    <Folder Include="Controllers\AP\" />
+    <Folder Include="Controllers\HR\" />
     <Folder Include="Controllers\PR\" />
     <Folder Include="Controllers\SA\" />
+    <Folder Include="Repositories\BA\" />
+    <Folder Include="Repositories\HR\" />
+    <Folder Include="Repositories\MA\" />
+    <Folder Include="Repositories\AP\" />
+    <Folder Include="Repositories\PR\" />
+    <Folder Include="Repositories\SA\" />
   </ItemGroup>
 
 </Project>

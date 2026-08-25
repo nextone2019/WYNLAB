@@ -12,8 +12,9 @@ namespace WYNLAB.Base;
 /// 맞는다. Tahoma/Segoe UI는 한글 글리프가 아예 없어서 Windows가 한글만 다른 폰트로
 /// 자동 대체해 그리는데, 그 대체 폰트가 원래 폰트보다 작아 보이는 문제(영문은 정상 크기,
 /// 한글만 작게 보임)가 있어서 바꿨다.
-/// 크기 기준(Body): DevExpress "Office 2019 Colorful" 스킨(Program.cs에서 앱 전체에 적용)의
-/// 기본 폰트를 실제로 띄워서 측정한 값(Tahoma 9pt)에 맞춘 9pt를 그대로 유지.
+/// 크기 기준(Body): 9pt. 예전 기본 스킨("Office 2019 Colorful")의 기본 폰트를 실제로 띄워서
+/// 측정한 값(Tahoma 9pt)에 맞춘 것이고, 기본 스킨이 바뀐 뒤에도(현재는 ShellForm.DefaultSkin)
+/// 이미 모든 화면이 이 크기를 기준으로 맞춰져 있어서 그대로 유지한다.
 /// </summary>
 public static class AppFonts
 {

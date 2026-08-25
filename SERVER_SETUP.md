@@ -130,6 +130,85 @@ Add-WebConfigurationProperty -PSPath "IIS:\Sites\WYNLAB-ClickOnce" -Filter "syst
 
 ---
 
+## 5-1. 배포 파일을 HTTP로 서빙 (CoreAssembly / Modules / Assets)
+
+클라이언트는 화면 DLL(`Modules`), 프레임워크 DLL(`CoreAssembly`), 아이콘 이미지(`Assets`)를
+**HTTP로 내려받을 수 있다**. 예전에는 UNC 공유폴더(`\\192.168.160.10\WYNLAB\Modules`)에서
+직접 읽었는데, 그러면 클라이언트가 서버와 SMB(445 포트)로 통신할 수 있어야만 한다. SMB는 사내
+LAN 전용 프로토콜이라 인터넷 너머로 열어두는 게 위험하고(랜섬웨어의 대표 진입 경로), 고객사
+방화벽에서도 거의 허용되지 않는다. HTTP로 받으면 **이미 열려있는 ClickOnce 포트 하나로 전부
+해결**되고 어떤 네트워크에서든 동작한다.
+
+### 가상 디렉터리 추가
+
+파일이 놓이는 위치(`D:\WYNLAB\Modules` 등)는 그대로 두고, ClickOnce 사이트 아래에 가상
+디렉터리로 연결만 한다 - **배포 절차(파일을 어디에 복사하는지)는 하나도 안 바뀐다.**
+
+```powershell
+New-WebVirtualDirectory -Site "WYNLAB-ClickOnce" -Name "Modules"      -PhysicalPath "D:\WYNLAB\Modules"
+New-WebVirtualDirectory -Site "WYNLAB-ClickOnce" -Name "CoreAssembly" -PhysicalPath "D:\WYNLAB\CoreAssembly"
+New-WebVirtualDirectory -Site "WYNLAB-ClickOnce" -Name "Assets"       -PhysicalPath "D:\WYNLAB\Assets"
+```
+
+### `.dll`/`.pdb` MIME 타입 등록 (이거 안 하면 아무것도 안 됨)
+
+**IIS는 기본 설정에서 `.dll` 파일을 내려주지 않는다.** 등록되지 않은 확장자는 404로 막는다.
+위 4번의 ClickOnce 확장자 문제와 정확히 같은 종류의 함정인데, 이걸 빠뜨리면 로그인은 되지만
+메뉴를 여는 순간 전부 "화면을 찾을 수 없습니다"가 뜬다.
+
+```powershell
+foreach ($vdir in "Modules", "CoreAssembly") {
+    foreach ($ext in ".dll", ".pdb") {
+        Add-WebConfigurationProperty -PSPath "IIS:\Sites\WYNLAB-ClickOnce\$vdir" `
+            -Filter "system.webServer/staticContent" -Name "." `
+            -Value @{fileExtension=$ext; mimeType="application/octet-stream"}
+    }
+}
+```
+
+`.json`(manifest.json)과 `.png`(Assets)는 IIS 기본 MIME 목록에 있어서 따로 등록할 필요 없다.
+
+### 확인
+
+브라우저로 아래 주소들이 열리면 성공이다:
+
+- `http://192.168.160.10:8091/CoreAssembly/manifest.json` → JSON이 보임
+- `http://192.168.160.10:8091/Modules/manifest.json` → JSON이 보임
+- `http://192.168.160.10:8091/Modules/SM/WYNLAB.SM.MENU.dll` → 다운로드가 시작됨
+
+### 클라이언트 전환
+
+`appsettings.Prod.json`의 경로를 UNC에서 URL로 바꾸면 된다. **`http://`로 시작하면 HTTP 모드,
+아니면 예전 UNC 방식**으로 동작하므로 둘을 섞어 쓸 수도 있고, 문제가 생기면 값만 되돌리면
+즉시 원복된다(재빌드·재배포 불필요).
+
+```json
+"Production": {
+  "ApiBaseUrl":       "http://192.168.160.10:8090/",
+  "ModulesPath":      "http://192.168.160.10:8091/Modules",
+  "CoreAssemblyPath": "http://192.168.160.10:8091/CoreAssembly",
+  "AssetsPath":       "http://192.168.160.10:8091/Assets"
+}
+```
+
+HTTP 모드에서 받은 파일은 각 PC의 `%LocalAppData%\WYNLAB\Modules`(캐시)에 저장되고, 서버에
+못 붙는 상황에서는 그 캐시로 계속 동작한다. 무엇을 받았고 무엇이 실패했는지는
+`%LocalAppData%\WYNLAB\file-sync.log`에 남는다.
+
+### Assets 폴더의 manifest.json
+
+`CoreAssembly`/`Modules`의 manifest.json은 개발 PC에서 `Deploy-Package.ps1`이 파일과 함께
+만들어주지만, `Assets`는 관리자가 서버에 이미지를 직접 올리는 폴더라 그 시점에 서버에서
+만들어야 한다. **서버에서** 이미지를 추가·교체한 뒤:
+
+```powershell
+D:\WYNLAB\Generate-Manifest.ps1 -TargetDir "D:\WYNLAB\Assets"
+```
+
+(`Generate-Manifest.ps1`은 `_deploy\` 루트에 같이 스테이징되므로 서버로 한 번 복사해두면 된다.)
+
+---
+
 ## 6. 첫 배포
 
 로컬 개발 PC(지금 이 리포가 있는 PC)에서 게시(publish)한 다음, 그 결과물을 서버의 해당 폴더로
@@ -288,11 +367,19 @@ dotnet build -c Release
 **반드시** 매니페스트를 다시 생성해야 클라이언트가 변경을 인식한다(사람이 버전을 손으로 안 적고
 파일 해시를 자동 계산 - 깜빡할 일이 없게):
 
+**지금은 `Deploy-Package.ps1`이 개발 PC에서 파일과 함께 `manifest.json`을 만들어주므로, 서버에서
+따로 실행할 스크립트가 없다.** `_deploy\CoreAssembly\` 안에 이미 들어있는 걸 그대로 복사하면 된다.
+
+> 왜 바뀌었나: 예전엔 파일을 서버에 복사한 뒤 서버에서 매니페스트 생성 스크립트를 사람이
+> 실행했다. 그러면 "파일 복사"와 "매니페스트 생성"이 별개 단계라 그 사이가 어긋날 수 있었고,
+> 실제로 클라이언트 로그에 `해시 불일치`로 갱신이 실패하는 일이 반복됐다(2026-08-24~25).
+> 파일과 매니페스트를 한 벌로 묶어 옮기면 그 어긋남 자체가 생길 수 없다.
+
+서버에서 폴더를 직접 손봤을 때(예: Assets에 이미지 추가) 매니페스트를 다시 만들려면:
+
 ```powershell
-# 서버 콘솔(RDP)에서 D:\WYNLAB\CoreAssembly 폴더를 대상으로 직접 실행.
-# 스크립트 자체는 저장소의 01.Client\WYNLAB.Bootstrap\Generate-CoreAssemblyManifest.ps1를
-# 서버로 복사해두고 쓰면 된다(-TargetDir로 대상 폴더만 넘기면 됨).
-.\Generate-CoreAssemblyManifest.ps1 -TargetDir "D:\WYNLAB\CoreAssembly"
+# 서버 콘솔(RDP)에서 - 대상 폴더만 넘기면 된다
+D:\WYNLAB\Generate-Manifest.ps1 -TargetDir "D:\WYNLAB\CoreAssembly"
 ```
 `manifest.json`이 새로 생기면 끝 - 사용자는 다음 실행 때 자동으로 새 버전을 받는다. 실행 중인
 다른 WYNLAB 창이 있으면(파일이 잠겨서 교체 불가) 안내 메시지가 뜨고 프로그램이 종료되니, 모든
@@ -307,7 +394,10 @@ dotnet build -c Release
 ## 7. 검증 체크리스트
 
 - [ ] `http://192.168.160.10:8090/` 접속 시 API가 응답(404여도 괜찮음 - "연결 자체"가 되는지가 핵심)
-- [ ] `\\192.168.160.10\WYNLAB\Modules\SM\` 폴더가 다른 PC 탐색기에서 보임
+- [ ] `\\192.168.160.10\WYNLAB\Modules\SM\` 폴더가 다른 PC 탐색기에서 보임(UNC 모드를 쓸 때만)
+- [ ] (HTTP 모드) `http://192.168.160.10:8091/Modules/manifest.json`이 브라우저에서 보임
+- [ ] (HTTP 모드) `http://192.168.160.10:8091/Modules/SM/WYNLAB.SM.MENU.dll` 다운로드가 시작됨
+      → 404가 뜨면 5-1의 `.dll` MIME 등록을 빠뜨린 것
 - [ ] 서버에서 `iisreset` 후에도 2개 사이트가 다시 정상 기동(자동 시작)
 - [ ] 화면 DLL을 `Modules\SM\`에 넣고 클라이언트(운영 환경)로 로그인 → 메뉴 클릭 시 화면이 뜸
 - [ ] ClickOnce 설치 URL(`http://192.168.160.10:8091/WYNLAB.application`)로 브라우저 접속 시 설치가 시작됨

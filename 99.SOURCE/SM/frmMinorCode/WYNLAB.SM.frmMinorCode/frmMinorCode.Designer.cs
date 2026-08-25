@@ -4,15 +4,15 @@
 using DevExpress.XtraGrid;
 using WYNLAB.Base.Controls;
 
-namespace WYNLAB.SM.CODE;
+namespace WYNLAB.SM.frmMinorCode;
 
 /// <summary>
 /// 빈 캔버스 - VS 디자이너에서 드래그앤드롭으로 직접 배치할 예정이라 여기엔 아무 컨트롤도
-/// 미리 넣어두지 않았다. 이전 손으로 짠 레이아웃/업무로직은 CodeListForm.cs.reference /
-/// CodeListForm.Designer.cs.reference에 그대로 남겨뒀다 - 디자인이 정해지면 그쪽 로직을
+/// 미리 넣어두지 않았다. 이전 손으로 짠 레이아웃/업무로직은 frmMinorCode.cs.reference /
+/// frmMinorCode.Designer.cs.reference에 그대로 남겨뒀다 - 디자인이 정해지면 그쪽 로직을
 /// 새 컨트롤 이름에 맞춰 다시 연결하면 된다.
 /// </summary>
-public partial class CodeListForm
+public partial class frmMinorCode
 {
     private System.ComponentModel.IContainer components = null;
 
@@ -29,7 +29,7 @@ public partial class CodeListForm
 
     private void InitializeComponent()
     {
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(CodeListForm));
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(frmMinorCode));
             this.panBase = new WYNLAB.Base.Controls.PanelWyn();
             this.panelWyn3 = new WYNLAB.Base.Controls.PanelWyn();
             this.grd1 = new WYNLAB.Base.Controls.GridControlWyn();
@@ -37,6 +37,7 @@ public partial class CodeListForm
             this.gridColumn1 = new DevExpress.XtraGrid.Columns.GridColumn();
             this.gridColumn2 = new DevExpress.XtraGrid.Columns.GridColumn();
             this.panelWyn2 = new WYNLAB.Base.Controls.PanelWyn();
+            this.panelWyn8 = new WYNLAB.Base.Controls.PanelWyn();
             this.sectionHeaderWyn4 = new WYNLAB.Base.Controls.SectionHeaderWyn();
             this.splitterWyn1 = new WYNLAB.Base.Controls.SplitterWyn();
             this.panelWyn4 = new WYNLAB.Base.Controls.PanelWyn();
@@ -48,8 +49,9 @@ public partial class CodeListForm
             this.gridColumn6 = new DevExpress.XtraGrid.Columns.GridColumn();
             this.gridColumn7 = new DevExpress.XtraGrid.Columns.GridColumn();
             this.panelWyn1 = new WYNLAB.Base.Controls.PanelWyn();
-            this.btnDeletRow2 = new DevExpress.XtraEditors.SimpleButton();
             this.sectionHeaderWyn2 = new WYNLAB.Base.Controls.SectionHeaderWyn();
+            this.panelWyn7 = new WYNLAB.Base.Controls.PanelWyn();
+            this.btnDeletRow2 = new DevExpress.XtraEditors.SimpleButton();
             this.btnAddRow2 = new DevExpress.XtraEditors.SimpleButton();
             this.panelWyn5 = new WYNLAB.Base.Controls.PanelWyn();
             this.panData = new WYNLAB.Base.Controls.PanelWyn();
@@ -104,7 +106,6 @@ public partial class CodeListForm
             this.labelControl1 = new DevExpress.XtraEditors.LabelControl();
             this.paTitle = new WYNLAB.Base.Controls.PanelWyn();
             this.sectionHeaderWyn1 = new WYNLAB.Base.Controls.SectionHeaderWyn();
-            this.panelWyn7 = new WYNLAB.Base.Controls.PanelWyn();
             ((System.ComponentModel.ISupportInitialize)(this.panBase)).BeginInit();
             this.panBase.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.panelWyn3)).BeginInit();
@@ -113,12 +114,15 @@ public partial class CodeListForm
             ((System.ComponentModel.ISupportInitialize)(this.gvw1)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.panelWyn2)).BeginInit();
             this.panelWyn2.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.panelWyn8)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.panelWyn4)).BeginInit();
             this.panelWyn4.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.grd2)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.gvw2)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.panelWyn1)).BeginInit();
             this.panelWyn1.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.panelWyn7)).BeginInit();
+            this.panelWyn7.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.panelWyn5)).BeginInit();
             this.panelWyn5.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.panData)).BeginInit();
@@ -162,8 +166,6 @@ public partial class CodeListForm
             ((System.ComponentModel.ISupportInitialize)(this.txtminor_cd_q.Properties)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.paTitle)).BeginInit();
             this.paTitle.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.panelWyn7)).BeginInit();
-            this.panelWyn7.SuspendLayout();
             this.SuspendLayout();
             // 
             // panBase
@@ -197,10 +199,10 @@ public partial class CodeListForm
             // grd1
             // 
             this.grd1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.grd1.Location = new System.Drawing.Point(0, 27);
+            this.grd1.Location = new System.Drawing.Point(0, 24);
             this.grd1.MainView = this.gvw1;
             this.grd1.Name = "grd1";
-            this.grd1.Size = new System.Drawing.Size(382, 488);
+            this.grd1.Size = new System.Drawing.Size(382, 491);
             this.grd1.TabIndex = 10;
             this.grd1.ViewCollection.AddRange(new DevExpress.XtraGrid.Views.Base.BaseView[] {
             this.gvw1});
@@ -211,6 +213,7 @@ public partial class CodeListForm
             this.gridColumn1,
             this.gridColumn2});
             this.gvw1.GridControl = this.grd1;
+            this.gvw1.HighlightFocusedRow = true;
             this.gvw1.Name = "gvw1";
             this.gvw1.OptionsSelection.InvertSelection = true;
             this.gvw1.OptionsView.ShowGroupPanel = false;
@@ -233,24 +236,37 @@ public partial class CodeListForm
             // 
             // panelWyn2
             // 
+            this.panelWyn2.Controls.Add(this.panelWyn8);
             this.panelWyn2.Controls.Add(this.sectionHeaderWyn4);
             this.panelWyn2.Dock = System.Windows.Forms.DockStyle.Top;
             this.panelWyn2.EdgeLineColor = System.Drawing.Color.FromArgb(((int)(((byte)(228)))), ((int)(((byte)(229)))), ((int)(((byte)(232)))));
             this.panelWyn2.Location = new System.Drawing.Point(0, 0);
             this.panelWyn2.Name = "panelWyn2";
-            this.panelWyn2.Padding = new System.Windows.Forms.Padding(5, 0, 0, 0);
-            this.panelWyn2.Size = new System.Drawing.Size(382, 27);
+            this.panelWyn2.Padding = new System.Windows.Forms.Padding(0, 0, 0, 2);
+            this.panelWyn2.Size = new System.Drawing.Size(382, 24);
             this.panelWyn2.TabIndex = 11;
+            // 
+            // panelWyn8
+            // 
+            this.panelWyn8.Appearance.BackColor = System.Drawing.Color.Silver;
+            this.panelWyn8.Appearance.Options.UseBackColor = true;
+            this.panelWyn8.BorderStyle = DevExpress.XtraEditors.Controls.BorderStyles.Simple;
+            this.panelWyn8.Dock = System.Windows.Forms.DockStyle.Bottom;
+            this.panelWyn8.EdgeLineColor = System.Drawing.Color.FromArgb(((int)(((byte)(228)))), ((int)(((byte)(229)))), ((int)(((byte)(232)))));
+            this.panelWyn8.Location = new System.Drawing.Point(359, 21);
+            this.panelWyn8.Name = "panelWyn8";
+            this.panelWyn8.Size = new System.Drawing.Size(23, 1);
+            this.panelWyn8.TabIndex = 6;
             // 
             // sectionHeaderWyn4
             // 
             this.sectionHeaderWyn4.BackColor = System.Drawing.Color.White;
-            this.sectionHeaderWyn4.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.sectionHeaderWyn4.Dock = System.Windows.Forms.DockStyle.Left;
             this.sectionHeaderWyn4.Font = new System.Drawing.Font("맑은 고딕", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
             this.sectionHeaderWyn4.Icon = WYNLAB.Base.Controls.SectionHeaderIcon.Folder;
-            this.sectionHeaderWyn4.Location = new System.Drawing.Point(5, 0);
+            this.sectionHeaderWyn4.Location = new System.Drawing.Point(0, 0);
             this.sectionHeaderWyn4.Name = "sectionHeaderWyn4";
-            this.sectionHeaderWyn4.Size = new System.Drawing.Size(377, 27);
+            this.sectionHeaderWyn4.Size = new System.Drawing.Size(359, 22);
             this.sectionHeaderWyn4.SvgIcon = ((DevExpress.Utils.Svg.SvgImage)(resources.GetObject("sectionHeaderWyn4.SvgIcon")));
             this.sectionHeaderWyn4.TabIndex = 8;
             this.sectionHeaderWyn4.Text = "대분류 LIST";
@@ -275,16 +291,17 @@ public partial class CodeListForm
             this.panelWyn4.EdgeLineColor = System.Drawing.Color.FromArgb(((int)(((byte)(228)))), ((int)(((byte)(229)))), ((int)(((byte)(232)))));
             this.panelWyn4.Location = new System.Drawing.Point(392, 0);
             this.panelWyn4.Name = "panelWyn4";
+            this.panelWyn4.Padding = new System.Windows.Forms.Padding(3, 0, 0, 0);
             this.panelWyn4.Size = new System.Drawing.Size(767, 515);
             this.panelWyn4.TabIndex = 7;
             // 
             // grd2
             // 
             this.grd2.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.grd2.Location = new System.Drawing.Point(0, 245);
+            this.grd2.Location = new System.Drawing.Point(3, 242);
             this.grd2.MainView = this.gvw2;
             this.grd2.Name = "grd2";
-            this.grd2.Size = new System.Drawing.Size(767, 270);
+            this.grd2.Size = new System.Drawing.Size(764, 273);
             this.grd2.TabIndex = 7;
             this.grd2.ViewCollection.AddRange(new DevExpress.XtraGrid.Views.Base.BaseView[] {
             this.gvw2});
@@ -298,6 +315,7 @@ public partial class CodeListForm
             this.gridColumn6,
             this.gridColumn7});
             this.gvw2.GridControl = this.grd2;
+            this.gvw2.HighlightFocusedRow = true;
             this.gvw2.Name = "gvw2";
             this.gvw2.OptionsView.ShowGroupPanel = false;
             // 
@@ -349,11 +367,34 @@ public partial class CodeListForm
             this.panelWyn1.Controls.Add(this.panelWyn7);
             this.panelWyn1.Dock = System.Windows.Forms.DockStyle.Top;
             this.panelWyn1.EdgeLineColor = System.Drawing.Color.FromArgb(((int)(((byte)(228)))), ((int)(((byte)(229)))), ((int)(((byte)(232)))));
-            this.panelWyn1.Location = new System.Drawing.Point(0, 218);
+            this.panelWyn1.Location = new System.Drawing.Point(3, 218);
             this.panelWyn1.Name = "panelWyn1";
-            this.panelWyn1.Padding = new System.Windows.Forms.Padding(5, 0, 0, 0);
-            this.panelWyn1.Size = new System.Drawing.Size(767, 27);
+            this.panelWyn1.Size = new System.Drawing.Size(764, 24);
             this.panelWyn1.TabIndex = 8;
+            // 
+            // sectionHeaderWyn2
+            // 
+            this.sectionHeaderWyn2.BackColor = System.Drawing.Color.White;
+            this.sectionHeaderWyn2.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.sectionHeaderWyn2.Font = new System.Drawing.Font("맑은 고딕", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
+            this.sectionHeaderWyn2.Icon = WYNLAB.Base.Controls.SectionHeaderIcon.Folder;
+            this.sectionHeaderWyn2.Location = new System.Drawing.Point(0, 0);
+            this.sectionHeaderWyn2.Name = "sectionHeaderWyn2";
+            this.sectionHeaderWyn2.Size = new System.Drawing.Size(705, 24);
+            this.sectionHeaderWyn2.SvgIcon = ((DevExpress.Utils.Svg.SvgImage)(resources.GetObject("sectionHeaderWyn2.SvgIcon")));
+            this.sectionHeaderWyn2.TabIndex = 8;
+            this.sectionHeaderWyn2.Text = "소분류 등록";
+            // 
+            // panelWyn7
+            // 
+            this.panelWyn7.Controls.Add(this.btnDeletRow2);
+            this.panelWyn7.Controls.Add(this.btnAddRow2);
+            this.panelWyn7.Dock = System.Windows.Forms.DockStyle.Right;
+            this.panelWyn7.EdgeLineColor = System.Drawing.Color.FromArgb(((int)(((byte)(228)))), ((int)(((byte)(229)))), ((int)(((byte)(232)))));
+            this.panelWyn7.Location = new System.Drawing.Point(705, 0);
+            this.panelWyn7.Name = "panelWyn7";
+            this.panelWyn7.Size = new System.Drawing.Size(59, 24);
+            this.panelWyn7.TabIndex = 9;
             // 
             // btnDeletRow2
             // 
@@ -365,26 +406,13 @@ public partial class CodeListForm
             this.btnDeletRow2.Appearance.Options.UseBorderColor = true;
             this.btnDeletRow2.Appearance.Options.UseFont = true;
             this.btnDeletRow2.ImageOptions.Image = ((System.Drawing.Image)(resources.GetObject("btnDeletRow2.ImageOptions.Image")));
-            this.btnDeletRow2.Location = new System.Drawing.Point(32, 3);
+            this.btnDeletRow2.Location = new System.Drawing.Point(32, 1);
             this.btnDeletRow2.Name = "btnDeletRow2";
             this.btnDeletRow2.Size = new System.Drawing.Size(24, 22);
             this.btnDeletRow2.TabIndex = 0;
             this.btnDeletRow2.Text = "";
             this.btnDeletRow2.ToolTip = "행삭제";
             this.btnDeletRow2.Click += new System.EventHandler(this.btnDeletRow2_Click);
-            // 
-            // sectionHeaderWyn2
-            // 
-            this.sectionHeaderWyn2.BackColor = System.Drawing.Color.White;
-            this.sectionHeaderWyn2.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.sectionHeaderWyn2.Font = new System.Drawing.Font("맑은 고딕", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
-            this.sectionHeaderWyn2.Icon = WYNLAB.Base.Controls.SectionHeaderIcon.Folder;
-            this.sectionHeaderWyn2.Location = new System.Drawing.Point(5, 0);
-            this.sectionHeaderWyn2.Name = "sectionHeaderWyn2";
-            this.sectionHeaderWyn2.Size = new System.Drawing.Size(703, 27);
-            this.sectionHeaderWyn2.SvgIcon = ((DevExpress.Utils.Svg.SvgImage)(resources.GetObject("sectionHeaderWyn2.SvgIcon")));
-            this.sectionHeaderWyn2.TabIndex = 8;
-            this.sectionHeaderWyn2.Text = "소분류 등록";
             // 
             // btnAddRow2
             // 
@@ -396,7 +424,7 @@ public partial class CodeListForm
             this.btnAddRow2.Appearance.Options.UseBorderColor = true;
             this.btnAddRow2.Appearance.Options.UseFont = true;
             this.btnAddRow2.ImageOptions.Image = ((System.Drawing.Image)(resources.GetObject("btnAddRow2.ImageOptions.Image")));
-            this.btnAddRow2.Location = new System.Drawing.Point(4, 3);
+            this.btnAddRow2.Location = new System.Drawing.Point(4, 1);
             this.btnAddRow2.Name = "btnAddRow2";
             this.btnAddRow2.Size = new System.Drawing.Size(24, 22);
             this.btnAddRow2.TabIndex = 0;
@@ -410,9 +438,9 @@ public partial class CodeListForm
             this.panelWyn5.Controls.Add(this.panelWyn6);
             this.panelWyn5.Dock = System.Windows.Forms.DockStyle.Top;
             this.panelWyn5.EdgeLineColor = System.Drawing.Color.FromArgb(((int)(((byte)(228)))), ((int)(((byte)(229)))), ((int)(((byte)(232)))));
-            this.panelWyn5.Location = new System.Drawing.Point(0, 0);
+            this.panelWyn5.Location = new System.Drawing.Point(3, 0);
             this.panelWyn5.Name = "panelWyn5";
-            this.panelWyn5.Size = new System.Drawing.Size(767, 218);
+            this.panelWyn5.Size = new System.Drawing.Size(764, 218);
             this.panelWyn5.TabIndex = 6;
             // 
             // panData
@@ -464,9 +492,9 @@ public partial class CodeListForm
             this.panData.Controls.Add(this.txtmajor_cd);
             this.panData.Dock = System.Windows.Forms.DockStyle.Fill;
             this.panData.EdgeLineColor = System.Drawing.Color.FromArgb(((int)(((byte)(228)))), ((int)(((byte)(229)))), ((int)(((byte)(232)))));
-            this.panData.Location = new System.Drawing.Point(0, 27);
+            this.panData.Location = new System.Drawing.Point(0, 24);
             this.panData.Name = "panData";
-            this.panData.Size = new System.Drawing.Size(767, 191);
+            this.panData.Size = new System.Drawing.Size(764, 194);
             this.panData.TabIndex = 8;
             // 
             // cborel_cd_type10
@@ -850,8 +878,8 @@ public partial class CodeListForm
             this.panelWyn6.EdgeLineColor = System.Drawing.Color.FromArgb(((int)(((byte)(228)))), ((int)(((byte)(229)))), ((int)(((byte)(232)))));
             this.panelWyn6.Location = new System.Drawing.Point(0, 0);
             this.panelWyn6.Name = "panelWyn6";
-            this.panelWyn6.Padding = new System.Windows.Forms.Padding(5, 0, 0, 0);
-            this.panelWyn6.Size = new System.Drawing.Size(767, 27);
+            this.panelWyn6.Padding = new System.Windows.Forms.Padding(5, 0, 0, 2);
+            this.panelWyn6.Size = new System.Drawing.Size(764, 24);
             this.panelWyn6.TabIndex = 7;
             // 
             // sectionHeaderWyn3
@@ -862,13 +890,16 @@ public partial class CodeListForm
             this.sectionHeaderWyn3.Icon = WYNLAB.Base.Controls.SectionHeaderIcon.Folder;
             this.sectionHeaderWyn3.Location = new System.Drawing.Point(5, 0);
             this.sectionHeaderWyn3.Name = "sectionHeaderWyn3";
-            this.sectionHeaderWyn3.Size = new System.Drawing.Size(762, 27);
+            this.sectionHeaderWyn3.Padding = new System.Windows.Forms.Padding(0, 0, 3, 0);
+            this.sectionHeaderWyn3.Size = new System.Drawing.Size(759, 22);
             this.sectionHeaderWyn3.SvgIcon = ((DevExpress.Utils.Svg.SvgImage)(resources.GetObject("sectionHeaderWyn3.SvgIcon")));
             this.sectionHeaderWyn3.TabIndex = 8;
             this.sectionHeaderWyn3.Text = "대분류 등록";
             // 
             // panHeader
             // 
+            this.panHeader.Appearance.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(240)))), ((int)(((byte)(240)))), ((int)(((byte)(240)))));
+            this.panHeader.Appearance.Options.UseBackColor = true;
             this.panHeader.BorderStyle = DevExpress.XtraEditors.Controls.BorderStyles.Default;
             this.panHeader.Controls.Add(this.txtminor_cd_q);
             this.panHeader.Controls.Add(this.labelControl1);
@@ -920,22 +951,11 @@ public partial class CodeListForm
             this.sectionHeaderWyn1.TabIndex = 8;
             this.sectionHeaderWyn1.Text = "기초코드 등록";
             // 
-            // panelWyn7
-            // 
-            this.panelWyn7.Controls.Add(this.btnDeletRow2);
-            this.panelWyn7.Controls.Add(this.btnAddRow2);
-            this.panelWyn7.Dock = System.Windows.Forms.DockStyle.Right;
-            this.panelWyn7.EdgeLineColor = System.Drawing.Color.FromArgb(((int)(((byte)(228)))), ((int)(((byte)(229)))), ((int)(((byte)(232)))));
-            this.panelWyn7.Location = new System.Drawing.Point(708, 0);
-            this.panelWyn7.Name = "panelWyn7";
-            this.panelWyn7.Size = new System.Drawing.Size(59, 27);
-            this.panelWyn7.TabIndex = 9;
-            // 
-            // CodeListForm
+            // frmMinorCode
             // 
             this.ClientSize = new System.Drawing.Size(1165, 600);
             this.Controls.Add(this.panBase);
-            this.Name = "CodeListForm";
+            this.Name = "frmMinorCode";
             ((System.ComponentModel.ISupportInitialize)(this.panBase)).EndInit();
             this.panBase.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.panelWyn3)).EndInit();
@@ -944,12 +964,15 @@ public partial class CodeListForm
             ((System.ComponentModel.ISupportInitialize)(this.gvw1)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.panelWyn2)).EndInit();
             this.panelWyn2.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.panelWyn8)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.panelWyn4)).EndInit();
             this.panelWyn4.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.grd2)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.gvw2)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.panelWyn1)).EndInit();
             this.panelWyn1.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.panelWyn7)).EndInit();
+            this.panelWyn7.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.panelWyn5)).EndInit();
             this.panelWyn5.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.panData)).EndInit();
@@ -995,8 +1018,6 @@ public partial class CodeListForm
             ((System.ComponentModel.ISupportInitialize)(this.txtminor_cd_q.Properties)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.paTitle)).EndInit();
             this.paTitle.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.panelWyn7)).EndInit();
-            this.panelWyn7.ResumeLayout(false);
             this.ResumeLayout(false);
 
     }
@@ -1074,4 +1095,5 @@ public partial class CodeListForm
     private DevExpress.XtraEditors.SimpleButton btnDeletRow2;
     private DevExpress.XtraEditors.SimpleButton btnAddRow2;
     private PanelWyn panelWyn7;
+    private PanelWyn panelWyn8;
 }

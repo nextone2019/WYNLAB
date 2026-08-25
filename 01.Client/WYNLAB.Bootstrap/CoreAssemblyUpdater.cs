@@ -28,11 +28,11 @@ public static class CoreAssemblyUpdater
             var coreAssemblyPath = ReadCoreAssemblyPath();
             if (string.IsNullOrWhiteSpace(coreAssemblyPath)) { Log("건너뜀: appsettings.json에 CoreAssemblyPath가 없음"); return; }
 
-            var manifestPath = Path.Combine(coreAssemblyPath, "manifest.json");
-            if (!File.Exists(manifestPath)) { Log($"건너뜀: manifest.json을 못 찾음 ({manifestPath})"); return; }
+            var manifestJson = ReadManifestJson(coreAssemblyPath);
+            if (manifestJson == null) return; // 사유는 ReadManifestJson이 이미 로그에 남긴다
 
             var manifest = JsonSerializer.Deserialize<CoreAssemblyManifest>(
-                File.ReadAllText(manifestPath),
+                manifestJson,
                 new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
             if (manifest?.Files == null) { Log("건너뜀: manifest.json 파싱 결과가 비어있음"); return; }
 
@@ -68,12 +68,29 @@ public static class CoreAssemblyUpdater
                 }
             }
 
+            // 파일 하나씩 독립적으로 시도한다 - 예전엔 하나가 실패(throw)하면 그 예외가 밖의
+            // catch까지 올라가서 나머지 파일 업데이트까지 전부 취소됐다. 실제로 BaseForm.dll
+            // 하나만 계속 실패하는 바람에, 서버에 정상적으로 올라간 Shared.dll조차 하루 넘게
+            // 클라이언트에 반영이 안 되는 사고로 이어졌다(2026-08-25 실제로 겪음) - 이제는
+            // 각 파일을 따로 시도해서, 문제 있는 파일 하나 때문에 나머지가 발목 잡히지 않는다.
+            var updated = new List<string>();
+            var failed = new List<string>();
             foreach (var file in filesToUpdate)
             {
-                UpdateFile(coreAssemblyPath, appDir, file);
+                try
+                {
+                    UpdateFile(coreAssemblyPath, appDir, file);
+                    updated.Add(file.FileName);
+                }
+                catch (Exception ex)
+                {
+                    failed.Add(file.FileName);
+                    Log($"{file.FileName} 갱신 실패(다른 파일은 계속 진행): {ex}");
+                }
             }
 
-            Log($"업데이트 완료: {string.Join(", ", filesToUpdate.Select(f => f.FileName))}");
+            if (updated.Count > 0) Log($"업데이트 완료: {string.Join(", ", updated)}");
+            if (failed.Count > 0) Log($"업데이트 실패로 예전 버전 유지: {string.Join(", ", failed)}");
         }
         catch (Exception ex)
         {
@@ -84,6 +101,59 @@ public static class CoreAssemblyUpdater
             // 이중으로 삼킨다 - 이 메서드는 어떤 경우에도 예외를 밖으로 던지면 안 된다.
             Log($"갱신 실패: {ex}");
         }
+    }
+
+    /// <summary>
+    /// 배포 위치가 http(s) 주소면 HTTP로, 아니면 예전처럼 공유폴더에서 manifest.json을 읽는다.
+    /// 못 읽으면 사유를 로그에 남기고 null - 호출하는 쪽은 그냥 조용히 넘어간다.
+    ///
+    /// HTTP 전환 이유는 WYNLAB.BaseForm의 HttpFileSync 클래스 설명 참고(SMB/445 포트를 인터넷에
+    /// 열지 않기 위함). 이 프로젝트는 BaseForm을 참조할 수 없다는 제약 때문에(클래스 설명 참고)
+    /// 그쪽 코드를 재사용하지 못하고 여기에 최소한으로 다시 구현한다 - ReadCoreAssemblyPath가
+    /// AppConfig의 파싱을 중복 구현하는 것과 같은 이유의, 같은 종류의 불가피한 중복이다.
+    /// </summary>
+    private static string? ReadManifestJson(string coreAssemblyPath)
+    {
+        try
+        {
+            if (IsHttpUrl(coreAssemblyPath))
+            {
+                using var client = CreateWebClient();
+
+                // 파일로 읽을 땐 .NET이 BOM을 알아서 걸러주지만 HTTP로 받으면 문자열 맨 앞에
+                // U+FEFF가 남아서 System.Text.Json이 파싱에 실패한다 - 떼어낸다.
+                return client.DownloadString(CombineUrl(coreAssemblyPath, "manifest.json")).TrimStart('﻿');
+            }
+
+            var manifestPath = Path.Combine(coreAssemblyPath, "manifest.json");
+            if (!File.Exists(manifestPath)) { Log($"건너뜀: manifest.json을 못 찾음 ({manifestPath})"); return null; }
+
+            return File.ReadAllText(manifestPath);
+        }
+        catch (Exception ex)
+        {
+            Log($"건너뜀: manifest.json을 읽지 못함({coreAssemblyPath}): {ex.Message}");
+            return null;
+        }
+    }
+
+    private static bool IsHttpUrl(string value) =>
+        value.StartsWith("http://", StringComparison.OrdinalIgnoreCase) ||
+        value.StartsWith("https://", StringComparison.OrdinalIgnoreCase);
+
+    private static string CombineUrl(string baseUrl, string relativePath) =>
+        baseUrl.TrimEnd('/') + "/" + relativePath.TrimStart('/');
+
+    /// <summary>HttpClient가 아니라 WebClient를 쓰는 이유와 캐시를 끄는 이유는
+    /// WYNLAB.BaseForm의 HttpFileSync.CreateClient 주석 참고(같은 판단).</summary>
+    private static System.Net.WebClient CreateWebClient()
+    {
+        var client = new System.Net.WebClient
+        {
+            CachePolicy = new System.Net.Cache.RequestCachePolicy(System.Net.Cache.RequestCacheLevel.NoCacheNoStore)
+        };
+        client.Headers.Add("Cache-Control", "no-cache");
+        return client;
     }
 
     /// <summary>최선노력 로그 - 실패해도(디스크 접근 불가 등) 절대 위로 예외를 던지지 않는다.
@@ -145,11 +215,18 @@ public static class CoreAssemblyUpdater
     /// 끊기거나 손상되면 기존에 잘 동작하던 로컬 파일을 절대 건드리지 않기 위함.</summary>
     private static void UpdateFile(string serverDir, string appDir, CoreAssemblyManifestFile file)
     {
-        var sourcePath = Path.Combine(serverDir, file.FileName);
         var targetPath = Path.Combine(appDir, file.FileName);
         var tempPath = targetPath + ".new";
 
-        File.Copy(sourcePath, tempPath, overwrite: true);
+        if (IsHttpUrl(serverDir))
+        {
+            using var client = CreateWebClient();
+            client.DownloadFile(CombineUrl(serverDir, file.FileName), tempPath);
+        }
+        else
+        {
+            File.Copy(Path.Combine(serverDir, file.FileName), tempPath, overwrite: true);
+        }
 
         if (ComputeSha256(tempPath) != file.Sha256)
         {
@@ -157,7 +234,38 @@ public static class CoreAssemblyUpdater
             throw new InvalidOperationException($"{file.FileName} 다운로드 검증 실패(해시 불일치)");
         }
 
-        File.Delete(targetPath);
+        ReplaceTarget(targetPath, tempPath, file.FileName);
+    }
+
+    /// <summary>
+    /// 검증이 끝난 새 파일로 기존 파일을 교체한다. 보통은 삭제 후 이동이면 되지만, 그 dll이
+    /// 이미 이 프로세스에 로드(이미지로 매핑)돼 있으면 File.Delete가 UnauthorizedAccessException으로
+    /// 실패한다 - 사용 중을 뜻하는 IOException이 아니라서 IsFileLocked 사전 체크로도 못 거른다.
+    ///
+    /// 다행히 Windows는 "매핑된 파일 삭제"는 막아도 "이름 변경"은 허용하므로, 삭제가 거부되면
+    /// 기존 파일을 .old로 밀어내고 그 자리에 새 파일을 넣는다. 이렇게 하면 지금 실행 중인
+    /// 프로세스는 이미 메모리에 올라간 예전 코드로 계속 돌지만(그건 어차피 못 바꿈), 최소한
+    /// 디스크에는 최신 파일이 자리잡아서 "다음 실행부터는" 정상 반영된다 - 예전엔 이 경우
+    /// 영영 갱신이 안 돼서 며칠씩 예전 버전에 머물렀다(2026-08-24~25 실제로 겪음).
+    ///
+    /// 애초에 로드되기 전에 교체하는 게 정석이고 그건 Program.Main의 구조로 보장한다(Program.cs
+    /// 주석 참고) - 여기는 그게 어떤 이유로든 깨졌을 때를 위한 안전망이다.
+    /// </summary>
+    private static void ReplaceTarget(string targetPath, string tempPath, string fileName)
+    {
+        try
+        {
+            File.Delete(targetPath);
+        }
+        catch (UnauthorizedAccessException)
+        {
+            var oldPath = targetPath + ".old";
+            try { File.Delete(oldPath); } catch { } // 지난번에 밀어둔 게 남아있으면 정리(실패해도 무시)
+
+            File.Move(targetPath, oldPath);
+            Log($"{fileName}이(가) 이미 로드돼 있어 삭제 대신 .old로 밀어냄 - 다음 실행부터 반영됨");
+        }
+
         File.Move(tempPath, targetPath);
     }
 

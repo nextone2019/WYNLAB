@@ -47,6 +47,15 @@ public class BandedGridViewWyn : BandedGridView
         set => _behavior.HighlightUnsavedCells = value;
     }
 
+    [Category("WYNLAB")]
+    [Description("포커스된 행 전체를 배경색으로 강조합니다(CellSelect 모드에서도 동작).")]
+    [DefaultValue(false)]
+    public bool HighlightFocusedRow
+    {
+        get => _behavior.HighlightFocusedRow;
+        set => _behavior.HighlightFocusedRow = value;
+    }
+
     public void ClearDirtyMarks() => _behavior.ClearDirtyMarks();
 
     public void AddColumnSummary(GridColumn column, SummaryItemType type = SummaryItemType.Sum, string format = "{0:N0}") =>

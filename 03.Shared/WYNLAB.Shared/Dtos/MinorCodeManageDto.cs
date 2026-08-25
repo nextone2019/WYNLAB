@@ -126,7 +126,7 @@ public class CodeLookupItemDto
 
 /// <summary>대분류 조회 응답 - 리스트 + (선택된 대분류의) 소분류 리스트를 한 번에.
 /// Majors/Minors도 컬럼이 아니라 컨테이너라 PascalCase 유지.</summary>
-public class CodeQueryResponse
+public class MinorCodeQueryResponse
 {
     public List<MajorListItemDto> Majors { get; set; } = new();
     public List<MinorItemDto> Minors { get; set; } = new();

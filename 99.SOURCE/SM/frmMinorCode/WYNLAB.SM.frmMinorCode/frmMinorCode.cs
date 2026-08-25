@@ -1,10 +1,11 @@
 using System.ComponentModel;
 using DevExpress.XtraGrid.Views.Base;
+using DevExpress.XtraGrid.Views.Grid;
 using WYNLAB.Base;
 using WYNLAB.Base.Controls;
 using WYNLAB.Shared.Dtos;
 
-namespace WYNLAB.SM.CODE;
+namespace WYNLAB.SM.frmMinorCode;
 
 /// <summary>
 /// 기초코드등록 화면(TSMMAJOR 대분류/TSMMINOR 소분류). grd1에 대분류 리스트, panData에 대분류
@@ -16,7 +17,7 @@ namespace WYNLAB.SM.CODE;
 /// panData에는 대분류의 사용여부(sys_yn)/비고(remark)를 편집할 컨트롤이 아직 없어서, 저장 시
 /// 각각 false/빈 문자열로 고정 전송한다(화면에 해당 입력 UI가 추가되면 그때 실제 값으로 바꾸면 됨).
 /// </summary>
-public partial class CodeListForm : BaseForm
+public partial class frmMinorCode : BaseForm
 {
     private const int RelCount = 10;
 
@@ -33,12 +34,12 @@ public partial class CodeListForm : BaseForm
     private LookUpEditWyn[] CboRelCdType => new[] { cborel_cd_type1, cborel_cd_type2, cborel_cd_type3, cborel_cd_type4, cborel_cd_type5, cborel_cd_type6, cborel_cd_type7, cborel_cd_type8, cborel_cd_type9, cborel_cd_type10};
     private TextEditWyn[] TxtRelCd => new[] { txtrel_cd1, txtrel_cd2, txtrel_cd3, txtrel_cd4, txtrel_cd5, txtrel_cd6, txtrel_cd7, txtrel_cd8, txtrel_cd9, txtrel_cd10 };
 
-    public CodeListForm()
+    public frmMinorCode()
     {
         InitializeComponent();
 
         Text = "기초코드등록";
-        MenuCd = "SM_CODE_BASE";
+        MenuCd = "SM_MINOR_CODE";
 
         gvw1.FocusedRowObjectChanged += Gvw1_FocusedRowObjectChanged;
 
@@ -62,8 +63,8 @@ public partial class CodeListForm : BaseForm
     {
         // panHeader의 검색창(textEditWyn1) 하나로 대분류코드/명을 같이 검색한다("대분류코드/명" 라벨).
         var keyword = txtminor_cd_q.Text.Trim();
-        var query = $"api/codes?majorCd={Uri.EscapeDataString(keyword)}&majorNm={Uri.EscapeDataString(keyword)}&selectedMajorCd={Uri.EscapeDataString(_editingMajorCd ?? string.Empty)}";
-        var result = await ApiClient.GetAsync<CodeQueryResponse>(query) ?? new();
+        var query = $"api/minor-codes?majorCd={Uri.EscapeDataString(keyword)}&majorNm={Uri.EscapeDataString(keyword)}&selectedMajorCd={Uri.EscapeDataString(_editingMajorCd ?? string.Empty)}";
+        var result = await ApiClient.GetAsync<MinorCodeQueryResponse>(query) ?? new();
         _majors = result.Majors;
         _minors = new BindingList<MinorItemDto>(result.Minors);
         grd1.DataSource = _majors;
@@ -167,7 +168,7 @@ public partial class CodeListForm : BaseForm
 
     private async Task LoadMinors(string majorCd)
     {
-        var minors = await ApiClient.GetAsync<List<MinorItemDto>>($"api/codes/{majorCd}/minors") ?? new();
+        var minors = await ApiClient.GetAsync<List<MinorItemDto>>($"api/minor-codes/{majorCd}/minors") ?? new();
         _minors = new BindingList<MinorItemDto>(minors);
         grd2.DataSource = _minors;
     }
@@ -204,8 +205,8 @@ public partial class CodeListForm : BaseForm
 
         var wasNew = _editingMajorCd == null;
         var result = wasNew
-            ? await ApiClient.PostAsync<MajorSaveRequest, ApiResult>("api/codes", request)
-            : await ApiClient.PutAsync<MajorSaveRequest, ApiResult>($"api/codes/{_editingMajorCd}", request);
+            ? await ApiClient.PostAsync<MajorSaveRequest, ApiResult>("api/minor-codes", request)
+            : await ApiClient.PutAsync<MajorSaveRequest, ApiResult>($"api/minor-codes/{_editingMajorCd}", request);
 
         if (result == null || !result.Success)
         {
@@ -218,7 +219,7 @@ public partial class CodeListForm : BaseForm
         gvw2.CloseEditor();
         gvw2.UpdateCurrentRow();
         var minorResult = await ApiClient.PutAsync<SaveMinorsRequest, ApiResult>(
-            $"api/codes/{savedMajorCd}/minors", new SaveMinorsRequest { Items = _minors.ToList() });
+            $"api/minor-codes/{savedMajorCd}/minors", new SaveMinorsRequest { Items = _minors.ToList() });
 
         if (minorResult == null || !minorResult.Success)
         {

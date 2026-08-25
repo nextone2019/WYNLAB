@@ -44,6 +44,7 @@ public static class AppConfig
     /// 서버의 공유폴더/배포경로, 개발은 각 화면 프로젝트의 빌드 후 자동복사 대상 폴더).
     /// appsettings.json에 상대경로(예: "Modules")로 적으면 exe 폴더 기준으로 풀어준다 -
     /// 개발 PC마다 저장소 경로가 다를 수 있어서 절대경로를 하드코딩하지 않기 위함.
+    /// http(s) 주소를 적으면 HTTP 배포 모드로 동작한다(ModuleLoader/HttpFileSync 설명 참고).
     /// </summary>
     public static string ModulesPath
     {
@@ -51,6 +52,11 @@ public static class AppConfig
         {
             var modulesPath = ResolveCurrent().ModulesPath;
             if (string.IsNullOrWhiteSpace(modulesPath)) return string.Empty;
+
+            // URL은 경로 보정 대상이 아니다. Path.IsPathRooted("http://...")는 false를 돌려주기
+            // 때문에, 이 검사가 없으면 URL이 exe 폴더 경로와 합쳐져 "C:\app\http://서버/Modules"
+            // 같은 쓰레기 값이 된다.
+            if (HttpFileSync.IsHttpUrl(modulesPath)) return modulesPath;
 
             return Path.IsPathRooted(modulesPath)
                 ? modulesPath
@@ -217,6 +223,9 @@ public static class AppConfig
         UiTheme.CardBorderColor = ColorHelper.FromHex(theme.CardBorderColor);
         UiTheme.SectionHeaderIconColor = ColorHelper.FromHex(theme.SectionHeaderIconColor);
         UiTheme.SectionHeaderTextColor = ColorHelper.FromHex(theme.SectionHeaderTextColor);
+        UiTheme.GridHeaderBackColor = ColorHelper.FromHex(theme.GridHeaderBackColor);
+        UiTheme.GridHeaderForeColor = ColorHelper.FromHex(theme.GridHeaderForeColor);
+        UiTheme.GridFocusedRowBackColor = ColorHelper.FromHex(theme.GridFocusedRowBackColor);
     }
 
     private class ClientConfig
@@ -285,4 +294,11 @@ public class UiThemeConfig
     /// <summary>SectionHeaderWyn(그리드/패널 상단 아이콘+제목) 아이콘/글자 색상</summary>
     public string SectionHeaderIconColor { get; set; } = "#5A5D64";
     public string SectionHeaderTextColor { get; set; } = "#3C3C3C";
+
+    /// <summary>그리드 컬럼헤더 배경/글자색</summary>
+    public string GridHeaderBackColor { get; set; } = "#F7F8FA";
+    public string GridHeaderForeColor { get; set; } = "#565B62";
+
+    /// <summary>GridViewWyn.HighlightFocusedRow 켰을 때 포커스된 행의 배경색</summary>
+    public string GridFocusedRowBackColor { get; set; } = "#FDF3E1";
 }

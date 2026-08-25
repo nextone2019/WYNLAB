@@ -22,6 +22,15 @@ public static class AssetSyncer
         try
         {
             var serverPath = AppConfig.AssetsPath;
+
+            // http(s) 주소면 manifest.json 기반으로 받아온다(HttpFileSync 설명 참고).
+            // UNC 공유폴더 방식은 아래 기존 경로 그대로 - 설정값만 바꾸면 양쪽을 오갈 수 있다.
+            if (HttpFileSync.IsHttpUrl(serverPath))
+            {
+                if (HttpFileSync.SyncToCache(serverPath, IconAssetProvider.AssetsFolder)) IconAssetProvider.ClearCache();
+                return;
+            }
+
             if (string.IsNullOrWhiteSpace(serverPath) || !Directory.Exists(serverPath)) return;
 
             Directory.CreateDirectory(IconAssetProvider.AssetsFolder);

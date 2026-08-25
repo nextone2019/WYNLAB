@@ -93,11 +93,19 @@ public class ShellForm : XtraForm
     private readonly ToolTip toolbarToolTip = new();
 
     /// <summary>
+    /// 제품 기본 테마. Program.cs가 앱 시작 시 이 값으로 스킨을 지정하고, 아래 테마 콤보의
+    /// 초기 선택값도 결국 이 값이 된다 - 두 군데에 문자열을 따로 적어두면 한쪽만 바꾸고
+    /// 다른 쪽을 깜빡하기 쉬워서 한 곳에서만 정의한다.
+    /// </summary>
+    public const string DefaultSkin = "DevExpress Style";
+
+    /// <summary>
     /// 사용자가 고를 수 있는 테마 목록. DevExpress에는 스킨이 수십 개 있어 전부 나열하면
     /// 오래되거나 브랜드와 안 어울리는 것도 섞여 들어가므로, 최근/모던한 스킨만 선별했다.
     /// </summary>
     private static readonly string[] AvailableSkins =
     {
+        DefaultSkin,
         "Office 2019 Colorful", "Office 2019 Black", "Office 2019 Dark Gray", "Office 2019 White",
         "Visual Studio 2019 Blue", "Visual Studio 2019 Dark", "WXI", "Basic"
     };
@@ -484,6 +492,12 @@ public class ShellForm : XtraForm
         cboSkin.SelectedItem = DevExpress.LookAndFeel.UserLookAndFeel.Default.ActiveSkinName;
         cboSkin.SelectedIndexChanged += (s, e) =>
             DevExpress.LookAndFeel.UserLookAndFeel.Default.SetSkinStyle((string)cboSkin.SelectedItem!);
+
+        // 테마 변경을 일단 막아둔다 - 제품 기본 테마(DefaultSkin)를 기준으로 화면별 색상과
+        // 여백을 맞춰가는 중이라, 사용자가 다른 스킨으로 바꾸면 아직 검증 안 된 조합이 나온다.
+        // 기능 자체는 그대로 살려두고 입력만 막아서(숨기지 않음), 디자인이 확정되면 이 줄만
+        // 지우면 바로 다시 쓸 수 있다.
+        cboSkin.Enabled = false;
 
         // Dock 추가 순서: skinRow(아래쪽 항목) 먼저, envRow(위쪽 항목) 나중에 -
         // 나중에 추가된 Top이 우선권을 가지므로 이렇게 해야 화면상 envRow가 위, skinRow가 아래로 온다.

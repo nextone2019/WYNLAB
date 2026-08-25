@@ -28,4 +28,12 @@ public static class UiTheme
     /// <summary>SectionHeaderWyn(그리드/패널 상단 아이콘+제목) 아이콘/글자 색상.</summary>
     public static Color SectionHeaderIconColor { get; set; } = ColorHelper.FromHex("#5A5D64");
     public static Color SectionHeaderTextColor { get; set; } = ColorHelper.FromHex("#3C3C3C");
+
+    /// <summary>그리드 컬럼헤더 배경/글자색 - 지정 안 하면 DevExpress 스킨 기본값(Tahoma 계열
+    /// 회색조)이 그대로 쓰여서 좌측 메뉴트리(AppFonts 적용)와 톤이 미묘하게 어긋나 보인다.</summary>
+    public static Color GridHeaderBackColor { get; set; } = ColorHelper.FromHex("#F7F8FA");
+    public static Color GridHeaderForeColor { get; set; } = ColorHelper.FromHex("#565B62");
+
+    /// <summary>GridViewWyn.HighlightFocusedRow 켰을 때 포커스된 행의 배경색.</summary>
+    public static Color GridFocusedRowBackColor { get; set; } = ColorHelper.FromHex("#FDF3E1");
 }

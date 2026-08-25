@@ -50,13 +50,37 @@ public static class ModuleLoader
     private static readonly Dictionary<string, Assembly> LoadedAssemblies = new(System.StringComparer.OrdinalIgnoreCase);
     private static readonly Dictionary<string, System.DateTime> LoadedWriteTimesUtc = new(System.StringComparer.OrdinalIgnoreCase);
     private static bool _resolverAttached;
+
+    /// <summary>실제로 dll을 읽어들이는 폴더. HTTP 모드에서는 서버가 아니라 로컬 캐시 폴더를 가리킨다.</summary>
     private static string? _folderPath;
 
-    /// <summary>앱 시작 시 한 번만 호출 - 폴더 위치를 기억해두고 AssemblyResolve를 걸어둘 뿐,
-    /// 이 시점엔 아무 DLL도 로드하지 않는다(로드는 EnsureLoaded가 메뉴를 열 때마다 한다).</summary>
-    public static void Initialize(string? folderPath)
+    /// <summary>HTTP 모드일 때만 값이 있다(예: "http://서버:8091/Modules"). null이면 예전 방식(UNC/로컬 폴더).</summary>
+    private static string? _serverUrl;
+
+    /// <summary>
+    /// 앱 시작 시 한 번만 호출 - 폴더 위치를 기억해두고 AssemblyResolve를 걸어둘 뿐,
+    /// 이 시점엔 아무 DLL도 로드하지 않는다(로드는 EnsureLoaded가 메뉴를 열 때마다 한다).
+    ///
+    /// folderPathOrUrl이 http(s) 주소면 HTTP 배포 모드로 동작한다 - 서버에서 직접 읽는 대신
+    /// 로컬 캐시 폴더(%LocalAppData%\WYNLAB\Modules)에 내려받아 두고 그 폴더를 읽는다.
+    /// 이렇게 하면 아래 TryLoad의 로직(재귀 탐색, 변경 감지, Assembly.Load(byte[]) 재로드)이
+    /// 두 방식에서 완전히 동일하게 동작한다 - HTTP 전환 때문에 그 까다로운 부분을 건드릴
+    /// 필요가 없다는 게 이 설계의 핵심이다.
+    /// </summary>
+    public static void Initialize(string? folderPathOrUrl)
     {
-        _folderPath = folderPath;
+        if (HttpFileSync.IsHttpUrl(folderPathOrUrl))
+        {
+            _serverUrl = folderPathOrUrl;
+            _folderPath = Path.Combine(
+                Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "WYNLAB", "Modules");
+            Directory.CreateDirectory(_folderPath);
+        }
+        else
+        {
+            _serverUrl = null;
+            _folderPath = folderPathOrUrl;
+        }
 
         if (!_resolverAttached)
         {
@@ -73,7 +97,17 @@ public static class ModuleLoader
     /// 설명의 CLR 캐싱 함정 참고). ShellForm.OpenMenuForm이 메뉴를 열 때마다,
     /// TSMMENU.FORM_CLASS_NM에서 뽑아낸 어셈블리명으로 호출한다.
     /// </summary>
-    public static Assembly? EnsureLoaded(string assemblyName) => TryLoad(assemblyName);
+    public static Assembly? EnsureLoaded(string assemblyName)
+    {
+        // HTTP 모드면 여기서 캐시를 서버와 맞춘다. 메뉴를 열 때마다 확인하는 건 UNC 시절에
+        // TryLoad가 파일 시각을 매번 확인하던 것과 같은 동작이다 - 재배포 직후 앱을 다시
+        // 켜지 않아도 메뉴만 다시 열면 최신 화면이 뜨는 특성을 그대로 유지하기 위함.
+        // (아래 OnAssemblyResolve는 일부러 동기화하지 않는다 - 그건 지금 로드 중인 화면의
+        //  의존성을 찾는 호출이라, 방금 맞춘 캐시 상태를 그대로 써야 일관성이 맞다.)
+        if (_serverUrl != null && _folderPath != null) HttpFileSync.SyncToCache(_serverUrl, _folderPath);
+
+        return TryLoad(assemblyName);
+    }
 
     /// <summary>
     /// 화면 dll이 요청한 이름을 못 찾을 때(기본 로드 컨텍스트/이미 등록된 LoadedAssemblies

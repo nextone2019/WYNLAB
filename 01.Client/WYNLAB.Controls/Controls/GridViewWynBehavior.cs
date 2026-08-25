@@ -25,10 +25,25 @@ internal sealed class GridViewWynBehavior
     public bool ShowRowNumbers { get; set; }
     public string EmptyText { get; set; } = "조회된 데이터가 없습니다.";
     public bool HighlightUnsavedCells { get; set; }
+    public bool HighlightFocusedRow { get; set; }
 
     public GridViewWynBehavior(GridView view)
     {
         _view = view;
+
+        // 그리드 컬럼헤더/행 글꼴을 명시하지 않으면 DevExpress 스킨이 정한 기본 글꼴(Tahoma
+        // 계열)이 그대로 쓰이는데, 좌측 메뉴트리는 AppFonts(맑은 고딕)를 명시적으로
+        // 쓰고 있어서 화면 안에서 메뉴와 그리드의 글꼴이 서로 다르게 보였다(실제로 겪음) -
+        // 두 글꼴 다 9pt라 크기는 같지만 서체가 달라 눈에 띄었다. 메뉴와 통일하도록 맞춘다.
+        _view.Appearance.HeaderPanel.Font = AppFonts.Body;
+        _view.Appearance.Row.Font = AppFonts.Body;
+
+        // 헤더행도 데이터행과 완전히 같은 흰 배경이면 구분이 안 돼서 밋밋해 보이고, 반대로
+        // 스킨 기본 헤더색은 카드/그리드 톤과 안 어울렸다 - 아주 옅은 회색으로 살짝만 구분한다.
+        _view.Appearance.HeaderPanel.BackColor = UiTheme.GridHeaderBackColor;
+        _view.Appearance.HeaderPanel.Options.UseBackColor = true;
+        _view.Appearance.HeaderPanel.ForeColor = UiTheme.GridHeaderForeColor;
+        _view.Appearance.HeaderPanel.Options.UseForeColor = true;
 
         _view.OptionsClipboard.AllowCopy = DefaultBoolean.True;
         _view.OptionsClipboard.PasteMode = PasteMode.Append;
@@ -109,11 +124,23 @@ internal sealed class GridViewWynBehavior
 
     private void OnRowCellStyle(object? sender, RowCellStyleEventArgs e)
     {
-        if (!HighlightUnsavedCells) return;
-        if (!_dirtyCells.Contains((e.RowHandle, e.Column.FieldName))) return;
+        // 미저장 강조가 우선한다 - 포커스행이면서 동시에 수정된 셀이라면, "아직 저장 안 됨"이
+        // "지금 포커스된 행"보다 사용자가 더 먼저 알아야 하는 정보라서.
+        if (HighlightUnsavedCells && _dirtyCells.Contains((e.RowHandle, e.Column.FieldName)))
+        {
+            e.Appearance.BackColor = UiTheme.RequiredFieldBackColor;
+            e.Appearance.Options.UseBackColor = true;
+            return;
+        }
 
-        e.Appearance.BackColor = UiTheme.RequiredFieldBackColor;
-        e.Appearance.Options.UseBackColor = true;
+        // CellSelect 모드(기본값)에서는 DevExpress의 EnableAppearanceFocusedRow가 셀 하나에만
+        // 적용되고 행 전체엔 안 먹는다(frmMinorCode에서 직접 확인된 문제 - 화면 캡처로 확인).
+        // 그래서 선택 모드와 무관하게 확실히 먹는 RowCellStyle 방식으로 행 전체를 칠한다.
+        if (HighlightFocusedRow && e.RowHandle == _view.FocusedRowHandle)
+        {
+            e.Appearance.BackColor = UiTheme.GridFocusedRowBackColor;
+            e.Appearance.Options.UseBackColor = true;
+        }
     }
 
     /// <summary>저장 성공 후 호출 - 수정 강조 표시를 전부 지운다.</summary>
