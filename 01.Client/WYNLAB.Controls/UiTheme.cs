@@ -36,4 +36,10 @@ public static class UiTheme
 
     /// <summary>GridViewWyn.HighlightFocusedRow 켰을 때 포커스된 행의 배경색.</summary>
     public static Color GridFocusedRowBackColor { get; set; } = ColorHelper.FromHex("#FDF3E1");
+
+    /// <summary>드래그로 폭을 조절하는 스플리터 바(SplitterWyn)의 배경색. 기본은 카드 배경과
+    /// 같은 흰색이라 눈에 띄지 않는다 - 좌우 패널이 각자 카드 테두리를 갖고 있어서 스플리터까지
+    /// 색을 입히면 경계선이 두 겹으로 보여 두껍고 부자연스럽다. 구분선을 굳이 보이게 하고 싶으면
+    /// 이 값을 DividerColor(#E4E5E8)로 바꾸면 된다.</summary>
+    public static Color SplitterBackColor { get; set; } = ColorHelper.FromHex("#FFFFFF");
 }

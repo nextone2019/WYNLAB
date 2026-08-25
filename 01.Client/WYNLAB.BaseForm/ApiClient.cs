@@ -54,6 +54,16 @@ public static class ApiClient
         response.EnsureSuccessStatusCode();
     }
 
+    /// <summary>응답 본문(보통 ApiResult)까지 받아오는 삭제 - 저장프로시저가 "참조 중이라 삭제
+    /// 불가" 같은 사유를 ReturnMsg로 돌려주는 화면에서 쓴다. 위의 반환값 없는 버전으로는 그
+    /// 사유를 화면에 보여줄 방법이 없다.</summary>
+    public static async Task<TResponse?> DeleteAsync<TResponse>(string url)
+    {
+        var response = await _http.DeleteAsync(url);
+        response.EnsureSuccessStatusCode();
+        return await response.Content.ReadFromJsonAsync<TResponse>();
+    }
+
     public static void SetAuthToken(string accessToken) =>
         _http.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", accessToken);
 }

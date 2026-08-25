@@ -174,15 +174,95 @@ public class BaseForm : XtraForm
 
     private Panel? _busyOverlay;
     private SpinnerControl? _busySpinner;
+    private System.Windows.Forms.Timer? _busyDelayTimer;
+    private int _busyDepth;
 
     /// <summary>
-    /// 화면 내용(그리드/입력영역) 위에 반투명하게 덮이는 오버레이 + 회전 스피너를 띄운다.
+    /// 오버레이를 띄우기 전에 기다리는 시간. 사내망에서 조회는 보통 100ms도 안 걸리는데,
+    /// 그때마다 불투명 오버레이가 화면을 덮었다 걷히면 "로딩 표시"가 아니라 폼 전체가
+    /// 번쩍이는 것으로 보인다(실제로 겪음 - 기초코드등록 조회). 이 시간 안에 끝나는 작업은
+    /// 오버레이를 아예 띄우지 않아서 깜빡임이 없고, 그보다 오래 걸리는 작업에만 떠서
+    /// 원래 의도(작업 중임을 확실히 알리기)를 그대로 살린다.
+    /// </summary>
+    private const int BusyDelayMs = 300;
+
+    /// <summary>
+    /// 화면 내용(그리드/입력영역) 위에 덮이는 오버레이 + 회전 스피너를 띄운다. 단, 곧바로
+    /// 띄우지 않고 BusyDelayMs만큼 기다렸다가 띄운다(그 설명 참고).
     /// 예전엔 이 자리에서 전체 창 커서를 Cursors.WaitCursor로 바꿔서 "로딩 중"을 표시했는데,
     /// 커서 모양 변화만으로는 눈에 잘 안 띈다는 피드백에 따라 실제로 화면에 보이는 오버레이로
     /// 바꿨다. Shell 상단 툴바(ShellForm.AddIconBadgeButton)와 SafeExecute/SafeExecuteAsync
     /// 양쪽에서 공통으로 호출한다.
+    ///
+    /// 중첩 호출(예: 툴바가 ShowBusy를 부르고 그 안의 로직이 SafeExecuteAsync로 또 부르는 경우)에
+    /// 대비해 깊이를 센다 - 안쪽 작업이 끝났다고 바깥 작업이 아직인데 오버레이가 걷히면 안 된다.
     /// </summary>
     public void ShowBusy()
+    {
+        _busyDepth++;
+        if (_busyDepth > 1) return; // 이미 대기 중이거나 표시 중
+
+        _busyForm = this;
+        StartBusyTimer();
+    }
+
+    public void HideBusy()
+    {
+        if (_busyDepth > 0) _busyDepth--;
+        if (_busyDepth > 0) return; // 바깥 작업이 아직 진행 중
+
+        _busyDelayTimer?.Stop(); // 아직 안 떴으면 영영 안 뜨게 - 이게 깜빡임을 없애는 핵심
+        if (_busyOverlay != null) _busyOverlay.Visible = false;
+        if (ReferenceEquals(_busyForm, this)) _busyForm = null;
+    }
+
+    private void StartBusyTimer()
+    {
+        if (_busyDelayTimer == null)
+        {
+            _busyDelayTimer = new System.Windows.Forms.Timer { Interval = BusyDelayMs };
+            _busyDelayTimer.Tick += (s, e) =>
+            {
+                _busyDelayTimer!.Stop();
+                ShowBusyOverlayNow();
+            };
+        }
+
+        _busyDelayTimer.Start();
+    }
+
+    /// <summary>지금 오버레이를 띄웠거나 띄우려고 대기 중인 폼. 모달 대화상자가 뜨는 동안
+    /// 그 폼의 오버레이를 잠시 걷기 위해 정적으로 들고 있는다(SuspendBusyForModal 참고).</summary>
+    private static BaseForm? _busyForm;
+
+    /// <summary>
+    /// 모달 대화상자(AppMessageBox 등)가 뜨는 동안 busy 오버레이를 잠시 걷는다.
+    ///
+    /// 툴바(ShellForm.AddIconBadgeButton)는 액션 전체를 ShowBusy/HideBusy로 감싸는데, 그 액션이
+    /// 중간에 "삭제하시겠습니까?" 같은 확인창을 띄우면 사용자가 답할 때까지 계속 "작업 중"
+    /// 상태다. 그러면 지연 시간이 지나 오버레이가 올라와서, 확인창 뒤 화면이 통째로 회색으로
+    /// 덮여버린다(실제로 겪음 - 대분류 삭제 확인창). 사용자를 기다리는 시간은 작업 중이 아니므로
+    /// 그동안은 걷어두고, 대화상자가 닫힌 뒤 실제 작업이 이어질 때 다시 지연 타이머를 건다.
+    /// </summary>
+    internal static void SuspendBusyForModal()
+    {
+        var form = _busyForm;
+        if (form == null) return;
+
+        form._busyDelayTimer?.Stop();
+        if (form._busyOverlay != null) form._busyOverlay.Visible = false;
+    }
+
+    /// <summary>모달이 닫힌 뒤 호출 - 아직 작업이 끝나지 않았다면 지연 타이머를 처음부터 다시 건다.</summary>
+    internal static void ResumeBusyAfterModal()
+    {
+        var form = _busyForm;
+        if (form == null || form._busyDepth <= 0 || form.IsDisposed) return;
+
+        form.StartBusyTimer();
+    }
+
+    private void ShowBusyOverlayNow()
     {
         if (_busyOverlay == null)
         {
@@ -198,14 +278,20 @@ public class BaseForm : XtraForm
         _busyOverlay.BringToFront();
     }
 
-    public void HideBusy()
-    {
-        if (_busyOverlay != null) _busyOverlay.Visible = false;
-    }
-
     private void CenterBusySpinner()
     {
         if (_busyOverlay == null || _busySpinner == null) return;
         _busySpinner.Location = new Point((_busyOverlay.Width - _busySpinner.Width) / 2, (_busyOverlay.Height - _busySpinner.Height) / 2);
+    }
+
+    protected override void Dispose(bool disposing)
+    {
+        if (disposing)
+        {
+            // 폼에 Controls로 붙지 않은 컴포넌트라 자동으로 정리되지 않는다 - 직접 끊어준다.
+            _busyDelayTimer?.Stop();
+            _busyDelayTimer?.Dispose();
+        }
+        base.Dispose(disposing);
     }
 }

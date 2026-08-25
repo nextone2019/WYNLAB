@@ -15,6 +15,14 @@ public enum SectionHeaderIcon
     Document
 }
 
+/// <summary>SectionHeaderWyn 안에서 아이콘과 제목을 세로 어디에 붙일지.</summary>
+public enum SectionHeaderContentAlign
+{
+    Top,
+    Middle,
+    Bottom
+}
+
 /// <summary>
 /// 그리드/패널 상단에 "아이콘 + 제목"으로 이 영역이 뭔지 짧게 알려주는 헤더 스트립.
 /// DevExpress를 상속하지 않은 순정 Control이라 가볍고, 아이콘은 두 가지 방식을 지원한다:
@@ -28,7 +36,12 @@ public class SectionHeaderWyn : Control
     private const int IconSize = 16;
     private const int Gap = 6;
 
+    /// <summary>Bottom 정렬일 때 아래 테두리에 완전히 딱 붙지 않도록 남기는 여백. 0으로 두면
+    /// 헤더 바로 아래에 오는 그리드/카드 경계선과 글자가 붙어버려 답답해 보인다.</summary>
+    private const int BottomInset = 2;
+
     private SectionHeaderIcon _icon = SectionHeaderIcon.Grid;
+    private SectionHeaderContentAlign _contentAlign = SectionHeaderContentAlign.Bottom;
     private SvgImage? _svgIcon;
     private Image? _renderedSvgIcon;
 
@@ -48,6 +61,18 @@ public class SectionHeaderWyn : Control
     {
         get => _icon;
         set { _icon = value; Invalidate(); }
+    }
+
+    /// <summary>아이콘과 제목을 세로 어디에 붙일지. 기본은 Bottom - 이 헤더는 바로 아래 오는
+    /// 그리드/패널을 가리키는 라벨이라, 아래쪽에 붙어야 무엇을 설명하는지가 시각적으로 이어진다.
+    /// 아이콘과 글자가 같은 바닥선을 공유하도록 그려서 둘의 높이가 달라도 어긋나 보이지 않는다.</summary>
+    [Category("WYNLAB")]
+    [Description("아이콘과 제목의 세로 정렬 위치.")]
+    [DefaultValue(SectionHeaderContentAlign.Bottom)]
+    public SectionHeaderContentAlign ContentAlign
+    {
+        get => _contentAlign;
+        set { _contentAlign = value; Invalidate(); }
     }
 
     /// <summary>DevExpress 이미지 라이브러리에서 고른 실제 아이콘. 속성창에서 이 속성의 "..." 버튼을
@@ -79,7 +104,7 @@ public class SectionHeaderWyn : Control
 
     protected override void OnPaint(PaintEventArgs e)
     {
-        var iconRect = new Rectangle(0, (Height - IconSize) / 2, IconSize, IconSize);
+        var iconRect = new Rectangle(0, IconTop(), IconSize, IconSize);
 
         if (_svgIcon != null)
         {
@@ -97,10 +122,31 @@ public class SectionHeaderWyn : Control
             painter(e.Graphics, iconRect, UiTheme.SectionHeaderIconColor);
         }
 
-        var textRect = new Rectangle(iconRect.Right + Gap, 0, Math.Max(0, Width - iconRect.Right - Gap), Height);
+        // 글자도 아이콘과 같은 영역을 기준으로 정렬해야 둘의 바닥선이 맞는다 - Bottom일 때
+        // 글자 상자만 컨트롤 전체 높이(Height)를 쓰면 아이콘보다 BottomInset만큼 더 내려간다.
+        var textRect = new Rectangle(
+            iconRect.Right + Gap,
+            0,
+            Math.Max(0, Width - iconRect.Right - Gap),
+            _contentAlign == SectionHeaderContentAlign.Bottom ? Math.Max(0, Height - BottomInset) : Height);
+
         TextRenderer.DrawText(e.Graphics, Text, Font, textRect, UiTheme.SectionHeaderTextColor,
-            TextFormatFlags.VerticalCenter | TextFormatFlags.Left | TextFormatFlags.EndEllipsis);
+            TextVerticalFlag() | TextFormatFlags.Left | TextFormatFlags.EndEllipsis);
     }
+
+    private int IconTop() => _contentAlign switch
+    {
+        SectionHeaderContentAlign.Top => 0,
+        SectionHeaderContentAlign.Bottom => Math.Max(0, Height - IconSize - BottomInset),
+        _ => (Height - IconSize) / 2
+    };
+
+    private TextFormatFlags TextVerticalFlag() => _contentAlign switch
+    {
+        SectionHeaderContentAlign.Top => TextFormatFlags.Top,
+        SectionHeaderContentAlign.Bottom => TextFormatFlags.Bottom,
+        _ => TextFormatFlags.VerticalCenter
+    };
 
     protected override void Dispose(bool disposing)
     {

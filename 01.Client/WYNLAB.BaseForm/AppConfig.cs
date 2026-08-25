@@ -226,6 +226,7 @@ public static class AppConfig
         UiTheme.GridHeaderBackColor = ColorHelper.FromHex(theme.GridHeaderBackColor);
         UiTheme.GridHeaderForeColor = ColorHelper.FromHex(theme.GridHeaderForeColor);
         UiTheme.GridFocusedRowBackColor = ColorHelper.FromHex(theme.GridFocusedRowBackColor);
+        UiTheme.SplitterBackColor = ColorHelper.FromHex(theme.SplitterBackColor);
     }
 
     private class ClientConfig
@@ -301,4 +302,7 @@ public class UiThemeConfig
 
     /// <summary>GridViewWyn.HighlightFocusedRow 켰을 때 포커스된 행의 배경색</summary>
     public string GridFocusedRowBackColor { get; set; } = "#FDF3E1";
+
+    /// <summary>스플리터 바(SplitterWyn) 배경색 - 기본은 눈에 안 띄게 카드 배경과 같은 흰색</summary>
+    public string SplitterBackColor { get; set; } = "#FFFFFF";
 }

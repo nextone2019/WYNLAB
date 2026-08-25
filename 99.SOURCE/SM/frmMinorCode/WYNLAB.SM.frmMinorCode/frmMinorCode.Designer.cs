@@ -37,7 +37,6 @@ public partial class frmMinorCode
             this.gridColumn1 = new DevExpress.XtraGrid.Columns.GridColumn();
             this.gridColumn2 = new DevExpress.XtraGrid.Columns.GridColumn();
             this.panelWyn2 = new WYNLAB.Base.Controls.PanelWyn();
-            this.panelWyn8 = new WYNLAB.Base.Controls.PanelWyn();
             this.sectionHeaderWyn4 = new WYNLAB.Base.Controls.SectionHeaderWyn();
             this.splitterWyn1 = new WYNLAB.Base.Controls.SplitterWyn();
             this.panelWyn4 = new WYNLAB.Base.Controls.PanelWyn();
@@ -47,12 +46,13 @@ public partial class frmMinorCode
             this.gridColumn4 = new DevExpress.XtraGrid.Columns.GridColumn();
             this.gridColumn5 = new DevExpress.XtraGrid.Columns.GridColumn();
             this.gridColumn6 = new DevExpress.XtraGrid.Columns.GridColumn();
+            this.repositoryItemCheckEdit1 = new DevExpress.XtraEditors.Repository.RepositoryItemCheckEdit();
             this.gridColumn7 = new DevExpress.XtraGrid.Columns.GridColumn();
             this.panelWyn1 = new WYNLAB.Base.Controls.PanelWyn();
-            this.sectionHeaderWyn2 = new WYNLAB.Base.Controls.SectionHeaderWyn();
             this.panelWyn7 = new WYNLAB.Base.Controls.PanelWyn();
             this.btnDeletRow2 = new DevExpress.XtraEditors.SimpleButton();
             this.btnAddRow2 = new DevExpress.XtraEditors.SimpleButton();
+            this.sectionHeaderWyn2 = new WYNLAB.Base.Controls.SectionHeaderWyn();
             this.panelWyn5 = new WYNLAB.Base.Controls.PanelWyn();
             this.panData = new WYNLAB.Base.Controls.PanelWyn();
             this.cborel_cd_type10 = new WYNLAB.Base.Controls.LookUpEditWyn();
@@ -114,11 +114,11 @@ public partial class frmMinorCode
             ((System.ComponentModel.ISupportInitialize)(this.gvw1)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.panelWyn2)).BeginInit();
             this.panelWyn2.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.panelWyn8)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.panelWyn4)).BeginInit();
             this.panelWyn4.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.grd2)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.gvw2)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.repositoryItemCheckEdit1)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.panelWyn1)).BeginInit();
             this.panelWyn1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.panelWyn7)).BeginInit();
@@ -199,10 +199,10 @@ public partial class frmMinorCode
             // grd1
             // 
             this.grd1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.grd1.Location = new System.Drawing.Point(0, 24);
+            this.grd1.Location = new System.Drawing.Point(0, 27);
             this.grd1.MainView = this.gvw1;
             this.grd1.Name = "grd1";
-            this.grd1.Size = new System.Drawing.Size(382, 491);
+            this.grd1.Size = new System.Drawing.Size(382, 488);
             this.grd1.TabIndex = 10;
             this.grd1.ViewCollection.AddRange(new DevExpress.XtraGrid.Views.Base.BaseView[] {
             this.gvw1});
@@ -216,15 +216,19 @@ public partial class frmMinorCode
             this.gvw1.HighlightFocusedRow = true;
             this.gvw1.Name = "gvw1";
             this.gvw1.OptionsSelection.InvertSelection = true;
+            this.gvw1.OptionsView.ColumnAutoWidth = false;
             this.gvw1.OptionsView.ShowGroupPanel = false;
             // 
             // gridColumn1
             // 
+            this.gridColumn1.AppearanceCell.Options.UseTextOptions = true;
+            this.gridColumn1.AppearanceCell.TextOptions.HAlignment = DevExpress.Utils.HorzAlignment.Center;
             this.gridColumn1.Caption = "대분류코드";
             this.gridColumn1.FieldName = "major_cd";
             this.gridColumn1.Name = "gridColumn1";
             this.gridColumn1.Visible = true;
             this.gridColumn1.VisibleIndex = 0;
+            this.gridColumn1.Width = 88;
             // 
             // gridColumn2
             // 
@@ -233,52 +237,39 @@ public partial class frmMinorCode
             this.gridColumn2.Name = "gridColumn2";
             this.gridColumn2.Visible = true;
             this.gridColumn2.VisibleIndex = 1;
+            this.gridColumn2.Width = 258;
             // 
             // panelWyn2
             // 
-            this.panelWyn2.Controls.Add(this.panelWyn8);
             this.panelWyn2.Controls.Add(this.sectionHeaderWyn4);
             this.panelWyn2.Dock = System.Windows.Forms.DockStyle.Top;
             this.panelWyn2.EdgeLineColor = System.Drawing.Color.FromArgb(((int)(((byte)(228)))), ((int)(((byte)(229)))), ((int)(((byte)(232)))));
             this.panelWyn2.Location = new System.Drawing.Point(0, 0);
             this.panelWyn2.Name = "panelWyn2";
-            this.panelWyn2.Padding = new System.Windows.Forms.Padding(0, 0, 0, 2);
-            this.panelWyn2.Size = new System.Drawing.Size(382, 24);
+            this.panelWyn2.Padding = new System.Windows.Forms.Padding(5, 0, 0, 2);
+            this.panelWyn2.Size = new System.Drawing.Size(382, 27);
             this.panelWyn2.TabIndex = 11;
-            // 
-            // panelWyn8
-            // 
-            this.panelWyn8.Appearance.BackColor = System.Drawing.Color.Silver;
-            this.panelWyn8.Appearance.Options.UseBackColor = true;
-            this.panelWyn8.BorderStyle = DevExpress.XtraEditors.Controls.BorderStyles.Simple;
-            this.panelWyn8.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.panelWyn8.EdgeLineColor = System.Drawing.Color.FromArgb(((int)(((byte)(228)))), ((int)(((byte)(229)))), ((int)(((byte)(232)))));
-            this.panelWyn8.Location = new System.Drawing.Point(359, 21);
-            this.panelWyn8.Name = "panelWyn8";
-            this.panelWyn8.Size = new System.Drawing.Size(23, 1);
-            this.panelWyn8.TabIndex = 6;
             // 
             // sectionHeaderWyn4
             // 
             this.sectionHeaderWyn4.BackColor = System.Drawing.Color.White;
-            this.sectionHeaderWyn4.Dock = System.Windows.Forms.DockStyle.Left;
-            this.sectionHeaderWyn4.Font = new System.Drawing.Font("맑은 고딕", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
+            this.sectionHeaderWyn4.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.sectionHeaderWyn4.Font = new System.Drawing.Font("맑은 고딕", 9F, ((System.Drawing.FontStyle)((System.Drawing.FontStyle.Bold | System.Drawing.FontStyle.Underline))), System.Drawing.GraphicsUnit.Point, ((byte)(129)));
             this.sectionHeaderWyn4.Icon = WYNLAB.Base.Controls.SectionHeaderIcon.Folder;
-            this.sectionHeaderWyn4.Location = new System.Drawing.Point(0, 0);
+            this.sectionHeaderWyn4.Location = new System.Drawing.Point(5, 0);
             this.sectionHeaderWyn4.Name = "sectionHeaderWyn4";
-            this.sectionHeaderWyn4.Size = new System.Drawing.Size(359, 22);
+            this.sectionHeaderWyn4.Size = new System.Drawing.Size(377, 25);
             this.sectionHeaderWyn4.SvgIcon = ((DevExpress.Utils.Svg.SvgImage)(resources.GetObject("sectionHeaderWyn4.SvgIcon")));
             this.sectionHeaderWyn4.TabIndex = 8;
             this.sectionHeaderWyn4.Text = "대분류 LIST";
             // 
             // splitterWyn1
             // 
-            this.splitterWyn1.Appearance.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(228)))), ((int)(((byte)(229)))), ((int)(((byte)(232)))));
-            this.splitterWyn1.Appearance.Options.UseBackColor = true;
+            // 배경색/폭은 SplitterWyn 생성자가 정한 값을 그대로 쓴다 - 여기서 회색(228,229,232)과
+            // 폭 10을 다시 지정하고 있어서 굵은 회색 띠로 보였다(SplitterWyn 클래스 설명 참고).
             this.splitterWyn1.Dock = System.Windows.Forms.DockStyle.Right;
-            this.splitterWyn1.Location = new System.Drawing.Point(382, 0);
+            this.splitterWyn1.Location = new System.Drawing.Point(386, 0);
             this.splitterWyn1.Name = "splitterWyn1";
-            this.splitterWyn1.Size = new System.Drawing.Size(10, 515);
             this.splitterWyn1.TabIndex = 9;
             this.splitterWyn1.TabStop = false;
             // 
@@ -298,10 +289,12 @@ public partial class frmMinorCode
             // grd2
             // 
             this.grd2.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.grd2.Location = new System.Drawing.Point(3, 242);
+            this.grd2.Location = new System.Drawing.Point(3, 245);
             this.grd2.MainView = this.gvw2;
             this.grd2.Name = "grd2";
-            this.grd2.Size = new System.Drawing.Size(764, 273);
+            this.grd2.RepositoryItems.AddRange(new DevExpress.XtraEditors.Repository.RepositoryItem[] {
+            this.repositoryItemCheckEdit1});
+            this.grd2.Size = new System.Drawing.Size(764, 270);
             this.grd2.TabIndex = 7;
             this.grd2.ViewCollection.AddRange(new DevExpress.XtraGrid.Views.Base.BaseView[] {
             this.gvw2});
@@ -317,15 +310,19 @@ public partial class frmMinorCode
             this.gvw2.GridControl = this.grd2;
             this.gvw2.HighlightFocusedRow = true;
             this.gvw2.Name = "gvw2";
+            this.gvw2.OptionsView.ColumnAutoWidth = false;
             this.gvw2.OptionsView.ShowGroupPanel = false;
             // 
             // gridColumn3
             // 
+            this.gridColumn3.AppearanceCell.Options.UseTextOptions = true;
+            this.gridColumn3.AppearanceCell.TextOptions.HAlignment = DevExpress.Utils.HorzAlignment.Center;
             this.gridColumn3.Caption = "소분류코드";
             this.gridColumn3.FieldName = "minor_cd";
             this.gridColumn3.Name = "gridColumn3";
             this.gridColumn3.Visible = true;
             this.gridColumn3.VisibleIndex = 0;
+            this.gridColumn3.Width = 100;
             // 
             // gridColumn4
             // 
@@ -334,6 +331,7 @@ public partial class frmMinorCode
             this.gridColumn4.Name = "gridColumn4";
             this.gridColumn4.Visible = true;
             this.gridColumn4.VisibleIndex = 1;
+            this.gridColumn4.Width = 211;
             // 
             // gridColumn5
             // 
@@ -347,11 +345,17 @@ public partial class frmMinorCode
             // gridColumn6
             // 
             this.gridColumn6.Caption = "사용여부";
+            this.gridColumn6.ColumnEdit = this.repositoryItemCheckEdit1;
             this.gridColumn6.FieldName = "use_yn";
             this.gridColumn6.Name = "gridColumn6";
             this.gridColumn6.Visible = true;
             this.gridColumn6.VisibleIndex = 3;
-            this.gridColumn6.Width = 60;
+            this.gridColumn6.Width = 57;
+            // 
+            // repositoryItemCheckEdit1
+            // 
+            this.repositoryItemCheckEdit1.AutoHeight = false;
+            this.repositoryItemCheckEdit1.Name = "repositoryItemCheckEdit1";
             // 
             // gridColumn7
             // 
@@ -360,30 +364,19 @@ public partial class frmMinorCode
             this.gridColumn7.Name = "gridColumn7";
             this.gridColumn7.Visible = true;
             this.gridColumn7.VisibleIndex = 4;
+            this.gridColumn7.Width = 293;
             // 
             // panelWyn1
             // 
-            this.panelWyn1.Controls.Add(this.sectionHeaderWyn2);
             this.panelWyn1.Controls.Add(this.panelWyn7);
+            this.panelWyn1.Controls.Add(this.sectionHeaderWyn2);
             this.panelWyn1.Dock = System.Windows.Forms.DockStyle.Top;
             this.panelWyn1.EdgeLineColor = System.Drawing.Color.FromArgb(((int)(((byte)(228)))), ((int)(((byte)(229)))), ((int)(((byte)(232)))));
             this.panelWyn1.Location = new System.Drawing.Point(3, 218);
             this.panelWyn1.Name = "panelWyn1";
-            this.panelWyn1.Size = new System.Drawing.Size(764, 24);
+            this.panelWyn1.Padding = new System.Windows.Forms.Padding(0, 0, 0, 2);
+            this.panelWyn1.Size = new System.Drawing.Size(764, 27);
             this.panelWyn1.TabIndex = 8;
-            // 
-            // sectionHeaderWyn2
-            // 
-            this.sectionHeaderWyn2.BackColor = System.Drawing.Color.White;
-            this.sectionHeaderWyn2.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.sectionHeaderWyn2.Font = new System.Drawing.Font("맑은 고딕", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
-            this.sectionHeaderWyn2.Icon = WYNLAB.Base.Controls.SectionHeaderIcon.Folder;
-            this.sectionHeaderWyn2.Location = new System.Drawing.Point(0, 0);
-            this.sectionHeaderWyn2.Name = "sectionHeaderWyn2";
-            this.sectionHeaderWyn2.Size = new System.Drawing.Size(705, 24);
-            this.sectionHeaderWyn2.SvgIcon = ((DevExpress.Utils.Svg.SvgImage)(resources.GetObject("sectionHeaderWyn2.SvgIcon")));
-            this.sectionHeaderWyn2.TabIndex = 8;
-            this.sectionHeaderWyn2.Text = "소분류 등록";
             // 
             // panelWyn7
             // 
@@ -391,9 +384,9 @@ public partial class frmMinorCode
             this.panelWyn7.Controls.Add(this.btnAddRow2);
             this.panelWyn7.Dock = System.Windows.Forms.DockStyle.Right;
             this.panelWyn7.EdgeLineColor = System.Drawing.Color.FromArgb(((int)(((byte)(228)))), ((int)(((byte)(229)))), ((int)(((byte)(232)))));
-            this.panelWyn7.Location = new System.Drawing.Point(705, 0);
+            this.panelWyn7.Location = new System.Drawing.Point(696, 0);
             this.panelWyn7.Name = "panelWyn7";
-            this.panelWyn7.Size = new System.Drawing.Size(59, 24);
+            this.panelWyn7.Size = new System.Drawing.Size(68, 25);
             this.panelWyn7.TabIndex = 9;
             // 
             // btnDeletRow2
@@ -406,9 +399,9 @@ public partial class frmMinorCode
             this.btnDeletRow2.Appearance.Options.UseBorderColor = true;
             this.btnDeletRow2.Appearance.Options.UseFont = true;
             this.btnDeletRow2.ImageOptions.Image = ((System.Drawing.Image)(resources.GetObject("btnDeletRow2.ImageOptions.Image")));
-            this.btnDeletRow2.Location = new System.Drawing.Point(32, 1);
+            this.btnDeletRow2.Location = new System.Drawing.Point(41, 4);
             this.btnDeletRow2.Name = "btnDeletRow2";
-            this.btnDeletRow2.Size = new System.Drawing.Size(24, 22);
+            this.btnDeletRow2.Size = new System.Drawing.Size(24, 20);
             this.btnDeletRow2.TabIndex = 0;
             this.btnDeletRow2.Text = "";
             this.btnDeletRow2.ToolTip = "행삭제";
@@ -424,13 +417,26 @@ public partial class frmMinorCode
             this.btnAddRow2.Appearance.Options.UseBorderColor = true;
             this.btnAddRow2.Appearance.Options.UseFont = true;
             this.btnAddRow2.ImageOptions.Image = ((System.Drawing.Image)(resources.GetObject("btnAddRow2.ImageOptions.Image")));
-            this.btnAddRow2.Location = new System.Drawing.Point(4, 1);
+            this.btnAddRow2.Location = new System.Drawing.Point(8, 4);
             this.btnAddRow2.Name = "btnAddRow2";
-            this.btnAddRow2.Size = new System.Drawing.Size(24, 22);
+            this.btnAddRow2.Size = new System.Drawing.Size(24, 20);
             this.btnAddRow2.TabIndex = 0;
             this.btnAddRow2.Text = "";
             this.btnAddRow2.ToolTip = "행추가";
             this.btnAddRow2.Click += new System.EventHandler(this.btnAddRow2_Click);
+            // 
+            // sectionHeaderWyn2
+            // 
+            this.sectionHeaderWyn2.BackColor = System.Drawing.Color.White;
+            this.sectionHeaderWyn2.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.sectionHeaderWyn2.Font = new System.Drawing.Font("맑은 고딕", 9F, ((System.Drawing.FontStyle)((System.Drawing.FontStyle.Bold | System.Drawing.FontStyle.Underline))), System.Drawing.GraphicsUnit.Point, ((byte)(129)));
+            this.sectionHeaderWyn2.Icon = WYNLAB.Base.Controls.SectionHeaderIcon.Folder;
+            this.sectionHeaderWyn2.Location = new System.Drawing.Point(0, 0);
+            this.sectionHeaderWyn2.Name = "sectionHeaderWyn2";
+            this.sectionHeaderWyn2.Size = new System.Drawing.Size(764, 25);
+            this.sectionHeaderWyn2.SvgIcon = ((DevExpress.Utils.Svg.SvgImage)(resources.GetObject("sectionHeaderWyn2.SvgIcon")));
+            this.sectionHeaderWyn2.TabIndex = 8;
+            this.sectionHeaderWyn2.Text = "소분류 등록";
             // 
             // panelWyn5
             // 
@@ -492,9 +498,9 @@ public partial class frmMinorCode
             this.panData.Controls.Add(this.txtmajor_cd);
             this.panData.Dock = System.Windows.Forms.DockStyle.Fill;
             this.panData.EdgeLineColor = System.Drawing.Color.FromArgb(((int)(((byte)(228)))), ((int)(((byte)(229)))), ((int)(((byte)(232)))));
-            this.panData.Location = new System.Drawing.Point(0, 24);
+            this.panData.Location = new System.Drawing.Point(0, 27);
             this.panData.Name = "panData";
-            this.panData.Size = new System.Drawing.Size(764, 194);
+            this.panData.Size = new System.Drawing.Size(764, 191);
             this.panData.TabIndex = 8;
             // 
             // cborel_cd_type10
@@ -505,7 +511,7 @@ public partial class frmMinorCode
             new DevExpress.XtraEditors.Controls.EditorButton(DevExpress.XtraEditors.Controls.ButtonPredefines.Combo)});
             this.cborel_cd_type10.Properties.NullText = "";
             this.cborel_cd_type10.Size = new System.Drawing.Size(116, 20);
-            this.cborel_cd_type10.TabIndex = 2;
+            this.cborel_cd_type10.TabIndex = 30;
             // 
             // cborel_cd_type6
             // 
@@ -515,7 +521,7 @@ public partial class frmMinorCode
             new DevExpress.XtraEditors.Controls.EditorButton(DevExpress.XtraEditors.Controls.ButtonPredefines.Combo)});
             this.cborel_cd_type6.Properties.NullText = "";
             this.cborel_cd_type6.Size = new System.Drawing.Size(116, 20);
-            this.cborel_cd_type6.TabIndex = 2;
+            this.cborel_cd_type6.TabIndex = 18;
             // 
             // cborel_cd_type9
             // 
@@ -525,7 +531,7 @@ public partial class frmMinorCode
             new DevExpress.XtraEditors.Controls.EditorButton(DevExpress.XtraEditors.Controls.ButtonPredefines.Combo)});
             this.cborel_cd_type9.Properties.NullText = "";
             this.cborel_cd_type9.Size = new System.Drawing.Size(116, 20);
-            this.cborel_cd_type9.TabIndex = 2;
+            this.cborel_cd_type9.TabIndex = 27;
             // 
             // cborel_cd_type5
             // 
@@ -535,7 +541,7 @@ public partial class frmMinorCode
             new DevExpress.XtraEditors.Controls.EditorButton(DevExpress.XtraEditors.Controls.ButtonPredefines.Combo)});
             this.cborel_cd_type5.Properties.NullText = "";
             this.cborel_cd_type5.Size = new System.Drawing.Size(116, 20);
-            this.cborel_cd_type5.TabIndex = 2;
+            this.cborel_cd_type5.TabIndex = 15;
             // 
             // cborel_cd_type8
             // 
@@ -545,7 +551,7 @@ public partial class frmMinorCode
             new DevExpress.XtraEditors.Controls.EditorButton(DevExpress.XtraEditors.Controls.ButtonPredefines.Combo)});
             this.cborel_cd_type8.Properties.NullText = "";
             this.cborel_cd_type8.Size = new System.Drawing.Size(116, 20);
-            this.cborel_cd_type8.TabIndex = 2;
+            this.cborel_cd_type8.TabIndex = 24;
             // 
             // cborel_cd_type4
             // 
@@ -555,7 +561,7 @@ public partial class frmMinorCode
             new DevExpress.XtraEditors.Controls.EditorButton(DevExpress.XtraEditors.Controls.ButtonPredefines.Combo)});
             this.cborel_cd_type4.Properties.NullText = "";
             this.cborel_cd_type4.Size = new System.Drawing.Size(116, 20);
-            this.cborel_cd_type4.TabIndex = 2;
+            this.cborel_cd_type4.TabIndex = 12;
             // 
             // cborel_cd_type7
             // 
@@ -565,7 +571,7 @@ public partial class frmMinorCode
             new DevExpress.XtraEditors.Controls.EditorButton(DevExpress.XtraEditors.Controls.ButtonPredefines.Combo)});
             this.cborel_cd_type7.Properties.NullText = "";
             this.cborel_cd_type7.Size = new System.Drawing.Size(116, 20);
-            this.cborel_cd_type7.TabIndex = 2;
+            this.cborel_cd_type7.TabIndex = 21;
             // 
             // cborel_cd_type3
             // 
@@ -575,7 +581,7 @@ public partial class frmMinorCode
             new DevExpress.XtraEditors.Controls.EditorButton(DevExpress.XtraEditors.Controls.ButtonPredefines.Combo)});
             this.cborel_cd_type3.Properties.NullText = "";
             this.cborel_cd_type3.Size = new System.Drawing.Size(116, 20);
-            this.cborel_cd_type3.TabIndex = 2;
+            this.cborel_cd_type3.TabIndex = 9;
             // 
             // cborel_cd_type2
             // 
@@ -585,7 +591,7 @@ public partial class frmMinorCode
             new DevExpress.XtraEditors.Controls.EditorButton(DevExpress.XtraEditors.Controls.ButtonPredefines.Combo)});
             this.cborel_cd_type2.Properties.NullText = "";
             this.cborel_cd_type2.Size = new System.Drawing.Size(116, 20);
-            this.cborel_cd_type2.TabIndex = 2;
+            this.cborel_cd_type2.TabIndex = 6;
             // 
             // cborel_cd_type1
             // 
@@ -595,7 +601,7 @@ public partial class frmMinorCode
             new DevExpress.XtraEditors.Controls.EditorButton(DevExpress.XtraEditors.Controls.ButtonPredefines.Combo)});
             this.cborel_cd_type1.Properties.NullText = "";
             this.cborel_cd_type1.Size = new System.Drawing.Size(116, 20);
-            this.cborel_cd_type1.TabIndex = 2;
+            this.cborel_cd_type1.TabIndex = 3;
             // 
             // labelControl15
             // 
@@ -722,140 +728,140 @@ public partial class frmMinorCode
             this.txtrel_title10.Location = new System.Drawing.Point(424, 148);
             this.txtrel_title10.Name = "txtrel_title10";
             this.txtrel_title10.Size = new System.Drawing.Size(84, 20);
-            this.txtrel_title10.TabIndex = 1;
+            this.txtrel_title10.TabIndex = 29;
             // 
             // txtrel_title6
             // 
             this.txtrel_title6.Location = new System.Drawing.Point(424, 44);
             this.txtrel_title6.Name = "txtrel_title6";
             this.txtrel_title6.Size = new System.Drawing.Size(84, 20);
-            this.txtrel_title6.TabIndex = 1;
+            this.txtrel_title6.TabIndex = 17;
             // 
             // txtrel_cd10
             // 
             this.txtrel_cd10.Location = new System.Drawing.Point(628, 148);
             this.txtrel_cd10.Name = "txtrel_cd10";
             this.txtrel_cd10.Size = new System.Drawing.Size(87, 20);
-            this.txtrel_cd10.TabIndex = 1;
+            this.txtrel_cd10.TabIndex = 31;
             // 
             // txtrel_cd6
             // 
             this.txtrel_cd6.Location = new System.Drawing.Point(628, 44);
             this.txtrel_cd6.Name = "txtrel_cd6";
             this.txtrel_cd6.Size = new System.Drawing.Size(87, 20);
-            this.txtrel_cd6.TabIndex = 1;
+            this.txtrel_cd6.TabIndex = 19;
             // 
             // txtrel_title9
             // 
             this.txtrel_title9.Location = new System.Drawing.Point(424, 122);
             this.txtrel_title9.Name = "txtrel_title9";
             this.txtrel_title9.Size = new System.Drawing.Size(84, 20);
-            this.txtrel_title9.TabIndex = 1;
+            this.txtrel_title9.TabIndex = 26;
             // 
             // txtrel_title5
             // 
             this.txtrel_title5.Location = new System.Drawing.Point(76, 148);
             this.txtrel_title5.Name = "txtrel_title5";
             this.txtrel_title5.Size = new System.Drawing.Size(84, 20);
-            this.txtrel_title5.TabIndex = 1;
+            this.txtrel_title5.TabIndex = 14;
             // 
             // txtrel_cd9
             // 
             this.txtrel_cd9.Location = new System.Drawing.Point(628, 122);
             this.txtrel_cd9.Name = "txtrel_cd9";
             this.txtrel_cd9.Size = new System.Drawing.Size(87, 20);
-            this.txtrel_cd9.TabIndex = 1;
+            this.txtrel_cd9.TabIndex = 28;
             // 
             // txtrel_cd5
             // 
             this.txtrel_cd5.Location = new System.Drawing.Point(280, 148);
             this.txtrel_cd5.Name = "txtrel_cd5";
             this.txtrel_cd5.Size = new System.Drawing.Size(87, 20);
-            this.txtrel_cd5.TabIndex = 1;
+            this.txtrel_cd5.TabIndex = 16;
             // 
             // txtrel_title8
             // 
             this.txtrel_title8.Location = new System.Drawing.Point(424, 96);
             this.txtrel_title8.Name = "txtrel_title8";
             this.txtrel_title8.Size = new System.Drawing.Size(84, 20);
-            this.txtrel_title8.TabIndex = 1;
+            this.txtrel_title8.TabIndex = 23;
             // 
             // txtrel_title4
             // 
             this.txtrel_title4.Location = new System.Drawing.Point(76, 122);
             this.txtrel_title4.Name = "txtrel_title4";
             this.txtrel_title4.Size = new System.Drawing.Size(84, 20);
-            this.txtrel_title4.TabIndex = 1;
+            this.txtrel_title4.TabIndex = 11;
             // 
             // txtrel_cd8
             // 
             this.txtrel_cd8.Location = new System.Drawing.Point(628, 96);
             this.txtrel_cd8.Name = "txtrel_cd8";
             this.txtrel_cd8.Size = new System.Drawing.Size(87, 20);
-            this.txtrel_cd8.TabIndex = 1;
+            this.txtrel_cd8.TabIndex = 25;
             // 
             // txtrel_cd4
             // 
             this.txtrel_cd4.Location = new System.Drawing.Point(280, 122);
             this.txtrel_cd4.Name = "txtrel_cd4";
             this.txtrel_cd4.Size = new System.Drawing.Size(87, 20);
-            this.txtrel_cd4.TabIndex = 1;
+            this.txtrel_cd4.TabIndex = 13;
             // 
             // txtrel_title7
             // 
             this.txtrel_title7.Location = new System.Drawing.Point(424, 70);
             this.txtrel_title7.Name = "txtrel_title7";
             this.txtrel_title7.Size = new System.Drawing.Size(84, 20);
-            this.txtrel_title7.TabIndex = 1;
+            this.txtrel_title7.TabIndex = 20;
             // 
             // txtrel_cd7
             // 
             this.txtrel_cd7.Location = new System.Drawing.Point(628, 70);
             this.txtrel_cd7.Name = "txtrel_cd7";
             this.txtrel_cd7.Size = new System.Drawing.Size(87, 20);
-            this.txtrel_cd7.TabIndex = 1;
+            this.txtrel_cd7.TabIndex = 22;
             // 
             // txtrel_title3
             // 
             this.txtrel_title3.Location = new System.Drawing.Point(76, 96);
             this.txtrel_title3.Name = "txtrel_title3";
             this.txtrel_title3.Size = new System.Drawing.Size(84, 20);
-            this.txtrel_title3.TabIndex = 1;
+            this.txtrel_title3.TabIndex = 8;
             // 
             // txtrel_cd3
             // 
             this.txtrel_cd3.Location = new System.Drawing.Point(280, 96);
             this.txtrel_cd3.Name = "txtrel_cd3";
             this.txtrel_cd3.Size = new System.Drawing.Size(87, 20);
-            this.txtrel_cd3.TabIndex = 1;
+            this.txtrel_cd3.TabIndex = 10;
             // 
             // txtrel_title2
             // 
             this.txtrel_title2.Location = new System.Drawing.Point(76, 70);
             this.txtrel_title2.Name = "txtrel_title2";
             this.txtrel_title2.Size = new System.Drawing.Size(84, 20);
-            this.txtrel_title2.TabIndex = 1;
+            this.txtrel_title2.TabIndex = 5;
             // 
             // txtrel_cd2
             // 
             this.txtrel_cd2.Location = new System.Drawing.Point(280, 70);
             this.txtrel_cd2.Name = "txtrel_cd2";
             this.txtrel_cd2.Size = new System.Drawing.Size(87, 20);
-            this.txtrel_cd2.TabIndex = 1;
+            this.txtrel_cd2.TabIndex = 7;
             // 
             // txtrel_title1
             // 
             this.txtrel_title1.Location = new System.Drawing.Point(76, 44);
             this.txtrel_title1.Name = "txtrel_title1";
             this.txtrel_title1.Size = new System.Drawing.Size(84, 20);
-            this.txtrel_title1.TabIndex = 1;
+            this.txtrel_title1.TabIndex = 2;
             // 
             // txtrel_cd1
             // 
             this.txtrel_cd1.Location = new System.Drawing.Point(280, 44);
             this.txtrel_cd1.Name = "txtrel_cd1";
             this.txtrel_cd1.Size = new System.Drawing.Size(87, 20);
-            this.txtrel_cd1.TabIndex = 1;
+            this.txtrel_cd1.TabIndex = 4;
             // 
             // txtmajor_nm
             // 
@@ -869,7 +875,7 @@ public partial class frmMinorCode
             this.txtmajor_cd.Location = new System.Drawing.Point(76, 18);
             this.txtmajor_cd.Name = "txtmajor_cd";
             this.txtmajor_cd.Size = new System.Drawing.Size(84, 20);
-            this.txtmajor_cd.TabIndex = 1;
+            this.txtmajor_cd.TabIndex = 0;
             // 
             // panelWyn6
             // 
@@ -879,19 +885,19 @@ public partial class frmMinorCode
             this.panelWyn6.Location = new System.Drawing.Point(0, 0);
             this.panelWyn6.Name = "panelWyn6";
             this.panelWyn6.Padding = new System.Windows.Forms.Padding(5, 0, 0, 2);
-            this.panelWyn6.Size = new System.Drawing.Size(764, 24);
+            this.panelWyn6.Size = new System.Drawing.Size(764, 27);
             this.panelWyn6.TabIndex = 7;
             // 
             // sectionHeaderWyn3
             // 
             this.sectionHeaderWyn3.BackColor = System.Drawing.Color.White;
             this.sectionHeaderWyn3.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.sectionHeaderWyn3.Font = new System.Drawing.Font("맑은 고딕", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
+            this.sectionHeaderWyn3.Font = new System.Drawing.Font("맑은 고딕", 9F, ((System.Drawing.FontStyle)((System.Drawing.FontStyle.Bold | System.Drawing.FontStyle.Underline))), System.Drawing.GraphicsUnit.Point, ((byte)(129)));
             this.sectionHeaderWyn3.Icon = WYNLAB.Base.Controls.SectionHeaderIcon.Folder;
             this.sectionHeaderWyn3.Location = new System.Drawing.Point(5, 0);
             this.sectionHeaderWyn3.Name = "sectionHeaderWyn3";
             this.sectionHeaderWyn3.Padding = new System.Windows.Forms.Padding(0, 0, 3, 0);
-            this.sectionHeaderWyn3.Size = new System.Drawing.Size(759, 22);
+            this.sectionHeaderWyn3.Size = new System.Drawing.Size(759, 25);
             this.sectionHeaderWyn3.SvgIcon = ((DevExpress.Utils.Svg.SvgImage)(resources.GetObject("sectionHeaderWyn3.SvgIcon")));
             this.sectionHeaderWyn3.TabIndex = 8;
             this.sectionHeaderWyn3.Text = "대분류 등록";
@@ -915,7 +921,7 @@ public partial class frmMinorCode
             this.txtminor_cd_q.Location = new System.Drawing.Point(106, 15);
             this.txtminor_cd_q.Name = "txtminor_cd_q";
             this.txtminor_cd_q.Properties.BorderStyle = DevExpress.XtraEditors.Controls.BorderStyles.Simple;
-            this.txtminor_cd_q.Size = new System.Drawing.Size(767, 20);
+            this.txtminor_cd_q.Size = new System.Drawing.Size(276, 20);
             this.txtminor_cd_q.TabIndex = 0;
             this.txtminor_cd_q.EditValueChanged += new System.EventHandler(this.textEditWyn1_EditValueChanged);
             // 
@@ -923,7 +929,7 @@ public partial class frmMinorCode
             // 
             this.labelControl1.Appearance.Font = new System.Drawing.Font("맑은 고딕", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
             this.labelControl1.Appearance.Options.UseFont = true;
-            this.labelControl1.Location = new System.Drawing.Point(25, 20);
+            this.labelControl1.Location = new System.Drawing.Point(25, 18);
             this.labelControl1.Name = "labelControl1";
             this.labelControl1.Size = new System.Drawing.Size(77, 15);
             this.labelControl1.TabIndex = 0;
@@ -964,11 +970,11 @@ public partial class frmMinorCode
             ((System.ComponentModel.ISupportInitialize)(this.gvw1)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.panelWyn2)).EndInit();
             this.panelWyn2.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.panelWyn8)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.panelWyn4)).EndInit();
             this.panelWyn4.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.grd2)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.gvw2)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.repositoryItemCheckEdit1)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.panelWyn1)).EndInit();
             this.panelWyn1.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.panelWyn7)).EndInit();
@@ -1095,5 +1101,5 @@ public partial class frmMinorCode
     private DevExpress.XtraEditors.SimpleButton btnDeletRow2;
     private DevExpress.XtraEditors.SimpleButton btnAddRow2;
     private PanelWyn panelWyn7;
-    private PanelWyn panelWyn8;
+    private DevExpress.XtraEditors.Repository.RepositoryItemCheckEdit repositoryItemCheckEdit1;
 }

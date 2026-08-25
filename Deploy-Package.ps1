@@ -29,9 +29,21 @@ $root = $PSScriptRoot
 $deploy = Join-Path $root "_deploy"
 
 Write-Host "=== 1) 이전 스테이징 결과 정리 ===" -ForegroundColor Cyan
-Remove-Item -Recurse -Force $deploy -ErrorAction SilentlyContinue
+
+# 이번에 다시 만들 폴더만 지운다. 예전엔 _deploy를 통째로 지웠는데, 그러면 -IncludeShell로
+# ClickOnce까지 만들어둔 뒤에 평소 배포(-IncludeShell 없이)를 한 번 더 돌리는 순간 애써 만든
+# ClickOnce 게시물이 아무 말 없이 사라졌다(실제로 겪음 - 서버에 올리려고 보니 폴더가 비어있음).
+Remove-Item -Recurse -Force "$deploy\CoreAssembly" -ErrorAction SilentlyContinue
+Remove-Item -Recurse -Force "$deploy\Modules" -ErrorAction SilentlyContinue
+# ClickOnce 폴더는 여기서 지우지 않는다 - 게시 단계에서 robocopy /MIR로 원본과 똑같이
+# 맞추므로 잔해가 알아서 정리된다(그 주석 참고).
+
 New-Item -ItemType Directory -Force -Path "$deploy\CoreAssembly" | Out-Null
 New-Item -ItemType Directory -Force -Path "$deploy\Modules\SM" | Out-Null
+
+if (-not $IncludeShell -and (Test-Path "$deploy\ClickOnce")) {
+    Write-Host "  (이전에 만든 _deploy\ClickOnce는 그대로 둡니다 - 다시 만들려면 -IncludeShell)" -ForegroundColor DarkGray
+}
 
 function Build-Release([string]$ProjectOrSolution) {
     Write-Host "  빌드: $ProjectOrSolution"
@@ -96,7 +108,20 @@ if ($IncludeShell) {
         # 클라이언트가 "업데이트 없음"으로 판단하고 예전 버전을 계속 실행한다
         $build = [int]((Get-Date) - (Get-Date "2024-01-01")).TotalDays
         $revision = [int](Get-Date).TimeOfDay.TotalMinutes
-        & $msbuild WYNLAB.Shell.csproj /t:Publish /p:PublishProfile=ProdLocal /p:Configuration=Release /p:ApplicationVersion="1.0.$build.$revision"
+        $version = "1.0.$build.$revision"
+
+        # MinimumRequiredVersion을 이번 게시 버전과 똑같이 줘서 "필수 업데이트"로 만든다.
+        # 이게 없으면 클라이언트 실행 시 "새 버전을 사용할 수 있습니다. 지금 다운로드
+        # 하시겠습니까? [확인] [건너뛰기]" 창이 떠서 사용자가 건너뛸 수 있는데, 그러면
+        # 사람마다 다른 버전을 쓰게 되고 "저는 그 오류 안 나는데요" 같은 상황이 생긴다.
+        # 업무용 사내 앱은 항상 최신이어야 하므로 선택지를 주지 않는다(묻지 않고 받은 뒤 재시작).
+        #
+        # 이 두 값을 pubxml에 박지 않고 여기서 넘기는 이유: MinimumRequiredVersion에는
+        # ApplicationVersion처럼 와일드카드(1.0.0.*)를 쓸 수 없어서 매 게시마다 실제 값이
+        # 필요하고, pubxml에 UpdateRequired만 켜두면 이 값 없이 수동 게시했을 때 게시가
+        # 실패한다 - 두 값을 항상 짝으로 넘기는 이 스크립트에서만 켜는 게 안전하다.
+        & $msbuild WYNLAB.Shell.csproj /t:Publish /p:PublishProfile=ProdLocal /p:Configuration=Release `
+            /p:ApplicationVersion=$version /p:UpdateRequired=true /p:MinimumRequiredVersion=$version
         if ($LASTEXITCODE -ne 0) { throw "ClickOnce 게시 실패" }
 
         # Copy-Item -Recurse는 소스가 "폴더\*" 와일드카드일 때 "Application Files"처럼
@@ -106,7 +131,13 @@ if ($IncludeShell) {
         # 이 폴더명을 그대로("Application Files/버전/...") URL에 박아두므로, 계층이 하나라도
         # 어긋나면 클라이언트가 설치 시점에 404로 죽는다. robocopy는 이런 폴더명 문제 없이
         # 트리 구조를 있는 그대로 복사한다.
-        robocopy "bin\Release\net48\publish" "$deploy\ClickOnce" /E /NFL /NDL /NJH /NJS | Out-Null
+        # /MIR = 대상을 원본과 "정확히 똑같이" 맞춘다(원본에 없는 건 대상에서 지움).
+        # /E로 덮어쓰기만 하면 예전 게시 버전 폴더(Application Files\WYNLAB_1_0_x_y\)가 계속
+        # 쌓인다. 미리 Remove-Item으로 지워봐도, 삭제 도중 파일 하나가 잠겨 있으면(백신 검사 등)
+        # -ErrorAction SilentlyContinue가 그 실패를 삼켜서 반쯤 지워진 폴더가 조용히 남는다
+        # (실제로 겪음 - 파일 하나만 남은 예전 버전 폴더가 배포물에 섞여 들어갔다). /MIR는
+        # 복사와 정리를 한 번에 해서 그런 어중간한 상태 자체가 생기지 않는다.
+        robocopy "bin\Release\net48\publish" "$deploy\ClickOnce" /MIR /NFL /NDL /NJH /NJS | Out-Null
         if ($LASTEXITCODE -ge 8) { throw "ClickOnce 파일 복사 실패 (robocopy 종료 코드 $LASTEXITCODE)" }
 
         # robocopy는 성공해도 0이 아닌 코드를 남긴다(1 = 파일을 복사함, 3 = 복사+스킵 등. 8 미만은
@@ -114,11 +145,24 @@ if ($IncludeShell) {
         # 코드로 물려주기 때문에, 이걸 안 지우면 배포가 멀쩡히 끝났는데도 "종료 코드 1 = 실패"로
         # 보인다(실제로 겪음). 여기까지 왔다는 건 이미 성공이므로 0으로 되돌린다.
         $global:LASTEXITCODE = 0
-        Write-Host "  게시 버전: 1.0.$build.$revision"
+        Write-Host "  게시 버전: $version (필수 업데이트 - 클라이언트가 건너뛸 수 없음)"
     }
     finally {
         Pop-Location
     }
+
+    # ClickOnce 게시는 위에서 VS의 MSBuild.exe로 도는데, 2)에서 CoreAssembly를 만들 때 쓴
+    # dotnet build와는 서로 다른 컴파일러 인스턴스라 같은 소스라도 산출물 바이트가 달라진다
+    # (기능은 동일하지만 해시가 다름). 그대로 두면 ClickOnce 패키지 안의 BaseForm.dll과
+    # CoreAssembly\BaseForm.dll이 영원히 다른 파일이 되어, 클라이언트가 설치 직후 매번 굳이
+    # 다시 받아가고 무엇보다 "왜 해시가 다르지?"로 사람을 헷갈리게 한다(실제로 겪음).
+    # 방금 게시가 만든 산출물로 CoreAssembly를 덮어써서 두 벌을 같은 파일로 맞춘다.
+    # (manifest.json은 이 다음 단계에서 생성되므로 여기서 바꿔도 항상 최신 해시가 반영된다.)
+    Write-Host "  CoreAssembly를 게시 산출물과 동일하게 맞추는 중..."
+    Copy-Item "$shellDir\bin\Release\net48\WYNLAB.BaseForm.dll" "$deploy\CoreAssembly\" -Force
+    Copy-Item "$shellDir\bin\Release\net48\WYNLAB.Controls.dll" "$deploy\CoreAssembly\" -Force
+    Copy-Item "$shellDir\bin\Release\net48\WYNLAB.Shared.dll" "$deploy\CoreAssembly\" -Force
+    Copy-Item "$shellDir\bin\Release\net48\WYNLAB.BaseForm.pdb" "$deploy\CoreAssembly\" -Force -ErrorAction SilentlyContinue
 }
 
 Write-Host "=== 5) manifest.json 생성 ===" -ForegroundColor Cyan

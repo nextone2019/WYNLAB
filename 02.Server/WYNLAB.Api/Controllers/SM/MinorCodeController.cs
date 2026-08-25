@@ -77,6 +77,20 @@ public class MinorCodeController : ControllerBase
         return Ok(new ApiResult { Success = true });
     }
 
+    /// <summary>대분류 삭제. 실제 삭제 방식(소분류까지 같이 지울지, 소분류가 있으면 막을지)은
+    /// USP_SM_MINORCODE_S의 'D' 분기가 정하며, 막는 경우 프로시저가 ReturnCode/ReturnMsg로
+    /// 사유를 돌려주면 화면에 그대로 표시된다.</summary>
+    [HttpDelete("{majorCd}")]
+    [RequireMenuPermission("SM_MINOR_CODE", MenuAction.Delete)]
+    public async Task<ActionResult<ApiResult>> Delete(string majorCd)
+    {
+        var result = await _repo.SaveMajorAsync("D", new MajorSaveRequest { major_cd = majorCd }, CurrentUserId, ClientIp);
+        if (!result.IsSuccess)
+            return Ok(new ApiResult { Success = false, Message = result.FailMessage, ErrorCode = result.ErrorCode });
+
+        return Ok(new ApiResult { Success = true });
+    }
+
     /// <summary>이 대분류의 소분류 그리드를 화면에서 넘어온 목록으로 전체 치환</summary>
     [HttpPut("{majorCd}/minors")]
     [RequireMenuPermission("SM_MINOR_CODE", MenuAction.Update)]

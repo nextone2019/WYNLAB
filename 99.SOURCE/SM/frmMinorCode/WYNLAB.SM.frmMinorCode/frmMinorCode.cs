@@ -82,10 +82,41 @@ public partial class frmMinorCode : BaseForm
         return Task.CompletedTask;
     }
 
-    public override Task DeleteClick()
+    /// <summary>
+    /// grd1에서 선택한 대분류를 삭제한다. 신규 입력 중(_editingMajorCd == null)일 땐 아직 저장된
+    /// 게 없으므로 삭제할 대상 자체가 없다.
+    ///
+    /// 소분류(TSMMINOR)를 어떻게 할지는 서버 프로시저(USP_SM_MINORCODE_S의 'D' 분기)가 정한다 -
+    /// 화면에서 소분류를 먼저 지우고 대분류를 지우는 식으로 나눠 처리하면 중간에 실패했을 때
+    /// 반쪽만 지워진 상태가 남는다. 프로시저 한 번의 호출로 끝내야 트랜잭션이 보장된다.
+    /// 프로시저가 "소분류가 있어 삭제 불가"로 막으면 그 사유(ReturnMsg)가 그대로 표시된다.
+    /// </summary>
+    public override async Task DeleteClick()
     {
-        AppMessageBox.Show("대분류코드는 삭제(사용중지)를 지원하지 않습니다.", "안내");
-        return Task.CompletedTask;
+        if (_editingMajorCd == null)
+        {
+            AppMessageBox.Show("삭제할 대분류코드를 먼저 선택해주세요.", "안내");
+            return;
+        }
+
+        var confirm = AppMessageBox.Show(
+            $"선택하신 대분류코드를 삭제 하시겠습니까?\n\n[{_editingMajorCd}] {txtmajor_nm.Text}",
+            "삭제 확인", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+        if (confirm != DialogResult.Yes) return;
+
+        var result = await ApiClient.DeleteAsync<ApiResult>($"api/minor-codes/{Uri.EscapeDataString(_editingMajorCd)}");
+        if (result == null || !result.Success)
+        {
+            AppMessageBox.Show(FormatSaveFailMessage(result), "삭제 실패");
+            return;
+        }
+
+        // 지워진 대분류를 계속 편집 상태로 두면 안 되므로 신규 모드로 되돌린 뒤 목록을 다시 받는다.
+        _editingMajorCd = null;
+        gvw2.ClearDirtyMarks();
+        await QueryClick();
+        EnterNewMode();
+        Toast.Show("삭제되었습니다.");
     }
 
     public override Task NewRowClick()
@@ -137,7 +168,7 @@ public partial class frmMinorCode : BaseForm
         var isSameMajor = _editingMajorCd == major.major_cd;
         _editingMajorCd = major.major_cd;
         txtmajor_cd.Text = major.major_cd;
-        txtmajor_cd.Enabled = false; // 대분류코드는 PK라 수정 불가
+        txtmajor_cd.ReadOnly = true; // 대분류코드는 PK라 수정 불가
         txtmajor_nm.Text = major.major_nm;
 
         var relTitles = new[] { major.rel_title1, major.rel_title2, major.rel_title3, major.rel_title4, major.rel_title5, major.rel_title6, major.rel_title7, major.rel_title8, major.rel_title9, major.rel_title10 };

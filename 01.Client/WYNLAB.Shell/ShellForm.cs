@@ -142,8 +142,9 @@ public class ShellForm : XtraForm
         WindowState = FormWindowState.Maximized;
         BackColor = Color.White;
 
-        // 가로: 현재 헤더 툴바(조회/입력/삭제/행추가/행삭제/저장/출력 7개, 구분선 없이 한 줄)가
-        // 겹치지 않고 다 보이는 최소폭. 홈 버튼은 사이드바 메뉴트리 위로 옮겨서 헤더에서 빠졌다.
+        // 가로: 현재 헤더 툴바(조회/입력/삭제/행추가/행삭제/저장/출력 7개를 세 묶음으로 띄워
+        // 한 줄에 배치)가 겹치지 않고 다 보이는 최소폭. 홈 버튼은 사이드바 메뉴트리 위로 옮겨서
+        // 헤더에서 빠졌다.
         // 세로도 업무화면이 너무 눌리지 않도록 최소값을 둠.
         MinimumSize = new Size(920, 650);
 
@@ -618,9 +619,13 @@ public class ShellForm : XtraForm
     /// 저장도 다른 아이콘과 같은 스타일(연한 배지 + 강조색 아이콘)로 통일했다.
     /// 배지 배경은 순백색 대신 헤더색을 살짝 섞은 연한 톤(IconBadgeBg)을 써서 튀어 보이지
     /// 않게 했다. "성격" 구분은 이제 아이콘 색으로만 표현한다(삭제/행삭제=빨강, 나머지=브랜드 강조색).
-    /// 구분선(|) 없이 전부 한 줄로 이어서 배치한다 - 홈은 화면 전환용이라 별도로 사이드바
-    /// 메뉴트리 위(ConfigureSidebarTopGap)로 옮겼고, 남은 7개는 전부 한 화면 안에서 이어지는
-    /// 데이터 액션이라 사이를 나눌 필요가 없다는 피드백에 따름.
+    /// 홈은 화면 전환용이라 별도로 사이드바 메뉴트리 위(ConfigureSidebarTopGap)로 옮겼다.
+    ///
+    /// 남은 7개는 구분선(|) 없이 한 줄로 두되, 성격이 다른 지점에만 여백(GroupGap)을 줘서
+    /// 세 묶음으로 읽히게 한다 - [조회 입력 삭제](레코드 단위) / [행추가 행삭제](그리드 행 단위)
+    /// / [저장 출력](마무리). 처음엔 7개를 완전히 붙여놨는데 행 단위 액션과 레코드 단위 액션이
+    /// 구분이 안 된다는 피드백이 있었다. 선을 긋는 대신 여백만 준 건 툴바가 조각나 보이지
+    /// 않게 하기 위함.
     /// 클릭하면 현재 활성화된 MDI 자식폼(ActiveMdiChild)의 표준 액션(BaseForm.QueryClick 등)을 호출한다.
     /// </summary>
     private void BuildToolbar()
@@ -632,8 +637,10 @@ public class ShellForm : XtraForm
         btnQuery = AddIconBadgeButton(headerPanel, ref x, 6, "조회", "query", ToolbarIconPainters.Query, badgeBg, iconAccent, false, f => f.QueryClick());
         btnNew = AddIconBadgeButton(headerPanel, ref x, 6, "입력", "new", ToolbarIconPainters.New, badgeBg, iconAccent, false, f => f.NewClick());
         btnDelete = AddIconBadgeButton(headerPanel, ref x, 6, "삭제", "delete", ToolbarIconPainters.Delete, badgeBg, DangerColor, false, f => f.DeleteClick());
+        x += GroupGap;
         btnRowAdd = AddIconBadgeButton(headerPanel, ref x, 6, "행추가", "rowadd", ToolbarIconPainters.RowAdd, badgeBg, iconAccent, false, f => f.NewRowClick());
         btnRowDelete = AddIconBadgeButton(headerPanel, ref x, 6, "행삭제", "rowdelete", ToolbarIconPainters.RowDelete, badgeBg, DangerColor, false, f => f.DeleteRowClick());
+        x += GroupGap;
         btnSave = AddIconBadgeButton(headerPanel, ref x, 6, "저장", "save", ToolbarIconPainters.Save, badgeBg, iconAccent, false, f => f.SaveClick());
         btnPrint = AddIconBadgeButton(headerPanel, ref x, 6, "출력", "print", ToolbarIconPainters.Print, badgeBg, iconAccent, false, f => f.PrintClick());
     }
@@ -650,6 +657,11 @@ public class ShellForm : XtraForm
     private IconBadgeButton btnPrint = null!;
 
     private static readonly Size ButtonSize = new(54, 48);
+
+    /// <summary>툴바 아이콘 묶음 사이 여백(BuildHeaderToolbar 주석의 3개 묶음 참고).
+    /// 구분선을 긋지 않고 여백만으로 나누는 방식이라, 너무 넓으면 툴바가 흩어져 보이고
+    /// 너무 좁으면 나눈 티가 안 난다 - 버튼 폭(54)의 1/4 정도가 적당했다.</summary>
+    private const int GroupGap = 14;
 
     /// <summary>
     /// action 파라미터는 BaseForm을 받지만, "홈" 버튼처럼 활성화면과 무관하게 항상 동작해야 하는
@@ -924,6 +936,8 @@ public class ShellForm : XtraForm
             group.Appearance.Hovered.Options.UseForeColor = true;
             group.Appearance.Hovered.Options.UseFont = true;
 
+            ApplyGroupPressedAppearance(group, AppFonts.SubHeading);
+
             AddChildMenus(group, menus, top.MenuCd);
             accordionMenu.Elements.Add(group);
         }
@@ -1018,6 +1032,8 @@ public class ShellForm : XtraForm
                 element.Appearance.Hovered.Options.UseBackColor = true;
                 element.Appearance.Hovered.Options.UseForeColor = true;
                 element.Appearance.Hovered.Options.UseFont = true;
+
+                ApplyGroupPressedAppearance(element, AppFonts.BodyBold);
             }
             else
             {
@@ -1057,6 +1073,24 @@ public class ShellForm : XtraForm
 
             visited.Remove(child.MenuCd); // 형제 메뉴 처리를 위해 이 가지에서만 빠져나오면 복원
         }
+    }
+
+    /// <summary>
+    /// 그룹(펼치기/접기만 하는 항목)의 "눌린 상태" 외형. 호버 상태와 똑같이 맞춘다 - 누르는
+    /// 동안에도 마우스는 그 위에 있으니 호버와 같아야 자연스럽고, 무엇보다 아무 색이 튀지 않는다.
+    ///
+    /// 이걸 지정하지 않으면 DevExpress가 스킨 기본 눌림 외형(밝은 회색/흰색)을 쓰기 때문에,
+    /// 어두운 사이드바에서 그룹을 클릭하는 순간 배경이 흰색으로 번쩍했다가 돌아온다(실제로 겪음).
+    /// 화면(Item) 항목은 이미 Pressed를 지정하고 있었는데 그룹만 빠져 있었다.
+    /// </summary>
+    private void ApplyGroupPressedAppearance(AccordionControlElement element, Font font)
+    {
+        element.Appearance.Pressed.BackColor = NavHoverBg;
+        element.Appearance.Pressed.ForeColor = Color.White;
+        element.Appearance.Pressed.Font = font;
+        element.Appearance.Pressed.Options.UseBackColor = true;
+        element.Appearance.Pressed.Options.UseForeColor = true;
+        element.Appearance.Pressed.Options.UseFont = true;
     }
 
     /// <summary>더블클릭한 지점이 실제 화면(Item) 엘리먼트일 때만 그 메뉴를 연다 - 그룹
