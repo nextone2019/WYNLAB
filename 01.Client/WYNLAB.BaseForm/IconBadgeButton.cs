@@ -39,6 +39,11 @@ public class IconBadgeButton : Control
     /// 아닌 버튼용).</summary>
     public string? IconName { get; set; }
 
+    /// <summary>코드에서 직접 지정하는 아이콘 이미지(예: DevExpress SVG를 렌더링한 것 - SvgIcons 참고).
+    /// 서버 Assets의 png(IconName)가 있으면 그쪽이 우선이고, 없을 때 이 이미지가 쓰인다 -
+    /// 관리자가 회사 아이콘으로 갈아끼울 여지는 그대로 두면서 기본 모양만 좋게 하기 위함.</summary>
+    public Image? IconImage { get; set; }
+
     /// <summary>
     /// 배지 안에서 아이콘이 차지할 여백. 기본값 9는 헤더 툴바 버튼(54x48) 기준으로 잡은 값이라,
     /// 그보다 훨씬 작게 쓰는 버튼(예: 사이드바의 작은 홈 버튼)에서 그대로 두면 아이콘이 몇
@@ -159,17 +164,23 @@ public class IconBadgeButton : Control
     /// 없으면 기본({IconName}.png)으로, 그것도 없으면 null(호출부가 IconPainter로 폴백).</summary>
     private Image? ResolveIconImage()
     {
-        if (string.IsNullOrEmpty(IconName)) return null;
-        var iconName = IconName;
-
-        var stateSuffix = !Enabled ? "_disabled" : _pressed ? "_pressed" : _hover ? "_hover" : null;
-        if (stateSuffix != null)
+        if (!string.IsNullOrEmpty(IconName))
         {
-            var stateImage = IconAssetProvider.GetImage(iconName + stateSuffix);
-            if (stateImage != null) return stateImage;
+            var iconName = IconName!;
+            var stateSuffix = !Enabled ? "_disabled" : _pressed ? "_pressed" : _hover ? "_hover" : null;
+            if (stateSuffix != null)
+            {
+                var stateImage = IconAssetProvider.GetImage(iconName + stateSuffix);
+                if (stateImage != null) return stateImage;
+            }
+
+            var assetImage = IconAssetProvider.GetImage(iconName);
+            if (assetImage != null) return assetImage;
         }
 
-        return IconAssetProvider.GetImage(iconName);
+        // 서버 Assets에 올려둔 png가 우선이고(관리자가 회사 아이콘으로 갈아끼울 수 있어야 하므로),
+        // 그게 없을 때 코드에서 직접 지정한 이미지를 쓴다. 둘 다 없으면 호출부가 IconPainter로 폴백.
+        return IconImage;
     }
 
     private static GraphicsPath RoundedRect(Rectangle bounds, int radius)

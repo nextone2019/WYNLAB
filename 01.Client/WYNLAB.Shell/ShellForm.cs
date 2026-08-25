@@ -52,6 +52,11 @@ public class ShellForm : XtraForm
     private static readonly Color TabInactiveFg = Color.FromArgb(120, 122, 128);
     private static readonly Color TabActiveFg = Color.FromArgb(35, 35, 38);
 
+    /// <summary>사이드바 맨 위 사용자정보 띠의 배경. 위(타이틀바)도 아래(메뉴트리)도 짙은 색이라
+    /// 여기만 옅게 둬서 구분되게 한다. 고정색이 아니라 브랜드색을 아주 옅게 섞은 값이라,
+    /// 회사별로 ToolbarColor가 바뀌면 이 띠도 같은 계열로 따라간다.</summary>
+    private Color SidebarUserBg => ColorHelper.Mix(_accentColor, Color.White, 0.93f);
+
     private Color NavDarkBg => ColorHelper.Mix(_accentColor, Color.Black, 0.45f);
     private Color NavHoverBg => ColorHelper.Adjust(NavDarkBg, 12);
     private Color NavPressedBg => ColorHelper.Adjust(NavDarkBg, 23);
@@ -72,20 +77,35 @@ public class ShellForm : XtraForm
 
     private readonly Panel headerPanel;
     private readonly Panel logoPanel;
-    private readonly Panel headerRightPanel = new() { Dock = DockStyle.Right, Width = 210 };
+    private readonly Panel headerRightPanel = new() { Dock = DockStyle.Right, Width = 400 };
     private readonly LabelControl lblEnvBadge = new();
-    private readonly Panel avatarBadge = new() { Size = new Size(30, 30) };
-    private readonly LabelControl lblAvatarInitial = new();
+
+    /// <summary>헤더의 화면 검색 콤보 - 타이핑하면 목록이 걸러지고, 고르면 그 화면이 열린다.
+    /// Ctrl+K로 뜨던 별도 검색창(QuickMenuSearchForm)과 같은 일을 툴바 안에서 바로 한다.</summary>
+    private readonly LookUpEdit cboMenuSearch = new();
     private readonly Panel sidebarPanel;
     private readonly Panel statusBar;
     // 접힌 상태에서 accordionMenu 대신 보여주는 아이콘 전용 레일 - 최상위 메뉴당 아이콘 버튼 1개.
     // 클릭하면 사이드바를 다시 펼친다(하위 메뉴까지 좁은 폭에 다 담기는 어려워, 펼침으로 위임).
     private readonly Panel sidebarIconRail = new() { Dock = DockStyle.Fill, Visible = false };
     private Panel? _sidebarToolPanel;
-    private LabelControl? _lblUserInline;
+    /// <summary>사이드바를 접었을 때 같이 숨기는 사용자정보 영역(사용자명 + 접속시각 두 줄).
+    /// 라벨 하나가 아니라 둘을 담은 그릇을 들고 있어야 두 줄이 함께 사라진다.</summary>
+    private Control? _lblUserInline;
+
+    /// <summary>홈 버튼을 담은 영역 - 사이드바가 접히면 Dock을 Right에서 Fill로 바꿔
+    /// 좁아진 폭 한가운데로 보낸다(ToggleSidebarCollapsed 참고).</summary>
+    private Panel? _homeArea;
     // 사이드바 맨 위 여백 - 오른쪽 MDI 탭 줄과 높이를 맞춰서, 그 아래(사용자정보)와
     // 탭 줄 아래(문서 내용)가 같은 Y좌표에서 시작하도록 CustomDrawTabHeader에서 실측해 맞춘다.
-    private readonly Panel sidebarTopGap = new() { Dock = DockStyle.Top, Height = 30, BackColor = Color.White };
+    /// <summary>사이드바 맨 위, 로그인 사용자/접속시각을 두 줄로 보여주는 띠.
+    /// 배경색과 위/아래 흰 경계선은 ConfigureSidebarTopGap에서 입힌다.</summary>
+    private readonly Panel sidebarTopGap = new() { Dock = DockStyle.Top, Height = SidebarTopGapMinHeight };
+
+    /// <summary>사용자명/접속시각 두 줄 + 위아래 경계선 1px씩이 눌리지 않고 들어가는 최소 높이.
+    /// 이 띠는 원래 오른쪽 탭 줄 높이를 그대로 따라가지만(양쪽 시작 Y를 맞추려고), 한 줄이던
+    /// 시절 기준이라 두 줄에는 모자란다 - 그래서 이 값보다는 작아지지 않게 한다.</summary>
+    private const int SidebarTopGapMinHeight = 46;
     private readonly LabelControl lblStatusMessage = new();
     private readonly LabelControl lblStatusRight = new();
     private readonly ComboBoxEdit cboEnvironment = new();
@@ -117,14 +137,15 @@ public class ShellForm : XtraForm
     // 예전엔 헤더 툴바 맨 앞에 있었는데, 메뉴트리 바로 위(사이드바 상단 여백)로 옮기고
     // 크기도 작게 줄였다 - 다른 업무 액션들과 성격이 달라서(화면 전환이지 데이터 액션이 아님)
     // 메뉴트리와 더 가까운 자리가 자연스럽다는 피드백.
-    // IconInset을 기본값(9, 헤더 54x48 버튼 기준)보다 훨씬 줄여야 이 작은 크기에서도 아이콘이
+    // IconInset을 기본값(9, 헤더 54x48 버튼 기준)보다 줄여야 이 작은 크기에서도 아이콘이
     // 실제로 보인다 - 처음엔 기본값 그대로 썼다가 아이콘이 점처럼 작아져 거의 안 보였다.
+    // 배치는 ConfigureSidebarTopGap 참고(Dock=Right로 직접 붙이면 세로로 늘어난다).
     private readonly IconBadgeButton homeButton = new()
     {
         Text = "홈",
         IconPainter = ToolbarIconPainters.Home,
-        Size = new Size(28, 28),
-        IconInset = 5
+        Size = new Size(34, 34),
+        IconInset = 6
     };
 
     private readonly Dictionary<string, string> _envLabels = new()
@@ -281,8 +302,10 @@ public class ShellForm : XtraForm
     {
         // 탭 줄의 실제 높이를 매번 측정해서 사이드바 상단 여백에 반영 - 폰트/스킨이 바뀌어도
         // 왼쪽(사용자정보)과 오른쪽(문서 내용) 시작 Y좌표가 계속 맞도록 자동으로 따라간다.
-        var rowHeight = e.TabHeaderRowInfo.Bounds.Height;
-        if (rowHeight > 0 && sidebarTopGap.Height != rowHeight)
+        // 사용자/접속시각을 두 줄로 넣으면서부터는 탭 줄 높이만으로는 모자랄 수 있어서,
+        // 최소 높이를 보장한다(SidebarTopGapMinHeight 설명 참고).
+        var rowHeight = Math.Max(e.TabHeaderRowInfo.Bounds.Height, SidebarTopGapMinHeight);
+        if (sidebarTopGap.Height != rowHeight)
         {
             sidebarTopGap.Height = rowHeight;
         }
@@ -429,43 +452,103 @@ public class ShellForm : XtraForm
     /// </summary>
     private void ConfigureSidebarTopGap()
     {
-        var lblUserInline = new LabelControl
+        // 위(타이틀바)도 아래(메뉴트리)도 짙은 색이라, 이 띠만 옅은 톤으로 두고 위아래에
+        // 1px 흰 선을 넣어 경계를 만든다 - 선을 짙게 넣으면 어두운 면이 세 겹으로 겹쳐
+        // 답답해 보이고, 아예 없으면 띠가 어디서 시작해 어디서 끝나는지 흐려진다.
+        sidebarTopGap.BackColor = SidebarUserBg;
+
+        // 두 줄의 위계를 뚜렷하게 - 이름은 한 단계 큰 굵은 글씨(SubHeading)로 먼저 읽히게 하고,
+        // 접속시각은 작고 흐린 보조정보(Caption)로 낮춘다. 같은 크기·같은 색으로 두면 어느 쪽이
+        // 중요한지 알 수 없어 덩어리로만 보인다. 왼쪽 여백은 두 줄이 정확히 같아야 세로선이 맞는다.
+        const int textLeft = 14;
+
+        var lblUserName = new LabelControl
         {
-            Dock = DockStyle.Fill,
+            Dock = DockStyle.Top,
+            Height = 19,
             AutoSizeMode = LabelAutoSizeMode.None,
-            Padding = new Padding(14, 0, 10, 0)
+            Padding = new Padding(textLeft, 0, 8, 0)
         };
-        lblUserInline.Appearance.ForeColor = Color.FromArgb(55, 55, 55);
-        lblUserInline.Appearance.Font = AppFonts.Body;
-        lblUserInline.Appearance.TextOptions.VAlignment = DevExpress.Utils.VertAlignment.Center;
-        _lblUserInline = lblUserInline;
+        lblUserName.Appearance.ForeColor = Color.FromArgb(38, 41, 46);
+        lblUserName.Appearance.Font = AppFonts.SubHeading;
+        lblUserName.Appearance.TextOptions.VAlignment = DevExpress.Utils.VertAlignment.Bottom;
+
+        var lblSignInTime = new LabelControl
+        {
+            Dock = DockStyle.Top,
+            Height = 16,
+            AutoSizeMode = LabelAutoSizeMode.None,
+            Padding = new Padding(textLeft, 0, 8, 0)
+        };
+        lblSignInTime.Appearance.ForeColor = Color.FromArgb(138, 143, 150);
+        lblSignInTime.Appearance.Font = AppFonts.Caption;
+        lblSignInTime.Appearance.TextOptions.VAlignment = DevExpress.Utils.VertAlignment.Top;
 
         void Refresh()
         {
             var user = SessionManager.Current.UserInfo;
             if (user == null)
             {
-                lblUserInline.Text = string.Empty;
+                lblUserName.Text = string.Empty;
+                lblSignInTime.Text = string.Empty;
                 return;
             }
-            var time = SessionManager.Current.SignInTime is { } t ? $" [{t:yyyy-MM-dd HH:mm}]" : string.Empty;
-            lblUserInline.Text = $"{user.UserNm}{time}";
+            lblUserName.Text = user.UserNm;
+            // "접속"을 앞에 두면 매번 같은 글자가 먼저 읽혀 시각이 늦게 눈에 들어온다 -
+            // 실제로 보는 값(시각)을 앞세우고 라벨은 뒤에 작게 붙인다.
+            lblSignInTime.Text = SessionManager.Current.SignInTime is { } t ? $"{t:yyyy-MM-dd HH:mm} 접속" : string.Empty;
         }
         Refresh();
         AppConfig.EnvironmentChanged += Refresh;
 
-        // 배지 기본색(241,243,245)은 흰 배경(sidebarTopGap)과 거의 구분이 안 돼서, 브랜드색을
-        // 살짝 섞은 톤으로 바꿔 흰 배경 위에서도 보이게 한다(헤더 툴바 IconBadgeBg와 같은 원리).
-        homeButton.BadgeColor = ColorHelper.Mix(_accentColor, Color.White, 0.85f);
+        // 배지 기본색(241,243,245)은 옅은 배경(sidebarTopGap)과 거의 구분이 안 돼서, 브랜드색을
+        // 섞은 톤으로 바꿔 이 배경 위에서도 "누를 수 있는 것"으로 보이게 한다. 띠 자체가 이미
+        // 브랜드색을 옅게 섞은 색이라(SidebarUserBg = 0.93), 배지는 그보다 진해야 떠 보인다.
+        homeButton.BadgeColor = ColorHelper.Mix(_accentColor, Color.White, 0.78f);
         homeButton.AccentColor = ActionAccent;
-        homeButton.Dock = DockStyle.Right; // 절대좌표 계산 대신, 이 파일에서 이미 여러 번 검증된 Dock 방식 사용
+        homeButton.IconImage = SvgIcons.Load(SvgIcons.Home, homeButton.Width - homeButton.IconInset * 2, _accentColor);
         toolbarToolTip.SetToolTip(homeButton, "홈");
         homeButton.Click += (s, e) => OpenHomeForm();
 
-        // Dock 추가 순서 중요(이 파일 전체에 반복되는 규칙): Fill(lblUserInline) 먼저,
-        // 가장자리에 붙는 컨트롤(homeButton, Dock=Right)은 나중에 추가해야 제자리를 차지한다.
-        sidebarTopGap.Controls.Add(lblUserInline);
-        sidebarTopGap.Controls.Add(homeButton);
+        // 버튼을 직접 Dock=Right로 붙이면 안 된다 - Dock은 세로를 띠 높이만큼 늘려버려서
+        // 정사각형 배지가 세로로 길쭉해진다(한 줄이던 시절엔 띠가 낮아서 티가 안 났다).
+        // 오른쪽에 자리만 잡는 그릇을 두고, 그 안에서 버튼을 가운데에 놓는다.
+        var homeArea = new Panel
+        {
+            Dock = DockStyle.Right,
+            Width = homeButton.Width + 16,
+            BackColor = SidebarUserBg
+        };
+        _homeArea = homeArea; // 사이드바를 접으면 Dock=Fill로 바꿔 좁은 폭 한가운데로 보낸다
+        homeArea.Controls.Add(homeButton);
+        homeArea.Resize += (s, e) => homeButton.Location = new Point(
+            Math.Max(0, (homeArea.ClientSize.Width - homeButton.Width) / 2),
+            Math.Max(0, (homeArea.ClientSize.Height - homeButton.Height) / 2));
+
+        // 텍스트 두 줄을 세로 가운데로 모으기 위한 그릇 - 두 라벨을 sidebarTopGap에 직접
+        // Dock=Top으로 붙이면 위쪽에 붙어버려서, 홈 버튼과 높이가 안 맞는다.
+        var textArea = new Panel { Dock = DockStyle.Fill, BackColor = SidebarUserBg };
+        _lblUserInline = textArea; // 사이드바를 접을 때 두 줄을 함께 숨기는 대상
+        var textStack = new Panel
+        {
+            Dock = DockStyle.Top,
+            // 두 라벨을 각각 위/아래로 붙여둔 덕에(VAlignment Bottom/Top) 합친 높이가 곧
+            // 두 줄이 자연스럽게 붙은 높이가 된다.
+            Height = lblUserName.Height + lblSignInTime.Height,
+            BackColor = SidebarUserBg
+        };
+        textStack.Controls.Add(lblSignInTime);
+        textStack.Controls.Add(lblUserName); // Dock=Top은 나중에 추가한 쪽이 위로 온다
+        textArea.Controls.Add(textStack);
+        textArea.Resize += (s, e) =>
+            textStack.Top = Math.Max(0, (textArea.ClientSize.Height - textStack.Height) / 2);
+
+        // Dock 추가 순서 중요(이 파일 전체에 반복되는 규칙): Fill(textArea) 먼저,
+        // 가장자리에 붙는 컨트롤(홈 버튼/경계선)은 나중에 추가해야 제자리를 차지한다.
+        sidebarTopGap.Controls.Add(textArea);
+        sidebarTopGap.Controls.Add(homeArea);
+        sidebarTopGap.Controls.Add(new Panel { Dock = DockStyle.Bottom, Height = 1, BackColor = Color.White });
+        sidebarTopGap.Controls.Add(new Panel { Dock = DockStyle.Top, Height = 1, BackColor = Color.White });
     }
 
     /// <summary>
@@ -610,6 +693,12 @@ public class ShellForm : XtraForm
             _sidebarToolPanel.Visible = !_sidebarCollapsed;
         if (_lblUserInline != null)
             _lblUserInline.Visible = !_sidebarCollapsed;
+
+        // 접히면 사용자정보 두 줄이 사라져 띠 전체가 홈 버튼 차지가 된다. 이때도 Dock=Right로
+        // 두면 버튼이 오른쪽에 치우쳐 좁은 폭에서 눈에 띄게 삐뚤어 보이므로, Fill로 바꿔서
+        // 남은 폭 한가운데에 오게 한다(가운데 정렬 계산은 homeArea의 Resize 핸들러가 이미 한다).
+        if (_homeArea != null)
+            _homeArea.Dock = _sidebarCollapsed ? DockStyle.Fill : DockStyle.Right;
     }
 
     /// <summary>
@@ -755,37 +844,33 @@ public class ShellForm : XtraForm
     }
 
     /// <summary>
-    /// 헤더 우측 - 전역검색(Ctrl+K와 동일 동작) 아이콘, 현재 접속 환경(운영/개발) 표시,
-    /// 로그인 사용자 아바타(이니셜)를 배치한다. 예전엔 헤더 우측이 통째로 비어있어서 밋밋해
-    /// 보인다는 피드백에 따라 추가 - 환경/사용자명 자체는 이미 사이드바 하단/상단에도 있지만,
-    /// 여기 배지는 화면 전환 없이 항상 눈에 들어오는 요약 정보 역할.
+    /// 헤더 우측 - 화면검색 콤보와 현재 접속 환경(운영/개발) 표시.
     /// Dock=Right는 나중에 추가한 컨트롤일수록 더 오른쪽 끝을 차지한다(이 파일 전체의 규칙) -
-    /// 그래서 왼쪽부터 보이길 원하는 순서(검색/환경/아바타)의 역순으로 추가한다.
+    /// 그래서 왼쪽부터 보이길 원하는 순서(검색콤보/환경)대로 추가한다.
+    ///
+    /// 예전엔 여기에 검색 아이콘(누르면 별도 검색창을 띄움)과 로그인 사용자 아바타도 있었는데
+    /// 둘 다 뺐다 - 검색은 콤보가 같은 일을 더 짧은 동선으로 하고, 사용자 정보는 사이드바 맨 위에
+    /// 사용자명/접속시각으로 이미 나오기 때문.
     /// </summary>
     private void BuildHeaderRight()
     {
         headerRightPanel.BackColor = HeaderBg;
-        // Fill(스페이서)을 가장 먼저 둬서 나머지 빈 공간을 흡수 - headerRightPanel 자체 폭(210)과
+        // Fill(스페이서)을 가장 먼저 둬서 나머지 빈 공간을 흡수 - headerRightPanel 자체 폭과
         // 무관하게 아래 항목들이 항상 오른쪽 정렬로 보이게 한다.
         headerRightPanel.Controls.Add(new Panel { Dock = DockStyle.Fill });
 
-        var searchButton = new IconBadgeButton
-        {
-            IconPainter = ToolbarIconPainters.Query,
-            BadgeColor = IconBadgeBg,
-            AccentColor = ActionAccent,
-            Size = new Size(36, 36),
-            IconInset = 8
-        };
-        toolbarToolTip.SetToolTip(searchButton, "화면 검색 (Ctrl+K)");
-        searchButton.Click += (s, e) => OpenQuickMenuSearch();
-        AddHeaderRightItem(searchButton, rightPadding: 10);
+        BuildMenuSearchCombo();
+        AddHeaderRightItem(cboMenuSearch, rightPadding: 12);
 
         lblEnvBadge.AutoSizeMode = LabelAutoSizeMode.None;
         lblEnvBadge.Size = new Size(72, 24);
         lblEnvBadge.Appearance.Font = AppFonts.Caption;
         lblEnvBadge.Appearance.ForeColor = Color.White;
-        lblEnvBadge.Appearance.BackColor = Color.FromArgb(255, 255, 255, 40);
+        // 원래 의도는 "헤더 위에 살짝 밝은 반투명 흰색"이었는데 Color.FromArgb(255,255,255,40)로
+        // 적혀 있었다 - 인자 4개짜리는 (알파,R,G,B) 순서라 알파 255에 B만 40인 '노란색'이 되어
+        // 헤더에 노란 배지가 떠 있었다(실제로 겪음). 알파에 기대는 대신 헤더색에 흰색을 섞은
+        // 값을 직접 지정한다 - 회사별로 ToolbarColor가 바뀌어도 같은 톤 차이를 유지한다.
+        lblEnvBadge.Appearance.BackColor = ColorHelper.Mix(HeaderBg, Color.White, 0.18f);
         lblEnvBadge.Appearance.Options.UseBackColor = true;
         lblEnvBadge.Appearance.TextOptions.HAlignment = DevExpress.Utils.HorzAlignment.Center;
         lblEnvBadge.Appearance.TextOptions.VAlignment = DevExpress.Utils.VertAlignment.Center;
@@ -794,32 +879,60 @@ public class ShellForm : XtraForm
         AppConfig.EnvironmentChanged += RefreshEnvBadge;
         AddHeaderRightItem(lblEnvBadge, rightPadding: 12);
 
-        avatarBadge.BackColor = Color.White;
-        // Panel은 기본적으로 사각형이라, 원형 아바타처럼 보이게 그리기 영역 자체를 원으로 잘라낸다
-        using (var circlePath = new System.Drawing.Drawing2D.GraphicsPath())
-        {
-            circlePath.AddEllipse(0, 0, avatarBadge.Width, avatarBadge.Height);
-            avatarBadge.Region = new Region(circlePath);
-        }
-        lblAvatarInitial.Dock = DockStyle.Fill;
-        lblAvatarInitial.AutoSizeMode = LabelAutoSizeMode.None;
-        lblAvatarInitial.Appearance.Font = AppFonts.SubHeading;
-        lblAvatarInitial.Appearance.ForeColor = _accentColor;
-        lblAvatarInitial.Appearance.TextOptions.HAlignment = DevExpress.Utils.HorzAlignment.Center;
-        lblAvatarInitial.Appearance.TextOptions.VAlignment = DevExpress.Utils.VertAlignment.Center;
-        avatarBadge.Controls.Add(lblAvatarInitial);
+    }
 
-        void RefreshAvatar()
+    /// <summary>
+    /// 화면검색 콤보. 타이핑하면 목록이 걸러지고(SearchMode.AutoFilter), 화면을 고르면 바로 열고
+    /// 다시 비워서 연속 검색이 가능하게 한다. 열 수 있는 화면(GROUP이 아니고 FormClassNm이
+    /// 있으며 조회권한이 있는 것)만 담는다 - OpenQuickMenuSearch와 같은 기준이다.
+    ///
+    /// 목록은 로그인 후에야 채워지므로 여기선 모양만 잡고, 실제 데이터는 RefreshMenuSearchItems가
+    /// 메뉴를 만들 때 넣는다(서버를 바꿔 재로그인하면 메뉴가 통째로 달라지므로 그때도 다시 채운다).
+    /// </summary>
+    private void BuildMenuSearchCombo()
+    {
+        cboMenuSearch.Size = new Size(210, 26);
+        cboMenuSearch.Properties.NullText = "화면 검색 (Ctrl+K)";
+        cboMenuSearch.Properties.ShowHeader = false;
+        cboMenuSearch.Properties.ShowFooter = false;
+        cboMenuSearch.Properties.DisplayMember = nameof(MenuDto.MenuNm);
+        cboMenuSearch.Properties.ValueMember = nameof(MenuDto.MenuCd);
+
+        // PopulateColumns()를 쓰면 MenuDto의 모든 프로퍼티가 열로 깔려서(MenuCd/FormClassNm 등)
+        // 드롭다운이 표처럼 보인다(실제로 겪음). 보여줄 열 하나만 직접 정의한다.
+        cboMenuSearch.Properties.Columns.Clear();
+        cboMenuSearch.Properties.Columns.Add(
+            new DevExpress.XtraEditors.Controls.LookUpColumnInfo(nameof(MenuDto.MenuNm)));
+
+        // 타이핑한 글자로 목록을 걸러준다 - AutoSearchColumnIndex는 "몇 번째 열을 기준으로
+        // 찾을지"라, 화면명 한 열만 두고 0번으로 지정한다.
+        cboMenuSearch.Properties.SearchMode = DevExpress.XtraEditors.Controls.SearchMode.AutoFilter;
+        cboMenuSearch.Properties.AutoSearchColumnIndex = 0;
+        cboMenuSearch.Properties.ImmediatePopup = true;
+        cboMenuSearch.Properties.Appearance.Font = AppFonts.Body;
+
+        cboMenuSearch.EditValueChanged += (s, e) =>
         {
-            var user = SessionManager.Current.UserInfo;
-            lblAvatarInitial.Text = !string.IsNullOrEmpty(user?.UserNm) ? user!.UserNm.Substring(0, 1) : "?";
-            var time = SessionManager.Current.SignInTime is { } t ? $" [{t:yyyy-MM-dd HH:mm} 로그인]" : string.Empty;
-            toolbarToolTip.SetToolTip(avatarBadge, $"{user?.UserNm}{time}");
-            toolbarToolTip.SetToolTip(lblAvatarInitial, $"{user?.UserNm}{time}");
-        }
-        RefreshAvatar();
-        AppConfig.EnvironmentChanged += RefreshAvatar;
-        AddHeaderRightItem(avatarBadge, rightPadding: 16);
+            if (cboMenuSearch.EditValue is not string menuCd || string.IsNullOrWhiteSpace(menuCd)) return;
+
+            // 여기서 곧바로 화면을 열면 콤보의 팝업이 닫히는 중에 모달/포커스가 얽힌다.
+            // 한 박자 뒤로 미뤄서 콤보가 자기 일을 끝낸 다음에 열도록 한다.
+            BeginInvoke(new Action(() =>
+            {
+                cboMenuSearch.EditValue = null; // 다음 검색을 위해 비워둔다
+                OpenMenuByCode(menuCd);
+            }));
+        };
+    }
+
+    /// <summary>검색 콤보의 목록을 현재 로그인 사용자가 열 수 있는 화면들로 채운다.</summary>
+    private void RefreshMenuSearchItems()
+    {
+        cboMenuSearch.Properties.DataSource = SessionManager.Current.Menus
+            .Where(m => m.ViewYn && m.MenuType != "GROUP" && !string.IsNullOrWhiteSpace(m.FormClassNm))
+            .OrderBy(m => m.MenuNm)
+            .ToList();
+        cboMenuSearch.EditValue = null;
     }
 
     /// <summary>
@@ -888,11 +1001,20 @@ public class ShellForm : XtraForm
     }
 
     /// <summary>ICON_NM(DB) -> 실제 라인아이콘 매핑. 매칭 안 되면 기본 폴더 아이콘.</summary>
-    private static readonly Dictionary<string, Action<Graphics, Rectangle, Color>> TopMenuIcons = new(StringComparer.OrdinalIgnoreCase)
+    /// <summary>
+    /// TSMMENU.ICON_NM 값 -> DevExpress SVG 아이콘 이름. 여기 없는 값이 오면 폴더 아이콘으로
+    /// 떨어진다(SvgIcons.Folder) - 메뉴를 새로 만들 때 아이콘 이름을 안 정해도 메뉴는 정상으로 뜬다.
+    /// 모듈이 늘어나면 이 표에 한 줄만 추가하면 되고, 쓸 수 있는 아이콘 목록은 SvgIcons 참고.
+    /// </summary>
+    private static readonly Dictionary<string, string> TopMenuIcons = new(StringComparer.OrdinalIgnoreCase)
     {
-        ["settings"] = MenuIconPainters.Settings,
-        ["shoppingcart"] = MenuIconPainters.Cart,
-        ["tools"] = MenuIconPainters.Tools,
+        ["settings"] = SvgIcons.Settings,
+        ["shoppingcart"] = SvgIcons.ShoppingCart,
+        ["tools"] = SvgIcons.Database,
+        ["user"] = SvgIcons.User,
+        ["security"] = SvgIcons.Security,
+        ["box"] = SvgIcons.Box,
+        ["money"] = SvgIcons.Money,
     };
 
     /// <summary>
@@ -916,9 +1038,9 @@ public class ShellForm : XtraForm
                 Style = ElementStyle.Group
             };
 
-            var painter = (top.IconNm != null && TopMenuIcons.TryGetValue(top.IconNm, out var p)) ? p : MenuIconPainters.Folder;
-            group.ImageOptions.Image = MenuIconPainters.Render(painter, MenuTopIconSize, NavText);
-            AddSidebarRailButton(top.MenuNm, painter, ref railY);
+            var iconName = (top.IconNm != null && TopMenuIcons.TryGetValue(top.IconNm, out var n)) ? n : SvgIcons.Folder;
+            group.ImageOptions.Image = SvgIcons.Load(iconName, MenuTopIconSize, NavText);
+            AddSidebarRailButton(top.MenuNm, iconName, ref railY);
 
             // 최상위 항목 - 다크 배경 위에 아이콘 + 굵은 밝은 글씨. 개별 배경색은 주지 않고
             // 사이드바 바탕색을 그대로 살려서 평평한 리스트처럼 보이게 한다.
@@ -941,13 +1063,17 @@ public class ShellForm : XtraForm
             AddChildMenus(group, menus, top.MenuCd);
             accordionMenu.Elements.Add(group);
         }
+
+        // 헤더의 화면검색 콤보도 같은 메뉴 목록을 쓰므로 여기서 같이 채운다 - 서버를 바꿔
+        // 재로그인하면 이 메서드가 다시 도니까 콤보 목록도 자동으로 새 메뉴로 갈린다.
+        RefreshMenuSearchItems();
     }
 
     /// <summary>
     /// 접힌 사이드바(아이콘 레일)에 최상위 메뉴 하나당 아이콘 버튼 하나를 세로로 쌓아 배치.
     /// 하위 메뉴까지 좁은 폭에 담기는 어려워, 클릭하면 그냥 사이드바를 펼치는 것으로 위임한다.
     /// </summary>
-    private void AddSidebarRailButton(string tooltipText, Action<Graphics, Rectangle, Color> painter, ref int y)
+    private void AddSidebarRailButton(string tooltipText, string iconName, ref int y)
     {
         const int size = 40;
         var btn = new Panel
@@ -961,7 +1087,7 @@ public class ShellForm : XtraForm
         {
             Dock = DockStyle.Fill,
             SizeMode = PictureBoxSizeMode.CenterImage,
-            Image = MenuIconPainters.Render(painter, MenuTopIconSize + 4, NavText),
+            Image = SvgIcons.Load(iconName, MenuTopIconSize + 4, NavText),
             Cursor = Cursors.Hand
         };
         btn.Controls.Add(pic);
@@ -1110,31 +1236,22 @@ public class ShellForm : XtraForm
     }
 
     /// <summary>
-    /// Ctrl+K - 전역 메뉴 빠른 검색 팔레트. MDI 자식(그리드 등)에 포커스가 있어도 잡히도록
-    /// ProcessCmdKey에서 가로챈다(KeyDown은 포커스를 가진 자식 컨트롤이 먼저 소비해버릴 수 있음).
+    /// Ctrl+K - 헤더의 화면검색 콤보로 바로 포커스를 옮기고 목록을 펼친다. MDI 자식(그리드 등)에
+    /// 포커스가 있어도 잡히도록 ProcessCmdKey에서 가로챈다(KeyDown은 포커스를 가진 자식 컨트롤이
+    /// 먼저 소비해버릴 수 있음).
+    ///
+    /// 예전엔 이 단축키가 별도 검색창(QuickMenuSearchForm)을 띄웠는데, 헤더 콤보가 같은 일을
+    /// 창 하나 덜 띄우고 하게 되면서 그 화면은 없앴다.
     /// </summary>
     protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
     {
         if (keyData == (Keys.Control | Keys.K))
         {
-            OpenQuickMenuSearch();
+            cboMenuSearch.Focus();
+            cboMenuSearch.ShowPopup();
             return true;
         }
         return base.ProcessCmdKey(ref msg, keyData);
-    }
-
-    private void OpenQuickMenuSearch()
-    {
-        var leafMenus = SessionManager.Current.Menus
-            .Where(m => m.ViewYn && m.MenuType != "GROUP" && !string.IsNullOrWhiteSpace(m.FormClassNm))
-            .ToList();
-        if (leafMenus.Count == 0) return;
-
-        using var search = new QuickMenuSearchForm(leafMenus);
-        if (search.ShowDialog(this) == DialogResult.OK && search.Result != null)
-        {
-            OpenMenuForm(search.Result);
-        }
     }
 
     /// <summary>HomeForm 대시보드의 바로가기/최근사용 카드에서 호출 - 메뉴코드로 화면을 연다</summary>

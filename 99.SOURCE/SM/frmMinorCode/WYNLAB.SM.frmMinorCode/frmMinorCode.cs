@@ -111,11 +111,18 @@ public partial class frmMinorCode : BaseForm
             return;
         }
 
-        // 지워진 대분류를 계속 편집 상태로 두면 안 되므로 신규 모드로 되돌린 뒤 목록을 다시 받는다.
+        // 지워진 대분류를 계속 편집 상태로 두면 안 되므로 편집 대상을 먼저 놓아준다.
         _editingMajorCd = null;
         gvw2.ClearDirtyMarks();
         await QueryClick();
-        EnterNewMode();
+
+        // 여기서 EnterNewMode()를 부르면 안 된다. QueryClick이 grd1을 다시 바인딩하는 순간
+        // 포커스 행이 새로 잡히면서 FocusedRowObjectChanged -> EnterEditMode가 돌아 우측 패널을
+        // 이미 채워놓는데, 그 뒤에 신규 모드로 비워버리면 그리드에는 행이 선택되어 있고
+        // 소분류까지 조회됐는데 패널만 빈 상태가 된다(실제로 겪음).
+        // 남은 대분류가 하나도 없을 때만 신규 입력 상태로 둔다.
+        if (_majors.Count == 0) EnterNewMode();
+
         Toast.Show("삭제되었습니다.");
     }
 
