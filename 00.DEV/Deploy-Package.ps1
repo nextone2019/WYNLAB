@@ -45,7 +45,7 @@ Remove-Item -Recurse -Force "$deploy\Modules" -ErrorAction SilentlyContinue
 # 맞추므로 잔해가 알아서 정리된다(그 주석 참고).
 
 New-Item -ItemType Directory -Force -Path "$deploy\CoreAssembly" | Out-Null
-New-Item -ItemType Directory -Force -Path "$deploy\Modules\SM" | Out-Null
+New-Item -ItemType Directory -Force -Path "$deploy\Modules" | Out-Null
 
 if (-not $IncludeShell -and (Test-Path "$deploy\ClickOnce")) {
     Write-Host "  (이전에 만든 _deploy\ClickOnce는 그대로 둡니다 - 다시 만들려면 -IncludeShell)" -ForegroundColor DarkGray
@@ -71,33 +71,48 @@ Copy-Item "$root\03.Shared\WYNLAB.Shared\bin\Release\netstandard2.0\WYNLAB.Share
 # 그쪽 manifest.json을 만들 수 있도록 생성 스크립트를 같이 넣어둔다.
 Copy-Item "$root\Generate-Manifest.ps1" "$deploy\" -Force
 
-Write-Host "=== 3) 화면(SM) 모듈 ===" -ForegroundColor Cyan
-# 두 가지 sln 배치가 당분간 공존한다 - 아직 화면 단위인 예전 화면들(99.SOURCE\SM\{화면}\{화면}.sln)과
-# 모듈 단위로 전환한 것(99.SOURCE\SM\WYNLAB.SM.sln, 서브모듈은 그 안의 폴더로만 구분). 그래서
-# 99.SOURCE\SM 바로 밑과 그 한 단계 아래 폴더 양쪽에서 sln을 찾는다 - 화면이 전부 모듈 단위로
-# 옮겨지면 아래쪽(하위 폴더 스캔)은 자연히 안 찾아지고 위쪽만 남는다.
-$smSolutions = @(Get-ChildItem "$legacySourceRoot\99.SOURCE\SM" -Filter "*.sln") +
-    (Get-ChildItem "$legacySourceRoot\99.SOURCE\SM" -Directory | ForEach-Object {
-        Get-ChildItem $_.FullName -Filter "*.sln" -ErrorAction SilentlyContinue | Select-Object -First 1
-    }) | Where-Object { $_ -ne $null }
+Write-Host "=== 3) 화면 모듈 (99.SOURCE\{모듈코드}\, 예: SM/BA) ===" -ForegroundColor Cyan
+# 99.SOURCE 바로 밑 폴더 하나하나가 모듈(SM/BA/...) - 배포 파일은 Modules\{모듈코드}\에 모듈별로
+# 나눠 담는다(ModuleLoader의 재귀 탐색이 이 하위폴더 구조를 그대로 지원 - 99.SOURCE 소스 구조와
+# 대응된다). 모듈 폴더 밑의 TEMPLATE\WYNLAB.{모듈}.TEMPLATE(새 화면 복사용 원본, 예:
+# SM\TEMPLATE\WYNLAB.SM.TEMPLATE)는 sln이 없어서 아래 스캔에 애초에 안 걸린다 - 따로 건너뛸
+# 필요가 없다.
+$moduleDirs = Get-ChildItem "$legacySourceRoot\99.SOURCE" -Directory
 
-foreach ($sln in $smSolutions) {
-    Build-Release $sln.FullName
-    $moduleName = $sln.BaseName # 예: WYNLAB.SM.CODE
-    $binDir = Get-ChildItem "$($sln.DirectoryName)\$moduleName\bin\Release\net48" -Filter "$moduleName.dll" -ErrorAction SilentlyContinue
-    if (-not $binDir) {
-        Write-Warning "$moduleName.dll 을 못 찾았습니다 - 건너뜀"
-        continue
-    }
-    $srcDir = $binDir.DirectoryName
-    Copy-Item "$srcDir\$moduleName.dll" "$deploy\Modules\SM\" -Force
-    Copy-Item "$srcDir\$moduleName.pdb" "$deploy\Modules\SM\" -Force -ErrorAction SilentlyContinue
+foreach ($moduleDir in $moduleDirs) {
+    $moduleCd = $moduleDir.Name # 예: SM, BA
 
-    # 이 화면이 SvgIcon 등 preserialized 리소스를 쓰면 같은 폴더에 System.Resources.Extensions.dll이
-    # 같이 생기는데, 이건 화면별 폴더가 아니라 Modules\ 바로 밑에 한 벌만 두면 된다(SERVER_SETUP.md 참고).
-    $resExt = Join-Path $srcDir "System.Resources.Extensions.dll"
-    if (Test-Path $resExt) {
-        Copy-Item $resExt "$deploy\Modules\" -Force
+    # 두 가지 sln 배치가 당분간 공존한다 - 아직 화면 단위인 예전 화면들(99.SOURCE\{모듈}\{화면}\{화면}.sln)과
+    # 모듈 단위로 전환한 것(99.SOURCE\{모듈}\WYNLAB.{모듈}.sln, 서브모듈은 그 안의 폴더로만 구분). 그래서
+    # 99.SOURCE\{모듈} 바로 밑과 그 한 단계 아래 폴더 양쪽에서 sln을 찾는다 - 화면이 전부 모듈 단위로
+    # 옮겨지면 아래쪽(하위 폴더 스캔)은 자연히 안 찾아지고 위쪽만 남는다.
+    $solutions = @(Get-ChildItem $moduleDir.FullName -Filter "*.sln") +
+        (Get-ChildItem $moduleDir.FullName -Directory | ForEach-Object {
+            Get-ChildItem $_.FullName -Filter "*.sln" -ErrorAction SilentlyContinue | Select-Object -First 1
+        }) | Where-Object { $_ -ne $null }
+
+    if ($solutions.Count -eq 0) { continue }
+
+    New-Item -ItemType Directory -Force -Path "$deploy\Modules\$moduleCd" | Out-Null
+
+    foreach ($sln in $solutions) {
+        Build-Release $sln.FullName
+        $moduleName = $sln.BaseName # 예: WYNLAB.SM.CODE, WYNLAB.BA
+        $binDir = Get-ChildItem "$($sln.DirectoryName)\$moduleName\bin\Release\net48" -Filter "$moduleName.dll" -ErrorAction SilentlyContinue
+        if (-not $binDir) {
+            Write-Warning "$moduleName.dll 을 못 찾았습니다 - 건너뜀"
+            continue
+        }
+        $srcDir = $binDir.DirectoryName
+        Copy-Item "$srcDir\$moduleName.dll" "$deploy\Modules\$moduleCd\" -Force
+        Copy-Item "$srcDir\$moduleName.pdb" "$deploy\Modules\$moduleCd\" -Force -ErrorAction SilentlyContinue
+
+        # 이 화면이 SvgIcon 등 preserialized 리소스를 쓰면 같은 폴더에 System.Resources.Extensions.dll이
+        # 같이 생기는데, 이건 화면별 폴더가 아니라 Modules\ 바로 밑에 한 벌만 두면 된다(SERVER_SETUP.md 참고).
+        $resExt = Join-Path $srcDir "System.Resources.Extensions.dll"
+        if (Test-Path $resExt) {
+            Copy-Item $resExt "$deploy\Modules\" -Force
+        }
     }
 }
 

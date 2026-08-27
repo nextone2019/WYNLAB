@@ -5,23 +5,13 @@
 using DevExpress.XtraGrid;
 using WYNLAB.Base.Controls;
 
-namespace WYNLAB.SM.TEMPLATE;
+namespace WYNLAB.BA;
 
 /// <summary>
-/// 새 화면 개발용 템플릿 - frmMinorCode(기초코드등록)에서 표준 레이아웃(제목바 + 검색패널 +
-/// 좌우 스플리터 + 목록그리드/상세패널/하위그리드)만 남기고 그 화면 전용 컬럼/입력컨트롤은
-/// 전부 지운 것. 사용법:
-///   1. 이 프로젝트 폴더(WYNLAB.SM.TEMPLATE)를 새 화면 프로젝트로 복사
-///   2. 복사한 폴더 안에서 TemplateForm.cs / .Designer.cs / .resx 파일명을 새 화면명으로
-///      바꾸고, 그 안의 클래스명(TemplateForm)·네임스페이스(WYNLAB.SM.TEMPLATE)도 새
-///      화면명/WYNLAB.SM으로 바꾼다 - 반드시 파일을 새 이름으로 바꾼 "다음에" 클래스명을
-///      바꿀 것(먼저 rename 리팩터부터 쓰면 원본과 이름이 겹쳐 컴파일 에러가 난다 - 실제로
-///      겪음, frmUserAuth 만들 때 이 순서를 안 지켜서 1142개 에러가 났었다).
-///   3. grd1(목록)/panData(상세 입력)/grd2(하위 목록) 자리에 디자이너로 컬럼/컨트롤을 배치
-///   4. 완성되면 이 WYNLAB.SM.TEMPLATE 프로젝트를 WYNLAB.SM.sln에서 빼고 실제 화면
-///      프로젝트를 솔루션에 추가(또는 WYNLAB.SM 모듈 프로젝트 밑 폴더로 옮겨 넣기)
+/// 사원등록 화면 - TEMPLATE(frmMinorCode 표준 레이아웃)에서 복사해서 만듦. grd1(목록)/
+/// panData(상세 입력)/grd2(하위 목록)에 아직 컬럼/컨트롤이 없다 - 디자이너로 배치할 것.
 /// </summary>
-public partial class TemplateForm
+public partial class frmEmp
 {
     private System.ComponentModel.IContainer components = null;
     private PanelWyn panBase = null!;
@@ -37,7 +27,7 @@ public partial class TemplateForm
 
     private void InitializeComponent()
     {
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(TemplateForm));
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(frmEmp));
             this.panBase = new WYNLAB.Base.Controls.PanelWyn();
             this.panelWyn3 = new WYNLAB.Base.Controls.PanelWyn();
             this.panelWyn4 = new WYNLAB.Base.Controls.PanelWyn();
@@ -386,14 +376,14 @@ public partial class TemplateForm
             this.sectionHeaderWyn1.Size = new System.Drawing.Size(209, 23);
             this.sectionHeaderWyn1.SvgIcon = ((DevExpress.Utils.Svg.SvgImage)(resources.GetObject("sectionHeaderWyn1.SvgIcon")));
             this.sectionHeaderWyn1.TabIndex = 8;
-            this.sectionHeaderWyn1.Text = "화면명 [TemplateForm]";
+            this.sectionHeaderWyn1.Text = "사원등록 [frmEmp]";
             //
-            // TemplateForm
+            // frmEmp
             //
             this.Appearance.Options.UseFont = true;
             this.ClientSize = new System.Drawing.Size(1165, 600);
             this.Controls.Add(this.panBase);
-            this.Name = "TemplateForm";
+            this.Name = "frmEmp";
             ((System.ComponentModel.ISupportInitialize)(this.panBase)).EndInit();
             this.panBase.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.panelWyn3)).EndInit();

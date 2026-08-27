@@ -1,0 +1,13 @@
+-- TSMMENU에 BA_ITEM_REG(품목등록)/BA_ITEM_GRP(품목그룹등록)는 이미 메뉴 트리 자리만 잡혀
+-- 있었다(FORM_CLASS_NM이 NULL). 방금 WYNLAB.BA 모듈에 그 두 화면을 만들었으니 연결한다.
+--
+-- BA_ITEM_REG/BA_ITEM_GRP를 각각 BA_ITEM/BA_ITEMGRP로 더 단순화해달라는 요청이 있었지만,
+-- BA_ITEM은 이미 "품목관리" GROUP 메뉴가 쓰고 있는 코드라(BA_CUST/BA_CUST_REG 때와 같은
+-- 충돌) 이번에도 그대로 두었다.
+
+UPDATE TSMMENU SET FORM_CLASS_NM = 'WYNLAB.BA.frmItem, WYNLAB.BA' WHERE MENU_CD = 'BA_ITEM_REG';
+UPDATE TSMMENU SET FORM_CLASS_NM = 'WYNLAB.BA.frmItemGroup, WYNLAB.BA' WHERE MENU_CD = 'BA_ITEM_GRP';
+GO
+
+SELECT MENU_CD, MENU_NM, FORM_CLASS_NM FROM TSMMENU WHERE MENU_CD IN ('BA_ITEM_REG', 'BA_ITEM_GRP');
+GO

@@ -2,27 +2,27 @@ using System.Data;
 using WYNLAB.Base;
 using WYNLAB.Shared.Dtos;
 
-namespace WYNLAB.SM.TEMPLATE;
+namespace WYNLAB.BA;
 
 /// <summary>
-/// 새 화면 개발용 템플릿(레이아웃 전용) - 사용법은 TemplateForm.Designer.cs 상단 주석 참고.
+/// 새 화면 개발용 템플릿(레이아웃 전용) - 사용법은 frmDept.Designer.cs 상단 주석 참고.
 ///
 /// grd1(목록)에서 행을 고르면 그 상세를 panData에 채우고(EnterEditMode), 저장 전이면
 /// EnterNewMode로 비워둔다 - frmMinorCode/frmUserAuth가 전부 따르는 표준 패턴이다. 조회는
 /// api/data/*(범용 데이터 통로, GENERIC_DATA_API.md 참고) 또는 화면 전용 API 중 편한 쪽을
 /// 쓰면 된다 - 아래 QueryClick은 범용 통로(QueryAsync/SaveAsync) 예시로 채워뒀다.
 /// </summary>
-public partial class TemplateForm : BaseForm
+public partial class frmDept : BaseForm
 {
     private DataTable _list = new();
     private string? _editingCd; // null이면 신규모드
 
-    public TemplateForm()
+    public frmDept()
     {
         InitializeComponent();
 
-        Text = "화면명";
-        MenuCd = "MENU_CD_HERE";
+        Text = "부서등록";
+        MenuCd = "BA_DEPT";
 
         gvw1.FocusedRowObjectChanged += Gvw1_FocusedRowObjectChanged;
 
