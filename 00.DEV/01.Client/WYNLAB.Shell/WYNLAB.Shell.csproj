@@ -1,0 +1,98 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net48</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <UseWindowsForms>true</UseWindowsForms>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <RootNamespace>WYNLAB.Shell</RootNamespace>
+    <!-- 프로젝트/폴더/네임스페이스는 WYNLAB.Shell로 그대로 두고, 실행 파일 이름만
+         WYNLAB.exe가 되도록 지정 (WYNLAB.BaseForm 때와 같은 방식 - 결과물 파일명과
+         내부 네임스페이스를 분리). -->
+    <AssemblyName>WYNLAB</AssemblyName>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <!-- wynlab.ico는 LogoPainter(로그인/스플래시/툴바 로고와 같은 큐브 마크)를 30x30 좌표
+         그대로 여러 해상도(16~256px)로 렌더링해서 만든 아이콘 - exe/작업표시줄/바로가기가
+         앱 안 로고와 같은 그림을 쓰도록 통일했다. -->
+    <ApplicationIcon>wynlab.ico</ApplicationIcon>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- DevExpress 21.2 로컬 설치 기반 참조 -->
+    <Reference Include="DevExpress.Data.v21.2">
+      <HintPath>C:\Program Files (x86)\DevExpress 21.2\Components\Bin\Framework\DevExpress.Data.v21.2.dll</HintPath>
+    </Reference>
+    <Reference Include="DevExpress.Utils.v21.2">
+      <HintPath>C:\Program Files (x86)\DevExpress 21.2\Components\Bin\Framework\DevExpress.Utils.v21.2.dll</HintPath>
+    </Reference>
+    <Reference Include="DevExpress.XtraBars.v21.2">
+      <HintPath>C:\Program Files (x86)\DevExpress 21.2\Components\Bin\Framework\DevExpress.XtraBars.v21.2.dll</HintPath>
+    </Reference>
+    <Reference Include="DevExpress.XtraEditors.v21.2">
+      <HintPath>C:\Program Files (x86)\DevExpress 21.2\Components\Bin\Framework\DevExpress.XtraEditors.v21.2.dll</HintPath>
+    </Reference>
+    <Reference Include="DevExpress.XtraGrid.v21.2">
+      <HintPath>C:\Program Files (x86)\DevExpress 21.2\Components\Bin\Framework\DevExpress.XtraGrid.v21.2.dll</HintPath>
+    </Reference>
+    <Reference Include="DevExpress.XtraLayout.v21.2">
+      <HintPath>C:\Program Files (x86)\DevExpress 21.2\Components\Bin\Framework\DevExpress.XtraLayout.v21.2.dll</HintPath>
+    </Reference>
+    <!-- 앱 전체 스킨(메시지박스 포함 모든 DevExpress 컨트롤의 색/테두리/캡션)을 위해 필요 -->
+    <Reference Include="DevExpress.BonusSkins.v21.2">
+      <HintPath>C:\Program Files (x86)\DevExpress 21.2\Components\Bin\Framework\DevExpress.BonusSkins.v21.2.dll</HintPath>
+    </Reference>
+    <!-- DevExpress 내장 SVG 아이콘 2,600여 개(홈 버튼, 메뉴 모듈 아이콘)를 이름으로 꺼내 쓰기
+         위해 필요 - SvgIcons.Load() 참고. 화면(.resx)에 아이콘을 하나씩 박아두는 방식과 달리
+         코드에서 이름만으로 가져올 수 있어서, 메뉴가 늘어도 리소스를 추가할 필요가 없다. -->
+    <Reference Include="DevExpress.Images.v21.2">
+      <HintPath>C:\Program Files (x86)\DevExpress 21.2\Components\Bin\Framework\DevExpress.Images.v21.2.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+  <!-- 화면(메뉴)마다 별도 프로젝트/DLL로 분리되어 있고(WYNLAB.Screens.*), Shell은 이들을
+       컴파일 타임에 참조하지 않는다 - ModuleLoader가 시작 시 AppConfig.ModulesPath 폴더를
+       스캔해서 런타임에 Assembly.LoadFrom으로 로드한다(Program.cs 참고). 화면 하나만 고쳐서
+       그 DLL만 배포해도 Shell 자체는 재게시할 필요가 없게 하기 위함. -->
+  <ItemGroup>
+    <ProjectReference Include="..\WYNLAB.BaseForm\WYNLAB.BaseForm.csproj" />
+    <ProjectReference Include="..\..\03.Shared\WYNLAB.Shared\WYNLAB.Shared.csproj" />
+    <!-- Program.cs 맨 앞에서 WYNLAB.BaseForm.dll/WYNLAB.Shared.dll 갱신 여부를 확인하는
+         용도로만 참조 - 이 dll은 그 확인이 끝나기 전까지 로드되면 안 되므로, CoreAssemblyUpdater
+         쪽은 절대 WYNLAB.Base를 참조하지 않는다(WYNLAB.Bootstrap.csproj 주석 참고). -->
+    <ProjectReference Include="..\WYNLAB.Bootstrap\WYNLAB.Bootstrap.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- SDK 스타일 프로젝트는 폴더 안의 모든 파일을 기본적으로 None 항목으로 암시적 글롭
+         포함시킨다 - appsettings.Dev.json/Prod.json도 이 자동 포함 대상이라, 아래에서
+         다시 선언해도 "메타데이터 없는 자동 포함 항목"이 같은 Identity로 하나 더 잡혀서
+         충돌한다. 자동 포함에서 이 두 파일만 먼저 빼야 한다. -->
+    <None Remove="appsettings.Dev.json" />
+    <None Remove="appsettings.Prod.json" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- 빌드 구성에 따라 다른 서버를 바라보도록 환경별 설정파일을 분리.
+         Debug 빌드(사장님/개발자 평소 F5) -> 개발서버
+         Release 빌드(ClickOnce 운영 게시) -> 운영서버
+         둘 다 출력폴더에는 동일하게 "appsettings.json" 이름으로 복사됨(Link).
+
+         반드시 <Content>여야 한다 - <None>으로 두면(Publish=true를 줘도) 일반 빌드/게시
+         (bin\ 폴더)엔 정상 복사되면서도 ClickOnce 매니페스트(Application Files\)에는
+         조용히 빠진다. 실제로 이 문제 때문에 서버에 설치된 앱이 시작하자마자
+         AppConfig.Load()에서 appsettings.json을 못 찾아 FileNotFoundException으로 죽는
+         걸 직접 겪었다 - <Content> + Publish=true 조합으로 바꾸고 나서야 ClickOnce
+         Application Files\ 안에 appsettings.json.deploy로 정상 포함되는 걸 확인했다. -->
+    <Content Include="appsettings.Dev.json" Link="appsettings.json" Condition="'$(Configuration)'=='Debug'">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <Publish>true</Publish>
+    </Content>
+    <Content Include="appsettings.Prod.json" Link="appsettings.json" Condition="'$(Configuration)'=='Release'">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <Publish>true</Publish>
+    </Content>
+  </ItemGroup>
+
+</Project>

@@ -1,0 +1,130 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- 모듈(SM = ?�스?�운?��?�? ?�나가 ?�로?�트 ?�나?�고 DLL ?�나?? ??모듈???�면?� ?��?
+       ?�기 ?�어가�? ?�브모듈(코드관�??�용?��?�????� ?�더로만 구분?�다 - ?�셈블리명에??       ?�임?�페?�스?�도 ?�브모듈?????�어가므�? ?�중???�브모듈??쪼개거나 ?�면???�른
+       ?�브모듈�???��???�더�??�직이�??�고 TSMMENU.FORM_CLASS_NM?� ?��?지 ?�아???�다.
+
+       ?�면 ?�나???�로?�트�??�던 방식?�서 바꿨??- ?�면???�백 개�? ?�면 배포 ?�크립트가
+       ?�로?�트 ?�만??빌드�??�아???�고(?�면 300개면 300??, 배포 ?�일??dll+pdb�?600개�?
+       ?�다. 모듈 ?�위�?묶으�?그게 모듈 ??10�??�팎)�?줄어?�다. -->
+  <PropertyGroup>
+    <TargetFramework>net48</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <UseWindowsForms>true</UseWindowsForms>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+
+    <!-- ?�더(CODE ??�??�임?�페?�스??반영?��? ?�는?? ?�더???�람??찾기 ?�우?�고 ?�누??         것이�? ?�임?�페?�스까�? ?�라 ?�뉘�??�면???�른 ?�더�???�� ?�마???�임?�페?�스?�
+         TSMMENU 값이 같이 바뀐다. -->
+    <RootNamespace>WYNLAB.SM</RootNamespace>
+    <AssemblyName>WYNLAB.SM</AssemblyName>
+
+    <!-- SvgIcon처럼 문자?�이 ?�닌(?��?지 ?? 리소?��? .resx???�으�?SDK ?��????�로?�트??         기본?�으�?�??�는??- ???�션 + System.Resources.Extensions ?�키지가 ?�어???? -->
+    <GenerateResourceUsePreserializedResources>true</GenerateResourceUsePreserializedResources>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="System.Resources.Extensions" Version="8.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- DevExpress 21.2 로컬 ?�치 기반 참조 -->
+    <Reference Include="DevExpress.Data.v21.2">
+      <HintPath>C:\Program Files (x86)\DevExpress 21.2\Components\Bin\Framework\DevExpress.Data.v21.2.dll</HintPath>
+    </Reference>
+    <!-- GridControl/GridView�?ISupportInitialize�?캐스??BeginInit/EndInit, ?�자?�너 ?��? ?�턴)
+         ?�려�??�요 - Data.v21.2만으로는 GridControl???�체 ?�??계층(IControlRowSource ????         컴파?�러가 ??�?찾는?? -->
+    <Reference Include="DevExpress.Data.Desktop.v21.2">
+      <HintPath>C:\Program Files (x86)\DevExpress 21.2\Components\Bin\Framework\DevExpress.Data.Desktop.v21.2.dll</HintPath>
+    </Reference>
+    <Reference Include="DevExpress.Utils.v21.2">
+      <HintPath>C:\Program Files (x86)\DevExpress 21.2\Components\Bin\Framework\DevExpress.Utils.v21.2.dll</HintPath>
+    </Reference>
+    <Reference Include="DevExpress.XtraBars.v21.2">
+      <HintPath>C:\Program Files (x86)\DevExpress 21.2\Components\Bin\Framework\DevExpress.XtraBars.v21.2.dll</HintPath>
+    </Reference>
+    <Reference Include="DevExpress.XtraEditors.v21.2">
+      <HintPath>C:\Program Files (x86)\DevExpress 21.2\Components\Bin\Framework\DevExpress.XtraEditors.v21.2.dll</HintPath>
+    </Reference>
+    <Reference Include="DevExpress.XtraGrid.v21.2">
+      <HintPath>C:\Program Files (x86)\DevExpress 21.2\Components\Bin\Framework\DevExpress.XtraGrid.v21.2.dll</HintPath>
+    </Reference>
+    <Reference Include="DevExpress.XtraLayout.v21.2">
+      <HintPath>C:\Program Files (x86)\DevExpress 21.2\Components\Bin\Framework\DevExpress.XtraLayout.v21.2.dll</HintPath>
+    </Reference>
+    <!-- 메뉴관리/사용자관리(권한부여 탭)/권한부여관리 화면의 TreeList용 - 병합 전엔 각자
+         프로젝트에서 따로 참조했다. -->
+    <Reference Include="DevExpress.XtraTreeList.v21.2">
+      <HintPath>C:\Program Files (x86)\DevExpress 21.2\Components\Bin\Framework\DevExpress.XtraTreeList.v21.2.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+  <!-- WYNLAB.BaseForm/WYNLAB.Controls/WYNLAB.Shared�?ProjectReference(?�스 참조, 매번 같이
+       ?�빌??가 ?�니???��? 빌드??DLL??직접 참조?�다 - ?�면 ?�로?�트가 ?�레?�워???�로?�트�?       빌드?��? ?�게 분리?�는 �?목적. ?�????DLL?�을 고쳤?�면 �??�로?�트�?먼�? 빌드?�서
+       ?�래 경로??DLL??최신?�로 만들?�둔 ?�음?????�로?�트�?빌드?�야 ?�다(?�동?�로 ???�라??.
+
+       Private=false(CopyLocal ??�?�?줘야 ?�다 - ??주면 ??DLL?�을 ???�로?�트 bin ?�더?�도
+       복사?�버?�서, "?�면 모듈?� ?�레?�워??dll??참조�??�다"??목적??무색?�진?? ?��??�에??       문제 ?�다 - ??모듈?� Shell.exe?� 같�? AppDomain??로드?�고 Shell.exe가 ?��? ??dll?�을
+       ?�고 ?�어??CLR???�일 ?�셈블리�??�사?�한??CoreAssemblyUpdater가 ???�을 중앙 관리하??       ?�제?� 같�? ?�리). -->
+  <ItemGroup>
+    <Reference Include="WYNLAB.BaseForm">
+      <HintPath>..\..\..\00.DEV\01.Client\WYNLAB.BaseForm\bin\Debug\net48\WYNLAB.BaseForm.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="WYNLAB.Controls">
+      <HintPath>..\..\..\00.DEV\01.Client\WYNLAB.Controls\bin\Debug\net48\WYNLAB.Controls.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="WYNLAB.Shared">
+      <HintPath>..\..\..\00.DEV\03.Shared\WYNLAB.Shared\bin\Debug\netstandard2.0\WYNLAB.Shared.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+  </ItemGroup>
+
+  <!-- SDK ?��????�로?�트??보통 ?�름�?맞으�?"?�건 ?�이??�??�동 ?�식?�는?????�로?�트?�서??       ??걸려??명시?�다 - SubType=Form??VS가 ?�자?�너�?보여줄�? ?�단?�는 ?�심 ?�래�?
+       DependentUpon??.Designer.cs/.resx�????�일 밑에 중첩?�키???�결 ?�보??
+       ?�면??추�????�마???�기????줄씩 ?�어?�다. -->
+  <ItemGroup>
+    <Compile Update="frmMinorCode\frmMinorCode.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="frmMinorCode\frmMinorCode.Designer.cs">
+      <DependentUpon>frmMinorCode.cs</DependentUpon>
+    </Compile>
+    <EmbeddedResource Update="frmMinorCode\frmMinorCode.resx">
+      <DependentUpon>frmMinorCode.cs</DependentUpon>
+    </EmbeddedResource>
+
+    <Compile Update="frmUserAuth\frmUserAuth.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="frmUserAuth\frmUserAuth.Designer.cs">
+      <DependentUpon>frmUserAuth.cs</DependentUpon>
+    </Compile>
+    <EmbeddedResource Update="frmUserAuth\frmUserAuth.resx">
+      <DependentUpon>frmUserAuth.cs</DependentUpon>
+    </EmbeddedResource>
+
+    <Compile Update="Properties\Resources.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
+    <EmbeddedResource Update="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+  </ItemGroup>
+
+  <!-- 빌드 결과�?Shell??Modules ?�더�?복사?�서, 개발 중에 F5�??�우�?바로 최신 ?�면??       ?�게 ?�다. System.Resources.Extensions.dll??같이 복사?�야 ?�다 - SvgIcon처럼 문자?�이
+       ?�닌 리소?��? .resx???�으�??��??�에 ResourceManager가 ??dll??찾는?? Modules ?�더??       ?�으�??�버 배포 ??메뉴�?????FileNotFoundException?�로 죽는??개발 PC????dll??       ?�기 bin??같이 ?�어?????�러?�음). -->
+  <Target Name="CopyToModulesFolder" AfterTargets="Build">
+    <ItemGroup>
+      <ModuleOutputFiles Include="$(TargetDir)$(TargetName).dll" />
+      <ModuleOutputFiles Include="$(TargetDir)$(TargetName).pdb" Condition="Exists('$(TargetDir)$(TargetName).pdb')" />
+      <ModuleOutputFiles Include="$(TargetDir)System.Resources.Extensions.dll" Condition="Exists('$(TargetDir)System.Resources.Extensions.dll')" />
+    </ItemGroup>
+    <Copy SourceFiles="@(ModuleOutputFiles)" DestinationFolder="$(SolutionDir)..\..\00.DEV\01.Client\WYNLAB.Shell\bin\$(Configuration)\net48\Modules\" SkipUnchangedFiles="true" />
+  </Target>
+
+</Project>
