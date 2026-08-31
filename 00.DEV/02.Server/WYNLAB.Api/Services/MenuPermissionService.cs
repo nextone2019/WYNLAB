@@ -72,6 +72,8 @@ public class MenuPermissionService : IMenuPermissionService
         InsertYn = allowAll,
         UpdateYn = allowAll,
         DeleteYn = allowAll,
-        ExcelYn = allowAll
+        PrintYn = allowAll,
+        ExcelYn = allowAll,
+        Auth = Enumerable.Repeat(allowAll, 10).ToArray()
     };
 }

@@ -1,9 +1,12 @@
 using System.Drawing;
+using System.IO;
+using System.Text;
 using System.Windows.Forms;
 using DevExpress.Data;
 using DevExpress.Export;
 using DevExpress.Utils;
 using DevExpress.Utils.Menu;
+using DevExpress.XtraEditors;
 using DevExpress.XtraEditors.Repository;
 using DevExpress.XtraGrid.Columns;
 using DevExpress.XtraGrid.Views.Base;
@@ -28,6 +31,65 @@ internal sealed class GridViewWynBehavior
     public string EmptyText { get; set; } = "조회된 데이터가 없습니다.";
     public bool HighlightUnsavedCells { get; set; }
     public bool HighlightFocusedRow { get; set; }
+
+    private GridRoleWyn _role = GridRoleWyn.Query;
+    public GridRoleWyn Role
+    {
+        get => _role;
+        set { _role = value; ApplyRole(); }
+    }
+
+    // 개인별 그리드 레이아웃(컬럼 순서/숨김/폭) 저장 - 실제 DB 저장/조회는 BaseForm이 한다
+    // (이 프로젝트(WYNLAB.Controls)는 WYNLAB.BaseForm보다 아래 계층이라 Session/ApiClient를
+    // 몰라야 한다 - WYNLAB.BaseForm.csproj가 WYNLAB.Controls.csproj를 참조하는 방향이지 반대가
+    // 아니다). 여기서는 순수 DevExpress 직렬화만 담당하고, "저장해줘"/"초기화해줘"는 이벤트로
+    // 위로 올려보낸다 - BaseForm이 화면의 모든 GridViewWyn을 찾아 구독한다.
+    public event EventHandler? LayoutSaveRequested;
+    public event EventHandler? LayoutResetRequested;
+
+    private byte[]? _pristineLayout;
+
+    /// <summary>지금 상태를 "디자이너 원본"으로 기억해둔다 - BaseForm이 화면 Load 시, 저장된
+    /// 레이아웃을 복원하기 전에 반드시 먼저 호출해야 한다. "레이아웃초기화"가 재시작 없이 이
+    /// 스냅샷으로 즉시 되돌리는 데 쓰인다.</summary>
+    public void CapturePristineLayout()
+    {
+        using var ms = new MemoryStream();
+        _view.SaveLayoutToStream(ms);
+        _pristineLayout = ms.ToArray();
+    }
+
+    public void RestorePristineLayout()
+    {
+        if (_pristineLayout == null) return;
+        using var ms = new MemoryStream(_pristineLayout);
+        _view.RestoreLayoutFromStream(ms);
+    }
+
+    public string SaveLayoutXml()
+    {
+        using var ms = new MemoryStream();
+        _view.SaveLayoutToStream(ms);
+        return Encoding.UTF8.GetString(ms.ToArray());
+    }
+
+    /// <summary>배포 사이 컬럼 구성 자체가 바뀌었어도(컬럼 추가/삭제) 절대 예외로 화면을 못 열게
+    /// 하면 안 된다 - OptionsLayout.Columns.RemoveOldColumns/AddNewColumns가 대부분 조용히
+    /// 처리해주지만, 그것만 믿지 않고 여기서도 한 번 더 막는다(실패하면 그냥 지금 상태 유지 -
+    /// CapturePristineLayout으로 이미 잡아둔 원본이 있으니 최악의 경우도 디자이너 기본 배치).</summary>
+    public void RestoreLayoutXml(string xml)
+    {
+        if (string.IsNullOrWhiteSpace(xml)) return;
+        try
+        {
+            using var ms = new MemoryStream(Encoding.UTF8.GetBytes(xml));
+            _view.RestoreLayoutFromStream(ms);
+        }
+        catch
+        {
+            // 저장된 레이아웃을 못 쓰게 됐다는 뜻 - 조용히 무시하고 지금(디자이너 원본) 배치를 유지한다.
+        }
+    }
 
     public GridViewWynBehavior(GridView view)
     {
@@ -59,6 +121,19 @@ internal sealed class GridViewWynBehavior
         _view.OptionsSelection.MultiSelect = true;
         _view.OptionsSelection.MultiSelectMode = GridMultiSelectMode.CellSelect;
         _view.OptionsNavigation.EnterMoveNextColumn = true;
+
+        // 개인별 "레이아웃저장"(컬럼 순서/숨김/폭)이 정렬/그룹/필터/서식까지 같이 저장해버리면
+        // "어제 걸어둔 조건 때문에 오늘 데이터가 안 보인다" 같은 혼란이 생긴다(사장님 지시로
+        // 정렬/그룹/필터는 제외) - 저장 대상을 컬럼 배치 하나로만 좁혀둔다.
+        _view.OptionsLayout.StoreAppearance = false;
+        _view.OptionsLayout.StoreFormatRules = false;
+        _view.OptionsLayout.StoreDataSettings = false; // 정렬/그룹/필터/요약이 여기 묶여있다
+        _view.OptionsLayout.Columns.StoreAppearance = false;
+        // 배포 후 컬럼이 추가/삭제되어도(예: remark 컬럼을 나중에 뺌) 옛날에 저장된 레이아웃을
+        // 복원할 때 없는 컬럼은 조용히 무시하고, 새로 생긴 컬럼은 저장된 적 없으니 그냥
+        // 디자이너가 정한 자리에 나온다 - RestoreLayoutXml의 try/catch와 함께 이중 안전장치.
+        _view.OptionsLayout.Columns.RemoveOldColumns = true;
+        _view.OptionsLayout.Columns.AddNewColumns = true;
 
         _view.PopupMenuShowing += OnPopupMenuShowing;
         _view.CustomDrawRowIndicator += OnCustomDrawRowIndicator;
@@ -107,6 +182,13 @@ internal sealed class GridViewWynBehavior
 
     private void OnPopupMenuShowing(object? sender, PopupMenuShowingEventArgs e)
     {
+        if (e.MenuType == GridMenuType.Column)
+        {
+            e.Menu.Items.Add(new DXMenuItem("레이아웃저장", (s, args) => LayoutSaveRequested?.Invoke(this, EventArgs.Empty)) { BeginGroup = true });
+            e.Menu.Items.Add(new DXMenuItem("레이아웃초기화", (s, args) => LayoutResetRequested?.Invoke(this, EventArgs.Empty)));
+            return;
+        }
+
         if (e.MenuType != GridMenuType.Row) return;
 
         var values = new List<double>();
@@ -181,6 +263,88 @@ internal sealed class GridViewWynBehavior
             e.Appearance.BackColor = UiTheme.GridFocusedRowBackColor;
             e.Appearance.Options.UseBackColor = true;
         }
+    }
+
+    // RowAdd/RowDelete - 행추가/행삭제는 Role(셀 편집 가능 여부)과 완전히 별개 축이다. grd3/grd4
+    // (소속그룹/소속사원 체크그리드) 같은 "편집은 되지만 행 자체는 늘거나 줄면 안 되는" 그리드가
+    // 있어서, Role=Edit이어도 이 이벤트를 안 붙이면 추가/삭제 버튼은 아예 안 뜬다 - 구독 여부
+    // 하나로 버튼 노출까지 자동으로 맞춰진다(RefreshAddDeleteButtons 참고). DevExpress
+    // EmbeddedNavigator의 Append/Remove 버튼 기본 동작(View.AddNewRow()/DeleteRow()를 그냥 실행)도
+    // 여기서 가로채서 안 쓴다 - frmMinorCode.NewRowClick처럼 화면마다 있는 검증 로직(예: "대분류를
+    // 먼저 저장해야 함")을 건너뛰고 그리드가 직접 행을 만들어버리는 구멍이 될 수 있기 때문이다.
+    private EventHandler? _rowAdd;
+    public event EventHandler? RowAdd
+    {
+        add { _rowAdd += value; RefreshAddDeleteButtons(); }
+        remove { _rowAdd -= value; RefreshAddDeleteButtons(); }
+    }
+
+    private EventHandler? _rowDelete;
+    public event EventHandler? RowDelete
+    {
+        add { _rowDelete += value; RefreshAddDeleteButtons(); }
+        remove { _rowDelete -= value; RefreshAddDeleteButtons(); }
+    }
+
+    private bool _navigatorWired;
+
+    /// <summary>Role이 바뀔 때마다 실제로 그리드를 그 역할에 맞게 잠근다/연다. OptionsBehavior는
+    /// View 소속이라 바로 적용되지만, EmbeddedNavigator는 GridControl 소속이라 View가 아직 어느
+    /// GridControl에도 안 붙은 시점(생성자 직후)엔 null이다 - 화면 생성자가 InitializeComponent()
+    /// 뒤에 Role을 설정하는 게 표준 사용법이라 실제로는 항상 연결된 뒤에 호출되므로, 여기선 null이면
+    /// 그냥 건너뛴다(재시도용 이벤트 구독까지는 필요 없음 - 실제로 그런 순서로 안 불림).</summary>
+    private void ApplyRole()
+    {
+        var editable = _role == GridRoleWyn.Edit;
+
+        _view.OptionsBehavior.Editable = editable;
+
+        var navigator = _view.GridControl?.EmbeddedNavigator;
+        if (navigator == null) return;
+
+        WireNavigatorButtonClick(navigator);
+
+        navigator.Buttons.Edit.Visible = editable;
+        navigator.Buttons.EndEdit.Visible = editable;
+        navigator.Buttons.CancelEdit.Visible = editable;
+        RefreshAddDeleteButtons();
+    }
+
+    private void WireNavigatorButtonClick(ControlNavigator navigator)
+    {
+        if (_navigatorWired) return;
+        _navigatorWired = true;
+        navigator.ButtonClick += OnNavigatorButtonClick;
+    }
+
+    /// <summary>DevExpress 기본 동작(AddNewRow/DeleteRow를 바로 실행) 대신 RowAdd/RowDelete
+    /// 이벤트를 호출한다 - 구독자가 없으면(RefreshAddDeleteButtons가 버튼을 이미 숨겼으므로) 이
+    /// 핸들러 자체가 거의 안 불리지만, 방어적으로 한 번 더 구독 여부를 확인한다.</summary>
+    private void OnNavigatorButtonClick(object? sender, NavigatorButtonClickEventArgs e)
+    {
+        if (e.Button.ButtonType == NavigatorButtonType.Append && _rowAdd != null)
+        {
+            e.Handled = true;
+            _rowAdd(_view, EventArgs.Empty);
+        }
+        else if (e.Button.ButtonType == NavigatorButtonType.Remove && _rowDelete != null)
+        {
+            e.Handled = true;
+            _rowDelete(_view, EventArgs.Empty);
+        }
+    }
+
+    /// <summary>Role 변경, RowAdd/RowDelete 구독/해제 어느 쪽이 먼저 일어나도(순서 무관) 최종
+    /// 상태가 항상 맞도록 두 경로 모두 이 메서드를 거친다. GridControl에 아직 안 붙었으면(Role이
+    /// 아직 한 번도 설정 안 됐거나 생성자 직후) 조용히 건너뛴다 - ApplyRole이 나중에 다시 부른다.</summary>
+    private void RefreshAddDeleteButtons()
+    {
+        var navigator = _view.GridControl?.EmbeddedNavigator;
+        if (navigator == null) return;
+
+        var editable = _role == GridRoleWyn.Edit;
+        navigator.Buttons.Append.Visible = editable && _rowAdd != null;
+        navigator.Buttons.Remove.Visible = editable && _rowDelete != null;
     }
 
     /// <summary>저장 성공 후 호출 - 수정 강조 표시를 전부 지운다.</summary>

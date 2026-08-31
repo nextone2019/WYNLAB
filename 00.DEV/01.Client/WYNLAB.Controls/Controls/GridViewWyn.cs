@@ -67,6 +67,53 @@ public class GridViewWyn : GridView
         set => _behavior.HighlightFocusedRow = value;
     }
 
+    /// <summary>조회전용 그리드인지 입력/수정 가능한 그리드인지 - 셀 편집 가능 여부와
+    /// EmbeddedNavigator의 추가/삭제/편집 버튼 노출을 한 번에 맞춘다(GridRoleWyn 참고).</summary>
+    [Category("WYNLAB")]
+    [Description("조회전용(Query) 그리드인지 입력/수정 가능(Edit)한 그리드인지 지정합니다. Query면 편집이 막히고 EmbeddedNavigator의 추가/삭제/편집 버튼도 숨겨집니다.")]
+    [DefaultValue(GridRoleWyn.Query)]
+    public GridRoleWyn Role
+    {
+        get => _behavior.Role;
+        set => _behavior.Role = value;
+    }
+
+    /// <summary>EmbeddedNavigator의 추가(Append) 버튼을 가로챈 이벤트 - 구독해야만 버튼이
+    /// 보이고, 클릭 시 여기 붙인 로직만 실행된다(DevExpress 기본 동작인 AddNewRow() 자동실행은
+    /// 없다). Role=Query면 구독해도 버튼이 안 뜬다.</summary>
+    public event EventHandler? RowAdd
+    {
+        add => _behavior.RowAdd += value;
+        remove => _behavior.RowAdd -= value;
+    }
+
+    /// <summary>EmbeddedNavigator의 삭제(Remove) 버튼을 가로챈 이벤트 - RowAdd와 같은 규칙.</summary>
+    public event EventHandler? RowDelete
+    {
+        add => _behavior.RowDelete += value;
+        remove => _behavior.RowDelete -= value;
+    }
+
+    /// <summary>컬럼 헤더 우클릭 메뉴의 "레이아웃저장"/"레이아웃초기화"를 눌렀을 때 발생 -
+    /// 실제 DB 저장/조회는 BaseForm이 담당한다(WYNLAB.Controls는 Session/ApiClient를 모른다).</summary>
+    public event EventHandler? LayoutSaveRequested
+    {
+        add => _behavior.LayoutSaveRequested += value;
+        remove => _behavior.LayoutSaveRequested -= value;
+    }
+    public event EventHandler? LayoutResetRequested
+    {
+        add => _behavior.LayoutResetRequested += value;
+        remove => _behavior.LayoutResetRequested -= value;
+    }
+
+    /// <summary>지금 배치를 "디자이너 원본"으로 기억해둔다 - BaseForm이 화면 Load 시 저장된
+    /// 레이아웃을 복원하기 전에 반드시 먼저 호출해야 한다.</summary>
+    public void CapturePristineLayout() => _behavior.CapturePristineLayout();
+    public void RestorePristineLayout() => _behavior.RestorePristineLayout();
+    public string SaveLayoutXml() => _behavior.SaveLayoutXml();
+    public void RestoreLayoutXml(string xml) => _behavior.RestoreLayoutXml(xml);
+
     /// <summary>저장 성공 후 호출 - 수정 강조 표시를 전부 지운다.</summary>
     public void ClearDirtyMarks() => _behavior.ClearDirtyMarks();
 

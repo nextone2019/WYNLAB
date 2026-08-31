@@ -22,7 +22,28 @@ public class MenuAuthAssignRow
     public string InsertYn { get; set; } = "N";
     public string UpdateYn { get; set; } = "N";
     public string DeleteYn { get; set; } = "N";
+    public string PrintYn { get; set; } = "N";
     public string ExcelYn { get; set; } = "N";
+    public string Auth01 { get; set; } = "N";
+    public string Auth02 { get; set; } = "N";
+    public string Auth03 { get; set; } = "N";
+    public string Auth04 { get; set; } = "N";
+    public string Auth05 { get; set; } = "N";
+    public string Auth06 { get; set; } = "N";
+    public string Auth07 { get; set; } = "N";
+    public string Auth08 { get; set; } = "N";
+    public string Auth09 { get; set; } = "N";
+    public string Auth10 { get; set; } = "N";
+    public string? Auth01Nm { get; set; }
+    public string? Auth02Nm { get; set; }
+    public string? Auth03Nm { get; set; }
+    public string? Auth04Nm { get; set; }
+    public string? Auth05Nm { get; set; }
+    public string? Auth06Nm { get; set; }
+    public string? Auth07Nm { get; set; }
+    public string? Auth08Nm { get; set; }
+    public string? Auth09Nm { get; set; }
+    public string? Auth10Nm { get; set; }
 }
 
 /// <summary>OPENJSON으로 프로시저에 넘길 저장용 행 - Y/N 문자열로 직렬화(SQL측 CHAR(1)과 맞춤)</summary>
@@ -33,7 +54,18 @@ public class MenuAuthAssignItem
     public string InsertYn { get; set; } = "N";
     public string UpdateYn { get; set; } = "N";
     public string DeleteYn { get; set; } = "N";
+    public string PrintYn { get; set; } = "N";
     public string ExcelYn { get; set; } = "N";
+    public string Auth01 { get; set; } = "N";
+    public string Auth02 { get; set; } = "N";
+    public string Auth03 { get; set; } = "N";
+    public string Auth04 { get; set; } = "N";
+    public string Auth05 { get; set; } = "N";
+    public string Auth06 { get; set; } = "N";
+    public string Auth07 { get; set; } = "N";
+    public string Auth08 { get; set; } = "N";
+    public string Auth09 { get; set; } = "N";
+    public string Auth10 { get; set; } = "N";
 }
 
 /// <summary>

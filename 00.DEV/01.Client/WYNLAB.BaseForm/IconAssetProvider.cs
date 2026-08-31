@@ -32,21 +32,19 @@ public static class IconAssetProvider
 
     private static readonly Dictionary<string, Image?> Cache = new(StringComparer.OrdinalIgnoreCase);
 
-    /// <summary>fileNameWithoutExtension(예: "query_hover")에 해당하는 이미지를 찾아 돌려준다.
-    /// 없거나 손상됐으면 null. 성공한 결과만 캐시해서 매 Paint마다 디스크를 다시 뒤지지 않는다 -
-    /// ClearCache()로 관리자가 이미지를 교체한 뒤 다시 읽게 할 수 있다.
-    ///
-    /// [중요] 실패(null)는 캐시하지 않는다 - 예전엔 실패도 캐시했는데, 배포 직후 백신
-    /// (AhnLab Safe Transaction Service 등)이 방금 쓰인 png를 스캔하느라 아주 짧게 파일을
-    /// 잠그는 순간과 겹치면 IOException으로 실패하고, 그 결과(null)가 프로세스 종료까지
-    /// 영구히 캐시되어 다음 Paint부터는 파일이 멀쩡해도 계속 빈 배지만 보였다(2026-08-27
-    /// 아이콘 코드-드로잉 제거 직후 실제로 겪음 - 그 전엔 실패하면 코드 렌더링으로 조용히
-    /// 폴백해서 증상이 "가끔 빨간 아이콘"으로만 보였을 뿐, 이 캐시 버그 자체는 이미 있었다).
-    /// 실패를 캐시 안 해도 성공하는 보통의 경우엔 비용이 없고, 실패하는 드문 경우에만 다음
-    /// Paint에서 다시 시도한다.</summary>
+    /// <summary>fileNameWithoutExtension(예: "query_hover")에 해당하는 이미지를 폴더에서 찾아
+    /// 그대로 돌려준다. 없거나 못 읽으면 null - 호출하는 쪽(IconBadgeButton)은 그 경우 그냥
+    /// 아이콘 없이 배지만 그린다, 특별 취급 없음. 실패는 왜 실패했는지 file-sync.log에
+    /// 한 줄 남긴다(2026-08-28, 배포된 png인데 계속 안 보이는 문제의 원인을 못 좁혀서 추가함 -
+    /// 다음에 또 재발하면 이 로그로 파일이 없는 건지 읽다가 예외가 난 건지 바로 알 수 있다).
+    /// 성공한 결과만 캐시하고, 실패는 캐시하지 않아 다음 Paint에서 다시 시도된다.</summary>
     public static Image? GetImage(string fileNameWithoutExtension)
     {
-        if (Cache.TryGetValue(fileNameWithoutExtension, out var cached)) return cached;
+        if (Cache.TryGetValue(fileNameWithoutExtension, out var cached))
+        {
+            Log($"{fileNameWithoutExtension} 캐시 적중 -> {(cached == null ? "null" : "이미지 있음")}");
+            return cached;
+        }
 
         Image? image = null;
         try
@@ -60,17 +58,35 @@ public static class IconAssetProvider
                 // 객체는 내부적으로 스트림이 열려있어야 하는 경우가 있어서, using이 끝나 스트림이
                 // 닫히고 나면 이미지가 깨질 수 있다.
                 image = new Bitmap(loaded);
+                Log($"{fileNameWithoutExtension} 새로 읽음 성공 (경로: {path}, {image.Width}x{image.Height})");
+            }
+            else
+            {
+                Log($"{fileNameWithoutExtension}.png 없음 (경로: {path})");
             }
         }
-        catch
+        catch (Exception ex)
         {
-            // 손상된 파일/일시적 잠금 등은 조용히 무시하고 이번엔 아이콘 없이 넘어간다 -
-            // 캐시하지 않으므로 다음 Paint(예: 마우스 오버)에서 다시 시도된다.
+            Log($"{fileNameWithoutExtension}.png 읽기 실패: {ex}");
             return null;
         }
 
         Cache[fileNameWithoutExtension] = image;
         return image;
+    }
+
+    /// <summary>최선노력 로그 - HttpFileSync.Log와 같은 파일(file-sync.log)에 남긴다.</summary>
+    private static void Log(string message)
+    {
+        try
+        {
+            var dir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "WYNLAB");
+            Directory.CreateDirectory(dir);
+            File.AppendAllText(Path.Combine(dir, "file-sync.log"), $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] IconAssetProvider: {message}{Environment.NewLine}");
+        }
+        catch
+        {
+        }
     }
 
     /// <summary>관리자가 실행 중에 이미지를 교체했을 때 다시 읽게 하고 싶으면 호출(현재는

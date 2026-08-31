@@ -262,17 +262,37 @@ public class ShellForm : XtraForm
         _homeForm.Show();
     }
 
+    private bool _exitConfirmed;
+
     /// <summary>사용자가 셸의 X버튼으로 직접 닫으려 할 때만 확인 - 서버전환 취소 등 프로그램 내부에서
-    /// Application.Exit()을 호출하는 경우는 이미 그 자리에서 확인을 거친 것이므로 재확인하지 않는다.</summary>
-    private void ShellForm_FormClosing(object? sender, FormClosingEventArgs e)
+    /// Application.Exit()을 호출하는 경우는 이미 그 자리에서 확인을 거친 것이므로 재확인하지 않는다.
+    ///
+    /// "종료하시겠습니까?"에 예를 누른 뒤, 실제로 Close()를 부르기 전에 열려있는 화면들을
+    /// 전부 BaseForm.ConfirmCloseAsync로 미리 확인한다(CloseAllMdiChildren과 같은 패턴) - MDI
+    /// 부모(이 폼)가 실제로 닫히기 시작하면 자식들에게 CloseReason.MdiFormClosing이 동기적으로
+    /// 전파되는데, 그 시점에 자식이 비동기로 "잠깐만요" 하며 취소하면 부모 자신의 종료 판정이
+    /// 그 자리에서 거부된 것으로 처리된다(BaseForm.BaseForm_FormClosing 주석 참고 - 실제로 겪음:
+    /// 화면을 하나도 안 열어도 홈 탭 때문에 종료 확인이 두 번 떠야 실제로 닫혔다). 그래서 자식들
+    /// 확인은 전부 여기서 미리 끝내두고, 실제 Close() 호출 시점엔 모든 자식이 이미 "닫혀도 됨"
+    /// 상태이거나 사라진 뒤라 그 동기적 판정이 절대 걸리지 않는다.</summary>
+    private async void ShellForm_FormClosing(object? sender, FormClosingEventArgs e)
     {
         if (e.CloseReason != CloseReason.UserClosing) return;
+        if (_exitConfirmed) return;
+
+        e.Cancel = true;
 
         var confirm = AppMessageBox.Show("모든 프로그램을 종료하시겠습니까?", "알림", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
-        if (confirm != DialogResult.Yes)
+        if (confirm != DialogResult.Yes) return;
+
+        foreach (var child in MdiChildren)
         {
-            e.Cancel = true;
+            if (child is HomeForm) continue;
+            if (child is BaseForm baseChild && !await baseChild.ConfirmCloseAsync()) return; // 저장 실패 - 종료 중단, 그 화면은 열어둔 채로 둔다
         }
+
+        _exitConfirmed = true;
+        Close();
     }
 
     private void RefreshTitle()
@@ -437,13 +457,22 @@ public class ShellForm : XtraForm
     /// <summary>홈 탭은 건드리지 않는다 - 어차피 HomeForm.OnFormClosing이 자체적으로 닫기를
     /// 막고 있지만(개별 X버튼과 동일하게), 막힐 걸 알면서 Close()를 호출하지 않도록 여기서도
     /// 먼저 걸러낸다. MdiChildren은 호출할 때마다 새 배열을 돌려주므로(WinForms 자체 동작)
-    /// Close() 중 컬렉션이 바뀌어도 이 foreach 자체는 안전하다.</summary>
-    private void CloseAllMdiChildren(Form? except)
+    /// Close() 중 컬렉션이 바뀌어도 이 foreach 자체는 안전하다.
+    ///
+    /// 화면마다 저장 안 된 변경이 있으면 닫기 전에 물어야 한다(BaseForm.ConfirmCloseAsync) -
+    /// 여기서 먼저 await로 확인받고 나서 Close()를 부르면, 그 Close()가 다시 FormClosing을
+    /// 태워도 이미 확인된 상태라 재질문 없이 바로 닫힌다. 확인 메시지박스 자체가 동기적으로
+    /// 화면을 막고 서 있어서(첫 await 지점 이전) 다음 화면으로 넘어가기 전에 사용자가 반드시
+    /// 답해야 하므로, 여러 화면이 한꺼번에 물어보는 대신 탭 순서대로 하나씩 순차적으로 묻는다.</summary>
+    private async void CloseAllMdiChildren(Form? except)
     {
         foreach (var child in MdiChildren)
         {
             if (child is HomeForm) continue;
             if (except != null && child == except) continue;
+
+            if (child is BaseForm baseChild && !await baseChild.ConfirmCloseAsync()) continue; // 저장 실패 - 이 화면은 열어둔 채 다음으로
+
             child.Close();
         }
     }
@@ -1105,6 +1134,11 @@ public class ShellForm : XtraForm
         x += GroupGap - 12;
         var btnTabList = AddPlainIconButton(headerPanel, ref x, 6, "탭 목록", "tablist", badgeBg, () => { });
         btnTabList.Click += (s, e) => ShowTabListPopup(btnTabList);
+        // DevExpress 탭 줄 자체의 X버튼(개별 탭 닫기)은 XtraTabbedMdiManager가 내부적으로 그려서
+        // 커스텀 버튼을 그 옆에 못 붙인다(ConfigureTabAppearance 주석의 리플렉션 시도와 같은 결론) -
+        // 대신 탭을 관리하는 다른 진입점("탭 목록")과 같은 자리, 바로 오른쪽에 둔다.
+        var btnCloseAllTabs = AddPlainIconButton(headerPanel, ref x, 6, "탭 전체 닫기", "closeall", badgeBg, () => { });
+        btnCloseAllTabs.Click += (s, e) => CloseAllMdiChildren(except: null);
         if (Session.UserType == "A")
         {
             AddPlainIconButton(headerPanel, ref x, 6, "SQL로그", "sqllog", badgeBg,
@@ -1215,13 +1249,14 @@ public class ShellForm : XtraForm
 
     /// <summary>
     /// 활성 MDI 자식(현재 열려있는 업무화면)이 바뀔 때마다 호출되어 7개 툴바 아이콘의
-    /// Enabled를 그 화면의 권한(BaseForm.CanInsert/CanUpdate/CanDelete)에 맞춰 다시 계산한다.
-    /// 조회/출력은 별도 권한 플래그가 없다 - ViewYn은 이미 "이 메뉴를 열 수 있는지" 자체를
-    /// 가리자원, 화면이 열려 있다는 것 자체가 조회 권한이 있다는 뜻이라 항상 켜둔다(출력도 동일
-    /// 취급 - PrintYn이라는 필드 자체가 없음). 저장은 신규/수정 두 흐름을 다 섬기므로
+    /// Enabled를 그 화면의 권한(BaseForm.CanInsert/CanUpdate/CanDelete/CanPrint)에 맞춰
+    /// 다시 계산한다. 조회는 별도 권한 플래그가 없다 - ViewYn은 이미 "이 메뉴를 열 수 있는지"
+    /// 자체를 가리키므로, 화면이 열려 있다는 것 자체가 조회 권한이 있다는 뜻이라 항상 켜둔다.
+    /// 출력은 2026-08-31에 TSMMENUAUTH.PRINT_YN이 새로 생기면서 CanPrint로 실제 권한을 본다
+    /// (그 전엔 필드 자체가 없어서 항상 켜뒀었음). 저장은 신규/수정 두 흐름을 다 섬기므로
     /// CanInsert 또는 CanUpdate 둘 중 하나만 있어도 켠다.
-    /// 활성 업무화면이 없는 경우(홈 화면이거나 열린 화면이 하나도 없을 때)는 조회/출력만 남기고
-    /// 나머지 5개는 전부 끈다 - 대상 데이터가 없는 상태에서 입력/삭제/저장을 누르게 둘 이유가 없다.
+    /// 활성 업무화면이 없는 경우(홈 화면이거나 열린 화면이 하나도 없을 때)는 조회만 남기고
+    /// 나머지 6개는 전부 끈다 - 대상 데이터가 없는 상태에서 입력/삭제/저장/출력을 누르게 둘 이유가 없다.
     /// </summary>
     private void UpdateToolbarPermissions()
     {
@@ -1229,17 +1264,18 @@ public class ShellForm : XtraForm
         var hasTarget = activeForm != null;
 
         btnQuery.Enabled = true;
-        btnPrint.Enabled = true;
 
         var canInsert = hasTarget && activeForm!.CanInsert;
         var canUpdate = hasTarget && activeForm!.CanUpdate;
         var canDelete = hasTarget && activeForm!.CanDelete;
+        var canPrint = hasTarget && activeForm!.CanPrint;
 
         btnNew.Enabled = canInsert;
         btnRowAdd.Enabled = canInsert;
         btnDelete.Enabled = canDelete;
         btnRowDelete.Enabled = canDelete;
         btnSave.Enabled = canInsert || canUpdate;
+        btnPrint.Enabled = canPrint;
     }
 
     private void AddDivider(ref int x)

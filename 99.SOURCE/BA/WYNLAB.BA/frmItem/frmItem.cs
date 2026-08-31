@@ -1,21 +1,24 @@
 using System.Data;
+using DevExpress.XtraGrid.Views.Grid;
 using WYNLAB.Base;
 using WYNLAB.Shared.Dtos;
 
 namespace WYNLAB.BA;
 
 /// <summary>
-/// 새 화면 개발용 템플릿(레이아웃 전용) - 사용법은 frmItem.Designer.cs 상단 주석 참고.
+/// 품목등록 화면 - grd1(품목 목록)에서 고르면 panData(TBAITEM 상세)를 채우고, grd2에
+/// 그 품목의 단위환산(TBAITEMUNIT)을 보여준다. grd2는 조회 전용이 아니라 입력/편집 가능
+/// (frmDept의 소속사원 grd2와 다른 점 - 여기는 실제로 등록/수정 대상이다).
 ///
-/// grd1(목록)에서 행을 고르면 그 상세를 panData에 채우고(EnterEditMode), 저장 전이면
-/// EnterNewMode로 비워둔다 - frmMinorCode/frmUserAuth가 전부 따르는 표준 패턴이다. 조회는
-/// api/data/*(범용 데이터 통로, GENERIC_DATA_API.md 참고) 또는 화면 전용 API 중 편한 쪽을
-/// 쓰면 된다 - 아래 QueryClick은 범용 통로(QueryAsync/SaveAsync) 예시로 채워뒀다.
+/// USP_BA_ITEM_S가 저장 시 unit_cd != po_unit_cd면 TBAITEMUNIT에 1:1 환산행을 자동으로
+/// 만들어준다(unit_cd 기준=fr_unit_cd) - grd2는 그 자동생성된 행의 비율을 고치거나, 필요하면
+/// 행을 더 추가하는 용도다.
 /// </summary>
 public partial class frmItem : BaseForm
 {
-    private DataTable _list = new();
-    private string? _editingCd; // null이면 신규모드
+    private DataTable _items = new();
+    private DataTable _units = new();
+    private string? _editingItemId; // TBAITEM.item_id(BIGINT)를 문자열로 들고 있음. null이면 신규모드.
 
     public frmItem()
     {
@@ -25,23 +28,50 @@ public partial class frmItem : BaseForm
         MenuCd = "BA_ITEM";
 
         gvw1.FocusedRowObjectChanged += Gvw1_FocusedRowObjectChanged;
+        gvw2.InitNewRow += Gvw2_InitNewRow;
+
+        // 화면종료 시 저장 확인(BaseForm.ConfirmCloseAsync) - grd2(TBAITEMUNIT)는 편집 가능한
+        // 그리드라 panData뿐 아니라 그 DataTable도 걸어야 한다. _units는 EnterNewMode/
+        // LoadUnitsAsync에서 매번 새 인스턴스로 교체되므로, 두 곳 모두에서 재구독한다(아래 참고).
+        TrackDirty(panData);
 
         EnterNewMode();
     }
 
-    /// <summary>목록 조회 - 검색조건을 늘리려면 아래 익명 객체에 p_ 파라미터를 추가하고
-    /// 프로시저에 같은 이름의 파라미터(기본값 NULL)와 WHERE 조건을 넣으면 된다.</summary>
+    /// <summary>품목 목록 조회. 저장 후 재조회에서도 편집하던 품목이 그대로 선택돼 있어야
+    /// 한다 - QueryClick은 항상 이 형태를 유지할 것(TemplateForm.QueryClick 주석 참고).</summary>
     public override async Task QueryClick()
     {
         var keyword = txtSearchQ.Text.Trim();
 
-        _list = await QueryAsync("USP_SM_TEMPLATE_Q", new
+        _items = await QueryAsync("USP_BA_ITEM_Q", new
         {
             p_work_type = "Q",
-            p_keyword = keyword
+            p_item_cd = keyword,
+            p_item_nm = keyword
         });
 
-        grd1.DataSource = _list;
+        var editingItemId = _editingItemId;
+
+        gvw1.FocusedRowObjectChanged -= Gvw1_FocusedRowObjectChanged;
+        try
+        {
+            grd1.DataSource = _items;
+
+            if (editingItemId != null)
+            {
+                var handle = FindRowHandle(editingItemId);
+                if (handle != null) gvw1.FocusedRowHandle = handle.Value;
+            }
+        }
+        finally
+        {
+            gvw1.FocusedRowObjectChanged += Gvw1_FocusedRowObjectChanged;
+        }
+
+        var row = editingItemId == null ? null : FindItemRow(editingItemId);
+        if (row != null) EnterEditMode(row);
+        else EnterNewMode();
     }
 
     public override Task NewClick()
@@ -52,21 +82,21 @@ public partial class frmItem : BaseForm
 
     public override async Task DeleteClick()
     {
-        if (_editingCd == null)
+        if (_editingItemId == null)
         {
-            AppMessageBox.Show("삭제할 항목을 먼저 선택해주세요.", "안내");
+            AppMessageBox.Show("삭제할 품목을 먼저 선택해주세요.", "안내");
             return;
         }
 
         var confirm = AppMessageBox.Show(
-            $"선택하신 항목을 삭제 하시겠습니까?\n\n[{_editingCd}]",
+            $"선택하신 품목을 삭제 하시겠습니까?\n\n[{txtItemCd.Text}] {txtItemNm.Text}",
             "삭제 확인", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
         if (confirm != DialogResult.Yes) return;
 
-        var result = await SaveAsync("USP_SM_TEMPLATE_S", new
+        var result = await SaveAsync("USP_BA_ITEM_S", new
         {
             p_work_type = "D",
-            p_cd = _editingCd
+            p_item_id = _editingItemId
         });
 
         if (!result.Success)
@@ -75,32 +105,75 @@ public partial class frmItem : BaseForm
             return;
         }
 
-        _editingCd = null;
         await QueryClick();
         Toast.Show("삭제되었습니다.");
     }
 
     public override Task NewRowClick()
     {
-        // 하위 그리드(grd2)에 새 행을 추가하는 자리 - frmMinorCode.NewRowClick 참고
-        // (상위가 아직 저장 전이면 막는 등 필요한 가드는 여기서 추가).
+        // 품목이 아직 저장 전(신규 입력 중)이면 item_id가 없어서 TBAITEMUNIT에 행을 못 붙인다.
+        if (_editingItemId == null)
+        {
+            AppMessageBox.Show("품목을 먼저 등록한 뒤에 단위환산을 추가할 수 있습니다.", "안내");
+            return Task.CompletedTask;
+        }
+
+        gvw2.AddNewRow();
         return Task.CompletedTask;
     }
 
     public override Task DeleteRowClick()
     {
-        // 하위 그리드(grd2)에서 포커스 행을 지우는 자리 - frmMinorCode.DeleteRowClick 참고.
+        var handle = gvw2.FocusedRowHandle;
+        if (handle >= 0) gvw2.DeleteRow(handle);
         return Task.CompletedTask;
     }
 
     public override async Task SaveClick()
     {
-        var wasNew = _editingCd == null;
+        if (string.IsNullOrWhiteSpace(txtItemCd.Text) || string.IsNullOrWhiteSpace(txtItemNm.Text))
+        {
+            AppMessageBox.Show("품목코드와 품목명은 필수입니다.", "확인");
+            return;
+        }
 
-        var result = await SaveAsync("USP_SM_TEMPLATE_S", new
+        var wasNew = _editingItemId == null;
+
+        var result = await SaveAsync("USP_BA_ITEM_S", new
         {
             p_work_type = wasNew ? "N" : "U",
-            p_cd = _editingCd
+            p_item_id = _editingItemId,
+            p_item_cd = txtItemCd.Text,
+            p_item_no = txtItemNo.Text,
+            p_item_nm = txtItemNm.Text,
+            p_item_spec = txtItemSpec.Text,
+            p_unit_cd = txtUnitCd.Text,
+            p_po_unit_cd = txtPoUnitCd.Text,
+            p_wh_cd = txtWhCd.Text,
+            p_loc_cd = txtLocCd.Text,
+            p_safe_qty = string.IsNullOrWhiteSpace(txtSafeQty.Text) ? null : txtSafeQty.Text,
+            p_dept_cd = txtDeptCd.Text,
+            p_emp_no = txtEmpNo.Text,
+            p_prod_yn = txtProdYn.Text,
+            p_cust_cd = txtCustCd.Text,
+            p_asset_type = txtAssetType.Text,
+            p_out_type = txtOutType.Text,
+            p_po_qc_yn = txtPoQcYn.Text,
+            p_prod_qc_yn = txtProdQcYn.Text,
+            p_lot_yn = txtLotYn.Text,
+            p_stock_yn = txtStockYn.Text,
+            p_po_yn = txtPoYn.Text,
+            p_po_price = string.IsNullOrWhiteSpace(txtPoPrice.Text) ? null : txtPoPrice.Text,
+            p_sale_yn = txtSaleYn.Text,
+            p_sale_price = string.IsNullOrWhiteSpace(txtSalePrice.Text) ? null : txtSalePrice.Text,
+            p_stat_cd = txtStatCd.Text,
+            p_item_class1 = txtItemClass1.Text,
+            p_item_class2 = txtItemClass2.Text,
+            p_item_class3 = txtItemClass3.Text,
+            p_item_class4 = txtItemClass4.Text,
+            p_po_acnt_cd = txtPoAcntCd.Text,
+            p_sale_acnt_cd = txtSaleAcntCd.Text,
+            p_remark = txtRemark.Text
         });
 
         if (!result.Success)
@@ -109,27 +182,244 @@ public partial class frmItem : BaseForm
             return;
         }
 
-        _editingCd = wasNew ? result.GeneratedCode : _editingCd;
+        var savedItemId = wasNew ? (result.GeneratedCode ?? _editingItemId!) : _editingItemId!;
+
+        // 그리드에서 편집 중이던 셀 값을 먼저 확정해야 아래 저장에 마지막 수정이 포함된다.
+        gvw2.CloseEditor();
+        gvw2.UpdateCurrentRow();
+
+        var unitSaveError = await SaveUnitRowsAsync(savedItemId);
+        if (unitSaveError != null)
+        {
+            AppMessageBox.Show(unitSaveError, "저장 실패");
+            return;
+        }
+
+        _units.AcceptChanges();
+        _editingItemId = savedItemId;
         await QueryClick();
         Toast.Show(wasNew ? "등록되었습니다." : "수정되었습니다.");
     }
+
+    /// <summary>
+    /// grd2(TBAITEMUNIT)에서 바뀐 행마다 USP_BA_ITEMUNIT_S를 한 번씩 호출한다 - 007/
+    /// USP_SM_MINORCODE_S_1과 같은 단일 레코드 CRUD 구조라 그리드 전체를 한 번에 못 보낸다.
+    ///
+    /// 키가 (item_cd, fr_unit_cd, to_unit_cd) 3개라 fr_unit_cd/to_unit_cd 자체를 고친 행은
+    /// "원래 키 삭제(D) + 새 키 등록(N)"으로 표현한다 - frmMinorCode.SaveModifiedMinorAsync와
+    /// 같은 이유(이 프로시저의 'U' 분기도 키는 WHERE에서만 쓰고 안 바꾼다).
+    /// </summary>
+    private async Task<string?> SaveUnitRowsAsync(string itemId)
+    {
+        foreach (DataRow row in _units.Rows)
+        {
+            string? error = row.RowState switch
+            {
+                DataRowState.Added => await SaveNewUnitAsync(itemId, row),
+                DataRowState.Modified => await SaveModifiedUnitAsync(itemId, row),
+                DataRowState.Deleted => await SaveDeletedUnitAsync(itemId, row),
+                _ => null
+            };
+            if (error != null) return error;
+        }
+        return null;
+    }
+
+    private async Task<string?> SaveNewUnitAsync(string itemId, DataRow row)
+    {
+        var frUnitCd = ProcData.Str(row, "fr_unit_cd", DataRowVersion.Current);
+        var toUnitCd = ProcData.Str(row, "to_unit_cd", DataRowVersion.Current);
+        if (frUnitCd.Length == 0 || toUnitCd.Length == 0) return null; // 단위코드 없이 행만 추가된 빈 행은 건너뜀
+
+        var result = await SaveAsync("USP_BA_ITEMUNIT_S", UnitParams("N", itemId, row, DataRowVersion.Current));
+        return result.Success ? null : $"[{frUnitCd}->{toUnitCd}] {FormatSaveFailMessage(result)}";
+    }
+
+    private async Task<string?> SaveModifiedUnitAsync(string itemId, DataRow row)
+    {
+        var origFr = ProcData.Str(row, "fr_unit_cd", DataRowVersion.Original);
+        var origTo = ProcData.Str(row, "to_unit_cd", DataRowVersion.Original);
+        var curFr = ProcData.Str(row, "fr_unit_cd", DataRowVersion.Current);
+        var curTo = ProcData.Str(row, "to_unit_cd", DataRowVersion.Current);
+
+        if (curFr != origFr || curTo != origTo)
+        {
+            var delResult = await SaveAsync("USP_BA_ITEMUNIT_S", new
+            {
+                p_work_type = "D",
+                p_item_cd = itemId,
+                p_fr_unit_cd = origFr,
+                p_to_unit_cd = origTo
+            });
+            if (!delResult.Success) return $"[{origFr}->{origTo}] {FormatSaveFailMessage(delResult)}";
+
+            var addResult = await SaveAsync("USP_BA_ITEMUNIT_S", UnitParams("N", itemId, row, DataRowVersion.Current));
+            return addResult.Success ? null : $"[{curFr}->{curTo}] {FormatSaveFailMessage(addResult)}";
+        }
+
+        var result = await SaveAsync("USP_BA_ITEMUNIT_S", UnitParams("U", itemId, row, DataRowVersion.Current));
+        return result.Success ? null : $"[{curFr}->{curTo}] {FormatSaveFailMessage(result)}";
+    }
+
+    private async Task<string?> SaveDeletedUnitAsync(string itemId, DataRow row)
+    {
+        var frUnitCd = ProcData.Str(row, "fr_unit_cd", DataRowVersion.Original);
+        var toUnitCd = ProcData.Str(row, "to_unit_cd", DataRowVersion.Original);
+        var result = await SaveAsync("USP_BA_ITEMUNIT_S", new
+        {
+            p_work_type = "D",
+            p_item_cd = itemId,
+            p_fr_unit_cd = frUnitCd,
+            p_to_unit_cd = toUnitCd
+        });
+        return result.Success ? null : $"[{frUnitCd}->{toUnitCd}] {FormatSaveFailMessage(result)}";
+    }
+
+    private static Dictionary<string, string?> UnitParams(string workType, string itemId, DataRow row, DataRowVersion version) => new()
+    {
+        ["p_work_type"] = workType,
+        ["p_item_cd"] = itemId,
+        ["p_fr_unit_cd"] = ProcData.Str(row, "fr_unit_cd", version),
+        ["p_fr_qty"] = ProcData.Str(row, "fr_qty", version),
+        ["p_to_unit_cd"] = ProcData.Str(row, "to_unit_cd", version),
+        ["p_to_qty"] = ProcData.Str(row, "to_qty", version),
+        ["p_remark"] = ProcData.Str(row, "remark", version)
+    };
 
     private void Gvw1_FocusedRowObjectChanged(object? sender, DevExpress.XtraGrid.Views.Base.FocusedRowObjectChangedEventArgs e)
     {
         if (e.Row is DataRowView view) EnterEditMode(view.Row);
     }
 
-    private void EnterNewMode()
+    /// <summary>grd2에 새 행을 추가하면 기준단위를 현재 품목의 기본단위로 채운다 - 신규 환산행은
+    /// 대부분 그 품목 기준단위에서 다른 단위로 바꾸는 경우라 기본값이 있는 편이 자연스럽다.</summary>
+    private void Gvw2_InitNewRow(object? sender, InitNewRowEventArgs e)
     {
-        _editingCd = null;
-        // panData 컨트롤을 여기서 전부 비운다(디자이너로 컨트롤을 추가한 뒤 채울 것).
-        txtSearchQ.Focus();
+        gvw2.SetRowCellValue(e.RowHandle, "fr_unit_cd", txtUnitCd.Text);
     }
 
-    private void EnterEditMode(DataRow row)
+    private DataRow? FindItemRow(string itemId) =>
+        _items.Rows.Cast<DataRow>()
+            .FirstOrDefault(r => string.Equals(Convert.ToString(r["item_id"]), itemId, StringComparison.OrdinalIgnoreCase));
+
+    /// <summary>item_id로 grd1의 행 핸들을 찾는다. GridView.LocateByValue를 안 쓰는 이유는
+    /// frmMinorCode.FindMajorRowHandle과 같다(DataTable 컬럼이 실제로는 JsonElement).</summary>
+    private int? FindRowHandle(string itemId)
     {
-        _editingCd = Str(row, "cd");
-        // panData 컨트롤을 여기서 row 값으로 채운다(디자이너로 컨트롤을 추가한 뒤 채울 것).
+        var column = gvw1.Columns["item_id"];
+        if (column == null) return null;
+
+        for (var handle = 0; handle < gvw1.RowCount; handle++)
+        {
+            if (string.Equals(Convert.ToString(gvw1.GetRowCellValue(handle, column)), itemId, StringComparison.OrdinalIgnoreCase))
+                return handle;
+        }
+        return null;
+    }
+
+    /// <summary>panData/그리드를 채우는 부분은 SuppressDirtyTracking으로 감싼다 - 안 그러면
+    /// 코드가 값을 채우는 것뿐인데 TrackDirty가 "사용자가 고쳤다"로 오인해서, 조회/행 선택
+    /// 직후부터 화면을 닫을 때 저장 확인이 뜨는 오작동이 생긴다.</summary>
+    private void EnterNewMode()
+    {
+        SuppressDirtyTracking(() =>
+        {
+            _editingItemId = null;
+            txtItemCd.Text = string.Empty;
+            txtItemCd.ReadOnly = false;
+            txtItemNo.Text = string.Empty;
+            txtItemNm.Text = string.Empty;
+            txtItemSpec.Text = string.Empty;
+            txtUnitCd.Text = string.Empty;
+            txtPoUnitCd.Text = string.Empty;
+            txtWhCd.Text = string.Empty;
+            txtLocCd.Text = string.Empty;
+            txtSafeQty.Text = string.Empty;
+            txtDeptCd.Text = string.Empty;
+            txtEmpNo.Text = string.Empty;
+            txtProdYn.Text = string.Empty;
+            txtCustCd.Text = string.Empty;
+            txtAssetType.Text = string.Empty;
+            txtOutType.Text = string.Empty;
+            txtPoQcYn.Text = string.Empty;
+            txtProdQcYn.Text = string.Empty;
+            txtLotYn.Text = string.Empty;
+            txtStockYn.Text = string.Empty;
+            txtPoYn.Text = string.Empty;
+            txtPoPrice.Text = string.Empty;
+            txtSaleYn.Text = string.Empty;
+            txtSalePrice.Text = string.Empty;
+            txtStatCd.Text = string.Empty;
+            txtItemClass1.Text = string.Empty;
+            txtItemClass2.Text = string.Empty;
+            txtItemClass3.Text = string.Empty;
+            txtItemClass4.Text = string.Empty;
+            txtPoAcntCd.Text = string.Empty;
+            txtSaleAcntCd.Text = string.Empty;
+            txtRemark.Text = string.Empty;
+
+            _units = _units.Clone();
+            TrackDirty(_units);
+            grd2.DataSource = _units;
+        });
+        txtItemCd.Focus();
+    }
+
+    private void EnterEditMode(DataRow item)
+    {
+        var itemId = Str(item, "item_id");
+        var isSameItem = _editingItemId == itemId;
+
+        SuppressDirtyTracking(() =>
+        {
+            _editingItemId = itemId;
+            txtItemCd.Text = Str(item, "item_cd");
+            txtItemCd.ReadOnly = true; // 품목코드는 더 이상 키는 아니지만, 목록 재조회 매칭 편의상 즉시 수정은 막아둔다
+            txtItemNo.Text = Str(item, "item_no");
+            txtItemNm.Text = Str(item, "item_nm");
+            txtItemSpec.Text = Str(item, "item_spec");
+            txtUnitCd.Text = Str(item, "unit_cd");
+            txtPoUnitCd.Text = Str(item, "po_unit_cd");
+            txtWhCd.Text = Str(item, "wh_cd");
+            txtLocCd.Text = Str(item, "loc_cd");
+            txtSafeQty.Text = Str(item, "safe_qty");
+            txtDeptCd.Text = Str(item, "dept_cd");
+            txtEmpNo.Text = Str(item, "emp_no");
+            txtProdYn.Text = Str(item, "prod_yn");
+            txtCustCd.Text = Str(item, "cust_cd");
+            txtAssetType.Text = Str(item, "asset_type");
+            txtOutType.Text = Str(item, "out_type");
+            txtPoQcYn.Text = Str(item, "po_qc_yn");
+            txtProdQcYn.Text = Str(item, "prod_qc_yn");
+            txtLotYn.Text = Str(item, "lot_yn");
+            txtStockYn.Text = Str(item, "stock_yn");
+            txtPoYn.Text = Str(item, "po_yn");
+            txtPoPrice.Text = Str(item, "po_price");
+            txtSaleYn.Text = Str(item, "sale_yn");
+            txtSalePrice.Text = Str(item, "sale_price");
+            txtStatCd.Text = Str(item, "stat_cd");
+            txtItemClass1.Text = Str(item, "item_class1");
+            txtItemClass2.Text = Str(item, "item_class2");
+            txtItemClass3.Text = Str(item, "item_class3");
+            txtItemClass4.Text = Str(item, "item_class4");
+            txtPoAcntCd.Text = Str(item, "po_acnt_cd");
+            txtSaleAcntCd.Text = Str(item, "sale_acnt_cd");
+            txtRemark.Text = Str(item, "remark");
+        });
+
+        if (!isSameItem) _ = LoadUnitsAsync(itemId);
+    }
+
+    private async Task LoadUnitsAsync(string itemId)
+    {
+        _units = await QueryAsync("USP_BA_ITEMUNIT_Q", new
+        {
+            p_work_type = "Q",
+            p_item_cd = itemId
+        });
+        TrackDirty(_units);
+
+        grd2.DataSource = _units;
     }
 
     private static string Str(DataRow row, string columnName) =>

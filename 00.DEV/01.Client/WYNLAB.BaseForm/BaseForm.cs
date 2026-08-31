@@ -1,5 +1,12 @@
 using DevExpress.XtraEditors;
+using DevExpress.XtraGrid;
+using DevExpress.XtraGrid.Views.Grid;
+using DevExpress.XtraTreeList;
+using System.Data;
 using System.Drawing;
+using System.Windows.Forms;
+using WYNLAB.Base.Controls;
+using WYNLAB.Shared.Dtos;
 
 namespace WYNLAB.Base;
 
@@ -16,7 +23,14 @@ public class BaseForm : XtraForm
     public bool CanInsert { get; protected set; }
     public bool CanUpdate { get; protected set; }
     public bool CanDelete { get; protected set; }
+    public bool CanPrint { get; protected set; } = true;
     public bool CanExcel { get; protected set; } = true;
+
+    /// <summary>TSMMENUAUTH.AUTH01~10 - 조회/입력/저장/출력/엑셀 이외에 이 화면에 추가로
+    /// 필요해진 권한이 있을 때 화면 개발자가 그대로 참조한다(사장님 지시, 2026-08-31).
+    /// 인덱스 0=AUTH01 ... 9=AUTH10, 예: <c>if (!Auth[0]) btnSpecial.Enabled = false;</c>.
+    /// 지금은 전부 의미가 정해지지 않아 기본 false(권한부여관리 화면에도 아직 컬럼이 없음).</summary>
+    public bool[] Auth { get; protected set; } = new bool[10];
 
     /// <summary>
     /// 로그인 세션값 - 모든 업무화면(모듈 DLL 포함)에서 그대로 사용.
@@ -27,8 +41,8 @@ public class BaseForm : XtraForm
     protected string CurrentEmpNo => Session.EmpNo;
     protected string CurrentDeptCd => Session.DeptCd;
     protected string CurrentDeptNm => Session.DeptNm;
-    protected string CurrentPositionNm => Session.PositionNm;
     protected bool CurrentIsAdmin => Session.IsAdmin;
+    protected bool CurrentIsDeveloper => Session.IsDeveloper;
 
     // ===== MDI 상단 공통 툴바(조회/입력/삭제/행추가/행삭제/저장/출력)가 호출하는 표준 액션 =====
     // Shell의 툴바 버튼은 현재 활성화된 MDI 자식폼(this)의 아래 메서드를 그대로 호출한다.
@@ -79,11 +93,277 @@ public class BaseForm : XtraForm
 
         this.MdiParent = null; // Shell에서 폼 생성 후 주입
         this.Load += BaseForm_Load;
+        this.FormClosing += BaseForm_FormClosing;
     }
 
-    private void BaseForm_Load(object? sender, EventArgs e)
+    // ===== 화면종료 확인(저장 안 된 변경사항) =====
+    // 개별 탭의 X버튼과 ShellForm의 일괄닫기(다른 탭 모두 닫기/모두 닫기/탭 전체 닫기 버튼)가
+    // 전부 이 한 자리를 공통으로 거친다 - 화면마다 "닫을 때 저장 확인" 로직을 따로 만들 필요가
+    // 없다. 2026-08-28, 사장님 요청으로 추가.
+
+    private bool _suppressDirtyTracking;
+    private bool _isDirty;
+    private bool _closeConfirmed;
+
+    /// <summary>사용자가 값을 고쳤는지 여부. 화면 코드에서 직접 켜고 끄지 말고 TrackDirty/
+    /// SuppressDirtyTracking을 통해서만 건드릴 것 - 그래야 "코드가 값을 채우는 것"과 "사용자가
+    /// 고친 것"이 항상 정확히 구분된다.</summary>
+    protected bool IsDirty
+    {
+        get => _isDirty;
+        set => _isDirty = value;
+    }
+
+    /// <summary>화면을 닫을 때 저장 여부를 물어야 하는지. 기본은 IsDirty 그대로지만, panData
+    /// 추적만으로 부족한 화면은 override해서 조건을 더할 수 있다.</summary>
+    protected virtual bool HasUnsavedChanges => IsDirty;
+
+    /// <summary>container 아래 모든 DevExpress 편집 컨트롤(TextEdit/LookUpEdit/CheckEdit/
+    /// DateEdit/MemoEdit 등 - 전부 BaseEdit 하위 타입이라 이 한 자리에서 공통으로 잡힌다)에
+    /// 변경 감지를 건다. 보통 생성자에서 panData 패널 하나만 통째로 넘기면 된다 - panData
+    /// 안의 컨트롤 구성이나 타입이 나중에 바뀌어도(TextEdit -> LookUpEditWyn 등) 이 호출은
+    /// 그대로 둬도 된다.</summary>
+    protected void TrackDirty(Control container)
+    {
+        foreach (Control child in container.Controls)
+        {
+            if (child is BaseEdit edit)
+            {
+                edit.EditValueChanged += (_, _) => { if (!_suppressDirtyTracking) IsDirty = true; };
+            }
+            if (child.Controls.Count > 0) TrackDirty(child);
+        }
+    }
+
+    /// <summary>편집 가능한 하위 그리드(grd2 등)의 DataTable에 변경 감지를 건다. 조회로 새
+    /// DataTable을 받아 다시 바인딩할 때마다(재조회, EnterNewMode의 Clone() 등) 그 새 인스턴스에
+    /// 대해 다시 호출해야 한다 - 이전 테이블에 걸어둔 구독은 그 테이블을 더 이상 안 쓰면서
+    /// 자연히 무의미해진다. 방금 서버에서 막 채워 받은 테이블에 거는 것이라 최초 채움 자체는
+    /// RowChanged를 발생시키지 않으므로(이미 채워진 뒤에 참조를 받음) SuppressDirtyTracking으로
+    /// 감쌀 필요가 없다.</summary>
+    protected void TrackDirty(DataTable table)
+    {
+        table.RowChanged += (_, _) => { if (!_suppressDirtyTracking) IsDirty = true; };
+        table.RowDeleted += (_, _) => { if (!_suppressDirtyTracking) IsDirty = true; };
+    }
+
+    /// <summary>EnterEditMode/EnterNewMode처럼 "코드가 값을 채우는" 구간을 감싼다. 이 안에서
+    /// 발생하는 변경은 사용자가 고친 게 아니므로 dirty로 잡히지 않고, 끝나면 IsDirty를 명시적으로
+    /// false로 되돌린다 - 재조회/신규모드 진입은 항상 "변경 없음" 상태에서 시작해야 한다.</summary>
+    protected void SuppressDirtyTracking(Action action)
+    {
+        _suppressDirtyTracking = true;
+        try { action(); }
+        finally
+        {
+            _suppressDirtyTracking = false;
+            IsDirty = false;
+        }
+    }
+
+    /// <summary>
+    /// 변경사항이 있으면 "{화면명} 화면의 변경 내역이 존재 합니다. 저장 후 종료 하시겠습니까?"를
+    /// 묻고, "예"면 저장까지 마친 뒤 닫아도 되는지 판단한다. 개별 탭의 X버튼(아래 FormClosing)과
+    /// ShellForm의 일괄닫기 양쪽이 이 메서드 하나를 공통으로 쓴다.
+    /// 반환값 true = 닫아도 된다(변경 없음 / "예"로 저장 성공 / "아니오"로 저장 없이 닫기),
+    /// false = 저장에 실패해서 화면을 열어둔 채로 둬야 한다.
+    /// </summary>
+    public async Task<bool> ConfirmCloseAsync()
+    {
+        if (_closeConfirmed) return true;
+
+        if (HasUnsavedChanges)
+        {
+            var confirm = AppMessageBox.Show(
+                $"{Text} 화면의 변경 내역이 존재 합니다.\n저장 후 종료 하시겠습니까?",
+                "변경 내역 확인", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+
+            if (confirm == DialogResult.Yes)
+            {
+                await SafeExecuteAsync(SaveClick, "저장");
+                if (HasUnsavedChanges) return false; // 저장 실패(또는 필수값 누락 등) - 열어둔 채로 둔다
+            }
+        }
+
+        _closeConfirmed = true;
+        return true;
+    }
+
+    /// <summary>탭의 X버튼(DevExpress ClosePageButtonShowMode가 내부적으로 부르는 Close())을
+    /// 포함해 이 폼이 닫히는 모든 경로가 여기를 거친다. ConfirmCloseAsync가 아직 확인 전이면
+    /// 일단 닫기를 취소하고 물어본 뒤, 닫아도 된다는 결론이 나면 그때 다시 Close()를 부른다 -
+    /// 그 재호출은 _closeConfirmed가 true라 이 핸들러를 다시 타도 곧바로 통과한다.
+    ///
+    /// [중요] CloseReason.MdiFormClosing(=MDI 부모인 ShellForm 자체가 닫히면서 그 여파로 이
+    /// 자식이 같이 닫히는 경우)일 때는 여기서 절대 e.Cancel을 건드리지 않는다 - MDI 부모는
+    /// 자식들을 닫아도 되는지 "동기적으로" 판단하는데, 여기서 한 번이라도 e.Cancel=true를
+    /// 찍으면 그 뒤에 비동기로 확인을 마치고 다시 Close()를 불러 이 자식은 실제로 잘 닫혀도,
+    /// 부모는 이미 "자식이 거부했다"고 보고 자기 자신의 종료 자체를 취소해버린다 - 그 결과
+    /// 사용자가 "정말 종료하시겠습니까?"에 예를 눌러도 앱이 안 닫히고, 한 번 더 눌러야
+    /// (그때는 자식이 이미 사라지고 없어서) 실제로 닫히는 증상으로 나타난다(실제로 겪음 - 화면을
+    /// 하나도 안 띄워도, 홈 탭 하나만 있어도 재현됨). 이 경로에서는 ShellForm_FormClosing이
+    /// Close()를 실제로 부르기 전에 모든 자식을 미리 ConfirmCloseAsync로 확인해두므로(그쪽 참고),
+    /// 여기서는 안전하게 통과시키기만 하면 된다.</summary>
+    private async void BaseForm_FormClosing(object? sender, FormClosingEventArgs e)
+    {
+        if (_closeConfirmed) return;
+        if (e.CloseReason == CloseReason.MdiFormClosing) return;
+
+        e.Cancel = true;
+        if (await ConfirmCloseAsync()) Close();
+    }
+
+    private async void BaseForm_Load(object? sender, EventArgs e)
     {
         ApplyMenuAuth();
+
+        // 개발자 전용 - 컨트롤에 마우스오버하면 BindingField/팝업/룩업 정보를 툴팁으로 보여준다.
+        // frmDept에서 화면마다 EnableBindingTooltips() 메서드를 손으로 만들던 방식(2026-08-31
+        // 파일럿)을 여기 base 한 곳으로 옮겨서, 화면 코드에서는 컨트롤 선언 시 Tag에
+        // BindingFieldTag 하나만 넣으면 자동 적용되게 했다(사장님 지시 - "모든 화면에 공통기능
+        // 적용해줘"). 그리드/트리 컬럼은 FieldName이 이미 실제 DB 컬럼명이라 Tag 없이도
+        // 자동으로 잡힌다.
+        if (Session.IsDeveloper) ApplyBindingFieldTooltips(this);
+
+        // 개인별 그리드 레이아웃(컬럼 순서/숨김/폭) 복원 + 우클릭 "레이아웃저장/초기화" 연결 -
+        // 모든 사용자 대상(개발자 전용 아님). 화면 코드에서 그리드마다 따로 부를 필요 없이
+        // BaseForm 한 곳에서 화면 안의 GridViewWyn을 전부 찾아 처리한다.
+        await ApplyGridLayoutsAsync(this);
+    }
+
+    /// <summary>
+    /// container 아래 모든 GridViewWyn(순정 GridView는 대상 아님 - Role/RowAdd처럼 이것도
+    /// GridViewWyn 전용 기능이다)에 대해: (1) 지금(디자이너 원본) 배치를 스냅샷으로 기억해두고
+    /// (레이아웃초기화용), (2) 저장 요청/초기화 요청 이벤트를 구독하고, (3) 이 사용자가 예전에
+    /// 저장해둔 레이아웃이 있으면 복원한다.
+    ///
+    /// 스냅샷을 먼저 찍고 나서 저장된 값을 복원하는 순서가 중요하다 - 반대로 하면 스냅샷 자체가
+    /// "사용자가 저장해둔 배치"가 되어버려 초기화가 무의미해진다.
+    /// </summary>
+    private async Task ApplyGridLayoutsAsync(Control root)
+    {
+        var views = new List<GridViewWyn>();
+        CollectGridViews(root, views);
+        if (views.Count == 0) return;
+
+        foreach (var view in views)
+        {
+            view.CapturePristineLayout();
+            view.LayoutSaveRequested += async (s, e) => await SaveGridLayoutAsync(view);
+            view.LayoutResetRequested += async (s, e) => await ResetGridLayoutAsync(view);
+        }
+
+        if (string.IsNullOrEmpty(MenuCd)) return;
+
+        // 전용 컨트롤러(api/grid-layout)를 쓴다 - 범용 데이터 통로(QueryAsync -> api/data/query)는
+        // "그 메뉴에 등록된 PROC_PREFIX로 시작하는 프로시저만" 허용하는데, 이 기능은 특정 화면
+        // 소유 데이터가 아니라 로그인한 사용자면 어느 화면에서든 써야 해서 그 제약과 안 맞는다
+        // (실제로 기초코드등록에서 "이 메뉴에서 사용할 수 없는 프로시저입니다"로 막혔던 문제 -
+        // GridLayoutController 클래스 설명 참고).
+        //
+        // 저장된 배치를 불러오는 건 있으면 좋고 없어도 그만인 부가 기능이라, 여기서 실패해도
+        // 화면 열기 자체를 막으면 안 된다 - 이 화면 Load 흐름 안에서 처리 안 하면 Program.cs의
+        // 전역 ThreadException 핸들러까지 올라가 "예상치 못한 오류" 팝업이 뜬다(실제로는 그냥
+        // 컬럼 배치가 디자이너 기본값으로 남는 것뿐인데 사용자에게는 화면이 고장난 것처럼 보임).
+        // 조용히 건너뛰고 디자이너 기본 배치(CapturePristineLayout으로 이미 잡아둔 상태)로 연다.
+        try
+        {
+            var saved = await ApiClient.GetAsync<List<GridLayoutItemDto>>($"api/grid-layout?menuCd={Uri.EscapeDataString(MenuCd)}") ?? new();
+            foreach (var item in saved)
+            {
+                var view = views.FirstOrDefault(v => v.Name == item.GridKey);
+                if (view != null && !string.IsNullOrEmpty(item.LayoutXml)) view.RestoreLayoutXml(item.LayoutXml);
+            }
+        }
+        catch
+        {
+            // 무시 - 위 설명 참고.
+        }
+    }
+
+    private static void CollectGridViews(Control root, List<GridViewWyn> result)
+    {
+        foreach (Control child in root.Controls)
+        {
+            if (child is GridControl grid && grid.MainView is GridViewWyn view) result.Add(view);
+            CollectGridViews(child, result);
+        }
+    }
+
+    private async Task SaveGridLayoutAsync(GridViewWyn view)
+    {
+        if (string.IsNullOrEmpty(MenuCd)) return; // MenuCd 없는 화면은 저장 위치를 특정할 수 없다
+
+        var result = await ApiClient.PutAsync<SaveGridLayoutRequest, ApiResult>("api/grid-layout", new SaveGridLayoutRequest
+        {
+            MenuCd = MenuCd,
+            GridKey = view.Name,
+            LayoutXml = view.SaveLayoutXml()
+        });
+
+        if (result?.Success == true) Toast.Show("현재 컬럼 배치를 저장했습니다.");
+        else AppMessageBox.Show(result?.Message ?? "레이아웃 저장에 실패했습니다.", "저장 실패");
+    }
+
+    private async Task ResetGridLayoutAsync(GridViewWyn view)
+    {
+        view.RestorePristineLayout();
+        if (string.IsNullOrEmpty(MenuCd)) return; // 저장된 적이 없으니 지울 것도 없다
+
+        var result = await ApiClient.DeleteAsync<ApiResult>(
+            $"api/grid-layout?menuCd={Uri.EscapeDataString(MenuCd)}&gridKey={Uri.EscapeDataString(view.Name)}");
+
+        if (result?.Success == true) Toast.Show("기본 배치로 초기화했습니다.");
+        else AppMessageBox.Show(result?.Message ?? "레이아웃 초기화에 실패했습니다.", "초기화 실패");
+    }
+
+    /// <summary>
+    /// 개발자(Session.IsDeveloper) 전용 - 화면의 모든 컨트롤에 마우스를 올리면 그 컨트롤이 어느
+    /// DB 컬럼에 바인딩됐는지(BindingField) + 팝업/룩업이 걸려있으면 어떤 걸 쓰는지 툴팁으로
+    /// 보여준다.
+    ///
+    /// - 그리드(GridControl.MainView)/트리(TreeList) 컬럼: FieldName이 이미 실제 DB 컬럼명이라
+    ///   손댈 것 없이 전 화면에 자동 적용된다.
+    /// - 개별 입력 컨트롤(txtDeptCd 등): 컨트롤 선언 시 Tag에 BindingFieldTag를 미리 넣어둔
+    ///   것만 잡는다(예: new TextEditWyn { Tag = new BindingFieldTag("dept_cd") }). Tag를 안
+    ///   채운 컨트롤은 그냥 건드리지 않는다(툴팁 없음).
+    ///
+    /// Control.Tag를 그냥 string으로 쓰지 않고 BindingFieldTag(전용 래퍼 클래스)로 감싸는
+    /// 이유: frmShortcut.cs가 이미 Tag를 다른 용도(actionCd 저장)로 쓰고 있어서, 순수 string
+    /// 체크만으로는 그 값까지 "BindingField"로 잘못 표시할 위험이 있다 - 타입으로 구분하면
+    /// 이 화면들끼리 절대 안 섞인다.
+    /// </summary>
+    private static void ApplyBindingFieldTooltips(Control root)
+    {
+        foreach (Control child in root.Controls)
+        {
+            if (child is BaseEdit edit && edit.Tag is BindingFieldTag tag)
+            {
+                var tip = $"BindingField : {tag.Field}";
+                if (edit is PopupLookupEditWyn pop && !string.IsNullOrWhiteSpace(pop.LookupKey))
+                    tip += $"\nPopup : {pop.LookupKey}";
+                else if (edit is LookUpEditWyn look)
+                {
+                    if (!string.IsNullOrWhiteSpace(look.LookupKey)) tip += $"\nLookUp : {look.LookupKey}";
+                    else if (!string.IsNullOrWhiteSpace(look.ProcName)) tip += $"\nLookUp(Proc) : {look.ProcName}";
+                }
+                edit.ToolTip = tip;
+            }
+            else if (child is GridControl grid && grid.MainView is GridView gv)
+            {
+                foreach (DevExpress.XtraGrid.Columns.GridColumn col in gv.Columns)
+                    if (string.IsNullOrEmpty(col.ToolTip) && !string.IsNullOrWhiteSpace(col.FieldName))
+                        col.ToolTip = $"BindingField : {col.FieldName}";
+            }
+            else if (child is TreeList tree)
+            {
+                foreach (DevExpress.XtraTreeList.Columns.TreeListColumn col in tree.Columns)
+                    if (string.IsNullOrEmpty(col.ToolTip) && !string.IsNullOrWhiteSpace(col.FieldName))
+                        col.ToolTip = $"BindingField : {col.FieldName}";
+            }
+
+            ApplyBindingFieldTooltips(child); // 재귀 - 패널 안에 중첩된 컨트롤까지 전부 훑는다
+        }
     }
 
     /// <summary>
@@ -99,7 +379,9 @@ public class BaseForm : XtraForm
         CanInsert = auth?.InsertYn ?? false;
         CanUpdate = auth?.UpdateYn ?? false;
         CanDelete = auth?.DeleteYn ?? false;
+        CanPrint = auth?.PrintYn ?? false;
         CanExcel = auth?.ExcelYn ?? false;
+        Auth = auth?.Auth ?? new bool[10];
     }
 
     /// <summary>

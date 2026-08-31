@@ -8,8 +8,11 @@ using WYNLAB.Base.Controls;
 namespace WYNLAB.BA;
 
 /// <summary>
-/// 품목등록 화면 - TEMPLATE(frmMinorCode 표준 레이아웃)에서 복사해서 만듦. grd1(목록)/
-/// panData(상세 입력)/grd2(하위 목록)에 아직 컬럼/컨트롤이 없다 - 디자이너로 배치할 것.
+/// 품목등록 화면 - grd1(품목 목록)/panData(품목 상세, TBAITEM 컬럼 그대로)/grd2(TBAITEMUNIT
+/// 단위환산 입력그리드, 조회·편집 가능). panData는 31개 필드를 4단으로 빽빽하게 배치했다 -
+/// 캡션은 컬럼명 기준 추정치라 실제 업무 용어와 다르면 고칠 것, 타입도 전부 기본 TextEditWyn이라
+/// 코드성 필드(unit_cd/dept_cd/emp_no/cust_cd 등)는 LookUpEditWyn으로, Yn 필드는 CheckBoxWyn으로
+/// 바꾸는 걸 권장한다.
 /// </summary>
 public partial class frmItem
 {
@@ -33,6 +36,11 @@ public partial class frmItem
             this.panelWyn4 = new WYNLAB.Base.Controls.PanelWyn();
             this.grd2 = new WYNLAB.Base.Controls.GridControlWyn();
             this.gvw2 = new WYNLAB.Base.Controls.GridViewWyn();
+            this.colUnitFrUnitCd = new DevExpress.XtraGrid.Columns.GridColumn();
+            this.colUnitFrQty = new DevExpress.XtraGrid.Columns.GridColumn();
+            this.colUnitToUnitCd = new DevExpress.XtraGrid.Columns.GridColumn();
+            this.colUnitToQty = new DevExpress.XtraGrid.Columns.GridColumn();
+            this.colUnitRemark = new DevExpress.XtraGrid.Columns.GridColumn();
             this.panelWyn1 = new WYNLAB.Base.Controls.PanelWyn();
             this.panelWyn7 = new WYNLAB.Base.Controls.PanelWyn();
             this.btnDeletRow2 = new DevExpress.XtraEditors.SimpleButton();
@@ -40,12 +48,79 @@ public partial class frmItem
             this.sectionHeaderWyn2 = new WYNLAB.Base.Controls.SectionHeaderWyn();
             this.panelWyn5 = new WYNLAB.Base.Controls.PanelWyn();
             this.panData = new WYNLAB.Base.Controls.PanelWyn();
+            this.lblItemCd = new DevExpress.XtraEditors.LabelControl();
+            this.txtItemCd = new WYNLAB.Base.Controls.TextEditWyn();
+            this.lblItemNo = new DevExpress.XtraEditors.LabelControl();
+            this.txtItemNo = new WYNLAB.Base.Controls.TextEditWyn();
+            this.lblItemNm = new DevExpress.XtraEditors.LabelControl();
+            this.txtItemNm = new WYNLAB.Base.Controls.TextEditWyn();
+            this.lblItemSpec = new DevExpress.XtraEditors.LabelControl();
+            this.txtItemSpec = new WYNLAB.Base.Controls.TextEditWyn();
+            this.lblUnitCd = new DevExpress.XtraEditors.LabelControl();
+            this.txtUnitCd = new WYNLAB.Base.Controls.TextEditWyn();
+            this.lblPoUnitCd = new DevExpress.XtraEditors.LabelControl();
+            this.txtPoUnitCd = new WYNLAB.Base.Controls.TextEditWyn();
+            this.lblWhCd = new DevExpress.XtraEditors.LabelControl();
+            this.txtWhCd = new WYNLAB.Base.Controls.TextEditWyn();
+            this.lblLocCd = new DevExpress.XtraEditors.LabelControl();
+            this.txtLocCd = new WYNLAB.Base.Controls.TextEditWyn();
+            this.lblSafeQty = new DevExpress.XtraEditors.LabelControl();
+            this.txtSafeQty = new WYNLAB.Base.Controls.TextEditWyn();
+            this.lblDeptCd = new DevExpress.XtraEditors.LabelControl();
+            this.txtDeptCd = new WYNLAB.Base.Controls.TextEditWyn();
+            this.lblEmpNo = new DevExpress.XtraEditors.LabelControl();
+            this.txtEmpNo = new WYNLAB.Base.Controls.TextEditWyn();
+            this.lblProdYn = new DevExpress.XtraEditors.LabelControl();
+            this.txtProdYn = new WYNLAB.Base.Controls.TextEditWyn();
+            this.lblCustCd = new DevExpress.XtraEditors.LabelControl();
+            this.txtCustCd = new WYNLAB.Base.Controls.TextEditWyn();
+            this.lblAssetType = new DevExpress.XtraEditors.LabelControl();
+            this.txtAssetType = new WYNLAB.Base.Controls.TextEditWyn();
+            this.lblOutType = new DevExpress.XtraEditors.LabelControl();
+            this.txtOutType = new WYNLAB.Base.Controls.TextEditWyn();
+            this.lblPoQcYn = new DevExpress.XtraEditors.LabelControl();
+            this.txtPoQcYn = new WYNLAB.Base.Controls.TextEditWyn();
+            this.lblProdQcYn = new DevExpress.XtraEditors.LabelControl();
+            this.txtProdQcYn = new WYNLAB.Base.Controls.TextEditWyn();
+            this.lblLotYn = new DevExpress.XtraEditors.LabelControl();
+            this.txtLotYn = new WYNLAB.Base.Controls.TextEditWyn();
+            this.lblStockYn = new DevExpress.XtraEditors.LabelControl();
+            this.txtStockYn = new WYNLAB.Base.Controls.TextEditWyn();
+            this.lblPoYn = new DevExpress.XtraEditors.LabelControl();
+            this.txtPoYn = new WYNLAB.Base.Controls.TextEditWyn();
+            this.lblPoPrice = new DevExpress.XtraEditors.LabelControl();
+            this.txtPoPrice = new WYNLAB.Base.Controls.TextEditWyn();
+            this.lblSaleYn = new DevExpress.XtraEditors.LabelControl();
+            this.txtSaleYn = new WYNLAB.Base.Controls.TextEditWyn();
+            this.lblSalePrice = new DevExpress.XtraEditors.LabelControl();
+            this.txtSalePrice = new WYNLAB.Base.Controls.TextEditWyn();
+            this.lblStatCd = new DevExpress.XtraEditors.LabelControl();
+            this.txtStatCd = new WYNLAB.Base.Controls.TextEditWyn();
+            this.lblItemClass1 = new DevExpress.XtraEditors.LabelControl();
+            this.txtItemClass1 = new WYNLAB.Base.Controls.TextEditWyn();
+            this.lblItemClass2 = new DevExpress.XtraEditors.LabelControl();
+            this.txtItemClass2 = new WYNLAB.Base.Controls.TextEditWyn();
+            this.lblItemClass3 = new DevExpress.XtraEditors.LabelControl();
+            this.txtItemClass3 = new WYNLAB.Base.Controls.TextEditWyn();
+            this.lblItemClass4 = new DevExpress.XtraEditors.LabelControl();
+            this.txtItemClass4 = new WYNLAB.Base.Controls.TextEditWyn();
+            this.lblPoAcntCd = new DevExpress.XtraEditors.LabelControl();
+            this.txtPoAcntCd = new WYNLAB.Base.Controls.TextEditWyn();
+            this.lblSaleAcntCd = new DevExpress.XtraEditors.LabelControl();
+            this.txtSaleAcntCd = new WYNLAB.Base.Controls.TextEditWyn();
+            this.lblRemark = new DevExpress.XtraEditors.LabelControl();
+            this.txtRemark = new WYNLAB.Base.Controls.TextEditWyn();
             this.panelWyn6 = new WYNLAB.Base.Controls.PanelWyn();
             this.sectionHeaderWyn3 = new WYNLAB.Base.Controls.SectionHeaderWyn();
             this.splitterWyn1 = new WYNLAB.Base.Controls.SplitterWyn();
             this.panelWyn8 = new WYNLAB.Base.Controls.PanelWyn();
             this.grd1 = new WYNLAB.Base.Controls.GridControlWyn();
             this.gvw1 = new WYNLAB.Base.Controls.GridViewWyn();
+            this.colListItemId = new DevExpress.XtraGrid.Columns.GridColumn();
+            this.colListItemCd = new DevExpress.XtraGrid.Columns.GridColumn();
+            this.colListItemNm = new DevExpress.XtraGrid.Columns.GridColumn();
+            this.colListUnitCd = new DevExpress.XtraGrid.Columns.GridColumn();
+            this.colListStatCd = new DevExpress.XtraGrid.Columns.GridColumn();
             this.panelWyn2 = new WYNLAB.Base.Controls.PanelWyn();
             this.sectionHeaderWyn4 = new WYNLAB.Base.Controls.SectionHeaderWyn();
             this.panHeader = new WYNLAB.Base.Controls.PanelWyn();
@@ -68,6 +143,38 @@ public partial class frmItem
             ((System.ComponentModel.ISupportInitialize)(this.panelWyn5)).BeginInit();
             this.panelWyn5.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.panData)).BeginInit();
+            this.panData.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.txtItemCd.Properties)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.txtItemNo.Properties)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.txtItemNm.Properties)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.txtItemSpec.Properties)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.txtUnitCd.Properties)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.txtPoUnitCd.Properties)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.txtWhCd.Properties)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.txtLocCd.Properties)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.txtSafeQty.Properties)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.txtDeptCd.Properties)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.txtEmpNo.Properties)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.txtProdYn.Properties)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.txtCustCd.Properties)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.txtAssetType.Properties)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.txtOutType.Properties)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.txtPoQcYn.Properties)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.txtProdQcYn.Properties)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.txtLotYn.Properties)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.txtStockYn.Properties)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.txtPoYn.Properties)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.txtPoPrice.Properties)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.txtSaleYn.Properties)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.txtSalePrice.Properties)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.txtStatCd.Properties)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.txtItemClass1.Properties)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.txtItemClass2.Properties)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.txtItemClass3.Properties)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.txtItemClass4.Properties)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.txtPoAcntCd.Properties)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.txtSaleAcntCd.Properties)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.txtRemark.Properties)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.panelWyn6)).BeginInit();
             this.panelWyn6.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.panelWyn8)).BeginInit();
@@ -123,24 +230,75 @@ public partial class frmItem
             this.panelWyn4.Size = new System.Drawing.Size(747, 515);
             this.panelWyn4.TabIndex = 7;
             //
-            // grd2 (하위 목록 - 컬럼은 디자이너에서 추가)
+            // grd2 (TBAITEMUNIT 단위환산 - 입력/편집 가능)
             //
             this.grd2.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.grd2.Location = new System.Drawing.Point(3, 245);
+            this.grd2.Location = new System.Drawing.Point(3, 272);
             this.grd2.MainView = this.gvw2;
             this.grd2.Name = "grd2";
-            this.grd2.Size = new System.Drawing.Size(744, 270);
+            this.grd2.Size = new System.Drawing.Size(744, 243);
             this.grd2.TabIndex = 7;
             this.grd2.ViewCollection.AddRange(new DevExpress.XtraGrid.Views.Base.BaseView[] {
             this.gvw2});
             //
             // gvw2
             //
+            this.gvw2.Columns.AddRange(new DevExpress.XtraGrid.Columns.GridColumn[] {
+            this.colUnitFrUnitCd,
+            this.colUnitFrQty,
+            this.colUnitToUnitCd,
+            this.colUnitToQty,
+            this.colUnitRemark});
             this.gvw2.GridControl = this.grd2;
             this.gvw2.HighlightFocusedRow = true;
             this.gvw2.Name = "gvw2";
             this.gvw2.OptionsView.ColumnAutoWidth = false;
             this.gvw2.OptionsView.ShowGroupPanel = false;
+            //
+            // colUnitFrUnitCd
+            //
+            this.colUnitFrUnitCd.Caption = "기준단위";
+            this.colUnitFrUnitCd.FieldName = "fr_unit_cd";
+            this.colUnitFrUnitCd.Name = "colUnitFrUnitCd";
+            this.colUnitFrUnitCd.Visible = true;
+            this.colUnitFrUnitCd.VisibleIndex = 0;
+            this.colUnitFrUnitCd.Width = 90;
+            //
+            // colUnitFrQty
+            //
+            this.colUnitFrQty.Caption = "기준수량";
+            this.colUnitFrQty.FieldName = "fr_qty";
+            this.colUnitFrQty.Name = "colUnitFrQty";
+            this.colUnitFrQty.Visible = true;
+            this.colUnitFrQty.VisibleIndex = 1;
+            this.colUnitFrQty.Width = 90;
+            //
+            // colUnitToUnitCd
+            //
+            this.colUnitToUnitCd.Caption = "환산단위";
+            this.colUnitToUnitCd.FieldName = "to_unit_cd";
+            this.colUnitToUnitCd.Name = "colUnitToUnitCd";
+            this.colUnitToUnitCd.Visible = true;
+            this.colUnitToUnitCd.VisibleIndex = 2;
+            this.colUnitToUnitCd.Width = 90;
+            //
+            // colUnitToQty
+            //
+            this.colUnitToQty.Caption = "환산수량";
+            this.colUnitToQty.FieldName = "to_qty";
+            this.colUnitToQty.Name = "colUnitToQty";
+            this.colUnitToQty.Visible = true;
+            this.colUnitToQty.VisibleIndex = 3;
+            this.colUnitToQty.Width = 90;
+            //
+            // colUnitRemark
+            //
+            this.colUnitRemark.Caption = "비고";
+            this.colUnitRemark.FieldName = "remark";
+            this.colUnitRemark.Name = "colUnitRemark";
+            this.colUnitRemark.Visible = true;
+            this.colUnitRemark.VisibleIndex = 4;
+            this.colUnitRemark.Width = 200;
             //
             // panelWyn1
             //
@@ -148,7 +306,7 @@ public partial class frmItem
             this.panelWyn1.Controls.Add(this.sectionHeaderWyn2);
             this.panelWyn1.Dock = System.Windows.Forms.DockStyle.Top;
             this.panelWyn1.EdgeLineColor = System.Drawing.Color.FromArgb(((int)(((byte)(228)))), ((int)(((byte)(229)))), ((int)(((byte)(232)))));
-            this.panelWyn1.Location = new System.Drawing.Point(3, 218);
+            this.panelWyn1.Location = new System.Drawing.Point(3, 245);
             this.panelWyn1.Name = "panelWyn1";
             this.panelWyn1.Padding = new System.Windows.Forms.Padding(5, 0, 0, 2);
             this.panelWyn1.Size = new System.Drawing.Size(744, 27);
@@ -212,7 +370,7 @@ public partial class frmItem
             this.sectionHeaderWyn2.Size = new System.Drawing.Size(739, 25);
             this.sectionHeaderWyn2.SvgIcon = ((DevExpress.Utils.Svg.SvgImage)(resources.GetObject("sectionHeaderWyn2.SvgIcon")));
             this.sectionHeaderWyn2.TabIndex = 8;
-            this.sectionHeaderWyn2.Text = "하위 목록";
+            this.sectionHeaderWyn2.Text = "품목단위환산";
             //
             // panelWyn5
             //
@@ -222,18 +380,446 @@ public partial class frmItem
             this.panelWyn5.EdgeLineColor = System.Drawing.Color.FromArgb(((int)(((byte)(228)))), ((int)(((byte)(229)))), ((int)(((byte)(232)))));
             this.panelWyn5.Location = new System.Drawing.Point(3, 0);
             this.panelWyn5.Name = "panelWyn5";
-            this.panelWyn5.Size = new System.Drawing.Size(744, 218);
+            this.panelWyn5.Size = new System.Drawing.Size(744, 245);
             this.panelWyn5.TabIndex = 6;
             //
-            // panData (상세 입력 - 컨트롤은 디자이너에서 배치)
+            // panData (품목 상세 - TBAITEM 컬럼, 전부 기본 TextEditWyn)
             //
             this.panData.BorderStyle = DevExpress.XtraEditors.Controls.BorderStyles.Default;
+            this.panData.Controls.Add(this.lblItemCd);
+            this.panData.Controls.Add(this.txtItemCd);
+            this.panData.Controls.Add(this.lblItemNo);
+            this.panData.Controls.Add(this.txtItemNo);
+            this.panData.Controls.Add(this.lblItemNm);
+            this.panData.Controls.Add(this.txtItemNm);
+            this.panData.Controls.Add(this.lblItemSpec);
+            this.panData.Controls.Add(this.txtItemSpec);
+            this.panData.Controls.Add(this.lblUnitCd);
+            this.panData.Controls.Add(this.txtUnitCd);
+            this.panData.Controls.Add(this.lblPoUnitCd);
+            this.panData.Controls.Add(this.txtPoUnitCd);
+            this.panData.Controls.Add(this.lblWhCd);
+            this.panData.Controls.Add(this.txtWhCd);
+            this.panData.Controls.Add(this.lblLocCd);
+            this.panData.Controls.Add(this.txtLocCd);
+            this.panData.Controls.Add(this.lblSafeQty);
+            this.panData.Controls.Add(this.txtSafeQty);
+            this.panData.Controls.Add(this.lblDeptCd);
+            this.panData.Controls.Add(this.txtDeptCd);
+            this.panData.Controls.Add(this.lblEmpNo);
+            this.panData.Controls.Add(this.txtEmpNo);
+            this.panData.Controls.Add(this.lblProdYn);
+            this.panData.Controls.Add(this.txtProdYn);
+            this.panData.Controls.Add(this.lblCustCd);
+            this.panData.Controls.Add(this.txtCustCd);
+            this.panData.Controls.Add(this.lblAssetType);
+            this.panData.Controls.Add(this.txtAssetType);
+            this.panData.Controls.Add(this.lblOutType);
+            this.panData.Controls.Add(this.txtOutType);
+            this.panData.Controls.Add(this.lblPoQcYn);
+            this.panData.Controls.Add(this.txtPoQcYn);
+            this.panData.Controls.Add(this.lblProdQcYn);
+            this.panData.Controls.Add(this.txtProdQcYn);
+            this.panData.Controls.Add(this.lblLotYn);
+            this.panData.Controls.Add(this.txtLotYn);
+            this.panData.Controls.Add(this.lblStockYn);
+            this.panData.Controls.Add(this.txtStockYn);
+            this.panData.Controls.Add(this.lblPoYn);
+            this.panData.Controls.Add(this.txtPoYn);
+            this.panData.Controls.Add(this.lblPoPrice);
+            this.panData.Controls.Add(this.txtPoPrice);
+            this.panData.Controls.Add(this.lblSaleYn);
+            this.panData.Controls.Add(this.txtSaleYn);
+            this.panData.Controls.Add(this.lblSalePrice);
+            this.panData.Controls.Add(this.txtSalePrice);
+            this.panData.Controls.Add(this.lblStatCd);
+            this.panData.Controls.Add(this.txtStatCd);
+            this.panData.Controls.Add(this.lblItemClass1);
+            this.panData.Controls.Add(this.txtItemClass1);
+            this.panData.Controls.Add(this.lblItemClass2);
+            this.panData.Controls.Add(this.txtItemClass2);
+            this.panData.Controls.Add(this.lblItemClass3);
+            this.panData.Controls.Add(this.txtItemClass3);
+            this.panData.Controls.Add(this.lblItemClass4);
+            this.panData.Controls.Add(this.txtItemClass4);
+            this.panData.Controls.Add(this.lblPoAcntCd);
+            this.panData.Controls.Add(this.txtPoAcntCd);
+            this.panData.Controls.Add(this.lblSaleAcntCd);
+            this.panData.Controls.Add(this.txtSaleAcntCd);
+            this.panData.Controls.Add(this.lblRemark);
+            this.panData.Controls.Add(this.txtRemark);
             this.panData.Dock = System.Windows.Forms.DockStyle.Fill;
             this.panData.EdgeLineColor = System.Drawing.Color.FromArgb(((int)(((byte)(228)))), ((int)(((byte)(229)))), ((int)(((byte)(232)))));
             this.panData.Location = new System.Drawing.Point(0, 27);
             this.panData.Name = "panData";
-            this.panData.Size = new System.Drawing.Size(744, 191);
+            this.panData.Size = new System.Drawing.Size(744, 218);
             this.panData.TabIndex = 8;
+            //
+            // Row 0 (y=16): item_cd / item_no / item_nm / item_spec
+            //
+            this.lblItemCd.Appearance.Font = new System.Drawing.Font("맑은 고딕", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
+            this.lblItemCd.Appearance.Options.UseFont = true;
+            this.lblItemCd.Location = new System.Drawing.Point(8, 18);
+            this.lblItemCd.Name = "lblItemCd";
+            this.lblItemCd.Size = new System.Drawing.Size(60, 15);
+            this.lblItemCd.TabIndex = 0;
+            this.lblItemCd.Text = "품목코드";
+            this.txtItemCd.Location = new System.Drawing.Point(82, 16);
+            this.txtItemCd.Name = "txtItemCd";
+            this.txtItemCd.Size = new System.Drawing.Size(108, 20);
+            this.txtItemCd.TabIndex = 1;
+            this.lblItemNo.Appearance.Font = new System.Drawing.Font("맑은 고딕", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
+            this.lblItemNo.Appearance.Options.UseFont = true;
+            this.lblItemNo.Location = new System.Drawing.Point(200, 18);
+            this.lblItemNo.Name = "lblItemNo";
+            this.lblItemNo.Size = new System.Drawing.Size(60, 15);
+            this.lblItemNo.TabIndex = 2;
+            this.lblItemNo.Text = "품번";
+            this.txtItemNo.Location = new System.Drawing.Point(274, 16);
+            this.txtItemNo.Name = "txtItemNo";
+            this.txtItemNo.Size = new System.Drawing.Size(108, 20);
+            this.txtItemNo.TabIndex = 3;
+            this.lblItemNm.Appearance.Font = new System.Drawing.Font("맑은 고딕", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
+            this.lblItemNm.Appearance.Options.UseFont = true;
+            this.lblItemNm.Location = new System.Drawing.Point(392, 18);
+            this.lblItemNm.Name = "lblItemNm";
+            this.lblItemNm.Size = new System.Drawing.Size(60, 15);
+            this.lblItemNm.TabIndex = 4;
+            this.lblItemNm.Text = "품목명";
+            this.txtItemNm.Location = new System.Drawing.Point(466, 16);
+            this.txtItemNm.Name = "txtItemNm";
+            this.txtItemNm.Size = new System.Drawing.Size(108, 20);
+            this.txtItemNm.TabIndex = 5;
+            this.lblItemSpec.Appearance.Font = new System.Drawing.Font("맑은 고딕", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
+            this.lblItemSpec.Appearance.Options.UseFont = true;
+            this.lblItemSpec.Location = new System.Drawing.Point(584, 18);
+            this.lblItemSpec.Name = "lblItemSpec";
+            this.lblItemSpec.Size = new System.Drawing.Size(60, 15);
+            this.lblItemSpec.TabIndex = 6;
+            this.lblItemSpec.Text = "규격";
+            this.txtItemSpec.Location = new System.Drawing.Point(658, 16);
+            this.txtItemSpec.Name = "txtItemSpec";
+            this.txtItemSpec.Size = new System.Drawing.Size(80, 20);
+            this.txtItemSpec.TabIndex = 7;
+            //
+            // Row 1 (y=43): unit_cd / po_unit_cd / wh_cd / loc_cd
+            //
+            this.lblUnitCd.Appearance.Font = new System.Drawing.Font("맑은 고딕", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
+            this.lblUnitCd.Appearance.Options.UseFont = true;
+            this.lblUnitCd.Location = new System.Drawing.Point(8, 45);
+            this.lblUnitCd.Name = "lblUnitCd";
+            this.lblUnitCd.Size = new System.Drawing.Size(60, 15);
+            this.lblUnitCd.TabIndex = 8;
+            this.lblUnitCd.Text = "기본단위";
+            this.txtUnitCd.Location = new System.Drawing.Point(82, 43);
+            this.txtUnitCd.Name = "txtUnitCd";
+            this.txtUnitCd.Size = new System.Drawing.Size(108, 20);
+            this.txtUnitCd.TabIndex = 9;
+            this.lblPoUnitCd.Appearance.Font = new System.Drawing.Font("맑은 고딕", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
+            this.lblPoUnitCd.Appearance.Options.UseFont = true;
+            this.lblPoUnitCd.Location = new System.Drawing.Point(200, 45);
+            this.lblPoUnitCd.Name = "lblPoUnitCd";
+            this.lblPoUnitCd.Size = new System.Drawing.Size(60, 15);
+            this.lblPoUnitCd.TabIndex = 10;
+            this.lblPoUnitCd.Text = "구매단위";
+            this.txtPoUnitCd.Location = new System.Drawing.Point(274, 43);
+            this.txtPoUnitCd.Name = "txtPoUnitCd";
+            this.txtPoUnitCd.Size = new System.Drawing.Size(108, 20);
+            this.txtPoUnitCd.TabIndex = 11;
+            this.lblWhCd.Appearance.Font = new System.Drawing.Font("맑은 고딕", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
+            this.lblWhCd.Appearance.Options.UseFont = true;
+            this.lblWhCd.Location = new System.Drawing.Point(392, 45);
+            this.lblWhCd.Name = "lblWhCd";
+            this.lblWhCd.Size = new System.Drawing.Size(60, 15);
+            this.lblWhCd.TabIndex = 12;
+            this.lblWhCd.Text = "창고코드";
+            this.txtWhCd.Location = new System.Drawing.Point(466, 43);
+            this.txtWhCd.Name = "txtWhCd";
+            this.txtWhCd.Size = new System.Drawing.Size(108, 20);
+            this.txtWhCd.TabIndex = 13;
+            this.lblLocCd.Appearance.Font = new System.Drawing.Font("맑은 고딕", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
+            this.lblLocCd.Appearance.Options.UseFont = true;
+            this.lblLocCd.Location = new System.Drawing.Point(584, 45);
+            this.lblLocCd.Name = "lblLocCd";
+            this.lblLocCd.Size = new System.Drawing.Size(60, 15);
+            this.lblLocCd.TabIndex = 14;
+            this.lblLocCd.Text = "위치코드";
+            this.txtLocCd.Location = new System.Drawing.Point(658, 43);
+            this.txtLocCd.Name = "txtLocCd";
+            this.txtLocCd.Size = new System.Drawing.Size(80, 20);
+            this.txtLocCd.TabIndex = 15;
+            //
+            // Row 2 (y=70): safe_qty / dept_cd / emp_no / prod_yn
+            //
+            this.lblSafeQty.Appearance.Font = new System.Drawing.Font("맑은 고딕", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
+            this.lblSafeQty.Appearance.Options.UseFont = true;
+            this.lblSafeQty.Location = new System.Drawing.Point(8, 72);
+            this.lblSafeQty.Name = "lblSafeQty";
+            this.lblSafeQty.Size = new System.Drawing.Size(60, 15);
+            this.lblSafeQty.TabIndex = 16;
+            this.lblSafeQty.Text = "안전재고";
+            this.txtSafeQty.Location = new System.Drawing.Point(82, 70);
+            this.txtSafeQty.Name = "txtSafeQty";
+            this.txtSafeQty.Size = new System.Drawing.Size(108, 20);
+            this.txtSafeQty.TabIndex = 17;
+            this.lblDeptCd.Appearance.Font = new System.Drawing.Font("맑은 고딕", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
+            this.lblDeptCd.Appearance.Options.UseFont = true;
+            this.lblDeptCd.Location = new System.Drawing.Point(200, 72);
+            this.lblDeptCd.Name = "lblDeptCd";
+            this.lblDeptCd.Size = new System.Drawing.Size(60, 15);
+            this.lblDeptCd.TabIndex = 18;
+            this.lblDeptCd.Text = "담당부서";
+            this.txtDeptCd.Location = new System.Drawing.Point(274, 70);
+            this.txtDeptCd.Name = "txtDeptCd";
+            this.txtDeptCd.Size = new System.Drawing.Size(108, 20);
+            this.txtDeptCd.TabIndex = 19;
+            this.lblEmpNo.Appearance.Font = new System.Drawing.Font("맑은 고딕", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
+            this.lblEmpNo.Appearance.Options.UseFont = true;
+            this.lblEmpNo.Location = new System.Drawing.Point(392, 72);
+            this.lblEmpNo.Name = "lblEmpNo";
+            this.lblEmpNo.Size = new System.Drawing.Size(60, 15);
+            this.lblEmpNo.TabIndex = 20;
+            this.lblEmpNo.Text = "담당자";
+            this.txtEmpNo.Location = new System.Drawing.Point(466, 70);
+            this.txtEmpNo.Name = "txtEmpNo";
+            this.txtEmpNo.Size = new System.Drawing.Size(108, 20);
+            this.txtEmpNo.TabIndex = 21;
+            this.lblProdYn.Appearance.Font = new System.Drawing.Font("맑은 고딕", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
+            this.lblProdYn.Appearance.Options.UseFont = true;
+            this.lblProdYn.Location = new System.Drawing.Point(584, 72);
+            this.lblProdYn.Name = "lblProdYn";
+            this.lblProdYn.Size = new System.Drawing.Size(60, 15);
+            this.lblProdYn.TabIndex = 22;
+            this.lblProdYn.Text = "생산여부";
+            this.txtProdYn.Location = new System.Drawing.Point(658, 70);
+            this.txtProdYn.Name = "txtProdYn";
+            this.txtProdYn.Size = new System.Drawing.Size(80, 20);
+            this.txtProdYn.TabIndex = 23;
+            //
+            // Row 3 (y=97): cust_cd / asset_type / out_type / po_qc_yn
+            //
+            this.lblCustCd.Appearance.Font = new System.Drawing.Font("맑은 고딕", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
+            this.lblCustCd.Appearance.Options.UseFont = true;
+            this.lblCustCd.Location = new System.Drawing.Point(8, 99);
+            this.lblCustCd.Name = "lblCustCd";
+            this.lblCustCd.Size = new System.Drawing.Size(60, 15);
+            this.lblCustCd.TabIndex = 24;
+            this.lblCustCd.Text = "거래처코드";
+            this.txtCustCd.Location = new System.Drawing.Point(82, 97);
+            this.txtCustCd.Name = "txtCustCd";
+            this.txtCustCd.Size = new System.Drawing.Size(108, 20);
+            this.txtCustCd.TabIndex = 25;
+            this.lblAssetType.Appearance.Font = new System.Drawing.Font("맑은 고딕", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
+            this.lblAssetType.Appearance.Options.UseFont = true;
+            this.lblAssetType.Location = new System.Drawing.Point(200, 99);
+            this.lblAssetType.Name = "lblAssetType";
+            this.lblAssetType.Size = new System.Drawing.Size(60, 15);
+            this.lblAssetType.TabIndex = 26;
+            this.lblAssetType.Text = "자산구분";
+            this.txtAssetType.Location = new System.Drawing.Point(274, 97);
+            this.txtAssetType.Name = "txtAssetType";
+            this.txtAssetType.Size = new System.Drawing.Size(108, 20);
+            this.txtAssetType.TabIndex = 27;
+            this.lblOutType.Appearance.Font = new System.Drawing.Font("맑은 고딕", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
+            this.lblOutType.Appearance.Options.UseFont = true;
+            this.lblOutType.Location = new System.Drawing.Point(392, 99);
+            this.lblOutType.Name = "lblOutType";
+            this.lblOutType.Size = new System.Drawing.Size(60, 15);
+            this.lblOutType.TabIndex = 28;
+            this.lblOutType.Text = "출고구분";
+            this.txtOutType.Location = new System.Drawing.Point(466, 97);
+            this.txtOutType.Name = "txtOutType";
+            this.txtOutType.Size = new System.Drawing.Size(108, 20);
+            this.txtOutType.TabIndex = 29;
+            this.lblPoQcYn.Appearance.Font = new System.Drawing.Font("맑은 고딕", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
+            this.lblPoQcYn.Appearance.Options.UseFont = true;
+            this.lblPoQcYn.Location = new System.Drawing.Point(584, 99);
+            this.lblPoQcYn.Name = "lblPoQcYn";
+            this.lblPoQcYn.Size = new System.Drawing.Size(60, 15);
+            this.lblPoQcYn.TabIndex = 30;
+            this.lblPoQcYn.Text = "구매검사";
+            this.txtPoQcYn.Location = new System.Drawing.Point(658, 97);
+            this.txtPoQcYn.Name = "txtPoQcYn";
+            this.txtPoQcYn.Size = new System.Drawing.Size(80, 20);
+            this.txtPoQcYn.TabIndex = 31;
+            //
+            // Row 4 (y=124): prod_qc_yn / lot_yn / stock_yn / po_yn
+            //
+            this.lblProdQcYn.Appearance.Font = new System.Drawing.Font("맑은 고딕", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
+            this.lblProdQcYn.Appearance.Options.UseFont = true;
+            this.lblProdQcYn.Location = new System.Drawing.Point(8, 126);
+            this.lblProdQcYn.Name = "lblProdQcYn";
+            this.lblProdQcYn.Size = new System.Drawing.Size(60, 15);
+            this.lblProdQcYn.TabIndex = 32;
+            this.lblProdQcYn.Text = "생산검사";
+            this.txtProdQcYn.Location = new System.Drawing.Point(82, 124);
+            this.txtProdQcYn.Name = "txtProdQcYn";
+            this.txtProdQcYn.Size = new System.Drawing.Size(108, 20);
+            this.txtProdQcYn.TabIndex = 33;
+            this.lblLotYn.Appearance.Font = new System.Drawing.Font("맑은 고딕", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
+            this.lblLotYn.Appearance.Options.UseFont = true;
+            this.lblLotYn.Location = new System.Drawing.Point(200, 126);
+            this.lblLotYn.Name = "lblLotYn";
+            this.lblLotYn.Size = new System.Drawing.Size(60, 15);
+            this.lblLotYn.TabIndex = 34;
+            this.lblLotYn.Text = "LOT여부";
+            this.txtLotYn.Location = new System.Drawing.Point(274, 124);
+            this.txtLotYn.Name = "txtLotYn";
+            this.txtLotYn.Size = new System.Drawing.Size(108, 20);
+            this.txtLotYn.TabIndex = 35;
+            this.lblStockYn.Appearance.Font = new System.Drawing.Font("맑은 고딕", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
+            this.lblStockYn.Appearance.Options.UseFont = true;
+            this.lblStockYn.Location = new System.Drawing.Point(392, 126);
+            this.lblStockYn.Name = "lblStockYn";
+            this.lblStockYn.Size = new System.Drawing.Size(60, 15);
+            this.lblStockYn.TabIndex = 36;
+            this.lblStockYn.Text = "재고관리";
+            this.txtStockYn.Location = new System.Drawing.Point(466, 124);
+            this.txtStockYn.Name = "txtStockYn";
+            this.txtStockYn.Size = new System.Drawing.Size(108, 20);
+            this.txtStockYn.TabIndex = 37;
+            this.lblPoYn.Appearance.Font = new System.Drawing.Font("맑은 고딕", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
+            this.lblPoYn.Appearance.Options.UseFont = true;
+            this.lblPoYn.Location = new System.Drawing.Point(584, 126);
+            this.lblPoYn.Name = "lblPoYn";
+            this.lblPoYn.Size = new System.Drawing.Size(60, 15);
+            this.lblPoYn.TabIndex = 38;
+            this.lblPoYn.Text = "구매여부";
+            this.txtPoYn.Location = new System.Drawing.Point(658, 124);
+            this.txtPoYn.Name = "txtPoYn";
+            this.txtPoYn.Size = new System.Drawing.Size(80, 20);
+            this.txtPoYn.TabIndex = 39;
+            //
+            // Row 5 (y=151): po_price / sale_yn / sale_price / stat_cd
+            //
+            this.lblPoPrice.Appearance.Font = new System.Drawing.Font("맑은 고딕", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
+            this.lblPoPrice.Appearance.Options.UseFont = true;
+            this.lblPoPrice.Location = new System.Drawing.Point(8, 153);
+            this.lblPoPrice.Name = "lblPoPrice";
+            this.lblPoPrice.Size = new System.Drawing.Size(60, 15);
+            this.lblPoPrice.TabIndex = 40;
+            this.lblPoPrice.Text = "구매단가";
+            this.txtPoPrice.Location = new System.Drawing.Point(82, 151);
+            this.txtPoPrice.Name = "txtPoPrice";
+            this.txtPoPrice.Size = new System.Drawing.Size(108, 20);
+            this.txtPoPrice.TabIndex = 41;
+            this.lblSaleYn.Appearance.Font = new System.Drawing.Font("맑은 고딕", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
+            this.lblSaleYn.Appearance.Options.UseFont = true;
+            this.lblSaleYn.Location = new System.Drawing.Point(200, 153);
+            this.lblSaleYn.Name = "lblSaleYn";
+            this.lblSaleYn.Size = new System.Drawing.Size(60, 15);
+            this.lblSaleYn.TabIndex = 42;
+            this.lblSaleYn.Text = "판매여부";
+            this.txtSaleYn.Location = new System.Drawing.Point(274, 151);
+            this.txtSaleYn.Name = "txtSaleYn";
+            this.txtSaleYn.Size = new System.Drawing.Size(108, 20);
+            this.txtSaleYn.TabIndex = 43;
+            this.lblSalePrice.Appearance.Font = new System.Drawing.Font("맑은 고딕", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
+            this.lblSalePrice.Appearance.Options.UseFont = true;
+            this.lblSalePrice.Location = new System.Drawing.Point(392, 153);
+            this.lblSalePrice.Name = "lblSalePrice";
+            this.lblSalePrice.Size = new System.Drawing.Size(60, 15);
+            this.lblSalePrice.TabIndex = 44;
+            this.lblSalePrice.Text = "판매단가";
+            this.txtSalePrice.Location = new System.Drawing.Point(466, 151);
+            this.txtSalePrice.Name = "txtSalePrice";
+            this.txtSalePrice.Size = new System.Drawing.Size(108, 20);
+            this.txtSalePrice.TabIndex = 45;
+            this.lblStatCd.Appearance.Font = new System.Drawing.Font("맑은 고딕", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
+            this.lblStatCd.Appearance.Options.UseFont = true;
+            this.lblStatCd.Location = new System.Drawing.Point(584, 153);
+            this.lblStatCd.Name = "lblStatCd";
+            this.lblStatCd.Size = new System.Drawing.Size(60, 15);
+            this.lblStatCd.TabIndex = 46;
+            this.lblStatCd.Text = "상태코드";
+            this.txtStatCd.Location = new System.Drawing.Point(658, 151);
+            this.txtStatCd.Name = "txtStatCd";
+            this.txtStatCd.Size = new System.Drawing.Size(80, 20);
+            this.txtStatCd.TabIndex = 47;
+            //
+            // Row 6 (y=178): item_class1~4
+            //
+            this.lblItemClass1.Appearance.Font = new System.Drawing.Font("맑은 고딕", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
+            this.lblItemClass1.Appearance.Options.UseFont = true;
+            this.lblItemClass1.Location = new System.Drawing.Point(8, 180);
+            this.lblItemClass1.Name = "lblItemClass1";
+            this.lblItemClass1.Size = new System.Drawing.Size(60, 15);
+            this.lblItemClass1.TabIndex = 48;
+            this.lblItemClass1.Text = "품목분류1";
+            this.txtItemClass1.Location = new System.Drawing.Point(82, 178);
+            this.txtItemClass1.Name = "txtItemClass1";
+            this.txtItemClass1.Size = new System.Drawing.Size(108, 20);
+            this.txtItemClass1.TabIndex = 49;
+            this.lblItemClass2.Appearance.Font = new System.Drawing.Font("맑은 고딕", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
+            this.lblItemClass2.Appearance.Options.UseFont = true;
+            this.lblItemClass2.Location = new System.Drawing.Point(200, 180);
+            this.lblItemClass2.Name = "lblItemClass2";
+            this.lblItemClass2.Size = new System.Drawing.Size(60, 15);
+            this.lblItemClass2.TabIndex = 50;
+            this.lblItemClass2.Text = "품목분류2";
+            this.txtItemClass2.Location = new System.Drawing.Point(274, 178);
+            this.txtItemClass2.Name = "txtItemClass2";
+            this.txtItemClass2.Size = new System.Drawing.Size(108, 20);
+            this.txtItemClass2.TabIndex = 51;
+            this.lblItemClass3.Appearance.Font = new System.Drawing.Font("맑은 고딕", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
+            this.lblItemClass3.Appearance.Options.UseFont = true;
+            this.lblItemClass3.Location = new System.Drawing.Point(392, 180);
+            this.lblItemClass3.Name = "lblItemClass3";
+            this.lblItemClass3.Size = new System.Drawing.Size(60, 15);
+            this.lblItemClass3.TabIndex = 52;
+            this.lblItemClass3.Text = "품목분류3";
+            this.txtItemClass3.Location = new System.Drawing.Point(466, 178);
+            this.txtItemClass3.Name = "txtItemClass3";
+            this.txtItemClass3.Size = new System.Drawing.Size(108, 20);
+            this.txtItemClass3.TabIndex = 53;
+            this.lblItemClass4.Appearance.Font = new System.Drawing.Font("맑은 고딕", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
+            this.lblItemClass4.Appearance.Options.UseFont = true;
+            this.lblItemClass4.Location = new System.Drawing.Point(584, 180);
+            this.lblItemClass4.Name = "lblItemClass4";
+            this.lblItemClass4.Size = new System.Drawing.Size(60, 15);
+            this.lblItemClass4.TabIndex = 54;
+            this.lblItemClass4.Text = "품목분류4";
+            this.txtItemClass4.Location = new System.Drawing.Point(658, 178);
+            this.txtItemClass4.Name = "txtItemClass4";
+            this.txtItemClass4.Size = new System.Drawing.Size(80, 20);
+            this.txtItemClass4.TabIndex = 55;
+            //
+            // Row 7 (y=205): po_acnt_cd / sale_acnt_cd / remark
+            //
+            this.lblPoAcntCd.Appearance.Font = new System.Drawing.Font("맑은 고딕", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
+            this.lblPoAcntCd.Appearance.Options.UseFont = true;
+            this.lblPoAcntCd.Location = new System.Drawing.Point(8, 207);
+            this.lblPoAcntCd.Name = "lblPoAcntCd";
+            this.lblPoAcntCd.Size = new System.Drawing.Size(60, 15);
+            this.lblPoAcntCd.TabIndex = 56;
+            this.lblPoAcntCd.Text = "매입계정";
+            this.txtPoAcntCd.Location = new System.Drawing.Point(82, 205);
+            this.txtPoAcntCd.Name = "txtPoAcntCd";
+            this.txtPoAcntCd.Size = new System.Drawing.Size(108, 20);
+            this.txtPoAcntCd.TabIndex = 57;
+            this.lblSaleAcntCd.Appearance.Font = new System.Drawing.Font("맑은 고딕", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
+            this.lblSaleAcntCd.Appearance.Options.UseFont = true;
+            this.lblSaleAcntCd.Location = new System.Drawing.Point(200, 207);
+            this.lblSaleAcntCd.Name = "lblSaleAcntCd";
+            this.lblSaleAcntCd.Size = new System.Drawing.Size(60, 15);
+            this.lblSaleAcntCd.TabIndex = 58;
+            this.lblSaleAcntCd.Text = "매출계정";
+            this.txtSaleAcntCd.Location = new System.Drawing.Point(274, 205);
+            this.txtSaleAcntCd.Name = "txtSaleAcntCd";
+            this.txtSaleAcntCd.Size = new System.Drawing.Size(108, 20);
+            this.txtSaleAcntCd.TabIndex = 59;
+            this.lblRemark.Appearance.Font = new System.Drawing.Font("맑은 고딕", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
+            this.lblRemark.Appearance.Options.UseFont = true;
+            this.lblRemark.Location = new System.Drawing.Point(392, 207);
+            this.lblRemark.Name = "lblRemark";
+            this.lblRemark.Size = new System.Drawing.Size(60, 15);
+            this.lblRemark.TabIndex = 60;
+            this.lblRemark.Text = "비고";
+            // TODO(디자이너에서 판단): 비고는 길어질 수 있어서 MemoEditWyn이 더 나을 수 있다.
+            this.txtRemark.Location = new System.Drawing.Point(466, 205);
+            this.txtRemark.Name = "txtRemark";
+            this.txtRemark.Size = new System.Drawing.Size(272, 20);
+            this.txtRemark.TabIndex = 61;
             //
             // panelWyn6
             //
@@ -258,7 +844,7 @@ public partial class frmItem
             this.sectionHeaderWyn3.Size = new System.Drawing.Size(739, 25);
             this.sectionHeaderWyn3.SvgIcon = ((DevExpress.Utils.Svg.SvgImage)(resources.GetObject("sectionHeaderWyn3.SvgIcon")));
             this.sectionHeaderWyn3.TabIndex = 8;
-            this.sectionHeaderWyn3.Text = "상세 등록";
+            this.sectionHeaderWyn3.Text = "품목 상세";
             //
             // splitterWyn1
             //
@@ -280,7 +866,7 @@ public partial class frmItem
             this.panelWyn8.Size = new System.Drawing.Size(402, 515);
             this.panelWyn8.TabIndex = 12;
             //
-            // grd1 (목록 - 컬럼은 디자이너에서 추가)
+            // grd1 (품목 목록 - item_id는 데이터에만 있고 컬럼은 안 보여준다)
             //
             this.grd1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.grd1.Location = new System.Drawing.Point(0, 27);
@@ -293,12 +879,60 @@ public partial class frmItem
             //
             // gvw1
             //
+            this.gvw1.Columns.AddRange(new DevExpress.XtraGrid.Columns.GridColumn[] {
+            this.colListItemId,
+            this.colListItemCd,
+            this.colListItemNm,
+            this.colListUnitCd,
+            this.colListStatCd});
             this.gvw1.GridControl = this.grd1;
             this.gvw1.HighlightFocusedRow = true;
             this.gvw1.Name = "gvw1";
             this.gvw1.OptionsSelection.InvertSelection = true;
             this.gvw1.OptionsView.ColumnAutoWidth = false;
             this.gvw1.OptionsView.ShowGroupPanel = false;
+            //
+            // colListItemId (FindRowHandle이 참조하는 숨김 키 컬럼 - 화면에는 안 보임)
+            //
+            this.colListItemId.Caption = "item_id";
+            this.colListItemId.FieldName = "item_id";
+            this.colListItemId.Name = "colListItemId";
+            //
+            // colListItemCd
+            //
+            this.colListItemCd.Caption = "품목코드";
+            this.colListItemCd.FieldName = "item_cd";
+            this.colListItemCd.Name = "colListItemCd";
+            this.colListItemCd.Visible = true;
+            this.colListItemCd.VisibleIndex = 0;
+            this.colListItemCd.Width = 100;
+            //
+            // colListItemNm
+            //
+            this.colListItemNm.Caption = "품목명";
+            this.colListItemNm.FieldName = "item_nm";
+            this.colListItemNm.Name = "colListItemNm";
+            this.colListItemNm.Visible = true;
+            this.colListItemNm.VisibleIndex = 1;
+            this.colListItemNm.Width = 152;
+            //
+            // colListUnitCd
+            //
+            this.colListUnitCd.Caption = "단위";
+            this.colListUnitCd.FieldName = "unit_cd";
+            this.colListUnitCd.Name = "colListUnitCd";
+            this.colListUnitCd.Visible = true;
+            this.colListUnitCd.VisibleIndex = 2;
+            this.colListUnitCd.Width = 70;
+            //
+            // colListStatCd
+            //
+            this.colListStatCd.Caption = "상태";
+            this.colListStatCd.FieldName = "stat_cd";
+            this.colListStatCd.Name = "colListStatCd";
+            this.colListStatCd.Visible = true;
+            this.colListStatCd.VisibleIndex = 3;
+            this.colListStatCd.Width = 60;
             //
             // panelWyn2
             //
@@ -399,6 +1033,39 @@ public partial class frmItem
             ((System.ComponentModel.ISupportInitialize)(this.panelWyn5)).EndInit();
             this.panelWyn5.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.panData)).EndInit();
+            this.panData.ResumeLayout(false);
+            this.panData.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.txtItemCd.Properties)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.txtItemNo.Properties)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.txtItemNm.Properties)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.txtItemSpec.Properties)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.txtUnitCd.Properties)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.txtPoUnitCd.Properties)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.txtWhCd.Properties)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.txtLocCd.Properties)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.txtSafeQty.Properties)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.txtDeptCd.Properties)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.txtEmpNo.Properties)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.txtProdYn.Properties)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.txtCustCd.Properties)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.txtAssetType.Properties)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.txtOutType.Properties)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.txtPoQcYn.Properties)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.txtProdQcYn.Properties)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.txtLotYn.Properties)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.txtStockYn.Properties)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.txtPoYn.Properties)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.txtPoPrice.Properties)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.txtSaleYn.Properties)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.txtSalePrice.Properties)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.txtStatCd.Properties)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.txtItemClass1.Properties)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.txtItemClass2.Properties)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.txtItemClass3.Properties)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.txtItemClass4.Properties)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.txtPoAcntCd.Properties)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.txtSaleAcntCd.Properties)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.txtRemark.Properties)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.panelWyn6)).EndInit();
             this.panelWyn6.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.panelWyn8)).EndInit();
@@ -422,14 +1089,86 @@ public partial class frmItem
     private PanelWyn panelWyn4;
     private PanelWyn panelWyn5;
     private PanelWyn panData;
+    private DevExpress.XtraEditors.LabelControl lblItemCd;
+    private TextEditWyn txtItemCd;
+    private DevExpress.XtraEditors.LabelControl lblItemNo;
+    private TextEditWyn txtItemNo;
+    private DevExpress.XtraEditors.LabelControl lblItemNm;
+    private TextEditWyn txtItemNm;
+    private DevExpress.XtraEditors.LabelControl lblItemSpec;
+    private TextEditWyn txtItemSpec;
+    private DevExpress.XtraEditors.LabelControl lblUnitCd;
+    private TextEditWyn txtUnitCd;
+    private DevExpress.XtraEditors.LabelControl lblPoUnitCd;
+    private TextEditWyn txtPoUnitCd;
+    private DevExpress.XtraEditors.LabelControl lblWhCd;
+    private TextEditWyn txtWhCd;
+    private DevExpress.XtraEditors.LabelControl lblLocCd;
+    private TextEditWyn txtLocCd;
+    private DevExpress.XtraEditors.LabelControl lblSafeQty;
+    private TextEditWyn txtSafeQty;
+    private DevExpress.XtraEditors.LabelControl lblDeptCd;
+    private TextEditWyn txtDeptCd;
+    private DevExpress.XtraEditors.LabelControl lblEmpNo;
+    private TextEditWyn txtEmpNo;
+    private DevExpress.XtraEditors.LabelControl lblProdYn;
+    private TextEditWyn txtProdYn;
+    private DevExpress.XtraEditors.LabelControl lblCustCd;
+    private TextEditWyn txtCustCd;
+    private DevExpress.XtraEditors.LabelControl lblAssetType;
+    private TextEditWyn txtAssetType;
+    private DevExpress.XtraEditors.LabelControl lblOutType;
+    private TextEditWyn txtOutType;
+    private DevExpress.XtraEditors.LabelControl lblPoQcYn;
+    private TextEditWyn txtPoQcYn;
+    private DevExpress.XtraEditors.LabelControl lblProdQcYn;
+    private TextEditWyn txtProdQcYn;
+    private DevExpress.XtraEditors.LabelControl lblLotYn;
+    private TextEditWyn txtLotYn;
+    private DevExpress.XtraEditors.LabelControl lblStockYn;
+    private TextEditWyn txtStockYn;
+    private DevExpress.XtraEditors.LabelControl lblPoYn;
+    private TextEditWyn txtPoYn;
+    private DevExpress.XtraEditors.LabelControl lblPoPrice;
+    private TextEditWyn txtPoPrice;
+    private DevExpress.XtraEditors.LabelControl lblSaleYn;
+    private TextEditWyn txtSaleYn;
+    private DevExpress.XtraEditors.LabelControl lblSalePrice;
+    private TextEditWyn txtSalePrice;
+    private DevExpress.XtraEditors.LabelControl lblStatCd;
+    private TextEditWyn txtStatCd;
+    private DevExpress.XtraEditors.LabelControl lblItemClass1;
+    private TextEditWyn txtItemClass1;
+    private DevExpress.XtraEditors.LabelControl lblItemClass2;
+    private TextEditWyn txtItemClass2;
+    private DevExpress.XtraEditors.LabelControl lblItemClass3;
+    private TextEditWyn txtItemClass3;
+    private DevExpress.XtraEditors.LabelControl lblItemClass4;
+    private TextEditWyn txtItemClass4;
+    private DevExpress.XtraEditors.LabelControl lblPoAcntCd;
+    private TextEditWyn txtPoAcntCd;
+    private DevExpress.XtraEditors.LabelControl lblSaleAcntCd;
+    private TextEditWyn txtSaleAcntCd;
+    private DevExpress.XtraEditors.LabelControl lblRemark;
+    private TextEditWyn txtRemark;
     private PanelWyn panelWyn6;
     private SectionHeaderWyn sectionHeaderWyn1;
     private SplitterWyn splitterWyn1;
     private SectionHeaderWyn sectionHeaderWyn3;
     private GridControlWyn grd1;
     private GridViewWyn gvw1;
+    private DevExpress.XtraGrid.Columns.GridColumn colListItemId;
+    private DevExpress.XtraGrid.Columns.GridColumn colListItemCd;
+    private DevExpress.XtraGrid.Columns.GridColumn colListItemNm;
+    private DevExpress.XtraGrid.Columns.GridColumn colListUnitCd;
+    private DevExpress.XtraGrid.Columns.GridColumn colListStatCd;
     private GridControlWyn grd2;
     private GridViewWyn gvw2;
+    private DevExpress.XtraGrid.Columns.GridColumn colUnitFrUnitCd;
+    private DevExpress.XtraGrid.Columns.GridColumn colUnitFrQty;
+    private DevExpress.XtraGrid.Columns.GridColumn colUnitToUnitCd;
+    private DevExpress.XtraGrid.Columns.GridColumn colUnitToQty;
+    private DevExpress.XtraGrid.Columns.GridColumn colUnitRemark;
     private PanelWyn panelWyn2;
     private SectionHeaderWyn sectionHeaderWyn4;
     private PanelWyn panelWyn1;

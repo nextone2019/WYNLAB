@@ -11,6 +11,7 @@ public enum MenuAction
     Insert,
     Update,
     Delete,
+    Print,
     Excel
 }
 
@@ -56,6 +57,7 @@ public class RequireMenuPermissionAttribute : Attribute, IAsyncActionFilter
             MenuAction.Insert => permission.InsertYn,
             MenuAction.Update => permission.UpdateYn,
             MenuAction.Delete => permission.DeleteYn,
+            MenuAction.Print => permission.PrintYn,
             MenuAction.Excel => permission.ExcelYn,
             _ => false
         };

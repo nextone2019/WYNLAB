@@ -35,7 +35,7 @@ public class MenusController : ControllerBase
             return Ok(new ApiResult { Success = false, Message = "이미 존재하는 메뉴코드입니다." });
 
         var result = await _repo.CreateAsync(request.MenuCd, request.MenuNm, request.UpperMenuCd, request.MenuLevel,
-            request.MenuType, request.FormClassNm, request.IconNm, request.SortOrder);
+            request.MenuType, request.FormClassNm, request.IconNm, request.SortOrder, request.AuthNm);
 
         if (!result.IsSuccess)
             return Ok(new ApiResult { Success = false, Message = result.FailMessage });
@@ -51,7 +51,7 @@ public class MenusController : ControllerBase
             return Ok(new ApiResult { Success = false, Message = "존재하지 않는 메뉴입니다." });
 
         var result = await _repo.UpdateAsync(menuCd, request.MenuNm, request.UpperMenuCd, request.MenuLevel,
-            request.MenuType, request.FormClassNm, request.IconNm, request.SortOrder, request.UseYn);
+            request.MenuType, request.FormClassNm, request.IconNm, request.SortOrder, request.UseYn, request.AuthNm);
 
         if (!result.IsSuccess)
             return Ok(new ApiResult { Success = false, Message = result.FailMessage });
@@ -80,6 +80,11 @@ public class MenusController : ControllerBase
         FormClassNm = row.FormClassNm,
         IconNm = row.IconNm,
         SortOrder = row.SortOrder,
-        UseYn = row.UseYn == "Y"
+        UseYn = row.UseYn == "Y",
+        AuthNm = new[]
+        {
+            row.Auth01Nm, row.Auth02Nm, row.Auth03Nm, row.Auth04Nm, row.Auth05Nm,
+            row.Auth06Nm, row.Auth07Nm, row.Auth08Nm, row.Auth09Nm, row.Auth10Nm
+        }
     };
 }

@@ -130,6 +130,8 @@ public class IconBadgeButton : Control
             g.FillPath(overlay, path);
         }
 
+        // IconName에 해당하는 png가 폴더에 있으면 그리고, 없으면 그냥 배지만 남긴다(공백) -
+        // 못 찾았을 때를 특별 취급하지 않는다. 폴더의 이미지를 있는 그대로 반영하는 게 전부다.
         var iconRect = Rectangle.Inflate(badgeRect, -IconInset, -IconInset);
         var image = ResolveIconImage();
         if (image != null)

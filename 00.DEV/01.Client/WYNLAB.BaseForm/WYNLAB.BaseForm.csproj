@@ -36,6 +36,10 @@
     <Reference Include="DevExpress.XtraGrid.v21.2">
       <HintPath>C:\Program Files (x86)\DevExpress 21.2\Components\Bin\Framework\DevExpress.XtraGrid.v21.2.dll</HintPath>
     </Reference>
+    <!-- PopupLookupForm이 hierarchical_yn='Y' 팝업(부서 등)을 트리로 그리는 데 필요 -->
+    <Reference Include="DevExpress.XtraTreeList.v21.2">
+      <HintPath>C:\Program Files (x86)\DevExpress 21.2\Components\Bin\Framework\DevExpress.XtraTreeList.v21.2.dll</HintPath>
+    </Reference>
     <Reference Include="DevExpress.XtraLayout.v21.2">
       <HintPath>C:\Program Files (x86)\DevExpress 21.2\Components\Bin\Framework\DevExpress.XtraLayout.v21.2.dll</HintPath>
     </Reference>

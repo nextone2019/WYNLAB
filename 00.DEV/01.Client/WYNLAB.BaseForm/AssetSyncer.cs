@@ -10,7 +10,7 @@ namespace WYNLAB.Base;
 /// IconAssetProvider가 매번 파일을 읽어 Bitmap 사본을 만들 뿐이라, 그런 제약이 없다 -
 /// 그래서 시점도 자유롭고(로그인 전, AppConfig를 쓸 수 있게 된 후 아무 때나) 실패해도
 /// 그냥 "서버에 새 이미지 없음"과 똑같이 취급하면 된다(로컬에 이미 있으면 그걸 계속 쓰고,
-/// 아예 없으면 IconBadgeButton이 코드로 그리는 것으로 자동 폴백).
+/// 아예 없으면 IconBadgeButton은 그 자리에 배지만 그리고 아이콘은 비워둔다).
 /// </summary>
 public static class AssetSyncer
 {
@@ -19,6 +19,8 @@ public static class AssetSyncer
     /// 자동으로 최신 이미지를 받는다 - 폴더 위치를 몰라도, 파일을 옮길 줄 몰라도 된다.</summary>
     public static void SyncFromServer()
     {
+        SeedDefaultsIfEmpty();
+
         try
         {
             var serverPath = AppConfig.AssetsPath;
@@ -56,6 +58,38 @@ public static class AssetSyncer
         {
             // 서버 공유폴더에 접근 못 해도(네트워크 문제 등) 무시하고 계속 진행한다 - 이미
             // 로컬에 캐시된 이미지를 그대로 쓰거나, 하나도 없으면 코드 렌더링으로 폴백된다.
+        }
+    }
+
+    /// <summary>%LocalAppData%\WYNLAB\Assets(IconAssetProvider.AssetsFolder)가 아직 없거나
+    /// 비어있으면(최초 설치 직후, 또는 사용자가 폴더를 지운 경우) 설치 폴더에 함께 배포된
+    /// DefaultAssets(WYNLAB.Shell.csproj 참고)에서 기본 아이콘 세트를 한 번 복사해 채워 넣는다.
+    /// 이후 SyncFromServer가 서버에 더 최신 이미지가 있으면 그걸로 덮어쓴다. 이미 파일이 하나라도
+    /// 있으면(정상 동작 중이거나 관리자가 이미 커스터마이징한 상태) 손대지 않는다.</summary>
+    private static void SeedDefaultsIfEmpty()
+    {
+        try
+        {
+            if (Directory.Exists(IconAssetProvider.AssetsFolder) &&
+                Directory.GetFiles(IconAssetProvider.AssetsFolder, "*.png").Length > 0)
+            {
+                return;
+            }
+
+            var defaultsPath = Path.Combine(AppContext.BaseDirectory, "DefaultAssets");
+            if (!Directory.Exists(defaultsPath)) return;
+
+            Directory.CreateDirectory(IconAssetProvider.AssetsFolder);
+            foreach (var defaultFile in Directory.GetFiles(defaultsPath, "*.png"))
+            {
+                var localFile = Path.Combine(IconAssetProvider.AssetsFolder, Path.GetFileName(defaultFile));
+                File.Copy(defaultFile, localFile, overwrite: false);
+            }
+        }
+        catch
+        {
+            // 시딩에 실패해도(권한 문제 등) 무시한다 - 아래 SyncFromServer가 이어서 시도하고,
+            // 그것도 실패하면 IconBadgeButton이 배지만 그리는 것으로 자연히 처리된다.
         }
     }
 

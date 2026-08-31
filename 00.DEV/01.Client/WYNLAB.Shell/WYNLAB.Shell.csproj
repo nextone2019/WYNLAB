@@ -95,4 +95,16 @@
     </Content>
   </ItemGroup>
 
+  <ItemGroup>
+    <!-- 설치 직후(또는 %LocalAppData%\WYNLAB\Assets가 아직 비어있을 때) 처음 채워 넣을 기본
+         아이콘 세트 - AssetSyncer.SeedDefaultsIfEmpty가 AppContext.BaseDirectory\DefaultAssets에서
+         찾는다. appsettings.*.json과 같은 이유로 반드시 <Content> + Publish=true여야
+         ClickOnce Application Files\에도 실제로 포함된다(위 appsettings 주석 참고 - <None>이면
+         일반 bin\ 폴더엔 복사돼도 ClickOnce 매니페스트에는 조용히 빠진다). -->
+    <Content Include="DefaultAssets\*.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <Publish>true</Publish>
+    </Content>
+  </ItemGroup>
+
 </Project>

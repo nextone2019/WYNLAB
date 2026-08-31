@@ -56,8 +56,10 @@
     <Reference Include="DevExpress.XtraLayout.v21.2">
       <HintPath>C:\Program Files (x86)\DevExpress 21.2\Components\Bin\Framework\DevExpress.XtraLayout.v21.2.dll</HintPath>
     </Reference>
-    <!-- 이 모듈의 화면 중 TreeList(권한부여 같은 트리 UI)를 쓰는 화면이 생기면 SM처럼
-         DevExpress.XtraTreeList.v21.2 참조를 여기에 추가할 것. -->
+    <!-- frmDept(부서 트리) 등 TreeList를 쓰는 화면이 생겨서 추가함(2026-08-28). -->
+    <Reference Include="DevExpress.XtraTreeList.v21.2">
+      <HintPath>C:\Program Files (x86)\DevExpress 21.2\Components\Bin\Framework\DevExpress.XtraTreeList.v21.2.dll</HintPath>
+    </Reference>
   </ItemGroup>
 
   <!-- WYNLAB.BaseForm/WYNLAB.Controls/WYNLAB.Shared를 ProjectReference(소스 참조, 매번 같이
@@ -140,6 +142,15 @@
     <EmbeddedResource Update="frmItemGrp\frmItemGrp.resx">
       <DependentUpon>frmItemGrp.cs</DependentUpon>
     </EmbeddedResource>
+
+    <!-- frmAcc는 SvgIcon 등 바이너리 리소스를 안 써서(SectionHeaderWyn.Icon 코드 아이콘만 사용)
+         .resx가 없다 - EmbeddedResource 항목 없이 Compile 두 줄만 있으면 된다. -->
+    <Compile Update="frmAcc\frmAcc.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="frmAcc\frmAcc.Designer.cs">
+      <DependentUpon>frmAcc.cs</DependentUpon>
+    </Compile>
 
     <Compile Update="Properties\Resources.Designer.cs">
       <DesignTime>True</DesignTime>

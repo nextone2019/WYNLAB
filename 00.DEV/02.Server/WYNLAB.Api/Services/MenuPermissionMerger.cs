@@ -39,7 +39,9 @@ public static class MenuPermissionMerger
                 InsertYn = OrYn(rows.Select(r => r.InsertYn)),
                 UpdateYn = OrYn(rows.Select(r => r.UpdateYn)),
                 DeleteYn = OrYn(rows.Select(r => r.DeleteYn)),
+                PrintYn = OrYn(rows.Select(r => r.PrintYn)),
                 ExcelYn = OrYn(rows.Select(r => r.ExcelYn)),
+                Auth = MergeAuth(rows),
             });
         }
 
@@ -47,4 +49,12 @@ public static class MenuPermissionMerger
     }
 
     private static bool OrYn(IEnumerable<string> values) => values.Any(v => v == "Y");
+
+    private static bool[] MergeAuth(List<MenuAuthRow> rows) => new[]
+    {
+        OrYn(rows.Select(r => r.Auth01)), OrYn(rows.Select(r => r.Auth02)), OrYn(rows.Select(r => r.Auth03)),
+        OrYn(rows.Select(r => r.Auth04)), OrYn(rows.Select(r => r.Auth05)), OrYn(rows.Select(r => r.Auth06)),
+        OrYn(rows.Select(r => r.Auth07)), OrYn(rows.Select(r => r.Auth08)), OrYn(rows.Select(r => r.Auth09)),
+        OrYn(rows.Select(r => r.Auth10)),
+    };
 }

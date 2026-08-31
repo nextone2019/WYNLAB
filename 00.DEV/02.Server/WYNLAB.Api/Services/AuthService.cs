@@ -76,8 +76,7 @@ public class AuthService : IAuthService
                 EmpNo = user.EmpNo,
                 DeptCd = user.DeptCd,
                 DeptNm = user.DeptNm,
-                PositionNm = user.PositionNm,
-                IsAdminYn = isAdmin,
+                DeveloperYn = user.DeveloperYn == "Y",
                 UserType = user.UserType
             },
             Menus = menuDtos,

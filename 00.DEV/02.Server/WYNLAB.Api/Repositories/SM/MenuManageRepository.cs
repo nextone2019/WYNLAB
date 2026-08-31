@@ -9,9 +9,9 @@ public interface IMenuManageRepository
     Task<List<MenuManageRow>> GetAllAsync();
     Task<bool> ExistsAsync(string menuCd);
     Task<ProcResult> CreateAsync(string menuCd, string menuNm, string? upperMenuCd, int menuLevel,
-        string menuType, string? formClassNm, string? iconNm, int sortOrder);
+        string menuType, string? formClassNm, string? iconNm, int sortOrder, string?[] authNm);
     Task<ProcResult> UpdateAsync(string menuCd, string menuNm, string? upperMenuCd, int menuLevel,
-        string menuType, string? formClassNm, string? iconNm, int sortOrder, bool useYn);
+        string menuType, string? formClassNm, string? iconNm, int sortOrder, bool useYn, string?[] authNm);
     Task<ProcResult> SetUseYnAsync(string menuCd, bool useYn);
 }
 
@@ -27,6 +27,16 @@ public class MenuManageRow
     public string? IconNm { get; set; }
     public int SortOrder { get; set; }
     public string UseYn { get; set; } = "Y";
+    public string? Auth01Nm { get; set; }
+    public string? Auth02Nm { get; set; }
+    public string? Auth03Nm { get; set; }
+    public string? Auth04Nm { get; set; }
+    public string? Auth05Nm { get; set; }
+    public string? Auth06Nm { get; set; }
+    public string? Auth07Nm { get; set; }
+    public string? Auth08Nm { get; set; }
+    public string? Auth09Nm { get; set; }
+    public string? Auth10Nm { get; set; }
 }
 
 /// <summary>
@@ -56,7 +66,7 @@ public class MenuManageRepository : IMenuManageRepository
     }
 
     public async Task<ProcResult> CreateAsync(string menuCd, string menuNm, string? upperMenuCd, int menuLevel,
-        string menuType, string? formClassNm, string? iconNm, int sortOrder)
+        string menuType, string? formClassNm, string? iconNm, int sortOrder, string?[] authNm)
     {
         using var conn = _context.CreateConnection();
         var p = new DynamicParameters();
@@ -69,6 +79,7 @@ public class MenuManageRepository : IMenuManageRepository
         p.Add("p_form_class_nm", formClassNm);
         p.Add("p_icon_nm", iconNm);
         p.Add("p_sort_order", sortOrder);
+        AddAuthNmParams(p, authNm);
         p.AddStandardOutputs(withGeneratedCode: true, pascalCase: true);
 
         await conn.ExecuteAsync("USP_SM_MENU_S", p, commandType: CommandType.StoredProcedure);
@@ -76,7 +87,7 @@ public class MenuManageRepository : IMenuManageRepository
     }
 
     public async Task<ProcResult> UpdateAsync(string menuCd, string menuNm, string? upperMenuCd, int menuLevel,
-        string menuType, string? formClassNm, string? iconNm, int sortOrder, bool useYn)
+        string menuType, string? formClassNm, string? iconNm, int sortOrder, bool useYn, string?[] authNm)
     {
         using var conn = _context.CreateConnection();
         var p = new DynamicParameters();
@@ -90,10 +101,18 @@ public class MenuManageRepository : IMenuManageRepository
         p.Add("p_icon_nm", iconNm);
         p.Add("p_sort_order", sortOrder);
         p.Add("p_use_yn", useYn ? "Y" : "N");
+        AddAuthNmParams(p, authNm);
         p.AddStandardOutputs(withGeneratedCode: true, pascalCase: true);
 
         await conn.ExecuteAsync("USP_SM_MENU_S", p, commandType: CommandType.StoredProcedure);
         return p.ReadStandardOutputs(withGeneratedCode: true, pascalCase: true);
+    }
+
+    /// <summary>authNm[0..9] -> p_auth01_nm..p_auth10_nm. 배열이 10칸보다 짧으면 나머지는 NULL.</summary>
+    private static void AddAuthNmParams(DynamicParameters p, string?[] authNm)
+    {
+        for (var i = 0; i < 10; i++)
+            p.Add($"p_auth{(i + 1):00}_nm", i < authNm.Length ? authNm[i] : null);
     }
 
     /// <summary>물리삭제 대신 USE_YN='N' 처리 - 하위 메뉴 참조무결성 보존을 위한 표준 삭제 방식(work_type='D')</summary>

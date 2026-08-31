@@ -46,7 +46,15 @@ public class MenuAuthController : ControllerBase
             InsertYn = r.InsertYn == "Y",
             UpdateYn = r.UpdateYn == "Y",
             DeleteYn = r.DeleteYn == "Y",
-            ExcelYn = r.ExcelYn == "Y"
+            PrintYn = r.PrintYn == "Y",
+            ExcelYn = r.ExcelYn == "Y",
+            Auth01 = r.Auth01 == "Y", Auth02 = r.Auth02 == "Y", Auth03 = r.Auth03 == "Y", Auth04 = r.Auth04 == "Y", Auth05 = r.Auth05 == "Y",
+            Auth06 = r.Auth06 == "Y", Auth07 = r.Auth07 == "Y", Auth08 = r.Auth08 == "Y", Auth09 = r.Auth09 == "Y", Auth10 = r.Auth10 == "Y",
+            AuthNm = new[]
+            {
+                r.Auth01Nm, r.Auth02Nm, r.Auth03Nm, r.Auth04Nm, r.Auth05Nm,
+                r.Auth06Nm, r.Auth07Nm, r.Auth08Nm, r.Auth09Nm, r.Auth10Nm
+            }
         }).ToList());
     }
 
@@ -64,7 +72,10 @@ public class MenuAuthController : ControllerBase
             InsertYn = i.InsertYn ? "Y" : "N",
             UpdateYn = i.UpdateYn ? "Y" : "N",
             DeleteYn = i.DeleteYn ? "Y" : "N",
-            ExcelYn = i.ExcelYn ? "Y" : "N"
+            PrintYn = i.PrintYn ? "Y" : "N",
+            ExcelYn = i.ExcelYn ? "Y" : "N",
+            Auth01 = i.Auth01 ? "Y" : "N", Auth02 = i.Auth02 ? "Y" : "N", Auth03 = i.Auth03 ? "Y" : "N", Auth04 = i.Auth04 ? "Y" : "N", Auth05 = i.Auth05 ? "Y" : "N",
+            Auth06 = i.Auth06 ? "Y" : "N", Auth07 = i.Auth07 ? "Y" : "N", Auth08 = i.Auth08 ? "Y" : "N", Auth09 = i.Auth09 ? "Y" : "N", Auth10 = i.Auth10 ? "Y" : "N"
         }).ToList();
 
         var result = await _repo.SaveAuthAsync(request.TargetType, request.TargetCd, items);

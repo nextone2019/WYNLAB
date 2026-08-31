@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using WYNLAB.Api.Data;
 using WYNLAB.Api.Repositories;
+using WYNLAB.Api.Repositories.Framework;
 using WYNLAB.Api.Repositories.SM;
 using WYNLAB.Api.Services;
 
@@ -17,10 +18,13 @@ builder.Services.AddScoped<IMenuManageRepository, MenuManageRepository>();
 builder.Services.AddScoped<IMenuAuthAssignRepository, MenuAuthAssignRepository>();
 builder.Services.AddScoped<IMinorCodeManageRepository, MinorCodeManageRepository>();
 builder.Services.AddScoped<IShortcutRepository, ShortcutRepository>();
+builder.Services.AddScoped<IGridLayoutRepository, GridLayoutRepository>();
 
 // 화면별 Repository를 만들지 않고 프로시저를 그대로 실행하는 범용 통로(GENERIC_DATA_API.md 참고).
 // 특정 화면 소속이 아니라서 Repositories\SM\ 같은 모듈 폴더가 아니라 루트에 둔다.
 builder.Services.AddScoped<IGenericDataRepository, GenericDataRepository>();
+builder.Services.AddScoped<IPopupLookupRepository, PopupLookupRepository>();
+builder.Services.AddScoped<ILookupRepository, LookupRepository>();
 builder.Services.AddScoped<IMenuRepository, MenuRepository>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IJwtTokenService, JwtTokenService>();

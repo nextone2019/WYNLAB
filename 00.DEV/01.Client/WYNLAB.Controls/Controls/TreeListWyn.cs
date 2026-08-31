@@ -13,8 +13,13 @@ namespace WYNLAB.Base.Controls;
 /// "그룹 행과 leaf 행을 시각적으로 구분한다"는 공통 규칙만 담당한다.
 ///
 /// GROUP/leaf 구분은 데이터에 "MenuType" 필드가 있고 그 값이 "GROUP"인지로 판단한다(TSMMENU.MENU_TYPE
-/// 규약과 동일) - 트리를 쓰는 화면은 전부 이 값을 이미 갖고 있어서(메뉴 자체를 다루거나, 메뉴 기준
-/// 권한을 다루거나) 별도 매핑 없이 그대로 맞는다.
+/// 규약과 동일) - 메뉴/권한 트리는 전부 이 값을 이미 갖고 있어서 별도 매핑 없이 그대로 맞는다.
+///
+/// [MenuType이 없는 트리(예: 부서 계층)] "MenuType" 컬럼 자체가 없는 데이터에 바인딩하면
+/// (2026-08-28, frmDept 부서 트리에서 처음 겪음) 그룹/leaf 구분 없이 전부 평범한 행으로
+/// 보이는 것으로 조용히 대체된다 - 컬럼이 있는지 먼저 확인하고 없으면 이 스타일링 자체를
+/// 건너뛴다. 그래서 이 컨트롤은 메뉴/권한 트리가 아닌 일반 계층 데이터(부서 등)에도 그대로
+/// 재사용할 수 있다.
 /// </summary>
 [ToolboxItem(true)]
 public class TreeListWyn : TreeList
@@ -32,9 +37,13 @@ public class TreeListWyn : TreeList
 
     /// <summary>그룹(폴더, 클릭해도 화면이 안 열리거나 개별 권한이 없는 상위 분류) 행과 leaf 행을
     /// 배경/글자색으로 구분한다. 색은 UiTheme(appsettings.json Theme 섹션)에서 가져와서, 트리를
-    /// 쓰는 화면이 늘어나도 전부 같은 톤을 재사용하게 한다(frmMenu.BuildLeftPanel의 원본 로직).</summary>
+    /// 쓰는 화면이 늘어나도 전부 같은 톤을 재사용하게 한다(frmMenu.BuildLeftPanel의 원본 로직).
+    /// "MenuType" 컬럼이 없는 데이터(메뉴/권한 트리가 아닌 일반 계층 데이터)면 아무것도 안 하고
+    /// DevExpress 기본 모양 그대로 둔다.</summary>
     private void TreeListWyn_NodeCellStyle(object? sender, DevExpress.XtraTreeList.GetCustomNodeCellStyleEventArgs e)
     {
+        if (Columns["MenuType"] == null) return;
+
         var menuType = e.Node.GetValue("MenuType") as string;
         var isGroup = menuType == "GROUP";
         e.Appearance.BackColor = isGroup ? UiTheme.TreeGroupBackColor : UiTheme.TreeLeafBackColor;

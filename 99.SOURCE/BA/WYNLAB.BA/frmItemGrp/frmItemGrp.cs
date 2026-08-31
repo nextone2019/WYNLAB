@@ -26,6 +26,11 @@ public partial class frmItemGrp : BaseForm
 
         gvw1.FocusedRowObjectChanged += Gvw1_FocusedRowObjectChanged;
 
+        // 화면종료 시 저장 확인(BaseForm.ConfirmCloseAsync)이 panData의 값 변경을 감지할 수
+        // 있도록 - 하위 그리드(grd2)가 조회 전용이 아니라 편집 가능한 화면이면 그 DataTable도
+        // TrackDirty(DataTable)로 똑같이 걸어줄 것(frmItem.cs의 _units 참고).
+        TrackDirty(panData);
+
         EnterNewMode();
     }
 
@@ -119,17 +124,26 @@ public partial class frmItemGrp : BaseForm
         if (e.Row is DataRowView view) EnterEditMode(view.Row);
     }
 
+    /// <summary>panData를 채우는 부분은 반드시 SuppressDirtyTracking으로 감쌀 것 - 코드가
+    /// 값을 채우는 것뿐인데 TrackDirty(panData)가 "사용자가 고쳤다"로 오인하면 재조회/신규모드
+    /// 진입 직후부터 화면을 닫을 때 저장 확인이 뜨는 오작동이 생긴다.</summary>
     private void EnterNewMode()
     {
-        _editingCd = null;
-        // panData 컨트롤을 여기서 전부 비운다(디자이너로 컨트롤을 추가한 뒤 채울 것).
+        SuppressDirtyTracking(() =>
+        {
+            _editingCd = null;
+            // panData 컨트롤을 여기서 전부 비운다(디자이너로 컨트롤을 추가한 뒤 채울 것).
+        });
         txtSearchQ.Focus();
     }
 
     private void EnterEditMode(DataRow row)
     {
-        _editingCd = Str(row, "cd");
-        // panData 컨트롤을 여기서 row 값으로 채운다(디자이너로 컨트롤을 추가한 뒤 채울 것).
+        SuppressDirtyTracking(() =>
+        {
+            _editingCd = Str(row, "cd");
+            // panData 컨트롤을 여기서 row 값으로 채운다(디자이너로 컨트롤을 추가한 뒤 채울 것).
+        });
     }
 
     private static string Str(DataRow row, string columnName) =>

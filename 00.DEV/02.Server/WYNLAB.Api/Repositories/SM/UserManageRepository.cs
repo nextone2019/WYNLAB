@@ -8,10 +8,8 @@ public interface IUserManageRepository
 {
     Task<List<UserManageRow>> GetAllAsync(string? userId = null, string? userNm = null);
     Task<bool> ExistsAsync(string userId);
-    Task<ProcResult> CreateAsync(string userId, string userNm, string passwordHash, string? empNo,
-        string? deptCd, string? positionNm, string? email, string? mobileNo, bool isAdminYn);
-    Task<ProcResult> UpdateAsync(string userId, string userNm, string? empNo, string? deptCd,
-        string? positionNm, string? email, string? mobileNo, bool useYn, bool isAdminYn);
+    Task<ProcResult> CreateAsync(string userId, string userNm, string passwordHash, string? empNo);
+    Task<ProcResult> UpdateAsync(string userId, string userNm, string? empNo, bool useYn);
     Task<ProcResult> SetUseYnAsync(string userId, bool useYn);
     Task<List<UserGroupAssignRow>> GetUserGroupsAsync(string userId);
     Task<ProcResult> ReplaceUserGroupsAsync(string userId, List<string> userGrpCds);
@@ -23,13 +21,13 @@ public class UserManageRow
     public string UserId { get; set; } = string.Empty;
     public string UserNm { get; set; } = string.Empty;
     public string? EmpNo { get; set; }
+    public string? EmpNm { get; set; }
     public string? DeptCd { get; set; }
     public string? DeptNm { get; set; }
-    public string? PositionNm { get; set; }
-    public string? Email { get; set; }
-    public string? MobileNo { get; set; }
     public string UseYn { get; set; } = "Y";
-    public string IsAdminYn { get; set; } = "N";
+    /// <summary>TSMUSER.DEVELOPER_YN - 조회 전용(표시용). CreateAsync/UpdateAsync엔 이 값을
+    /// 받는 파라미터가 아예 없다 - 이 화면으로는 절대 못 바꾼다(사장님 지시, 2026-08-31).</summary>
+    public string DeveloperYn { get; set; } = "N";
     public string UserType { get; set; } = "U";
     public DateTime? LastLoginDt { get; set; }
 }
@@ -75,8 +73,7 @@ public class UserManageRepository : IUserManageRepository
         return count > 0;
     }
 
-    public async Task<ProcResult> CreateAsync(string userId, string userNm, string passwordHash, string? empNo,
-        string? deptCd, string? positionNm, string? email, string? mobileNo, bool isAdminYn)
+    public async Task<ProcResult> CreateAsync(string userId, string userNm, string passwordHash, string? empNo)
     {
         using var conn = _context.CreateConnection();
         var p = new DynamicParameters();
@@ -85,22 +82,13 @@ public class UserManageRepository : IUserManageRepository
         p.Add("p_user_nm", userNm);
         p.Add("p_password_hash", passwordHash);
         p.Add("p_emp_no", empNo);
-        p.Add("p_dept_cd", deptCd);
-        p.Add("p_position_nm", positionNm);
-        p.Add("p_email", email);
-        p.Add("p_mobile_no", mobileNo);
-        p.Add("p_is_admin_yn", isAdminYn ? "Y" : "N");
-        // USER_TYPE(A=관리자/U=일반)은 IsAdminYn 체크박스 하나로만 정해진다 - 화면/DTO에
-        // 별도 입력을 새로 안 만들고, 여기서 그대로 파생시켜서 둘이 어긋날 일이 없게 한다.
-        p.Add("p_user_type", isAdminYn ? "A" : "U");
         p.AddStandardOutputs(withGeneratedCode: true, pascalCase: true);
 
         await conn.ExecuteAsync("USP_SM_USERAUTH_S", p, commandType: CommandType.StoredProcedure);
         return p.ReadStandardOutputs(withGeneratedCode: true, pascalCase: true);
     }
 
-    public async Task<ProcResult> UpdateAsync(string userId, string userNm, string? empNo, string? deptCd,
-        string? positionNm, string? email, string? mobileNo, bool useYn, bool isAdminYn)
+    public async Task<ProcResult> UpdateAsync(string userId, string userNm, string? empNo, bool useYn)
     {
         using var conn = _context.CreateConnection();
         var p = new DynamicParameters();
@@ -108,13 +96,7 @@ public class UserManageRepository : IUserManageRepository
         p.Add("p_user_id", userId);
         p.Add("p_user_nm", userNm);
         p.Add("p_emp_no", empNo);
-        p.Add("p_dept_cd", deptCd);
-        p.Add("p_position_nm", positionNm);
-        p.Add("p_email", email);
-        p.Add("p_mobile_no", mobileNo);
         p.Add("p_use_yn", useYn ? "Y" : "N");
-        p.Add("p_is_admin_yn", isAdminYn ? "Y" : "N");
-        p.Add("p_user_type", isAdminYn ? "A" : "U");
         p.AddStandardOutputs(withGeneratedCode: true, pascalCase: true);
 
         await conn.ExecuteAsync("USP_SM_USERAUTH_S", p, commandType: CommandType.StoredProcedure);

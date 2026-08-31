@@ -32,7 +32,12 @@ public class GridControlWyn : GridControl
     }
 
     /// <summary>MainView를 GridViewWyn으로 캐스팅해서 접근하는 편의 속성 - MainView가
-    /// GridViewWyn이 아직 아니면(Views 편집기로 추가하기 전) null을 돌려준다.</summary>
+    /// GridViewWyn이 아직 아니면(Views 편집기로 추가하기 전) null을 돌려준다.
+    ///
+    /// ShowRowNumbers/Role처럼 실제로 그리드가 어떻게 보이고 동작할지 결정하는 옵션은 전부
+    /// GridView 소속이라(DevExpress 자체 설계가 그렇다 - OptionsBehavior 등) 여기 GridControlWyn엔
+    /// 그 값들을 되비추는 편의 프로퍼티를 두지 않는다. 화면 코드는 grd1이 아니라 gvw1(View) 쪽
+    /// 프로퍼티를 직접 쓴다 - 예: gvw1.Role = GridRoleWyn.Query.</summary>
     [Browsable(false)]
     public GridViewWyn? View => MainView as GridViewWyn;
 
@@ -46,17 +51,5 @@ public class GridControlWyn : GridControl
     {
         get => base.UseEmbeddedNavigator;
         set => base.UseEmbeddedNavigator = value;
-    }
-
-    /// <summary>true면 그리드 맨 앞(인디케이터 영역)에 행 번호(1, 2, 3...)를 표시한다.
-    /// GridViewWyn.ShowRowNumbers를 그대로 전달하는 편의 속성 - grid.View.ShowRowNumbers 대신
-    /// grid.RowNoView 하나로 바로 켤 수 있다.</summary>
-    [Category("WYNLAB")]
-    [Description("그리드 맨 앞에 행 번호(1, 2, 3...)를 표시합니다.")]
-    [DefaultValue(false)]
-    public bool RowNoView
-    {
-        get => View?.ShowRowNumbers ?? false;
-        set { if (View != null) View.ShowRowNumbers = value; }
     }
 }

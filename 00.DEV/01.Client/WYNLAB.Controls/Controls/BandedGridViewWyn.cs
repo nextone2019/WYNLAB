@@ -56,6 +56,47 @@ public class BandedGridViewWyn : BandedGridView
         set => _behavior.HighlightFocusedRow = value;
     }
 
+    /// <summary>조회전용 그리드인지 입력/수정 가능한 그리드인지 - GridViewWyn.Role과 같다(GridRoleWyn 참고).</summary>
+    [Category("WYNLAB")]
+    [Description("조회전용(Query) 그리드인지 입력/수정 가능(Edit)한 그리드인지 지정합니다. Query면 편집이 막히고 EmbeddedNavigator의 추가/삭제/편집 버튼도 숨겨집니다.")]
+    [DefaultValue(GridRoleWyn.Query)]
+    public GridRoleWyn Role
+    {
+        get => _behavior.Role;
+        set => _behavior.Role = value;
+    }
+
+    /// <summary>EmbeddedNavigator의 추가(Append) 버튼을 가로챈 이벤트 - GridViewWyn.RowAdd와 같다.</summary>
+    public event EventHandler? RowAdd
+    {
+        add => _behavior.RowAdd += value;
+        remove => _behavior.RowAdd -= value;
+    }
+
+    /// <summary>EmbeddedNavigator의 삭제(Remove) 버튼을 가로챈 이벤트 - GridViewWyn.RowDelete와 같다.</summary>
+    public event EventHandler? RowDelete
+    {
+        add => _behavior.RowDelete += value;
+        remove => _behavior.RowDelete -= value;
+    }
+
+    /// <summary>개인별 그리드 레이아웃 저장 - GridViewWyn과 같다.</summary>
+    public event EventHandler? LayoutSaveRequested
+    {
+        add => _behavior.LayoutSaveRequested += value;
+        remove => _behavior.LayoutSaveRequested -= value;
+    }
+    public event EventHandler? LayoutResetRequested
+    {
+        add => _behavior.LayoutResetRequested += value;
+        remove => _behavior.LayoutResetRequested -= value;
+    }
+
+    public void CapturePristineLayout() => _behavior.CapturePristineLayout();
+    public void RestorePristineLayout() => _behavior.RestorePristineLayout();
+    public string SaveLayoutXml() => _behavior.SaveLayoutXml();
+    public void RestoreLayoutXml(string xml) => _behavior.RestoreLayoutXml(xml);
+
     public void ClearDirtyMarks() => _behavior.ClearDirtyMarks();
 
     public void AddColumnSummary(GridColumn column, SummaryItemType type = SummaryItemType.Sum, string format = "{0:N0}") =>

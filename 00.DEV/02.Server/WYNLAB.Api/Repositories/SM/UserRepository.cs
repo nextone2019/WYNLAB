@@ -12,12 +12,13 @@ public class UserRow
     public string? EmpNo { get; set; }
     public string? DeptCd { get; set; }
     public string? DeptNm { get; set; }
-    public string? PositionNm { get; set; }
     public string PasswordHash { get; set; } = string.Empty;
     public string UseYn { get; set; } = "Y";
-    public string IsAdminYn { get; set; } = "N";
+    /// <summary>TSMUSER.DEVELOPER_YN - "시스템관리자" 판단 조건(사장님 지시, 2026-08-31).
+    /// USER_TYPE(아래, 메뉴권한 우회용 일반 관리자)과는 별개 축이다.</summary>
+    public string DeveloperYn { get; set; } = "N";
     /// <summary>A=관리자, U=일반사용자 - 관리자 우회(전체 메뉴/전체 권한 허용) 판단은
-    /// 이제 IsAdminYn이 아니라 이 값 기준이다(MenuPermissionService/AuthService 참고).</summary>
+    /// 이 값 기준이다(MenuPermissionService/AuthService 참고).</summary>
     public string UserType { get; set; } = "U";
     public int PwdFailCnt { get; set; }
 }

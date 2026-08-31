@@ -25,11 +25,13 @@ public class UserInfoDto
     public string? EmpNo { get; set; }
     public string? DeptCd { get; set; }
     public string? DeptNm { get; set; }
-    public string? PositionNm { get; set; }
-    public bool IsAdminYn { get; set; }
 
-    /// <summary>TSMUSER.USER_TYPE 원본 값('A'=관리자/'U'=일반). IsAdminYn은 이미 이 값을 bool로
-    /// 뭉갠 것이라 "관리자냐 아니냐"만 필요하면 그걸 쓰면 되지만, SQL 로그 뷰어처럼 정확히
-    /// 'A'인지 확인해야 하는 화면(ShellForm)을 위해 원본 값도 같이 내려준다.</summary>
+    /// <summary>TSMUSER.DEVELOPER_YN - "시스템관리자"(SYS 모듈/개발자 전용 도구 접근) 판단
+    /// 조건(사장님 지시, 2026-08-31). USER_TYPE(일반 메뉴권한 우회용 관리자)과는 별개 축이다.
+    /// 사용자등록 화면에 이 값을 고치는 UI가 없다 - DB에서 직접 UPDATE해야만 바뀐다.</summary>
+    public bool DeveloperYn { get; set; }
+
+    /// <summary>TSMUSER.USER_TYPE 원본 값('A'=관리자/'U'=일반) - SQL 로그 뷰어처럼 정확히
+    /// 'A'인지 확인해야 하는 화면(ShellForm)을 위해 원본 값을 내려준다.</summary>
     public string? UserType { get; set; }
 }

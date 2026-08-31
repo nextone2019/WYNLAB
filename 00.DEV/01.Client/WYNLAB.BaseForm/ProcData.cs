@@ -148,7 +148,11 @@ public static class ProcData
     /// 중복 오류가 났다). AcceptChanges 이후에야 방금 로드한 행은 Unchanged, 그 다음 사용자가
     /// 그리드에서 실제로 편집/추가/삭제한 행만 Modified/Added/Deleted로 구분된다.
     /// </summary>
-    private static DataTable ToDataTable(DataTableResult source)
+    /// <summary>PopupLookupForm처럼 BaseForm을 상속하지 않아 menuCd 기반 QueryAsync를 못 쓰는
+    /// 곳(api/lookups/* 같은 별도 엔드포인트를 직접 호출)도 이 변환 로직만은 그대로 재사용할 수
+    /// 있도록 internal로 연다 - JsonElement 언래핑을 빠뜨리면 그리드 정렬/검색이 조용히 깨진다
+    /// (아래 UnwrapJsonValue 설명 참고).</summary>
+    internal static DataTable ToDataTable(DataTableResult source)
     {
         var table = new DataTable();
         foreach (var columnName in source.Columns)

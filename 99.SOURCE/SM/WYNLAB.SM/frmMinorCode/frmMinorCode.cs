@@ -71,11 +71,26 @@ public partial class frmMinorCode : BaseForm
         // 하고 있다 - 여기서 또 구독하면 클릭 한 번에 NewRowClick/DeleteRowClick이 두 번씩
         // 불려서(행이 2개 추가되거나, 삭제가 어긋나는 등) 문제가 생긴다(실제로 겪음).
 
+        // grd1(대분류 목록)은 조회전용 - 셀 편집/행추가삭제 전부 막는다.
+        gvw1.Role = GridRoleWyn.Query;
+
+        // grd2(소분류)는 편집 가능 - 네비게이터의 추가/삭제 버튼도 이미 있는 검증 로직
+        // (NewRowClick/DeleteRowClick, 대분류 미저장 시 막는 등)을 그대로 태운다. 헤더의 +/x
+        // 버튼과 네비게이터 버튼 둘 다 같은 메서드를 부르므로 동작이 어긋나지 않는다.
+        gvw2.Role = GridRoleWyn.Edit;
+        gvw2.RowAdd += async (s, e) => await NewRowClick();
+        gvw2.RowDelete += async (s, e) => await DeleteRowClick();
+
         foreach (var cbo in CboRelCdType)
         {
             cbo.ProcName = "SSP_CBO_CODE_Q";
             cbo.Where = RelCdTypeMajorCd;
         }
+
+        // 화면종료 시 저장 확인(BaseForm.ConfirmCloseAsync) - grd2(소분류)는 편집 가능한
+        // 그리드라 panData뿐 아니라 그 DataTable도 걸어야 한다(EnterNewMode/LoadMinors에서
+        // _minors가 새 인스턴스로 교체될 때마다 TrackDirty(_minors)를 다시 호출해야 함).
+        TrackDirty(panData);
 
         EnterNewMode();
         //Load += async (s, e) => await QueryClick();
@@ -235,6 +250,15 @@ public partial class frmMinorCode : BaseForm
 
     public override Task DeleteRowClick()
     {
+        // 방금 AddNewRow()로 추가한 행에 포커스가 그대로 있는 상태에서 바로 삭제를 누르면,
+        // 그 행은 아직 "새 행 편집 중" 상태라 FocusedRowHandle이 실제 행 번호가 아니라
+        // DevExpress의 가상 핸들(NewItemRowHandle, 음수)을 가리킨다 - 아래 handle >= 0 검사에
+        // 걸려 조용히 아무 일도 안 일어난다(실제로 겪음 - 다른 행을 한 번 선택했다 오면 그
+        // 사이에 새 행이 커밋되어 정상 동작하는 것처럼 보였다). SaveClick과 같은 방법으로
+        // 먼저 편집 중인 셀을 확정해서 진짜 행 번호를 받아온다.
+        gvw2.CloseEditor();
+        gvw2.UpdateCurrentRow();
+
         var handle = gvw2.FocusedRowHandle;
         if (handle >= 0) gvw2.DeleteRow(handle);
         return Task.CompletedTask;
@@ -254,31 +278,38 @@ public partial class frmMinorCode : BaseForm
         gvw2.SetRowCellValue(e.RowHandle, "use_yn", "Y");
     }
 
+    /// <summary>panData/그리드를 채우는 부분은 SuppressDirtyTracking으로 감싼다 - 안 그러면
+    /// 코드가 값을 채우는 것뿐인데 TrackDirty가 "사용자가 고쳤다"로 오인해서, 조회/행 선택
+    /// 직후부터 화면을 닫을 때 저장 확인이 뜨는 오작동이 생긴다.</summary>
     private void EnterNewMode()
     {
-        _editingMajorCd = null;
-        txtmajor_cd.Text = string.Empty;
-        txtmajor_cd.ReadOnly = false;
-        txtmajor_nm.Text = string.Empty;
-
-        var titles = TxtRelTitle;
-        var types = CboRelCdType;
-        var codes = TxtRelCd;
-        for (var i = 0; i < RelCount; i++)
+        SuppressDirtyTracking(() =>
         {
-            titles[i].Text = string.Empty;
-            types[i].EditValue = null;
-            codes[i].Text = string.Empty;
-        }
+            _editingMajorCd = null;
+            txtmajor_cd.Text = string.Empty;
+            txtmajor_cd.ReadOnly = false;
+            txtmajor_nm.Text = string.Empty;
 
-        // 신규 대분류는 아직 관리항목1~10 참조명이 전부 비어있으므로 동적 컬럼도 없어야 한다 -
-        // 이전에 보고 있던 대분류의 동적 컬럼이 남아있으면 지운다.
-        ClearDynamicMinorColumns();
+            var titles = TxtRelTitle;
+            var types = CboRelCdType;
+            var codes = TxtRelCd;
+            for (var i = 0; i < RelCount; i++)
+            {
+                titles[i].Text = string.Empty;
+                types[i].EditValue = null;
+                codes[i].Text = string.Empty;
+            }
 
-        // 소분류 그리드는 비우되 컬럼 구조는 유지해야 한다 - 새 DataTable()로 갈아끼우면
-        // 컬럼이 하나도 없는 상태가 되어 그리드에 행을 추가해도 넣을 자리가 없다.
-        _minors = _minors.Clone();
-        grd2.DataSource = _minors;
+            // 신규 대분류는 아직 관리항목1~10 참조명이 전부 비어있으므로 동적 컬럼도 없어야 한다 -
+            // 이전에 보고 있던 대분류의 동적 컬럼이 남아있으면 지운다.
+            ClearDynamicMinorColumns();
+
+            // 소분류 그리드는 비우되 컬럼 구조는 유지해야 한다 - 새 DataTable()로 갈아끼우면
+            // 컬럼이 하나도 없는 상태가 되어 그리드에 행을 추가해도 넣을 자리가 없다.
+            _minors = _minors.Clone();
+            TrackDirty(_minors);
+            grd2.DataSource = _minors;
+        });
         txtmajor_cd.Focus();
     }
 
@@ -291,24 +322,27 @@ public partial class frmMinorCode : BaseForm
         var majorCd = Str(major, "major_cd");
         var isSameMajor = _editingMajorCd == majorCd;
 
-        _editingMajorCd = majorCd;
-        txtmajor_cd.Text = majorCd;
-        txtmajor_cd.ReadOnly = true; // 대분류코드는 PK라 수정 불가
-        txtmajor_nm.Text = Str(major, "major_nm");
-
-        // 관리항목1~10은 컬럼명이 번호만 다르므로 이름을 만들어서 읽는다 - DTO였을 때는 30개
-        // 프로퍼티를 손으로 나열해야 했지만, 컬럼명으로 접근하니 반복문으로 끝난다.
-        var titles = TxtRelTitle;
-        var types = CboRelCdType;
-        var codes = TxtRelCd;
-
-        for (var i = 0; i < RelCount; i++)
+        SuppressDirtyTracking(() =>
         {
-            var n = i + 1;
-            titles[i].Text = Str(major, $"rel_title{n}");
-            types[i].EditValue = Str(major, $"rel_cd_type{n}") is { Length: > 0 } t ? t : null;
-            codes[i].Text = Str(major, $"rel_cd{n}");
-        }
+            _editingMajorCd = majorCd;
+            txtmajor_cd.Text = majorCd;
+            txtmajor_cd.ReadOnly = true; // 대분류코드는 PK라 수정 불가
+            txtmajor_nm.Text = Str(major, "major_nm");
+
+            // 관리항목1~10은 컬럼명이 번호만 다르므로 이름을 만들어서 읽는다 - DTO였을 때는 30개
+            // 프로퍼티를 손으로 나열해야 했지만, 컬럼명으로 접근하니 반복문으로 끝난다.
+            var titles = TxtRelTitle;
+            var types = CboRelCdType;
+            var codes = TxtRelCd;
+
+            for (var i = 0; i < RelCount; i++)
+            {
+                var n = i + 1;
+                titles[i].Text = Str(major, $"rel_title{n}");
+                types[i].EditValue = Str(major, $"rel_cd_type{n}") is { Length: > 0 } t ? t : null;
+                codes[i].Text = Str(major, $"rel_cd{n}");
+            }
+        });
 
         // 소분류는 이 대분류 기준으로 다시 받아와야 정확하다(그리드에서 편집 중인 내용을
         // 잃더라도, 대분류를 바꿔 선택했다는 건 이전 미저장 소분류 변경은 버린다는 뜻).
@@ -435,6 +469,7 @@ public partial class frmMinorCode : BaseForm
             p_work_type = "Q1",
             p_major_cd = majorCd
         });
+        TrackDirty(_minors);
 
         grd2.DataSource = _minors;
     }

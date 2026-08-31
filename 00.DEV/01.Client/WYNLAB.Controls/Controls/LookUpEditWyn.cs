@@ -30,6 +30,20 @@ public static class CodeLookupProvider
 }
 
 /// <summary>
+/// LookUpEditWyn.LookupKey가 값을 가져올 때 실제로 호출하는 단일 함수의 등록소 - CodeLookupProvider와
+/// 달리 프로시져별로 한 줄씩 등록하지 않는다. LookUp 이름(sysLookupM.lookup_key) + 파라미터
+/// 딕셔너리를 받아 서버(api/combo-lookups/{key}/items)에 그대로 넘기면, 어떤 프로시져를 실행할지
+/// /파라미터가 몇 개인지는 서버가 sysLookupM/P를 보고 알아서 처리한다 - 그래서 새 LookUp을
+/// 추가해도(frmSysLookup에서 등록) 이 프로바이더 자체는 코드 변경이 필요 없다.
+/// WYNLAB.Controls는 ApiClient를 모르므로(반대 방향 참조 금지 컨벤션), 앱 시작 시 WYNLAB.BaseForm
+/// 쪽에서 딱 한 번 등록해준다(ControlDataSources 참고).
+/// </summary>
+public static class ComboLookupProvider
+{
+    public static Func<string, Dictionary<string, string?>, Task<IEnumerable<CodeLookupItem>>>? Fetch { get; set; }
+}
+
+/// <summary>
 /// DevExpress LookUpEdit 기반 - WYNLAB 화면 전반에서 반복되는 "코드+명 2열 팝업" 패턴
 /// (대분류/부서/담당자/상태코드 등)을 BindCodeList() 한 줄로 구성할 수 있게 한다. 지금까지는
 /// 화면마다 Properties.Columns를 직접 채웠는데, 컬럼 순서/폭/검색컬럼 지정을 깜빡하기 쉬워서
@@ -46,10 +60,53 @@ public class LookUpEditWyn : LookUpEdit
     private bool _required;
     private string? _procName;
     private string? _where;
+    private string? _lookupKey;
+    private readonly Dictionary<string, string?> _lookupParams = new();
 
     public LookUpEditWyn()
     {
         Properties.NullText = string.Empty;
+    }
+
+    /// <summary>ProcName/Where(프로시져 이름을 직접 지정하는 옛 방식)와 별개인, sysLookupM에
+    /// 등록해둔 LookUp 이름만으로 쓰는 새 방식 - 실제 프로시져/파라미터/값필드/표시필드는 서버가
+    /// sysLookupM/P를 보고 알아서 처리한다. 이 값만 있으면 조회가 실행된다(파라미터가 필요 없는
+    /// LookUp도 있을 수 있어서 - SetParam 호출은 선택). 파라미터가 필요하면 SetParam으로 채운다.</summary>
+    [Category("WYNLAB")]
+    [Description("sysLookupM에 등록해둔 LookUp 이름. ProcName/Where 대신 이것만 지정하면 됩니다.")]
+    [DefaultValue(null)]
+    public string? LookupKey
+    {
+        get => _lookupKey;
+        set { _lookupKey = value; _ = LoadFromLookupKeyAsync(); }
+    }
+
+    /// <summary>LookupKey가 가리키는 LookUp이 받는 파라미터 값을 채운다(파라미터가 없는 LookUp이면
+    /// 호출할 필요 없음). 예: cboMinorCd.SetParam("p_major_code", "CM0001").</summary>
+    public void SetParam(string paramNm, string? value)
+    {
+        _lookupParams[paramNm] = value;
+        _ = LoadFromLookupKeyAsync();
+    }
+
+    private async Task LoadFromLookupKeyAsync()
+    {
+        var lookupKey = _lookupKey;
+        if (string.IsNullOrEmpty(lookupKey) || ComboLookupProvider.Fetch == null) return;
+
+        try
+        {
+            var paramsSnapshot = new Dictionary<string, string?>(_lookupParams);
+            var items = (await ComboLookupProvider.Fetch(lookupKey!, paramsSnapshot)).ToList();
+            if (lookupKey != _lookupKey) return; // 응답 오는 사이 LookupKey가 또 바뀌었으면 버림
+
+            items.Insert(0, new CodeLookupItem()); // ProcName/Where 경로와 같은 이유 - 빈 값으로 되돌릴 수 있게
+            BindCodeList(items, nameof(CodeLookupItem.Value), nameof(CodeLookupItem.Display));
+        }
+        catch
+        {
+            // 목록 하나 못 불러온다고 화면 전체가 죽으면 안 됨 - ProcName/Where 경로와 같은 이유.
+        }
     }
 
     /// <summary>호출할 콤보/LookUp 전용 프로시져 이름(예: "SSP_CBO_CODE_Q"). Where와 함께

@@ -29,6 +29,11 @@ public partial class frmUserAuth
     private void InitializeComponent()
     {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(frmUserAuth));
+            DevExpress.XtraEditors.Controls.EditorButtonImageOptions editorButtonImageOptions1 = new DevExpress.XtraEditors.Controls.EditorButtonImageOptions();
+            DevExpress.Utils.SerializableAppearanceObject serializableAppearanceObject1 = new DevExpress.Utils.SerializableAppearanceObject();
+            DevExpress.Utils.SerializableAppearanceObject serializableAppearanceObject2 = new DevExpress.Utils.SerializableAppearanceObject();
+            DevExpress.Utils.SerializableAppearanceObject serializableAppearanceObject3 = new DevExpress.Utils.SerializableAppearanceObject();
+            DevExpress.Utils.SerializableAppearanceObject serializableAppearanceObject4 = new DevExpress.Utils.SerializableAppearanceObject();
             this.panBase = new WYNLAB.Base.Controls.PanelWyn();
             this.tabControlWyn1 = new WYNLAB.Base.Controls.TabControlWyn();
             this.xtraTabPage1 = new DevExpress.XtraTab.XtraTabPage();
@@ -70,6 +75,7 @@ public partial class frmUserAuth
             this.panelWyn15 = new WYNLAB.Base.Controls.PanelWyn();
             this.panelWyn16 = new WYNLAB.Base.Controls.PanelWyn();
             this.checkBoxWyn1 = new WYNLAB.Base.Controls.CheckBoxWyn();
+            this.chkDeveloperYn = new WYNLAB.Base.Controls.CheckBoxWyn();
             this.labelControl2 = new DevExpress.XtraEditors.LabelControl();
             this.labelControl4 = new DevExpress.XtraEditors.LabelControl();
             this.txtuser_nm = new WYNLAB.Base.Controls.TextEditWyn();
@@ -146,6 +152,12 @@ public partial class frmUserAuth
             this.labelControl1 = new DevExpress.XtraEditors.LabelControl();
             this.paTitle = new WYNLAB.Base.Controls.PanelWyn();
             this.sectionHeaderWyn1 = new WYNLAB.Base.Controls.SectionHeaderWyn();
+            this.labelControl7 = new DevExpress.XtraEditors.LabelControl();
+            this.txtEmpNm = new WYNLAB.Base.Controls.PopupLookupEditWyn();
+            this.txtEmpNo = new WYNLAB.Base.Controls.TextEditWyn();
+            this.txtDeptNm = new WYNLAB.Base.Controls.TextEditWyn();
+            this.txtDeptCd = new WYNLAB.Base.Controls.TextEditWyn();
+            this.labelControl8 = new DevExpress.XtraEditors.LabelControl();
             ((System.ComponentModel.ISupportInitialize)(this.panBase)).BeginInit();
             this.panBase.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.tabControlWyn1)).BeginInit();
@@ -182,6 +194,7 @@ public partial class frmUserAuth
             ((System.ComponentModel.ISupportInitialize)(this.panelWyn16)).BeginInit();
             this.panelWyn16.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.checkBoxWyn1.Properties)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.chkDeveloperYn.Properties)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.txtuser_nm.Properties)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.txtuser_id.Properties)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.panelWyn17)).BeginInit();
@@ -242,6 +255,10 @@ public partial class frmUserAuth
             ((System.ComponentModel.ISupportInitialize)(this.txtUserGrpCdQ.Properties)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.paTitle)).BeginInit();
             this.paTitle.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.txtEmpNm.Properties)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.txtEmpNo.Properties)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.txtDeptNm.Properties)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.txtDeptCd.Properties)).BeginInit();
             this.SuspendLayout();
             // 
             // panBase
@@ -332,9 +349,9 @@ public partial class frmUserAuth
             this.panelWyn25.Controls.Add(this.panelWyn27);
             this.panelWyn25.Dock = System.Windows.Forms.DockStyle.Fill;
             this.panelWyn25.EdgeLineColor = System.Drawing.Color.FromArgb(((int)(((byte)(228)))), ((int)(((byte)(229)))), ((int)(((byte)(232)))));
-            this.panelWyn25.Location = new System.Drawing.Point(329, 187);
+            this.panelWyn25.Location = new System.Drawing.Point(329, 132);
             this.panelWyn25.Name = "panelWyn25";
-            this.panelWyn25.Size = new System.Drawing.Size(416, 305);
+            this.panelWyn25.Size = new System.Drawing.Size(416, 360);
             this.panelWyn25.TabIndex = 10;
             // 
             // tree1
@@ -363,7 +380,7 @@ public partial class frmUserAuth
             this.repositoryItemCheckEdit5,
             this.repositoryItemCheckEdit10});
             this.tree1.RowHeight = 26;
-            this.tree1.Size = new System.Drawing.Size(416, 278);
+            this.tree1.Size = new System.Drawing.Size(416, 333);
             this.tree1.TabIndex = 9;
             // 
             // colMenuCd
@@ -529,9 +546,9 @@ public partial class frmUserAuth
             // splitterWyn3
             // 
             this.splitterWyn3.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(255)))), ((int)(((byte)(255)))));
-            this.splitterWyn3.Location = new System.Drawing.Point(319, 187);
+            this.splitterWyn3.Location = new System.Drawing.Point(319, 132);
             this.splitterWyn3.Name = "splitterWyn3";
-            this.splitterWyn3.Size = new System.Drawing.Size(10, 305);
+            this.splitterWyn3.Size = new System.Drawing.Size(10, 360);
             this.splitterWyn3.TabIndex = 11;
             this.splitterWyn3.TabStop = false;
             // 
@@ -541,9 +558,9 @@ public partial class frmUserAuth
             this.panelWyn26.Controls.Add(this.panelWyn13);
             this.panelWyn26.Dock = System.Windows.Forms.DockStyle.Left;
             this.panelWyn26.EdgeLineColor = System.Drawing.Color.FromArgb(((int)(((byte)(228)))), ((int)(((byte)(229)))), ((int)(((byte)(232)))));
-            this.panelWyn26.Location = new System.Drawing.Point(3, 187);
+            this.panelWyn26.Location = new System.Drawing.Point(3, 132);
             this.panelWyn26.Name = "panelWyn26";
-            this.panelWyn26.Size = new System.Drawing.Size(316, 305);
+            this.panelWyn26.Size = new System.Drawing.Size(316, 360);
             this.panelWyn26.TabIndex = 10;
             // 
             // grd3
@@ -554,7 +571,7 @@ public partial class frmUserAuth
             this.grd3.Name = "grd3";
             this.grd3.RepositoryItems.AddRange(new DevExpress.XtraEditors.Repository.RepositoryItem[] {
             this.repositoryItemCheckEdit1});
-            this.grd3.Size = new System.Drawing.Size(316, 278);
+            this.grd3.Size = new System.Drawing.Size(316, 333);
             this.grd3.TabIndex = 9;
             this.grd3.ViewCollection.AddRange(new DevExpress.XtraGrid.Views.Base.BaseView[] {
             this.gvw3});
@@ -684,22 +701,29 @@ public partial class frmUserAuth
             this.panelWyn15.EdgeLineColor = System.Drawing.Color.FromArgb(((int)(((byte)(228)))), ((int)(((byte)(229)))), ((int)(((byte)(232)))));
             this.panelWyn15.Location = new System.Drawing.Point(3, 0);
             this.panelWyn15.Name = "panelWyn15";
-            this.panelWyn15.Size = new System.Drawing.Size(742, 187);
+            this.panelWyn15.Size = new System.Drawing.Size(742, 132);
             this.panelWyn15.TabIndex = 6;
             // 
             // panelWyn16
             // 
             this.panelWyn16.BorderStyle = DevExpress.XtraEditors.Controls.BorderStyles.Default;
+            this.panelWyn16.Controls.Add(this.txtEmpNm);
             this.panelWyn16.Controls.Add(this.checkBoxWyn1);
+            this.panelWyn16.Controls.Add(this.chkDeveloperYn);
+            this.panelWyn16.Controls.Add(this.labelControl8);
+            this.panelWyn16.Controls.Add(this.labelControl7);
             this.panelWyn16.Controls.Add(this.labelControl2);
             this.panelWyn16.Controls.Add(this.labelControl4);
+            this.panelWyn16.Controls.Add(this.txtDeptCd);
+            this.panelWyn16.Controls.Add(this.txtDeptNm);
+            this.panelWyn16.Controls.Add(this.txtEmpNo);
             this.panelWyn16.Controls.Add(this.txtuser_nm);
             this.panelWyn16.Controls.Add(this.txtuser_id);
             this.panelWyn16.Dock = System.Windows.Forms.DockStyle.Fill;
             this.panelWyn16.EdgeLineColor = System.Drawing.Color.FromArgb(((int)(((byte)(228)))), ((int)(((byte)(229)))), ((int)(((byte)(232)))));
             this.panelWyn16.Location = new System.Drawing.Point(0, 27);
             this.panelWyn16.Name = "panelWyn16";
-            this.panelWyn16.Size = new System.Drawing.Size(742, 160);
+            this.panelWyn16.Size = new System.Drawing.Size(742, 105);
             this.panelWyn16.TabIndex = 8;
             // 
             // checkBoxWyn1
@@ -709,6 +733,15 @@ public partial class frmUserAuth
             this.checkBoxWyn1.Properties.Caption = "사용";
             this.checkBoxWyn1.Size = new System.Drawing.Size(80, 20);
             this.checkBoxWyn1.TabIndex = 7;
+            // 
+            // chkDeveloperYn
+            // 
+            this.chkDeveloperYn.Enabled = false;
+            this.chkDeveloperYn.Location = new System.Drawing.Point(225, 43);
+            this.chkDeveloperYn.Name = "chkDeveloperYn";
+            this.chkDeveloperYn.Properties.Caption = "시스템개발자";
+            this.chkDeveloperYn.Size = new System.Drawing.Size(180, 20);
+            this.chkDeveloperYn.TabIndex = 9;
             // 
             // labelControl2
             // 
@@ -1057,6 +1090,8 @@ public partial class frmUserAuth
             // 
             // panelWyn1
             // 
+            this.panelWyn1.Appearance.BackColor = System.Drawing.Color.White;
+            this.panelWyn1.Appearance.Options.UseBackColor = true;
             this.panelWyn1.Controls.Add(this.panelWyn7);
             this.panelWyn1.Controls.Add(this.sectionHeaderWyn2);
             this.panelWyn1.Dock = System.Windows.Forms.DockStyle.Top;
@@ -1150,8 +1185,7 @@ public partial class frmUserAuth
             // 
             // grd4
             // 
-            this.grd4.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.grd4.Location = new System.Drawing.Point(0, 27);
+            this.grd4.Location = new System.Drawing.Point(10, 68);
             this.grd4.MainView = this.gvw4;
             this.grd4.Name = "grd4";
             this.grd4.RepositoryItems.AddRange(new DevExpress.XtraEditors.Repository.RepositoryItem[] {
@@ -1206,6 +1240,8 @@ public partial class frmUserAuth
             // 
             // panelWyn23
             // 
+            this.panelWyn23.Appearance.BackColor = System.Drawing.Color.White;
+            this.panelWyn23.Appearance.Options.UseBackColor = true;
             this.panelWyn23.Controls.Add(this.panelWyn24);
             this.panelWyn23.Controls.Add(this.sectionHeaderWyn8);
             this.panelWyn23.Dock = System.Windows.Forms.DockStyle.Top;
@@ -1226,6 +1262,7 @@ public partial class frmUserAuth
             this.panelWyn24.Name = "panelWyn24";
             this.panelWyn24.Size = new System.Drawing.Size(68, 25);
             this.panelWyn24.TabIndex = 9;
+            this.panelWyn24.Visible = false;
             // 
             // simpleButton3
             // 
@@ -1356,6 +1393,8 @@ public partial class frmUserAuth
             // 
             // panelWyn6
             // 
+            this.panelWyn6.Appearance.BackColor = System.Drawing.Color.White;
+            this.panelWyn6.Appearance.Options.UseBackColor = true;
             this.panelWyn6.Controls.Add(this.sectionHeaderWyn3);
             this.panelWyn6.Dock = System.Windows.Forms.DockStyle.Top;
             this.panelWyn6.EdgeLineColor = System.Drawing.Color.FromArgb(((int)(((byte)(228)))), ((int)(((byte)(229)))), ((int)(((byte)(232)))));
@@ -1440,6 +1479,8 @@ public partial class frmUserAuth
             // 
             // panelWyn2
             // 
+            this.panelWyn2.Appearance.BackColor = System.Drawing.Color.White;
+            this.panelWyn2.Appearance.Options.UseBackColor = true;
             this.panelWyn2.Controls.Add(this.sectionHeaderWyn4);
             this.panelWyn2.Dock = System.Windows.Forms.DockStyle.Top;
             this.panelWyn2.EdgeLineColor = System.Drawing.Color.FromArgb(((int)(((byte)(228)))), ((int)(((byte)(229)))), ((int)(((byte)(232)))));
@@ -1517,6 +1558,61 @@ public partial class frmUserAuth
             this.sectionHeaderWyn1.TabIndex = 8;
             this.sectionHeaderWyn1.Text = "사용자권한관리 [frmUserAuth]";
             // 
+            // labelControl7
+            // 
+            this.labelControl7.Appearance.Font = new System.Drawing.Font("맑은 고딕", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
+            this.labelControl7.Appearance.Options.UseFont = true;
+            this.labelControl7.Location = new System.Drawing.Point(35, 70);
+            this.labelControl7.Name = "labelControl7";
+            this.labelControl7.Size = new System.Drawing.Size(36, 15);
+            this.labelControl7.TabIndex = 4;
+            this.labelControl7.Text = "사원명";
+            // 
+            // txtEmpNm
+            // 
+            this.txtEmpNm.Location = new System.Drawing.Point(89, 70);
+            this.txtEmpNm.LookupKey = "P_EMP";
+            this.txtEmpNm.MatchField = "emp_nm";
+            this.txtEmpNm.Name = "txtEmpNm";
+            this.txtEmpNm.Properties.Buttons.AddRange(new DevExpress.XtraEditors.Controls.EditorButton[] {
+            new DevExpress.XtraEditors.Controls.EditorButton(DevExpress.XtraEditors.Controls.ButtonPredefines.Ellipsis, "", 24, true, true, false, editorButtonImageOptions1, new DevExpress.Utils.KeyShortcut(System.Windows.Forms.Keys.None), serializableAppearanceObject1, serializableAppearanceObject2, serializableAppearanceObject3, serializableAppearanceObject4, "", null, null, DevExpress.Utils.ToolTipAnchor.Default)});
+            this.txtEmpNm.Size = new System.Drawing.Size(97, 20);
+            this.txtEmpNm.TabIndex = 10;
+            this.txtEmpNm.ToolTip = null;
+            // 
+            // txtEmpNo
+            // 
+            this.txtEmpNo.Location = new System.Drawing.Point(602, 70);
+            this.txtEmpNo.Name = "txtEmpNo";
+            this.txtEmpNo.Size = new System.Drawing.Size(97, 20);
+            this.txtEmpNo.TabIndex = 6;
+            this.txtEmpNo.Visible = false;
+            // 
+            // txtDeptNm
+            // 
+            this.txtDeptNm.Location = new System.Drawing.Point(239, 70);
+            this.txtDeptNm.Name = "txtDeptNm";
+            this.txtDeptNm.Size = new System.Drawing.Size(190, 20);
+            this.txtDeptNm.TabIndex = 6;
+            // 
+            // txtDeptCd
+            // 
+            this.txtDeptCd.Location = new System.Drawing.Point(602, 96);
+            this.txtDeptCd.Name = "txtDeptCd";
+            this.txtDeptCd.Size = new System.Drawing.Size(97, 20);
+            this.txtDeptCd.TabIndex = 6;
+            this.txtDeptCd.Visible = false;
+            // 
+            // labelControl8
+            // 
+            this.labelControl8.Appearance.Font = new System.Drawing.Font("맑은 고딕", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
+            this.labelControl8.Appearance.Options.UseFont = true;
+            this.labelControl8.Location = new System.Drawing.Point(206, 73);
+            this.labelControl8.Name = "labelControl8";
+            this.labelControl8.Size = new System.Drawing.Size(24, 15);
+            this.labelControl8.TabIndex = 4;
+            this.labelControl8.Text = "부서";
+            // 
             // frmUserAuth
             // 
             this.Appearance.Options.UseFont = true;
@@ -1560,6 +1656,7 @@ public partial class frmUserAuth
             this.panelWyn16.ResumeLayout(false);
             this.panelWyn16.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.checkBoxWyn1.Properties)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.chkDeveloperYn.Properties)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.txtuser_nm.Properties)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.txtuser_id.Properties)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.panelWyn17)).EndInit();
@@ -1623,6 +1720,10 @@ public partial class frmUserAuth
             ((System.ComponentModel.ISupportInitialize)(this.txtUserGrpCdQ.Properties)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.paTitle)).EndInit();
             this.paTitle.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.txtEmpNm.Properties)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.txtEmpNo.Properties)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.txtDeptNm.Properties)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.txtDeptCd.Properties)).EndInit();
             this.ResumeLayout(false);
 
     }
@@ -1694,6 +1795,7 @@ public partial class frmUserAuth
     private DevExpress.XtraGrid.Columns.GridColumn gridColumn4;
     private DevExpress.XtraGrid.Columns.GridColumn gridColumn5;
     private CheckBoxWyn checkBoxWyn1;
+    private CheckBoxWyn chkDeveloperYn;
     private TreeListWyn tree1;
     private GridControlWyn grd4;
     private DevExpress.XtraGrid.Views.Grid.GridView gvw4;
@@ -1743,4 +1845,10 @@ public partial class frmUserAuth
     private DevExpress.XtraEditors.Repository.RepositoryItemCheckEdit repositoryItemCheckEdit8;
     private DevExpress.XtraEditors.Repository.RepositoryItemCheckEdit repositoryItemCheckEdit9;
     private DevExpress.XtraEditors.Repository.RepositoryItemCheckEdit repositoryItemCheckEdit10;
+    private PopupLookupEditWyn txtEmpNm;
+    private DevExpress.XtraEditors.LabelControl labelControl7;
+    private TextEditWyn txtDeptCd;
+    private TextEditWyn txtDeptNm;
+    private TextEditWyn txtEmpNo;
+    private DevExpress.XtraEditors.LabelControl labelControl8;
 }

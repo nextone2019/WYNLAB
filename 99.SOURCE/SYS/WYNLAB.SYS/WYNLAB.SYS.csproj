@@ -1,0 +1,111 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- SYS 모듈 - BA/MA/SA/PR/SM과 같은 화면 모듈이지만, 여기 들어가는 화면은 "업무 데이터"가
+       아니라 팝업 정의(sysPopUpM/D)처럼 잘못 건드리면 시스템 전체에 영향을 주는 프레임워크
+       설정 화면 전용이다. 그래서 메뉴 그룹 자체를 BA/SM과 분리해서 "이건 성격이 다르다"는 걸
+       메뉴 트리/화면 코드(SYS_*)에서부터 드러낸다 - 실제 접근 제어(관리자만 열 수 있게 하는
+       방법)는 아직 별도로 확정 전(project_wynlab_popup_lookup_framework 메모리 참고).
+
+       구조는 WYNLAB.MA.csproj를 그대로 복사한 것 - 모듈 하나 = 프로젝트 하나 = DLL 하나,
+       화면은 폴더로만 구분(네임스페이스는 안 나뉨). -->
+  <PropertyGroup>
+    <TargetFramework>net48</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <UseWindowsForms>true</UseWindowsForms>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+
+    <RootNamespace>WYNLAB.SYS</RootNamespace>
+    <AssemblyName>WYNLAB.SYS</AssemblyName>
+
+    <GenerateResourceUsePreserializedResources>true</GenerateResourceUsePreserializedResources>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="System.Resources.Extensions" Version="8.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- DevExpress 21.2 로컬 설치 기반 참조 -->
+    <Reference Include="DevExpress.Data.v21.2">
+      <HintPath>C:\Program Files (x86)\DevExpress 21.2\Components\Bin\Framework\DevExpress.Data.v21.2.dll</HintPath>
+    </Reference>
+    <Reference Include="DevExpress.Data.Desktop.v21.2">
+      <HintPath>C:\Program Files (x86)\DevExpress 21.2\Components\Bin\Framework\DevExpress.Data.Desktop.v21.2.dll</HintPath>
+    </Reference>
+    <Reference Include="DevExpress.Utils.v21.2">
+      <HintPath>C:\Program Files (x86)\DevExpress 21.2\Components\Bin\Framework\DevExpress.Utils.v21.2.dll</HintPath>
+    </Reference>
+    <Reference Include="DevExpress.XtraBars.v21.2">
+      <HintPath>C:\Program Files (x86)\DevExpress 21.2\Components\Bin\Framework\DevExpress.XtraBars.v21.2.dll</HintPath>
+    </Reference>
+    <Reference Include="DevExpress.XtraEditors.v21.2">
+      <HintPath>C:\Program Files (x86)\DevExpress 21.2\Components\Bin\Framework\DevExpress.XtraEditors.v21.2.dll</HintPath>
+    </Reference>
+    <Reference Include="DevExpress.XtraGrid.v21.2">
+      <HintPath>C:\Program Files (x86)\DevExpress 21.2\Components\Bin\Framework\DevExpress.XtraGrid.v21.2.dll</HintPath>
+    </Reference>
+    <Reference Include="DevExpress.XtraLayout.v21.2">
+      <HintPath>C:\Program Files (x86)\DevExpress 21.2\Components\Bin\Framework\DevExpress.XtraLayout.v21.2.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="WYNLAB.BaseForm">
+      <HintPath>..\..\..\00.DEV\01.Client\WYNLAB.BaseForm\bin\Debug\net48\WYNLAB.BaseForm.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="WYNLAB.Controls">
+      <HintPath>..\..\..\00.DEV\01.Client\WYNLAB.Controls\bin\Debug\net48\WYNLAB.Controls.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="WYNLAB.Shared">
+      <HintPath>..\..\..\00.DEV\03.Shared\WYNLAB.Shared\bin\Debug\netstandard2.0\WYNLAB.Shared.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+  </ItemGroup>
+
+  <!-- SDK 스타일 프로젝트는 폴더에 담긴 리소스 이름을 자동으로 못 맞춰서 명시해야 한다 -
+       없으면 MissingManifestResourceException(WYNLAB.BA/frmUserAuth에서 겪은 것과 동일). -->
+  <ItemGroup>
+    <Compile Update="frmSysPopup\frmSysPopup.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="frmSysPopup\frmSysPopup.Designer.cs">
+      <DependentUpon>frmSysPopup.cs</DependentUpon>
+    </Compile>
+    <EmbeddedResource Update="frmSysPopup\frmSysPopup.resx">
+      <DependentUpon>frmSysPopup.cs</DependentUpon>
+    </EmbeddedResource>
+
+    <Compile Update="frmSysLookup\frmSysLookup.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="frmSysLookup\frmSysLookup.Designer.cs">
+      <DependentUpon>frmSysLookup.cs</DependentUpon>
+    </Compile>
+    <EmbeddedResource Update="frmSysLookup\frmSysLookup.resx">
+      <DependentUpon>frmSysLookup.cs</DependentUpon>
+    </EmbeddedResource>
+
+    <Compile Update="Properties\Resources.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
+    <EmbeddedResource Update="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+  </ItemGroup>
+
+  <Target Name="CopyToModulesFolder" AfterTargets="Build">
+    <ItemGroup>
+      <ModuleOutputFiles Include="$(TargetDir)$(TargetName).dll" />
+      <ModuleOutputFiles Include="$(TargetDir)$(TargetName).pdb" Condition="Exists('$(TargetDir)$(TargetName).pdb')" />
+      <ModuleOutputFiles Include="$(TargetDir)System.Resources.Extensions.dll" Condition="Exists('$(TargetDir)System.Resources.Extensions.dll')" />
+    </ItemGroup>
+    <Copy SourceFiles="@(ModuleOutputFiles)" DestinationFolder="$(SolutionDir)..\..\00.DEV\01.Client\WYNLAB.Shell\bin\$(Configuration)\net48\Modules\" SkipUnchangedFiles="true" />
+  </Target>
+
+</Project>

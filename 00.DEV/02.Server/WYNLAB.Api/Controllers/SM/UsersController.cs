@@ -38,8 +38,7 @@ public class UsersController : ControllerBase
             return Ok(new ApiResult { Success = false, Message = "이미 존재하는 아이디입니다." });
 
         var passwordHash = BCrypt.Net.BCrypt.HashPassword(request.Password);
-        var result = await _repo.CreateAsync(request.UserId, request.UserNm, passwordHash, request.EmpNo,
-            request.DeptCd, request.PositionNm, request.Email, request.MobileNo, request.IsAdminYn);
+        var result = await _repo.CreateAsync(request.UserId, request.UserNm, passwordHash, request.EmpNo);
 
         if (!result.IsSuccess)
             return Ok(new ApiResult { Success = false, Message = result.FailMessage });
@@ -54,8 +53,7 @@ public class UsersController : ControllerBase
         if (!await _repo.ExistsAsync(userId))
             return Ok(new ApiResult { Success = false, Message = "존재하지 않는 사용자입니다." });
 
-        var result = await _repo.UpdateAsync(userId, request.UserNm, request.EmpNo, request.DeptCd,
-            request.PositionNm, request.Email, request.MobileNo, request.UseYn, request.IsAdminYn);
+        var result = await _repo.UpdateAsync(userId, request.UserNm, request.EmpNo, request.UseYn);
 
         if (!result.IsSuccess)
             return Ok(new ApiResult { Success = false, Message = result.FailMessage });
@@ -106,13 +104,11 @@ public class UsersController : ControllerBase
         UserId = row.UserId,
         UserNm = row.UserNm,
         EmpNo = row.EmpNo,
+        EmpNm = row.EmpNm,
         DeptCd = row.DeptCd,
         DeptNm = row.DeptNm,
-        PositionNm = row.PositionNm,
-        Email = row.Email,
-        MobileNo = row.MobileNo,
         UseYn = row.UseYn == "Y",
-        IsAdminYn = row.IsAdminYn == "Y",
+        DeveloperYn = row.DeveloperYn == "Y",
         LastLoginDt = row.LastLoginDt
     };
 }

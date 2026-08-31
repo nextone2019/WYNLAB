@@ -1,0 +1,9 @@
+-- TBAITEM에 내부 식별용 ITEM_ID(BIGINT) 컬럼 추가. TBAITEMUNIT.item_cd가 TBAITEM.item_cd
+-- (varchar, 업무 코드)가 아니라 bigint인 게 026에서 발견됐는데, 실제로는 이 ITEM_ID를
+-- 참조해야 했던 것 - 026 작업 당시 TBAITEM에 이 컬럼이 아직 없어서 놓쳤던 실수.
+
+ALTER TABLE TBAITEM ADD ITEM_ID BIGINT;
+GO
+
+SELECT COLUMN_NAME, DATA_TYPE, IS_NULLABLE FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = 'TBAITEM' AND COLUMN_NAME = 'ITEM_ID';
+GO
