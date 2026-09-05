@@ -37,10 +37,26 @@ public partial class frmSysLookup
             this.colParamNm = new DevExpress.XtraGrid.Columns.GridColumn();
             this.colParamCaption = new DevExpress.XtraGrid.Columns.GridColumn();
             this.colParamSort = new DevExpress.XtraGrid.Columns.GridColumn();
+            this.colParamTestValue = new DevExpress.XtraGrid.Columns.GridColumn();
+            this.splitterColumns = new WYNLAB.Base.Controls.SplitterWyn();
+            this.panelColumns = new WYNLAB.Base.Controls.PanelWyn();
+            this.grd4 = new WYNLAB.Base.Controls.GridControlWyn();
+            this.gvw4 = new WYNLAB.Base.Controls.GridViewWyn();
+            this.colColumnNm = new DevExpress.XtraGrid.Columns.GridColumn();
+            this.colColumnCaption = new DevExpress.XtraGrid.Columns.GridColumn();
+            this.colColumnWidth = new DevExpress.XtraGrid.Columns.GridColumn();
+            this.sectionHeaderColumns = new WYNLAB.Base.Controls.SectionHeaderWyn();
+            this.splitterWyn2 = new WYNLAB.Base.Controls.SplitterWyn();
+            this.panelPreview = new WYNLAB.Base.Controls.PanelWyn();
+            this.grd3 = new WYNLAB.Base.Controls.GridControlWyn();
+            this.gvw3 = new WYNLAB.Base.Controls.GridViewWyn();
+            this.panelWyn9 = new WYNLAB.Base.Controls.PanelWyn();
+            this.btnPreview = new WYNLAB.Base.Controls.ButtonWyn();
+            this.sectionHeaderWyn5 = new WYNLAB.Base.Controls.SectionHeaderWyn();
             this.panelWyn1 = new WYNLAB.Base.Controls.PanelWyn();
             this.panelWyn7 = new WYNLAB.Base.Controls.PanelWyn();
-            this.btnDeletRow2 = new DevExpress.XtraEditors.SimpleButton();
-            this.btnAddRow2 = new DevExpress.XtraEditors.SimpleButton();
+            this.btnDeletRow2 = new WYNLAB.Base.Controls.ButtonWyn();
+            this.btnAddRow2 = new WYNLAB.Base.Controls.ButtonWyn();
             this.sectionHeaderWyn2 = new WYNLAB.Base.Controls.SectionHeaderWyn();
             this.panelWyn5 = new WYNLAB.Base.Controls.PanelWyn();
             this.panData = new WYNLAB.Base.Controls.PanelWyn();
@@ -57,6 +73,8 @@ public partial class frmSysLookup
             this.colDisplayField = new DevExpress.XtraGrid.Columns.GridColumn();
             this.panelWyn2 = new WYNLAB.Base.Controls.PanelWyn();
             this.sectionHeaderWyn4 = new WYNLAB.Base.Controls.SectionHeaderWyn();
+            this.panelWyn10 = new WYNLAB.Base.Controls.PanelWyn();
+            this.btnCopy = new WYNLAB.Base.Controls.ButtonWyn();
             this.panHeader = new WYNLAB.Base.Controls.PanelWyn();
             this.txtSearchQ = new WYNLAB.Base.Controls.TextEditWyn();
             this.labelControl1 = new DevExpress.XtraEditors.LabelControl();
@@ -66,7 +84,7 @@ public partial class frmSysLookup
             this.txtLookupNm = new WYNLAB.Base.Controls.TextEditWyn();
             this.lblProcNm = new DevExpress.XtraEditors.LabelControl();
             this.txtProcNm = new WYNLAB.Base.Controls.TextEditWyn();
-            this.btnGenerateParams = new DevExpress.XtraEditors.SimpleButton();
+            this.btnGenerateParams = new WYNLAB.Base.Controls.ButtonWyn();
             this.lblValueField = new DevExpress.XtraEditors.LabelControl();
             this.txtValueField = new WYNLAB.Base.Controls.TextEditWyn();
             this.lblDisplayField = new DevExpress.XtraEditors.LabelControl();
@@ -75,6 +93,10 @@ public partial class frmSysLookup
             this.chkUseYn = new WYNLAB.Base.Controls.CheckBoxWyn();
             this.lblRemark = new DevExpress.XtraEditors.LabelControl();
             this.txtRemark = new WYNLAB.Base.Controls.TextEditWyn();
+            this.lblSourceType = new DevExpress.XtraEditors.LabelControl();
+            this.cboSourceType = new WYNLAB.Base.Controls.LookUpEditWyn();
+            this.lblQueryTxt = new DevExpress.XtraEditors.LabelControl();
+            this.txtQueryTxt = new WYNLAB.Base.Controls.MemoEditWyn();
             this.paTitle = new WYNLAB.Base.Controls.PanelWyn();
             this.sectionHeaderWyn1 = new WYNLAB.Base.Controls.SectionHeaderWyn();
             ((System.ComponentModel.ISupportInitialize)(this.panBase)).BeginInit();
@@ -85,6 +107,16 @@ public partial class frmSysLookup
             this.panelWyn4.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.grd2)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.gvw2)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.panelColumns)).BeginInit();
+            this.panelColumns.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.grd4)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.gvw4)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.panelPreview)).BeginInit();
+            this.panelPreview.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.grd3)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.gvw3)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.panelWyn9)).BeginInit();
+            this.panelWyn9.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.panelWyn1)).BeginInit();
             this.panelWyn1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.panelWyn7)).BeginInit();
@@ -99,6 +131,8 @@ public partial class frmSysLookup
             ((System.ComponentModel.ISupportInitialize)(this.txtDisplayField.Properties)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.chkUseYn.Properties)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.txtRemark.Properties)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.cboSourceType.Properties)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.txtQueryTxt.Properties)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.panelWyn6)).BeginInit();
             this.panelWyn6.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.panelWyn8)).BeginInit();
@@ -117,7 +151,6 @@ public partial class frmSysLookup
             // panBase
             //
             this.panBase.Appearance.BackColor = System.Drawing.Color.White;
-            this.panBase.Appearance.Options.UseBackColor = true;
             this.panBase.Controls.Add(this.panelWyn3);
             this.panBase.Controls.Add(this.panHeader);
             this.panBase.Controls.Add(this.paTitle);
@@ -144,8 +177,12 @@ public partial class frmSysLookup
             // panelWyn4
             //
             this.panelWyn4.Controls.Add(this.grd2);
+            this.panelWyn4.Controls.Add(this.splitterWyn2);
+            this.panelWyn4.Controls.Add(this.panelPreview);
             this.panelWyn4.Controls.Add(this.panelWyn1);
             this.panelWyn4.Controls.Add(this.panelWyn5);
+            this.panelWyn4.Controls.Add(this.splitterColumns);
+            this.panelWyn4.Controls.Add(this.panelColumns);
             this.panelWyn4.Dock = System.Windows.Forms.DockStyle.Fill;
             this.panelWyn4.EdgeLineColor = System.Drawing.Color.FromArgb(((int)(((byte)(228)))), ((int)(((byte)(229)))), ((int)(((byte)(232)))));
             this.panelWyn4.Location = new System.Drawing.Point(412, 0);
@@ -170,7 +207,8 @@ public partial class frmSysLookup
             this.gvw2.Columns.AddRange(new DevExpress.XtraGrid.Columns.GridColumn[] {
             this.colParamNm,
             this.colParamCaption,
-            this.colParamSort});
+            this.colParamSort,
+            this.colParamTestValue});
             this.gvw2.GridControl = this.grd2;
             this.gvw2.HighlightFocusedRow = true;
             this.gvw2.Name = "gvw2";
@@ -205,6 +243,183 @@ public partial class frmSysLookup
             this.colParamSort.VisibleIndex = 2;
             this.colParamSort.Width = 60;
             //
+            // colParamTestValue (sysLookupP엔 저장 안 됨 - "실행결과 미리보기" 전용 임시 입력칸.
+            // btnPreview_Click이 이 값을 읽어서 서버에 보낸다)
+            //
+            this.colParamTestValue.Caption = "테스트값(미리보기 전용)";
+            this.colParamTestValue.FieldName = "test_value";
+            this.colParamTestValue.Name = "colParamTestValue";
+            this.colParamTestValue.Visible = true;
+            this.colParamTestValue.VisibleIndex = 3;
+            this.colParamTestValue.Width = 140;
+            //
+            // splitterColumns (파라미터 목록 grd2 <-> 컬럼 목록 panelColumns 사이 - splitterWyn1과
+            // 같은 컨트롤을 좌우 방향(Dock=Right)으로 재사용)
+            //
+            this.splitterColumns.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(255)))), ((int)(((byte)(255)))));
+            this.splitterColumns.Dock = System.Windows.Forms.DockStyle.Right;
+            this.splitterColumns.Location = new System.Drawing.Point(407, 0);
+            this.splitterColumns.Name = "splitterColumns";
+            this.splitterColumns.Size = new System.Drawing.Size(10, 515);
+            this.splitterColumns.TabIndex = 21;
+            this.splitterColumns.TabStop = false;
+            //
+            // panelColumns (LookUp 팝업에 값필드/표시필드 외 추가로 보여줄 컬럼 구성 - sysLookupC.
+            // "파라미터생성" 버튼이 grd2와 같은 방식으로 결과셋 컬럼을 자동으로 채워 넣는다
+            // (btnGenerateParams_Click 참고). 필드명은 소스(프로시져/쿼리) 결과셋의 실제 컬럼명이라
+            // 읽기전용, 캡션/폭만 직접 입력한다.)
+            //
+            this.panelColumns.Controls.Add(this.grd4);
+            this.panelColumns.Controls.Add(this.sectionHeaderColumns);
+            this.panelColumns.Dock = System.Windows.Forms.DockStyle.Right;
+            this.panelColumns.EdgeLineColor = System.Drawing.Color.FromArgb(((int)(((byte)(228)))), ((int)(((byte)(229)))), ((int)(((byte)(232)))));
+            this.panelColumns.Location = new System.Drawing.Point(417, 0);
+            this.panelColumns.Name = "panelColumns";
+            this.panelColumns.Padding = new System.Windows.Forms.Padding(5, 27, 0, 0);
+            this.panelColumns.Size = new System.Drawing.Size(330, 515);
+            this.panelColumns.TabIndex = 22;
+            //
+            // grd4 (컬럼 목록)
+            //
+            this.grd4.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.grd4.Location = new System.Drawing.Point(5, 27);
+            this.grd4.MainView = this.gvw4;
+            this.grd4.Name = "grd4";
+            this.grd4.Size = new System.Drawing.Size(325, 488);
+            this.grd4.TabIndex = 0;
+            this.grd4.ViewCollection.AddRange(new DevExpress.XtraGrid.Views.Base.BaseView[] {
+            this.gvw4});
+            //
+            // gvw4
+            //
+            this.gvw4.Columns.AddRange(new DevExpress.XtraGrid.Columns.GridColumn[] {
+            this.colColumnNm,
+            this.colColumnCaption,
+            this.colColumnWidth});
+            this.gvw4.GridControl = this.grd4;
+            this.gvw4.HighlightFocusedRow = true;
+            this.gvw4.Name = "gvw4";
+            this.gvw4.OptionsView.ColumnAutoWidth = false;
+            this.gvw4.OptionsView.ShowGroupPanel = false;
+            //
+            // colColumnNm
+            //
+            this.colColumnNm.Caption = "필드명";
+            this.colColumnNm.FieldName = "column_nm";
+            this.colColumnNm.Name = "colColumnNm";
+            this.colColumnNm.OptionsColumn.AllowEdit = false;
+            this.colColumnNm.Visible = true;
+            this.colColumnNm.VisibleIndex = 0;
+            this.colColumnNm.Width = 110;
+            //
+            // colColumnCaption
+            //
+            this.colColumnCaption.Caption = "캡션";
+            this.colColumnCaption.FieldName = "caption";
+            this.colColumnCaption.Name = "colColumnCaption";
+            this.colColumnCaption.Visible = true;
+            this.colColumnCaption.VisibleIndex = 1;
+            this.colColumnCaption.Width = 110;
+            //
+            // colColumnWidth
+            //
+            this.colColumnWidth.Caption = "폭";
+            this.colColumnWidth.FieldName = "width";
+            this.colColumnWidth.Name = "colColumnWidth";
+            this.colColumnWidth.Visible = true;
+            this.colColumnWidth.VisibleIndex = 2;
+            this.colColumnWidth.Width = 60;
+            //
+            // sectionHeaderColumns
+            //
+            this.sectionHeaderColumns.BackColor = System.Drawing.Color.White;
+            this.sectionHeaderColumns.Dock = System.Windows.Forms.DockStyle.Top;
+            this.sectionHeaderColumns.Font = new System.Drawing.Font("맑은 고딕", 9F, ((System.Drawing.FontStyle)((System.Drawing.FontStyle.Bold | System.Drawing.FontStyle.Underline))), System.Drawing.GraphicsUnit.Point, ((byte)(129)));
+            this.sectionHeaderColumns.Icon = WYNLAB.Base.Controls.SectionHeaderIcon.Folder;
+            this.sectionHeaderColumns.Location = new System.Drawing.Point(5, 0);
+            this.sectionHeaderColumns.Name = "sectionHeaderColumns";
+            this.sectionHeaderColumns.Size = new System.Drawing.Size(325, 27);
+            this.sectionHeaderColumns.TabIndex = 0;
+            this.sectionHeaderColumns.Text = "컬럼 목록";
+            //
+            // splitterWyn2 (파라미터 목록 grd2 <-> 실행결과 미리보기 panelPreview 사이 - splitterWyn1과
+            // 같은 컨트롤을 세로 방향(Dock=Bottom)으로 재사용)
+            //
+            this.splitterWyn2.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(255)))), ((int)(((byte)(255)))));
+            this.splitterWyn2.Dock = System.Windows.Forms.DockStyle.Bottom;
+            this.splitterWyn2.Location = new System.Drawing.Point(3, 305);
+            this.splitterWyn2.Name = "splitterWyn2";
+            this.splitterWyn2.Size = new System.Drawing.Size(744, 10);
+            this.splitterWyn2.TabIndex = 19;
+            this.splitterWyn2.TabStop = false;
+            //
+            // panelPreview (프로시저/쿼리를 실제로 실행해서 결과를 훑어보기만 하는 용도 - 저장되는
+            // 데이터 아님. btnPreview_Click이 api/lookup-admin/preview를 불러서 grd3에 그대로
+            // 바인딩한다. gvw3엔 디자이너에서 고정 컬럼을 안 넣는다 - 프로시저/쿼리마다 결과
+            // 컬럼이 전부 달라서 GridView의 기본 컬럼 자동생성(OptionsBehavior.AutoPopulateColumns,
+            // 기본값 true)에 맡긴다.)
+            //
+            this.panelPreview.Controls.Add(this.grd3);
+            this.panelPreview.Controls.Add(this.panelWyn9);
+            this.panelPreview.Dock = System.Windows.Forms.DockStyle.Bottom;
+            this.panelPreview.EdgeLineColor = System.Drawing.Color.FromArgb(((int)(((byte)(228)))), ((int)(((byte)(229)))), ((int)(((byte)(232)))));
+            this.panelPreview.Location = new System.Drawing.Point(3, 315);
+            this.panelPreview.Name = "panelPreview";
+            this.panelPreview.Size = new System.Drawing.Size(744, 200);
+            this.panelPreview.TabIndex = 20;
+            //
+            // grd3 (실행결과 미리보기)
+            //
+            this.grd3.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.grd3.Location = new System.Drawing.Point(0, 27);
+            this.grd3.MainView = this.gvw3;
+            this.grd3.Name = "grd3";
+            this.grd3.Size = new System.Drawing.Size(744, 173);
+            this.grd3.TabIndex = 0;
+            this.grd3.ViewCollection.AddRange(new DevExpress.XtraGrid.Views.Base.BaseView[] {
+            this.gvw3});
+            //
+            // gvw3
+            //
+            this.gvw3.GridControl = this.grd3;
+            this.gvw3.Name = "gvw3";
+            this.gvw3.OptionsBehavior.Editable = false;
+            this.gvw3.OptionsView.ShowGroupPanel = false;
+            //
+            // panelWyn9
+            //
+            this.panelWyn9.Controls.Add(this.btnPreview);
+            this.panelWyn9.Controls.Add(this.sectionHeaderWyn5);
+            this.panelWyn9.Dock = System.Windows.Forms.DockStyle.Top;
+            this.panelWyn9.EdgeLineColor = System.Drawing.Color.FromArgb(((int)(((byte)(228)))), ((int)(((byte)(229)))), ((int)(((byte)(232)))));
+            this.panelWyn9.Location = new System.Drawing.Point(0, 0);
+            this.panelWyn9.Name = "panelWyn9";
+            this.panelWyn9.Padding = new System.Windows.Forms.Padding(5, 0, 0, 2);
+            this.panelWyn9.Size = new System.Drawing.Size(744, 27);
+            this.panelWyn9.TabIndex = 1;
+            //
+            // btnPreview
+            //
+            this.btnPreview.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnPreview.Location = new System.Drawing.Point(614, 1);
+            this.btnPreview.Name = "btnPreview";
+            this.btnPreview.Size = new System.Drawing.Size(125, 23);
+            this.btnPreview.TabIndex = 0;
+            this.btnPreview.Text = "실행결과 미리보기";
+            this.btnPreview.Click += new System.EventHandler(this.btnPreview_Click);
+            //
+            // sectionHeaderWyn5
+            //
+            this.sectionHeaderWyn5.BackColor = System.Drawing.Color.White;
+            this.sectionHeaderWyn5.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.sectionHeaderWyn5.Font = new System.Drawing.Font("맑은 고딕", 9F, ((System.Drawing.FontStyle)((System.Drawing.FontStyle.Bold | System.Drawing.FontStyle.Underline))), System.Drawing.GraphicsUnit.Point, ((byte)(129)));
+            this.sectionHeaderWyn5.Icon = WYNLAB.Base.Controls.SectionHeaderIcon.Folder;
+            this.sectionHeaderWyn5.Location = new System.Drawing.Point(5, 0);
+            this.sectionHeaderWyn5.Name = "sectionHeaderWyn5";
+            this.sectionHeaderWyn5.Size = new System.Drawing.Size(739, 25);
+            this.sectionHeaderWyn5.TabIndex = 8;
+            this.sectionHeaderWyn5.Text = "실행결과 미리보기 (저장 안 됨)";
+            //
             // panelWyn1
             //
             this.panelWyn1.Controls.Add(this.panelWyn7);
@@ -231,13 +446,9 @@ public partial class frmSysLookup
             // btnDeletRow2
             //
             this.btnDeletRow2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnDeletRow2.Appearance.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(253)))), ((int)(((byte)(236)))), ((int)(((byte)(234)))));
-            this.btnDeletRow2.Appearance.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(245)))), ((int)(((byte)(198)))), ((int)(((byte)(193)))));
-            this.btnDeletRow2.Appearance.Font = new System.Drawing.Font("Segoe MDL2 Assets", 11F);
-            this.btnDeletRow2.Appearance.Options.UseBackColor = true;
-            this.btnDeletRow2.Appearance.Options.UseBorderColor = true;
-            this.btnDeletRow2.Appearance.Options.UseFont = true;
-            this.btnDeletRow2.ImageOptions.Image = ((System.Drawing.Image)(resources.GetObject("btnDeletRow2.ImageOptions.Image")));
+            this.btnDeletRow2.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(253)))), ((int)(((byte)(236)))), ((int)(((byte)(234)))));
+            this.btnDeletRow2.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(245)))), ((int)(((byte)(198)))), ((int)(((byte)(193)))));
+            this.btnDeletRow2.Image = ((System.Drawing.Image)(resources.GetObject("btnDeletRow2.ImageOptions.Image")));
             this.btnDeletRow2.Location = new System.Drawing.Point(42, 2);
             this.btnDeletRow2.Name = "btnDeletRow2";
             this.btnDeletRow2.Size = new System.Drawing.Size(24, 22);
@@ -249,13 +460,9 @@ public partial class frmSysLookup
             // btnAddRow2
             //
             this.btnAddRow2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnAddRow2.Appearance.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(228)))), ((int)(((byte)(245)))), ((int)(((byte)(231)))));
-            this.btnAddRow2.Appearance.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(198)))), ((int)(((byte)(231)))), ((int)(((byte)(203)))));
-            this.btnAddRow2.Appearance.Font = new System.Drawing.Font("Segoe MDL2 Assets", 11F);
-            this.btnAddRow2.Appearance.Options.UseBackColor = true;
-            this.btnAddRow2.Appearance.Options.UseBorderColor = true;
-            this.btnAddRow2.Appearance.Options.UseFont = true;
-            this.btnAddRow2.ImageOptions.Image = ((System.Drawing.Image)(resources.GetObject("btnAddRow2.ImageOptions.Image")));
+            this.btnAddRow2.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(228)))), ((int)(((byte)(245)))), ((int)(((byte)(231)))));
+            this.btnAddRow2.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(198)))), ((int)(((byte)(231)))), ((int)(((byte)(203)))));
+            this.btnAddRow2.Image = ((System.Drawing.Image)(resources.GetObject("btnAddRow2.ImageOptions.Image")));
             this.btnAddRow2.Location = new System.Drawing.Point(10, 2);
             this.btnAddRow2.Name = "btnAddRow2";
             this.btnAddRow2.Size = new System.Drawing.Size(24, 22);
@@ -285,7 +492,7 @@ public partial class frmSysLookup
             this.panelWyn5.EdgeLineColor = System.Drawing.Color.FromArgb(((int)(((byte)(228)))), ((int)(((byte)(229)))), ((int)(((byte)(232)))));
             this.panelWyn5.Location = new System.Drawing.Point(3, 0);
             this.panelWyn5.Name = "panelWyn5";
-            this.panelWyn5.Size = new System.Drawing.Size(744, 160);
+            this.panelWyn5.Size = new System.Drawing.Size(744, 382);
             this.panelWyn5.TabIndex = 6;
             //
             // panData (LookUp 상세 입력)
@@ -306,17 +513,20 @@ public partial class frmSysLookup
             this.panData.Controls.Add(this.chkUseYn);
             this.panData.Controls.Add(this.lblRemark);
             this.panData.Controls.Add(this.txtRemark);
+            this.panData.Controls.Add(this.lblSourceType);
+            this.panData.Controls.Add(this.cboSourceType);
+            this.panData.Controls.Add(this.lblQueryTxt);
+            this.panData.Controls.Add(this.txtQueryTxt);
             this.panData.Dock = System.Windows.Forms.DockStyle.Fill;
             this.panData.EdgeLineColor = System.Drawing.Color.FromArgb(((int)(((byte)(228)))), ((int)(((byte)(229)))), ((int)(((byte)(232)))));
             this.panData.Location = new System.Drawing.Point(0, 27);
             this.panData.Name = "panData";
-            this.panData.Size = new System.Drawing.Size(744, 133);
+            this.panData.Size = new System.Drawing.Size(744, 355);
             this.panData.TabIndex = 8;
             //
             // lblLookupKey
             //
             this.lblLookupKey.Appearance.Font = new System.Drawing.Font("맑은 고딕", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
-            this.lblLookupKey.Appearance.Options.UseFont = true;
             this.lblLookupKey.Location = new System.Drawing.Point(11, 12);
             this.lblLookupKey.Name = "lblLookupKey";
             this.lblLookupKey.Size = new System.Drawing.Size(90, 15);
@@ -333,7 +543,6 @@ public partial class frmSysLookup
             // lblLookupNm
             //
             this.lblLookupNm.Appearance.Font = new System.Drawing.Font("맑은 고딕", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
-            this.lblLookupNm.Appearance.Options.UseFont = true;
             this.lblLookupNm.Location = new System.Drawing.Point(220, 12);
             this.lblLookupNm.Name = "lblLookupNm";
             this.lblLookupNm.Size = new System.Drawing.Size(70, 15);
@@ -350,7 +559,6 @@ public partial class frmSysLookup
             // lblProcNm
             //
             this.lblProcNm.Appearance.Font = new System.Drawing.Font("맑은 고딕", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
-            this.lblProcNm.Appearance.Options.UseFont = true;
             this.lblProcNm.Location = new System.Drawing.Point(11, 40);
             this.lblProcNm.Name = "lblProcNm";
             this.lblProcNm.Size = new System.Drawing.Size(90, 15);
@@ -376,7 +584,6 @@ public partial class frmSysLookup
             // lblValueField
             //
             this.lblValueField.Appearance.Font = new System.Drawing.Font("맑은 고딕", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
-            this.lblValueField.Appearance.Options.UseFont = true;
             this.lblValueField.Location = new System.Drawing.Point(11, 68);
             this.lblValueField.Name = "lblValueField";
             this.lblValueField.Size = new System.Drawing.Size(90, 15);
@@ -393,7 +600,6 @@ public partial class frmSysLookup
             // lblDisplayField
             //
             this.lblDisplayField.Appearance.Font = new System.Drawing.Font("맑은 고딕", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
-            this.lblDisplayField.Appearance.Options.UseFont = true;
             this.lblDisplayField.Location = new System.Drawing.Point(220, 68);
             this.lblDisplayField.Name = "lblDisplayField";
             this.lblDisplayField.Size = new System.Drawing.Size(70, 15);
@@ -410,7 +616,6 @@ public partial class frmSysLookup
             // lblUseYn
             //
             this.lblUseYn.Appearance.Font = new System.Drawing.Font("맑은 고딕", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
-            this.lblUseYn.Appearance.Options.UseFont = true;
             this.lblUseYn.Location = new System.Drawing.Point(11, 96);
             this.lblUseYn.Name = "lblUseYn";
             this.lblUseYn.Size = new System.Drawing.Size(90, 15);
@@ -428,7 +633,6 @@ public partial class frmSysLookup
             // lblRemark
             //
             this.lblRemark.Appearance.Font = new System.Drawing.Font("맑은 고딕", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
-            this.lblRemark.Appearance.Options.UseFont = true;
             this.lblRemark.Location = new System.Drawing.Point(220, 96);
             this.lblRemark.Name = "lblRemark";
             this.lblRemark.Size = new System.Drawing.Size(70, 15);
@@ -441,6 +645,46 @@ public partial class frmSysLookup
             this.txtRemark.Name = "txtRemark";
             this.txtRemark.Size = new System.Drawing.Size(400, 20);
             this.txtRemark.TabIndex = 14;
+            //
+            // lblSourceType (프로시저/쿼리 중 어느 방식으로 결과를 만들지 - LookUp키/LookUp명과
+            // 같은 첫 줄 오른쪽 빈 공간에 놓는다)
+            //
+            this.lblSourceType.Appearance.Font = new System.Drawing.Font("맑은 고딕", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
+            this.lblSourceType.Location = new System.Drawing.Point(500, 12);
+            this.lblSourceType.Name = "lblSourceType";
+            this.lblSourceType.Size = new System.Drawing.Size(70, 15);
+            this.lblSourceType.TabIndex = 15;
+            this.lblSourceType.Text = "소스유형";
+            //
+            // cboSourceType (BindCodeList로 코드값을 직접 채운다 - frmSysLookup.cs 생성자 참고.
+            // sysLookupM처럼 서버에 등록된 목록이 아니라 화면 자체가 아는 고정 2개짜리 목록이라
+            // LookupKey는 안 쓴다)
+            //
+            this.cboSourceType.Location = new System.Drawing.Point(575, 10);
+            this.cboSourceType.Name = "cboSourceType";
+            this.cboSourceType.Properties.TextEditStyle = DevExpress.XtraEditors.Controls.TextEditStyles.DisableTextEditor;
+            this.cboSourceType.Size = new System.Drawing.Size(100, 20);
+            this.cboSourceType.TabIndex = 16;
+            //
+            // lblQueryTxt (프로시저명 대신 직접 SQL을 쓰는 경우 - 소스유형=쿼리일 때만 의미가
+            // 있어서, 화면 로직에서 소스유형에 따라 이 줄과 프로시저명/파라미터생성 줄을
+            // 서로 바꿔가며 보여준다)
+            //
+            this.lblQueryTxt.Appearance.Font = new System.Drawing.Font("맑은 고딕", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
+            this.lblQueryTxt.Location = new System.Drawing.Point(11, 123);
+            this.lblQueryTxt.Name = "lblQueryTxt";
+            this.lblQueryTxt.Size = new System.Drawing.Size(90, 15);
+            this.lblQueryTxt.TabIndex = 17;
+            this.lblQueryTxt.Text = "쿼리문";
+            //
+            // txtQueryTxt
+            //
+            this.txtQueryTxt.Location = new System.Drawing.Point(110, 121);
+            this.txtQueryTxt.Name = "txtQueryTxt";
+            // 기존(55px)의 4배 - 쿼리문이 한 줄 이상 넘어가면 스크롤 없이 더 볼 수 있게 해달라는
+            // 요청(2026-09-02). panData/panelWyn5 높이도 늘어난 만큼 같이 키워야 한다(아래 참고).
+            this.txtQueryTxt.Size = new System.Drawing.Size(620, 220);
+            this.txtQueryTxt.TabIndex = 18;
             //
             // panelWyn6
             //
@@ -560,6 +804,7 @@ public partial class frmSysLookup
             //
             // panelWyn2
             //
+            this.panelWyn2.Controls.Add(this.panelWyn10);
             this.panelWyn2.Controls.Add(this.sectionHeaderWyn4);
             this.panelWyn2.Dock = System.Windows.Forms.DockStyle.Top;
             this.panelWyn2.EdgeLineColor = System.Drawing.Color.FromArgb(((int)(((byte)(228)))), ((int)(((byte)(229)))), ((int)(((byte)(232)))));
@@ -577,15 +822,36 @@ public partial class frmSysLookup
             this.sectionHeaderWyn4.Icon = WYNLAB.Base.Controls.SectionHeaderIcon.Folder;
             this.sectionHeaderWyn4.Location = new System.Drawing.Point(5, 0);
             this.sectionHeaderWyn4.Name = "sectionHeaderWyn4";
-            this.sectionHeaderWyn4.Size = new System.Drawing.Size(397, 25);
+            this.sectionHeaderWyn4.Size = new System.Drawing.Size(327, 25);
             this.sectionHeaderWyn4.SvgIcon = ((DevExpress.Utils.Svg.SvgImage)(resources.GetObject("sectionHeaderWyn4.SvgIcon")));
             this.sectionHeaderWyn4.TabIndex = 8;
             this.sectionHeaderWyn4.Text = "LookUp 목록";
             //
+            // panelWyn10 (선택한 LookUp을 복사해서 새 LookUp을 만드는 버튼 - 파라미터 목록의
+            // 행추가/행삭제 버튼(panelWyn7)과 같은 배치 방식)
+            //
+            this.panelWyn10.Controls.Add(this.btnCopy);
+            this.panelWyn10.Dock = System.Windows.Forms.DockStyle.Right;
+            this.panelWyn10.EdgeLineColor = System.Drawing.Color.FromArgb(((int)(((byte)(228)))), ((int)(((byte)(229)))), ((int)(((byte)(232)))));
+            this.panelWyn10.Location = new System.Drawing.Point(332, 0);
+            this.panelWyn10.Name = "panelWyn10";
+            this.panelWyn10.Size = new System.Drawing.Size(70, 25);
+            this.panelWyn10.TabIndex = 9;
+            //
+            // btnCopy
+            //
+            this.btnCopy.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnCopy.Location = new System.Drawing.Point(2, 1);
+            this.btnCopy.Name = "btnCopy";
+            this.btnCopy.Size = new System.Drawing.Size(65, 22);
+            this.btnCopy.TabIndex = 0;
+            this.btnCopy.Text = "복사";
+            this.btnCopy.ToolTip = "선택한 LookUp을 복사해서 새 LookUp 만들기";
+            this.btnCopy.Click += new System.EventHandler(this.btnCopy_Click);
+            //
             // panHeader
             //
             this.panHeader.Appearance.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(240)))), ((int)(((byte)(240)))), ((int)(((byte)(240)))));
-            this.panHeader.Appearance.Options.UseBackColor = true;
             this.panHeader.BorderStyle = DevExpress.XtraEditors.Controls.BorderStyles.Default;
             this.panHeader.Controls.Add(this.txtSearchQ);
             this.panHeader.Controls.Add(this.labelControl1);
@@ -607,7 +873,6 @@ public partial class frmSysLookup
             // labelControl1
             //
             this.labelControl1.Appearance.Font = new System.Drawing.Font("맑은 고딕", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
-            this.labelControl1.Appearance.Options.UseFont = true;
             this.labelControl1.Location = new System.Drawing.Point(25, 18);
             this.labelControl1.Name = "labelControl1";
             this.labelControl1.Size = new System.Drawing.Size(77, 15);
@@ -638,7 +903,6 @@ public partial class frmSysLookup
             //
             // frmSysLookup
             //
-            this.Appearance.Options.UseFont = true;
             this.ClientSize = new System.Drawing.Size(1165, 600);
             this.Controls.Add(this.panBase);
             this.Name = "frmSysLookup";
@@ -650,6 +914,16 @@ public partial class frmSysLookup
             this.panelWyn4.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.grd2)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.gvw2)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.panelColumns)).EndInit();
+            this.panelColumns.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.grd4)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.gvw4)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.panelPreview)).EndInit();
+            this.panelPreview.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.grd3)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.gvw3)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.panelWyn9)).EndInit();
+            this.panelWyn9.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.panelWyn1)).EndInit();
             this.panelWyn1.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.panelWyn7)).EndInit();
@@ -664,6 +938,8 @@ public partial class frmSysLookup
             ((System.ComponentModel.ISupportInitialize)(this.txtDisplayField.Properties)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.chkUseYn.Properties)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.txtRemark.Properties)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.cboSourceType.Properties)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.txtQueryTxt.Properties)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.panelWyn6)).EndInit();
             this.panelWyn6.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.panelWyn8)).EndInit();
@@ -693,7 +969,7 @@ public partial class frmSysLookup
     private TextEditWyn txtLookupNm;
     private DevExpress.XtraEditors.LabelControl lblProcNm;
     private TextEditWyn txtProcNm;
-    private DevExpress.XtraEditors.SimpleButton btnGenerateParams;
+    private ButtonWyn btnGenerateParams;
     private DevExpress.XtraEditors.LabelControl lblValueField;
     private TextEditWyn txtValueField;
     private DevExpress.XtraEditors.LabelControl lblDisplayField;
@@ -702,6 +978,10 @@ public partial class frmSysLookup
     private CheckBoxWyn chkUseYn;
     private DevExpress.XtraEditors.LabelControl lblRemark;
     private TextEditWyn txtRemark;
+    private DevExpress.XtraEditors.LabelControl lblSourceType;
+    private LookUpEditWyn cboSourceType;
+    private DevExpress.XtraEditors.LabelControl lblQueryTxt;
+    private MemoEditWyn txtQueryTxt;
     private PanelWyn panelWyn6;
     private SectionHeaderWyn sectionHeaderWyn1;
     private SplitterWyn splitterWyn1;
@@ -715,18 +995,36 @@ public partial class frmSysLookup
     private DevExpress.XtraGrid.Columns.GridColumn colDisplayField;
     private GridControlWyn grd2;
     private GridViewWyn gvw2;
+    private SplitterWyn splitterWyn2;
+    private PanelWyn panelPreview;
+    private GridControlWyn grd3;
+    private GridViewWyn gvw3;
+    private PanelWyn panelWyn9;
+    private ButtonWyn btnPreview;
+    private SectionHeaderWyn sectionHeaderWyn5;
     private DevExpress.XtraGrid.Columns.GridColumn colParamNm;
     private DevExpress.XtraGrid.Columns.GridColumn colParamCaption;
     private DevExpress.XtraGrid.Columns.GridColumn colParamSort;
+    private DevExpress.XtraGrid.Columns.GridColumn colParamTestValue;
     private PanelWyn panelWyn2;
     private SectionHeaderWyn sectionHeaderWyn4;
+    private PanelWyn panelWyn10;
+    private ButtonWyn btnCopy;
     private PanelWyn panelWyn1;
     private SectionHeaderWyn sectionHeaderWyn2;
     private PanelWyn panHeader;
     private TextEditWyn txtSearchQ;
     private DevExpress.XtraEditors.LabelControl labelControl1;
-    private DevExpress.XtraEditors.SimpleButton btnDeletRow2;
-    private DevExpress.XtraEditors.SimpleButton btnAddRow2;
+    private ButtonWyn btnDeletRow2;
+    private ButtonWyn btnAddRow2;
     private PanelWyn panelWyn7;
     private PanelWyn panelWyn8;
+    private SplitterWyn splitterColumns;
+    private PanelWyn panelColumns;
+    private GridControlWyn grd4;
+    private GridViewWyn gvw4;
+    private DevExpress.XtraGrid.Columns.GridColumn colColumnNm;
+    private DevExpress.XtraGrid.Columns.GridColumn colColumnCaption;
+    private DevExpress.XtraGrid.Columns.GridColumn colColumnWidth;
+    private SectionHeaderWyn sectionHeaderColumns;
 }

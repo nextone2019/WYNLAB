@@ -7,7 +7,10 @@ namespace WYNLAB.Api.Services;
 
 public interface IJwtTokenService
 {
-    string CreateAccessToken(string userId, bool isAdmin);
+    /// <summary>mustChangePwd=true면 MustChangePasswordFilter가 change-password 호출을
+    /// 제외한 모든 API를 이 토큰으로 막는다 - 비밀번호 강제변경 전엔 앱을 못 쓰게 하기 위함
+    /// (만료로 인한 강제변경/이메일 초기화 직후 등, AuthService.LoginAsync 참고).</summary>
+    string CreateAccessToken(string userId, bool isAdmin, bool mustChangePwd = false);
     string CreateRefreshToken();
 }
 
@@ -17,7 +20,7 @@ public class JwtTokenService : IJwtTokenService
 
     public JwtTokenService(IConfiguration config) => _config = config;
 
-    public string CreateAccessToken(string userId, bool isAdmin)
+    public string CreateAccessToken(string userId, bool isAdmin, bool mustChangePwd = false)
     {
         var jwtSection = _config.GetSection("Jwt");
         var secretKey = jwtSection["SecretKey"]!;
@@ -26,7 +29,8 @@ public class JwtTokenService : IJwtTokenService
         var claims = new List<Claim>
         {
             new(ClaimTypes.NameIdentifier, userId),
-            new("isAdmin", isAdmin ? "Y" : "N")
+            new("isAdmin", isAdmin ? "Y" : "N"),
+            new("mustChangePwd", mustChangePwd ? "Y" : "N")
         };
 
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey));

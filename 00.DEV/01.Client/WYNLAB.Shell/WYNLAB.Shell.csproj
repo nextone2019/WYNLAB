@@ -107,4 +107,14 @@
     </Content>
   </ItemGroup>
 
+  <ItemGroup>
+    <!-- 상단 툴바(조회/입력/삭제/저장) 아이콘 - DevExpress 번들 세트 대신 사용자가 직접 고른
+         Lucide 아이콘(2026-09-03)을 쓴다. EmbeddedResource로 어셈블리 안에 그대로 굽는다 -
+         서버 Assets(IconAssetProvider, 관리자가 런타임에 갈아끼우는 PNG)와는 성격이 달라서
+         (IconChipButton 설명 참고 - "툴바 아이콘은 회사별 커스터마이즈 대상이 아니라는 판단"),
+         appsettings.json처럼 파일 경로에 의존하지 않고 코드/리소스로 고정해서 배포한다.
+         SvgIcons.LoadEmbedded가 "WYNLAB.Shell.Assets.ToolbarIcons.{파일명}" 이름으로 찾는다. -->
+    <EmbeddedResource Include="Assets\ToolbarIcons\*.svg" />
+  </ItemGroup>
+
 </Project>

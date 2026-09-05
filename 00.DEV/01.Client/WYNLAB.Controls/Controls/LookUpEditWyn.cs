@@ -1,16 +1,41 @@
 using System.ComponentModel;
+using System.Data;
 using DevExpress.XtraEditors;
 using DevExpress.XtraEditors.Controls;
+using DevExpress.XtraEditors.Repository;
 
 namespace WYNLAB.Base.Controls;
 
 /// <summary>"코드/명" 한 쌍 - CodeLookupProvider가 돌려주는 항목 하나. 클래스 프로퍼티라
 /// 실제 리플렉션 바인딩(LookUpEditWyn.Properties.ValueMember 등)이 가능하다(익명 튜플은
-/// 이름이 컴파일러 메타데이터일 뿐이라 바인딩에 안 먹힘).</summary>
+/// 이름이 컴파일러 메타데이터일 뿐이라 바인딩에 안 먹힘).
+///
+/// Row는 결과셋의 전체 컬럼 원본값(값필드/표시필드 외 나머지) - sysLookupC에 컬럼을 설정한
+/// LookUp만 채워진다(2026-09-03). DevExpress LookUpColumnInfo는 바인딩된 객체의 "진짜
+/// 프로퍼티 이름"을 리플렉션으로 찾기 때문에, LookUp마다 다른 임의 컬럼명(remark 등)은 이
+/// 고정 클래스에 프로퍼티로 못 만든다 - 그래서 컬럼 구성이 있는 LookUp은 List&lt;CodeLookupItem&gt;
+/// 대신 DataTable로 바꿔서 바인딩한다(BuildColumnDataSource 참고), Row는 그 변환에만 쓰인다.</summary>
 public class CodeLookupItem
 {
     public string Value { get; set; } = string.Empty;
     public string Display { get; set; } = string.Empty;
+    public Dictionary<string, string?>? Row { get; set; }
+}
+
+/// <summary>sysLookupC 한 행(컬럼 구성) - ComboLookupResult.Columns가 비어있으면 예전 그대로
+/// 값필드/표시필드 2컬럼 고정으로 그린다(하위호환).</summary>
+public class ComboColumnDef
+{
+    public string ColumnNm { get; set; } = string.Empty;
+    public string? Caption { get; set; }
+    public int Width { get; set; } = 100;
+}
+
+/// <summary>ComboLookupProvider.Fetch의 반환값 - 항목 목록 + 컬럼 구성(설정 없으면 빈 리스트).</summary>
+public class ComboLookupResult
+{
+    public List<CodeLookupItem> Items { get; set; } = new();
+    public List<ComboColumnDef> Columns { get; set; } = new();
 }
 
 /// <summary>
@@ -40,7 +65,7 @@ public static class CodeLookupProvider
 /// </summary>
 public static class ComboLookupProvider
 {
-    public static Func<string, Dictionary<string, string?>, Task<IEnumerable<CodeLookupItem>>>? Fetch { get; set; }
+    public static Func<string, Dictionary<string, string?>, Task<ComboLookupResult>>? Fetch { get; set; }
 }
 
 /// <summary>
@@ -66,6 +91,33 @@ public class LookUpEditWyn : LookUpEdit
     public LookUpEditWyn()
     {
         Properties.NullText = string.Empty;
+    }
+
+    /// <summary>base.EditValue는 "선택 안 함" 상태에서 null을 돌려준다 - 저장 코드마다 매번
+    /// `EditValue?.ToString() ?? string.Empty`처럼 `?.`를 챙겨야 하는 게 실수하기 쉽다는
+    /// 이유로(2026-09-02, 자산구분 콤보에서 `.ToString()`만 쓰다가 NullReferenceException 날
+    /// 뻔한 사례) 항상 빈 문자열을 대신 돌려주도록 오버라이드한다. EditValue = null로 값을
+    /// 지우는 건 그대로 되고(내부 저장값 자체는 그대로 null), 읽을 때만 문자열로 보정된다 -
+    /// 그래서 호출부는 이제 `EditValue.ToString()`만 써도 안전하다.</summary>
+    public override object EditValue
+    {
+        get => base.EditValue ?? string.Empty;
+        set => base.EditValue = value;
+    }
+
+    /// <summary>LookUpEdit도 ButtonEdit과 같은 RepositoryItemButtonEdit 계열이라, PopupLookupEditWyn.
+    /// EnsureButton과 똑같은 DevExpress 버그를 겪는다 - 생성자에서는 기본 콤보 버튼(역삼각형)이
+    /// Properties.Buttons에 있지만, InitializeComponent의 BeginInit/EndInit 구간을 지나면서
+    /// (디자이너 코드로 직접 등록하지 않은 버튼이라) 비워져서 실제로 그려질 때는 버튼이 안 보인다
+    /// (실제로 겪음 - 품목등록 기본단위/구매단위, 2026-09-02). 원인 자체를 막는 대신, 실제로
+    /// 그려지기 직전(OnHandleCreated)에 없으면 다시 채워 넣는다.</summary>
+    protected override void OnHandleCreated(EventArgs e)
+    {
+        base.OnHandleCreated(e);
+        if (Properties.Buttons.Count == 0)
+        {
+            Properties.Buttons.Add(new EditorButton(ButtonPredefines.Combo));
+        }
     }
 
     /// <summary>ProcName/Where(프로시져 이름을 직접 지정하는 옛 방식)와 별개인, sysLookupM에
@@ -97,11 +149,28 @@ public class LookUpEditWyn : LookUpEdit
         try
         {
             var paramsSnapshot = new Dictionary<string, string?>(_lookupParams);
-            var items = (await ComboLookupProvider.Fetch(lookupKey!, paramsSnapshot)).ToList();
+            var result = await ComboLookupProvider.Fetch(lookupKey!, paramsSnapshot);
             if (lookupKey != _lookupKey) return; // 응답 오는 사이 LookupKey가 또 바뀌었으면 버림
 
+            var items = result.Items;
             items.Insert(0, new CodeLookupItem()); // ProcName/Where 경로와 같은 이유 - 빈 값으로 되돌릴 수 있게
-            BindCodeList(items, nameof(CodeLookupItem.Value), nameof(CodeLookupItem.Display));
+
+            var multiColumn = ComboLookupColumnBuilder.Build(items, result.Columns);
+            if (multiColumn != null)
+            {
+                Properties.Columns.Clear();
+                foreach (var col in multiColumn.Value.Columns) Properties.Columns.Add(col);
+                Properties.ValueMember = nameof(CodeLookupItem.Value);
+                Properties.DisplayMember = nameof(CodeLookupItem.Display);
+                Properties.DataSource = multiColumn.Value.Table;
+                Properties.PopupWidth = 260;
+                Properties.AutoSearchColumnIndex = 1;
+                Properties.ShowFooter = false;
+            }
+            else
+            {
+                BindCodeList(items, nameof(CodeLookupItem.Value), nameof(CodeLookupItem.Display));
+            }
         }
         catch
         {
@@ -200,5 +269,108 @@ public class LookUpEditWyn : LookUpEdit
         Properties.PopupWidth = popupWidth;
         Properties.AutoSearchColumnIndex = 1; // 명칭(표시값) 기준으로 타이핑 검색
         Properties.ShowFooter = false;
+    }
+
+    /// <summary>
+    /// 그리드 컬럼(GridColumn.ColumnEdit)에 LookupKey 기반 LookUp을 붙일 때 쓴다. LookUpEditWyn
+    /// 자신은 Control(패널의 독립 입력창)이라 그리드 컬럼 자리엔 못 들어간다 - DevExpress
+    /// 그리드는 컬럼 편집기로 RepositoryItem(찍어내기용 "틀")을 받으므로, 이 메서드가 그 틀
+    /// (RepositoryItemLookUpEdit)을 LookupKey로 채워서 돌려준다. 반환값은 호출부가
+    /// grid.RepositoryItems.Add(item) 한 뒤 column.ColumnEdit = item으로 붙여야 한다(둘 다
+    /// 빠뜨리면 안 됨 - RepositoryItems에 안 넣으면 그리드가 소유권을 안 가져가서 Dispose 시점이
+    /// 꼬인다). 목록을 한 번만 가져오는 스냅샷이다 - LookUpEditWyn.LookupKey처럼 값이 바뀔 때마다
+    /// 다시 불러오는 살아있는 바인딩이 아니라서, LookUp 정의 자체가 자주 안 바뀌는(=관리자가
+    /// LookUp관리에서 가끔만 고치는) 코드성 목록에 적합하다.</summary>
+    public static async Task<RepositoryItemLookUpEdit> CreateGridRepositoryItemAsync(string lookupKey)
+    {
+        var item = new RepositoryItemLookUpEdit { NullText = string.Empty };
+
+        if (ComboLookupProvider.Fetch == null) return item;
+
+        try
+        {
+            var result = await ComboLookupProvider.Fetch(lookupKey, new Dictionary<string, string?>());
+            var items = result.Items;
+            items.Insert(0, new CodeLookupItem()); // 값 지우기(빈 값으로 되돌리기) 가능하게 - BindCodeList와 같은 이유
+
+            var multiColumn = ComboLookupColumnBuilder.Build(items, result.Columns);
+            if (multiColumn != null)
+            {
+                foreach (var col in multiColumn.Value.Columns) item.Columns.Add(col);
+                item.ValueMember = nameof(CodeLookupItem.Value);
+                item.DisplayMember = nameof(CodeLookupItem.Display);
+                item.DataSource = multiColumn.Value.Table;
+            }
+            else
+            {
+                item.Columns.Add(new LookUpColumnInfo(nameof(CodeLookupItem.Value), "코드", 80));
+                item.Columns.Add(new LookUpColumnInfo(nameof(CodeLookupItem.Display), "명칭"));
+                item.ValueMember = nameof(CodeLookupItem.Value);
+                item.DisplayMember = nameof(CodeLookupItem.Display);
+                item.DataSource = items;
+            }
+            item.PopupWidth = 260;
+            item.AutoSearchColumnIndex = 1;
+            item.ShowFooter = false;
+        }
+        catch
+        {
+            // 목록 하나 못 불러온다고 화면 전체가 죽으면 안 됨 - LoadFromLookupKeyAsync와 같은 이유.
+        }
+
+        return item;
+    }
+}
+
+/// <summary>sysLookupC 컬럼 구성이 있는 LookUp을 실제로 팝업에 그리는 공용 변환 로직 -
+/// LookUpEditWyn(패널 컨트롤)과 LookUpColumnEdit(그리드 컬럼 편집기) 둘 다 여기를 쓴다.
+/// List&lt;CodeLookupItem&gt;은 고정 프로퍼티(Value/Display)만 가진 클래스라 LookUp마다 다른
+/// 임의 컬럼명(remark 등)을 리플렉션으로 못 찾는다 - 그래서 컬럼 구성이 있으면 그 실제 컬럼명을
+/// 그대로 가진 DataTable로 바꿔서 LookUpColumnInfo가 직접 참조할 수 있게 한다.</summary>
+internal static class ComboLookupColumnBuilder
+{
+    /// <summary>columnDefs가 비어있으면(sysLookupC 설정 안 한 LookUp, 기존 전부 해당) null을
+    /// 돌려줘서 호출부가 예전 그대로(BindCodeList, List&lt;CodeLookupItem&gt; 그대로)를 쓰게 한다.</summary>
+    public static (DataTable Table, List<LookUpColumnInfo> Columns)? Build(List<CodeLookupItem> items, List<ComboColumnDef> columnDefs)
+    {
+        if (columnDefs.Count == 0) return null;
+
+        var table = new DataTable();
+        table.Columns.Add(nameof(CodeLookupItem.Value), typeof(string));
+        table.Columns.Add(nameof(CodeLookupItem.Display), typeof(string));
+        foreach (var def in columnDefs)
+        {
+            if (!table.Columns.Contains(def.ColumnNm))
+                table.Columns.Add(def.ColumnNm, typeof(string));
+        }
+
+        foreach (var item in items)
+        {
+            var row = table.NewRow();
+            row[nameof(CodeLookupItem.Value)] = item.Value;
+            row[nameof(CodeLookupItem.Display)] = item.Display;
+            if (item.Row != null)
+            {
+                foreach (var def in columnDefs)
+                {
+                    if (item.Row.TryGetValue(def.ColumnNm, out var v))
+                        row[def.ColumnNm] = (object?)v ?? DBNull.Value;
+                }
+            }
+            table.Rows.Add(row);
+        }
+
+        // Width=0으로 "숨김" 의도를 표현해도 DevExpress는 컬럼 자체는 Visible인 채로 폭만 0에
+        // 가깝게 그려서 얇은 선(스크롤바/그리드 경계선)이 남아 보인다(실제로 겪음 - Module
+        // LookUp 팝업 왼쪽 여백). Width<=0이면 Visible=false로 컬럼 자체를 빼서 완전히 숨긴다.
+        var columns = columnDefs
+            .Select(d =>
+            {
+                var col = new LookUpColumnInfo(d.ColumnNm, d.Caption ?? d.ColumnNm, d.Width);
+                if (d.Width <= 0) col.Visible = false;
+                return col;
+            })
+            .ToList();
+        return (table, columns);
     }
 }

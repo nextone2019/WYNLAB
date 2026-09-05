@@ -10,6 +10,11 @@ public interface IPopupLookupRepository
     Task<PopupDefinitionDto?> GetDefinitionAsync(string popupKey);
 
     Task<DescribeProcResultDto> DescribeProcAsync(string procName);
+
+    /// <summary>DescribeProcAsync의 쿼리(source_type='Q') 버전 - LookUp관리에서 "파라미터생성"을
+    /// 쿼리 소스에도 쓸 수 있게 추가(2026-09-02, 사장님 요청: 쿼리로 만든 LookUp도 조회된 컬럼을
+    /// 코드/코드명 필드로 바로 쓸 수 있어야 한다).</summary>
+    Task<DescribeProcResultDto> DescribeQueryAsync(string queryText);
 }
 
 /// <summary>
@@ -95,6 +100,43 @@ public class PopupLookupRepository : IPopupLookupRepository
         var columnRows = await conn.QueryAsync<(string name, string system_type_name)>(
             "SELECT name, system_type_name FROM sys.dm_exec_describe_first_result_set(@stmt, NULL, 0)",
             new { stmt });
+
+        var columnDtos = columnRows.Select(r => new ProcColumnInfoDto
+        {
+            ColumnNm = r.name,
+            SqlType = r.system_type_name,
+            SuggestedControlType = r.system_type_name.StartsWith("date", StringComparison.OrdinalIgnoreCase)
+                ? "DATE" : "TEXT"
+        }).ToList();
+
+        return new DescribeProcResultDto { Columns = columnDtos, Params = paramDtos };
+    }
+
+    /// <summary>DescribeProcAsync와 발상은 같지만, 대상이 "EXEC 프로시저"가 아니라 임의의 SELECT
+    /// 쿼리문이라 introspection 시스템 함수가 다르다 - 프로시저는 sys.parameters(카탈로그에 이미
+    /// 등록된 정식 파라미터 목록)를 읽지만, 쿼리문 안의 @p_xxx는 "선언 안 된 변수"라 카탈로그에
+    /// 없다. 대신 sp_describe_undeclared_parameters가 쿼리 텍스트를 파싱해서 그 안에 쓰인
+    /// @변수들을 찾아준다. 결과셋 컬럼은 프로시저와 동일하게 sys.dm_exec_describe_first_result_set을
+    /// 쓰되, EXEC로 감싸지 않고 쿼리문 자체를 그대로 넘긴다(이미 SELECT문이므로). 둘 다 실제로
+    /// 쿼리를 실행하지 않고 메타데이터만 읽는다.</summary>
+    public async Task<DescribeProcResultDto> DescribeQueryAsync(string queryText)
+    {
+        using var conn = _context.CreateConnection();
+
+        var paramRows = await conn.QueryAsync<(string name, string suggested_system_type_name)>(
+            "EXEC sp_describe_undeclared_parameters @tsql = @queryText",
+            new { queryText });
+
+        var paramDtos = paramRows.Select(p => new ProcParamInfoDto
+        {
+            ParamNm = p.name.TrimStart('@'),
+            SqlType = p.suggested_system_type_name,
+            SuggestedControlType = p.suggested_system_type_name.StartsWith("date", StringComparison.OrdinalIgnoreCase) ? "DATE" : "TEXT"
+        }).ToList();
+
+        var columnRows = await conn.QueryAsync<(string name, string system_type_name)>(
+            "SELECT name, system_type_name FROM sys.dm_exec_describe_first_result_set(@queryText, NULL, 0)",
+            new { queryText });
 
         var columnDtos = columnRows.Select(r => new ProcColumnInfoDto
         {

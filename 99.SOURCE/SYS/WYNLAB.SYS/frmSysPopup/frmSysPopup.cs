@@ -1,5 +1,6 @@
 using System.Data;
 using WYNLAB.Base;
+using WYNLAB.Base.Controls;
 using WYNLAB.Shared.Dtos;
 
 namespace WYNLAB.SYS;
@@ -32,16 +33,26 @@ public partial class frmSysPopup : BaseForm
         InitializeComponent();
 
         Text = "팝업관리";
-        MenuCd = "SYS_POPUP";
 
         gvw1.FocusedRowObjectChanged += Gvw1_FocusedRowObjectChanged;
+
+        // grd1(팝업 목록)은 조회전용, grd2(컬럼)/grd3(조회조건)은 셀 직접 입력이 필요해서 Edit -
+        // frmSysLookup과 같은 이유로 명시(2026-09-02, [[project_wynlab_grid_role_mechanism]]).
+        gvw1.Role = GridRoleWyn.Query;
+        gvw2.Role = GridRoleWyn.Edit;
+        gvw3.Role = GridRoleWyn.Edit;
 
         TrackDirty(panData);
 
         EnterNewMode();
     }
 
-    public override async Task QueryClick()
+    // frmSysLookup과 같은 이유로 분리 - 사용자 조회(preserveSelection: false, 항상 0번 행)와
+    // 저장/삭제 뒤 내부 재조회(preserveSelection: true, 방금 행 유지)는 다른 동작이어야 한다
+    // (2026-09-02, [[feedback_query_refocus_after_save]]).
+    public override async Task QueryClick() => await QueryCore(preserveSelection: false);
+
+    private async Task QueryCore(bool preserveSelection)
     {
         var keyword = txtSearchQ.Text.Trim();
 
@@ -52,7 +63,7 @@ public partial class frmSysPopup : BaseForm
             p_popup_nm = keyword
         });
 
-        var editingPopupKey = _editingPopupKey;
+        var editingPopupKey = preserveSelection ? _editingPopupKey : null;
 
         gvw1.FocusedRowObjectChanged -= Gvw1_FocusedRowObjectChanged;
         try
@@ -107,6 +118,7 @@ public partial class frmSysPopup : BaseForm
             return;
         }
 
+        _editingPopupKey = null;
         await QueryClick();
         Toast.Show("삭제되었습니다.");
     }
@@ -208,7 +220,7 @@ public partial class frmSysPopup : BaseForm
         _columns.AcceptChanges();
         _searchFields.AcceptChanges();
         _editingPopupKey = savedPopupKey;
-        await QueryClick();
+        await QueryCore(preserveSelection: true); // 방금 저장한 행 유지 - QueryClick(사용자 조회)과 다른 경로
         Toast.Show(wasNew ? "등록되었습니다." : "수정되었습니다.");
     }
 
@@ -376,14 +388,24 @@ public partial class frmSysPopup : BaseForm
             return;
         }
 
-        var addedColumns = AddMissingColumns(discovered.Columns);
-        var addedSearchFields = AddMissingSearchFields(discovered.Params);
+        // grd2/grd3에 바인딩된 DataTable을 직접 건드리는 구간 - 예외가 SafeExecute 없이 새면
+        // 그리드 바인딩 상태가 깨진 채로 남을 수 있다(frmSysLookup.btnGenerateParams_Click에서
+        // 실제로 겪은 사고, 2026-09-02 - 같은 패턴이라 여기도 감싸둠).
+        try
+        {
+            var addedColumns = AddMissingColumns(discovered.Columns);
+            var addedSearchFields = AddMissingSearchFields(discovered.Params);
 
-        grd2.RefreshDataSource();
-        grd3.RefreshDataSource();
-        Toast.Show(addedColumns > 0 || addedSearchFields > 0
-            ? $"컬럼 {addedColumns}개, 조회조건 {addedSearchFields}개를 추가했습니다."
-            : "새로 추가할 컬럼/조회조건이 없습니다.");
+            grd2.RefreshDataSource();
+            grd3.RefreshDataSource();
+            Toast.Show(addedColumns > 0 || addedSearchFields > 0
+                ? $"컬럼 {addedColumns}개, 조회조건 {addedSearchFields}개를 추가했습니다."
+                : "새로 추가할 컬럼/조회조건이 없습니다.");
+        }
+        catch (Exception ex)
+        {
+            AppMessageBox.Show($"[컬럼생성] 처리 중 오류가 발생했습니다.\n{ex.Message}", "오류", MessageBoxButtons.OK, MessageBoxIcon.Error);
+        }
     }
 
     private int AddMissingColumns(List<ProcColumnInfoDto> discovered)

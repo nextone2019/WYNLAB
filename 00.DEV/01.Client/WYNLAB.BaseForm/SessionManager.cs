@@ -51,13 +51,13 @@ public sealed class SessionManager
     /// 재로그인 없이도 그 자리에서 바로 새 단축키가 전역에 반영된다.</summary>
     public void ReplaceShortcuts(List<ShortcutDto> shortcuts) => Shortcuts = shortcuts;
 
-    public MenuDto? GetMenuAuth(string menuCd) =>
-        Menus.FirstOrDefault(m => m.MenuCd == menuCd);
+    public MenuDto? GetMenuAuth(long menuId) =>
+        Menus.FirstOrDefault(m => m.MenuId == menuId);
 
     /// <summary>화면을 열 때마다 호출 - 이미 목록에 있으면 맨 앞으로 이동(MRU), 없으면 앞에 추가하고 초과분은 버림</summary>
     public void AddRecentMenu(MenuDto menu)
     {
-        _recentMenus.RemoveAll(m => m.MenuCd == menu.MenuCd);
+        _recentMenus.RemoveAll(m => m.MenuId == menu.MenuId);
         _recentMenus.Insert(0, menu);
         if (_recentMenus.Count > RecentMenusMaxCount)
             _recentMenus.RemoveRange(RecentMenusMaxCount, _recentMenus.Count - RecentMenusMaxCount);

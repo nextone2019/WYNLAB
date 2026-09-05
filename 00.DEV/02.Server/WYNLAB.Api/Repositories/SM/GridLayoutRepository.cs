@@ -13,9 +13,9 @@ namespace WYNLAB.Api.Repositories.SM;
 /// </summary>
 public interface IGridLayoutRepository
 {
-    Task<List<GridLayoutItemDto>> GetAsync(string userId, string menuCd);
-    Task<ProcResult> SaveAsync(string userId, string menuCd, string gridKey, string layoutXml);
-    Task<ProcResult> DeleteAsync(string userId, string menuCd, string gridKey);
+    Task<List<GridLayoutItemDto>> GetAsync(string userId, long menuId);
+    Task<ProcResult> SaveAsync(string userId, long menuId, string gridKey, string layoutXml);
+    Task<ProcResult> DeleteAsync(string userId, long menuId, string gridKey);
 }
 
 public class GridLayoutRepository : IGridLayoutRepository
@@ -24,22 +24,22 @@ public class GridLayoutRepository : IGridLayoutRepository
 
     public GridLayoutRepository(IDapperContext context) => _context = context;
 
-    public async Task<List<GridLayoutItemDto>> GetAsync(string userId, string menuCd)
+    public async Task<List<GridLayoutItemDto>> GetAsync(string userId, long menuId)
     {
         using var conn = _context.CreateConnection();
         var rows = await conn.QueryAsync<GridLayoutItemDto>("USP_SM_GRIDLAYOUT_Q",
-            new { p_work_type = "Q", p_user_id = userId, p_menu_cd = menuCd },
+            new { p_work_type = "Q", p_user_id = userId, p_menu_id = menuId },
             commandType: CommandType.StoredProcedure);
         return rows.ToList();
     }
 
-    public async Task<ProcResult> SaveAsync(string userId, string menuCd, string gridKey, string layoutXml)
+    public async Task<ProcResult> SaveAsync(string userId, long menuId, string gridKey, string layoutXml)
     {
         using var conn = _context.CreateConnection();
         var p = new DynamicParameters();
         p.Add("p_work_type", "N"); // USP_SM_GRIDLAYOUT_S의 N은 있으면 갱신/없으면 신규(upsert)로 처리한다
         p.Add("p_user_id", userId);
-        p.Add("p_menu_cd", menuCd);
+        p.Add("p_menu_id", menuId);
         p.Add("p_grid_key", gridKey);
         p.Add("p_layout_xml", layoutXml);
         p.AddStandardOutputs(pascalCase: true);
@@ -48,13 +48,13 @@ public class GridLayoutRepository : IGridLayoutRepository
         return p.ReadStandardOutputs(pascalCase: true);
     }
 
-    public async Task<ProcResult> DeleteAsync(string userId, string menuCd, string gridKey)
+    public async Task<ProcResult> DeleteAsync(string userId, long menuId, string gridKey)
     {
         using var conn = _context.CreateConnection();
         var p = new DynamicParameters();
         p.Add("p_work_type", "D");
         p.Add("p_user_id", userId);
-        p.Add("p_menu_cd", menuCd);
+        p.Add("p_menu_id", menuId);
         p.Add("p_grid_key", gridKey);
         p.AddStandardOutputs(pascalCase: true);
 

@@ -16,6 +16,12 @@ public class LoginResponse
     public UserInfoDto? UserInfo { get; set; }
     public List<MenuDto> Menus { get; set; } = new();
     public List<ShortcutDto> Shortcuts { get; set; } = new();
+
+    /// <summary>TSMUSER.MUST_CHANGE_PWD_YN='Y' - 로그인 자체는 성공했지만(자격증명은 맞음),
+    /// 새 비밀번호를 설정하기 전엔 앱을 쓸 수 없다. 이때 발급된 AccessToken은 change-password
+    /// 호출만 허용하는 제한된 토큰이다(서버 MustChangePasswordFilter 참고) - LoginForm은 이
+    /// 값이 true면 ShellForm을 열지 말고 강제 비밀번호 변경 다이얼로그부터 띄워야 한다.</summary>
+    public bool RequirePasswordChange { get; set; }
 }
 
 public class UserInfoDto

@@ -1,5 +1,6 @@
 using System.Drawing;
 using System.Drawing.Drawing2D;
+using System.Drawing.Imaging;
 
 namespace WYNLAB.Base;
 
@@ -46,6 +47,10 @@ public class IconBadgeButton : Control
 
     /// <summary>배지(둥근 사각형) 배경색 - 옅은 파스텔톤 추천</summary>
     public Color BadgeColor { get; set; } = Color.FromArgb(241, 243, 245);
+
+    /// <summary>배지 모서리 반지름. 기본값 10은 헤더 툴바 버튼(54x48, 배지 44~52px) 기준이라,
+    /// 사이드바처럼 작은 배지에서 "더 확실히 둥글게" 보이고 싶을 때 호출부에서 키워 쓴다.</summary>
+    public int CornerRadius { get; set; } = 10;
 
     private bool _hover;
     private bool _pressed;
@@ -108,10 +113,10 @@ public class IconBadgeButton : Control
         g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.ClearTypeGridFit;
         g.Clear(Parent?.BackColor ?? Color.White);
 
-        var badgeSize = Math.Min(Math.Min(Width, Height) - 4, 44);
+        var badgeSize = Math.Min(Math.Min(Width, Height) - 4, 56);
         var badgeRect = new Rectangle((Width - badgeSize) / 2, (Height - badgeSize) / 2, badgeSize, badgeSize);
 
-        using var path = RoundedRect(badgeRect, 10);
+        using var path = RoundedRect(badgeRect, CornerRadius);
 
         var badgeColor = Enabled ? BadgeColor : DisabledBadgeColor;
         using (var brush = new SolidBrush(badgeColor))
@@ -133,16 +138,33 @@ public class IconBadgeButton : Control
         // IconName에 해당하는 png가 폴더에 있으면 그리고, 없으면 그냥 배지만 남긴다(공백) -
         // 못 찾았을 때를 특별 취급하지 않는다. 폴더의 이미지를 있는 그대로 반영하는 게 전부다.
         var iconRect = Rectangle.Inflate(badgeRect, -IconInset, -IconInset);
-        var image = ResolveIconImage();
+        var (image, needsDisabledFade) = ResolveIconImage();
         if (image != null)
         {
-            g.DrawImage(image, iconRect);
+            if (needsDisabledFade)
+            {
+                // IconName 경로는 {name}_disabled.png를 직접 준비해서 쓸 수 있지만(위에서 이미
+                // 처리됨), 코드에서 SvgIcons 등으로 그려 넣는 IconImage는 상태별 변형이 없다 -
+                // 그래서 비활성일 땐 알파를 낮춰 자동으로 "눌러진" 느낌을 내준다. ColorMatrix의
+                // Matrix33이 알파 채널 배율이다(RGB는 그대로 두고 투명도만 줄임).
+                using var attributes = new ImageAttributes();
+                var fadeMatrix = new ColorMatrix { Matrix33 = 0.35f };
+                attributes.SetColorMatrix(fadeMatrix);
+                g.DrawImage(image, iconRect, 0, 0, image.Width, image.Height, GraphicsUnit.Pixel, attributes);
+            }
+            else
+            {
+                g.DrawImage(image, iconRect);
+            }
         }
     }
 
     /// <summary>현재 상태(비활성/눌림/호버)에 맞는 이미지를 우선순위대로 찾는다 - 상태별 이미지이
-    /// 없으면 기본({IconName}.png)으로, 그것도 없으면 코드에서 직접 지정한 IconImage로.</summary>
-    private Image? ResolveIconImage()
+    /// 없으면 기본({IconName}.png)으로, 그것도 없으면 코드에서 직접 지정한 IconImage로.
+    /// 반환하는 bool은 "비활성인데 전용 _disabled 이미지를 못 찾아서 자동으로 흐리게 그려야
+    /// 하는지" - 전용 이미지를 찾았으면 이미 그 자체로 비활성 느낌이 나므로 다시 흐리게 하지
+    /// 않는다(이중 페이드 방지).</summary>
+    private (Image? Image, bool NeedsDisabledFade) ResolveIconImage()
     {
         if (!string.IsNullOrEmpty(IconName))
         {
@@ -151,22 +173,25 @@ public class IconBadgeButton : Control
             if (stateSuffix != null)
             {
                 var stateImage = IconAssetProvider.GetImage(iconName + stateSuffix);
-                if (stateImage != null) return stateImage;
+                if (stateImage != null) return (stateImage, false);
             }
 
             var assetImage = IconAssetProvider.GetImage(iconName);
-            if (assetImage != null) return assetImage;
+            if (assetImage != null) return (assetImage, !Enabled);
         }
 
         // 서버 Assets에 올려둔 png가 우선이고(관리자가 회사 아이콘으로 갈아끼울 수 있어야 하므로),
         // 그게 없을 때만 코드에서 직접 지정한 이미지(예: SvgIcons로 렌더링한 것)를 쓴다.
-        return IconImage;
+        return (IconImage, !Enabled);
     }
 
     private static GraphicsPath RoundedRect(Rectangle bounds, int radius)
     {
         var path = new GraphicsPath();
-        var d = radius * 2;
+        // RoundedPanel.RoundedRect와 같은 이유로 clamp - 지름이 bounds보다 크면 모서리 호가
+        // 겹쳐서 찌그러져 보인다(CornerRadius를 키워 쓰는 호출부가 생겨서 더 이상 10 고정이
+        // 아니므로, 여기서도 방어적으로 막아둔다).
+        var d = Math.Min(radius * 2, Math.Min(bounds.Width, bounds.Height));
         path.AddArc(bounds.X, bounds.Y, d, d, 180, 90);
         path.AddArc(bounds.Right - d, bounds.Y, d, d, 270, 90);
         path.AddArc(bounds.Right - d, bounds.Bottom - d, d, d, 0, 90);

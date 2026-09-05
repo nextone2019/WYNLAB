@@ -113,16 +113,6 @@
       <DependentUpon>frmEmp.cs</DependentUpon>
     </EmbeddedResource>
 
-    <Compile Update="frmCust\frmCust.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Update="frmCust\frmCust.Designer.cs">
-      <DependentUpon>frmCust.cs</DependentUpon>
-    </Compile>
-    <EmbeddedResource Update="frmCust\frmCust.resx">
-      <DependentUpon>frmCust.cs</DependentUpon>
-    </EmbeddedResource>
-
     <Compile Update="frmItem\frmItem.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -176,5 +166,43 @@
     </ItemGroup>
     <Copy SourceFiles="@(ModuleOutputFiles)" DestinationFolder="$(SolutionDir)..\..\00.DEV\01.Client\WYNLAB.Shell\bin\$(Configuration)\net48\Modules\" SkipUnchangedFiles="true" />
   </Target>
+
+
+
+  <ItemGroup>
+    <Compile Update="frmEmpList\frmEmpList.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="frmEmpList\frmEmpList.Designer.cs">
+      <DependentUpon>frmEmpList.cs</DependentUpon>
+    </Compile>
+    <EmbeddedResource Update="frmEmpList\frmEmpList.resx">
+      <DependentUpon>frmEmpList.cs</DependentUpon>
+    </EmbeddedResource>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="frmItemGrp\frmItemGrp.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="frmItemGrp\frmItemGrp.Designer.cs">
+      <DependentUpon>frmItemGrp.cs</DependentUpon>
+    </Compile>
+    <EmbeddedResource Update="frmItemGrp\frmItemGrp.resx">
+      <DependentUpon>frmItemGrp.cs</DependentUpon>
+    </EmbeddedResource>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="frmCust\frmCust.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="frmCust\frmCust.Designer.cs">
+      <DependentUpon>frmCust.cs</DependentUpon>
+    </Compile>
+    <EmbeddedResource Update="frmCust\frmCust.resx">
+      <DependentUpon>frmCust.cs</DependentUpon>
+    </EmbeddedResource>
+  </ItemGroup>
 
 </Project>

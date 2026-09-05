@@ -77,7 +77,12 @@ Write-Host "=== 3) 화면 모듈 (99.SOURCE\{모듈코드}\, 예: SM/BA) ===" -F
 # 대응된다). 모듈 폴더 밑의 TEMPLATE\WYNLAB.{모듈}.TEMPLATE(새 화면 복사용 원본, 예:
 # SM\TEMPLATE\WYNLAB.SM.TEMPLATE)는 sln이 없어서 아래 스캔에 애초에 안 걸린다 - 따로 건너뛸
 # 필요가 없다.
-$moduleDirs = Get-ChildItem "$legacySourceRoot\99.SOURCE" -Directory
+#
+# 99.SOURCE\TEMPLATE(대문자, 모듈 코드가 아니라 AI Builder가 복제해가는 원본 - WYNLAB.TEMPLATE)는
+# 명시적으로 제외한다. VS에서 그 폴더를 열면 WYNLAB.TEMPLATE.sln이 자동 생성되는데, 그러면 이 스캔이
+# 그걸 진짜 모듈로 오인해서 같이 빌드·배포해버린다(실제로 겪음, 2026-09-03) - 어떤 메뉴도 이 화면을
+# 가리키지 않으니 기능상 문제는 없지만, "TEMPLATE은 설계전용, 배포 안 함"이라는 설계 의도와 어긋난다.
+$moduleDirs = Get-ChildItem "$legacySourceRoot\99.SOURCE" -Directory | Where-Object { $_.Name -ne "TEMPLATE" }
 
 foreach ($moduleDir in $moduleDirs) {
     $moduleCd = $moduleDir.Name # 예: SM, BA

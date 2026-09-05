@@ -28,6 +28,7 @@ public partial class LoginForm : XtraForm
     private readonly TextEdit txtPassword = new() { Properties = { PasswordChar = '*' } };
     private readonly ComboBoxEdit cboEnvironment = new();
     private readonly LabelControl lnkManageSites = new() { Text = "서비스 관리" };
+    private readonly LabelControl lnkForgotPassword = new() { Text = "비밀번호를 잊으셨나요?" };
     private readonly SimpleButton btnLogin = new() { Text = "로그인" };
     private readonly LabelControl lblClose = new() { Text = "✕" };
 
@@ -189,7 +190,18 @@ public partial class LoginForm : XtraForm
         txtPassword.Location = new Point(formX, y);
         txtPassword.Size = new Size(fieldWidth, 26);
         Controls.Add(txtPassword);
-        y += 40;
+        y += 30;
+
+        lnkForgotPassword.Location = new Point(formX + fieldWidth - 130, y);
+        lnkForgotPassword.AutoSizeMode = LabelAutoSizeMode.None;
+        lnkForgotPassword.Size = new Size(130, 16);
+        lnkForgotPassword.Appearance.ForeColor = BrandColor;
+        lnkForgotPassword.Appearance.Font = AppFonts.Caption;
+        lnkForgotPassword.Appearance.TextOptions.HAlignment = DevExpress.Utils.HorzAlignment.Far;
+        lnkForgotPassword.Cursor = Cursors.Hand;
+        lnkForgotPassword.Click += LnkForgotPassword_Click;
+        Controls.Add(lnkForgotPassword);
+        y += 24;
 
         AddFieldLabel("접속 서비스", formX, ref y);
         RefreshEnvironmentItems();
@@ -311,20 +323,55 @@ public partial class LoginForm : XtraForm
                 return;
             }
 
-            SessionManager.Current.SignIn(response);
-            ApiClient.SetAuthToken(response.AccessToken!);
+            if (response.RequirePasswordChange)
+            {
+                // 자격증명은 맞았지만(만료/관리자 초기화 등) 새 비밀번호를 먼저 설정해야 한다 -
+                // 지금 발급된 토큰은 change-password 말고 다른 API를 못 부르는 제한된 토큰이다
+                // (서버 MustChangePasswordFilter 참고).
+                ApiClient.SetAuthToken(response.AccessToken!);
 
-            // 로그인창을 닫기 직전에 스플래시를 띄워서, 닫히는 순간 바로 스플래시가 이어받게 한다.
-            Splash = new SplashForm();
-            Splash.Show();
-            Splash.Refresh();
+                using var changeForm = new ChangePasswordForm(request.Password);
+                if (changeForm.ShowDialog(this) != DialogResult.OK) return; // 취소 - 로그인화면에 남는다
 
-            DialogResult = DialogResult.OK;
-            Close();
+                // 비밀번호가 바뀌었으니 그 값으로 다시 로그인해서 정상 범위의 토큰을 받는다.
+                request.Password = changeForm.NewPassword;
+                response = await ApiClient.PostAsync<LoginRequest, LoginResponse>("api/auth/login", request);
+                if (response == null || !response.Success)
+                {
+                    AppMessageBox.Show(response?.Message ?? "다시 로그인하는 중 오류가 발생했습니다.", "로그인 실패");
+                    return;
+                }
+            }
+
+            EnterAppAfterLogin(response);
         }
         finally
         {
             btnLogin.Enabled = true;
         }
+    }
+
+    private void LnkForgotPassword_Click(object? sender, EventArgs e)
+    {
+        using var forgotForm = new ForgotPasswordForm();
+        if (forgotForm.ShowDialog(this) != DialogResult.OK || forgotForm.Result == null) return;
+
+        EnterAppAfterLogin(forgotForm.Result);
+    }
+
+    /// <summary>로그인 성공(일반 로그인 또는 비밀번호 찾기로 재로그인까지 끝난 경우) 공통 처리 -
+    /// 세션 저장 + 스플래시 + 이 창 닫기.</summary>
+    private void EnterAppAfterLogin(LoginResponse response)
+    {
+        SessionManager.Current.SignIn(response);
+        ApiClient.SetAuthToken(response.AccessToken!);
+
+        // 로그인창을 닫기 직전에 스플래시를 띄워서, 닫히는 순간 바로 스플래시가 이어받게 한다.
+        Splash = new SplashForm();
+        Splash.Show();
+        Splash.Refresh();
+
+        DialogResult = DialogResult.OK;
+        Close();
     }
 }

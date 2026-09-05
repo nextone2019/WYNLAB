@@ -1,6 +1,7 @@
 using System.Data;
 using DevExpress.XtraGrid.Views.Grid;
 using WYNLAB.Base;
+using WYNLAB.Base.Controls;
 using WYNLAB.Shared.Dtos;
 
 namespace WYNLAB.BA;
@@ -25,10 +26,30 @@ public partial class frmItem : BaseForm
         InitializeComponent();
 
         Text = "품목등록";
-        MenuCd = "BA_ITEM";
+
+        // 기본단위/구매단위 - LookUp관리(frmSysLookup)에 등록해둔 "단위"(L_CM0001)를 그대로
+        // 참조한다. LookupKey만 지정하면 그 뒤로는 서버(sysLookupM/P)가 무슨 프로시저/쿼리로
+        // 채울지 전부 알아서 처리해서, 이 화면 코드는 실제 데이터 출처(프로시저였다가 나중에
+        // 쿼리로 바뀌어도)와 완전히 무관하다(2026-09-02 - 기존 TextEditWyn 자유입력에서
+        // LookUpEditWyn 선택형으로 전환하라는 요청).
+        cboUnitCd.LookupKey = "L_CM0001";  //단위
+        cboPoUnitCd.LookupKey = "L_CM0001";
+        cboAssetType.LookupKey = "L_CM00002"; //자산구분
+
+        // grd1(품목 목록)은 조회전용, grd2(환산단위)는 실제 등록/수정 대상이라 Edit -
+        // frmSysLookup과 같은 이유로 명시(2026-09-02, [[project_wynlab_grid_role_mechanism]]).
+        gvw1.Role = GridRoleWyn.Query;
+        gvw2.Role = GridRoleWyn.Edit;
 
         gvw1.FocusedRowObjectChanged += Gvw1_FocusedRowObjectChanged;
         gvw2.InitNewRow += Gvw2_InitNewRow;
+
+        // 환산단위(grd2 컬럼) - panData의 기본단위/구매단위와 같은 LookUp("L_CM0001")을 그리드
+        // 셀 편집기로도 붙인다. LookUpEditWyn 자신은 Control이라 그리드 컬럼엔 못 들어가서,
+        // RepositoryItemLookUpEdit 버전을 만들어주는 정적 헬퍼를 쓴다(LookUpEditWyn.
+        // CreateGridRepositoryItemAsync 설명 참고) - 컬럼 편집기 목록은 한 번 만들면 끝(호출
+        // 시점 스냅샷)이라 화면을 열 때 한 번만 비동기로 채운다.
+        _ = SetupUnitToLookupAsync();
 
         // 화면종료 시 저장 확인(BaseForm.ConfirmCloseAsync) - grd2(TBAITEMUNIT)는 편집 가능한
         // 그리드라 panData뿐 아니라 그 DataTable도 걸어야 한다. _units는 EnterNewMode/
@@ -147,8 +168,8 @@ public partial class frmItem : BaseForm
             p_item_no = txtItemNo.Text,
             p_item_nm = txtItemNm.Text,
             p_item_spec = txtItemSpec.Text,
-            p_unit_cd = txtUnitCd.Text,
-            p_po_unit_cd = txtPoUnitCd.Text,
+            p_unit_cd = cboUnitCd.EditValue?.ToString() ?? string.Empty,
+            p_po_unit_cd = cboPoUnitCd.EditValue?.ToString() ?? string.Empty,
             p_wh_cd = txtWhCd.Text,
             p_loc_cd = txtLocCd.Text,
             p_safe_qty = string.IsNullOrWhiteSpace(txtSafeQty.Text) ? null : txtSafeQty.Text,
@@ -156,7 +177,7 @@ public partial class frmItem : BaseForm
             p_emp_no = txtEmpNo.Text,
             p_prod_yn = txtProdYn.Text,
             p_cust_cd = txtCustCd.Text,
-            p_asset_type = txtAssetType.Text,
+            p_asset_type = cboAssetType.EditValue?.ToString() ??  string.Empty,
             p_out_type = txtOutType.Text,
             p_po_qc_yn = txtPoQcYn.Text,
             p_prod_qc_yn = txtProdQcYn.Text,
@@ -295,7 +316,14 @@ public partial class frmItem : BaseForm
     /// 대부분 그 품목 기준단위에서 다른 단위로 바꾸는 경우라 기본값이 있는 편이 자연스럽다.</summary>
     private void Gvw2_InitNewRow(object? sender, InitNewRowEventArgs e)
     {
-        gvw2.SetRowCellValue(e.RowHandle, "fr_unit_cd", txtUnitCd.Text);
+        gvw2.SetRowCellValue(e.RowHandle, "fr_unit_cd", cboUnitCd.EditValue);
+    }
+
+    private async Task SetupUnitToLookupAsync()
+    {
+        var lookup = await LookUpEditWyn.CreateGridRepositoryItemAsync("L_CM0001");
+        grd2.RepositoryItems.Add(lookup);
+        colUnitToUnitCd.ColumnEdit = lookup;
     }
 
     private DataRow? FindItemRow(string itemId) =>
@@ -330,8 +358,8 @@ public partial class frmItem : BaseForm
             txtItemNo.Text = string.Empty;
             txtItemNm.Text = string.Empty;
             txtItemSpec.Text = string.Empty;
-            txtUnitCd.Text = string.Empty;
-            txtPoUnitCd.Text = string.Empty;
+            cboUnitCd.EditValue = null;
+            cboPoUnitCd.EditValue = null;
             txtWhCd.Text = string.Empty;
             txtLocCd.Text = string.Empty;
             txtSafeQty.Text = string.Empty;
@@ -339,7 +367,7 @@ public partial class frmItem : BaseForm
             txtEmpNo.Text = string.Empty;
             txtProdYn.Text = string.Empty;
             txtCustCd.Text = string.Empty;
-            txtAssetType.Text = string.Empty;
+            cboAssetType.EditValue = string.Empty;
             txtOutType.Text = string.Empty;
             txtPoQcYn.Text = string.Empty;
             txtProdQcYn.Text = string.Empty;
@@ -378,8 +406,8 @@ public partial class frmItem : BaseForm
             txtItemNo.Text = Str(item, "item_no");
             txtItemNm.Text = Str(item, "item_nm");
             txtItemSpec.Text = Str(item, "item_spec");
-            txtUnitCd.Text = Str(item, "unit_cd");
-            txtPoUnitCd.Text = Str(item, "po_unit_cd");
+            cboUnitCd.EditValue = Str(item, "unit_cd");
+            cboPoUnitCd.EditValue = Str(item, "po_unit_cd");
             txtWhCd.Text = Str(item, "wh_cd");
             txtLocCd.Text = Str(item, "loc_cd");
             txtSafeQty.Text = Str(item, "safe_qty");
@@ -387,7 +415,7 @@ public partial class frmItem : BaseForm
             txtEmpNo.Text = Str(item, "emp_no");
             txtProdYn.Text = Str(item, "prod_yn");
             txtCustCd.Text = Str(item, "cust_cd");
-            txtAssetType.Text = Str(item, "asset_type");
+            cboAssetType.EditValue = Str(item, "asset_type");
             txtOutType.Text = Str(item, "out_type");
             txtPoQcYn.Text = Str(item, "po_qc_yn");
             txtProdQcYn.Text = Str(item, "prod_qc_yn");

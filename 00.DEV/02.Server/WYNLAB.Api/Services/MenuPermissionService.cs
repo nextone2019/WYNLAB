@@ -18,9 +18,18 @@ public interface IMenuPermissionService
 
     /// <summary>
     /// API 액션 하나가 특정 메뉴에 대해 특정 권한(조회/등록/수정/삭제/엑셀)이 있는지 확인할 때 사용.
+    /// 범용 데이터 통로(api/data/*)처럼 화면이 자기 MenuId를 요청에 실어 보내는 경우에 쓴다.
     /// 사용자가 없거나 사용중지 상태거나 그 메뉴 자체가 없으면 null(권한 없음으로 취급).
     /// </summary>
-    Task<MenuDto?> GetEffectivePermissionAsync(string userId, string menuCd);
+    Task<MenuDto?> GetEffectivePermissionAsync(string userId, long menuId);
+
+    /// <summary>
+    /// [RequireMenuPermission(module, screenClassNm, action)] 전용 - MENU_ID는 환경(DB)마다
+    /// IDENTITY로 다르게 채번되어 컴파일된 코드에 상수로 박아넣을 수 없다(로컬DB의 5번이 운영DB
+    /// 에선 다른 메뉴일 수 있음). Module+ScreenClassNm(예: "SM"+"frmMenu")은 실제 화면 클래스
+    /// 이름 그대로라 환경이 바뀌어도 항상 같은 값이라 이걸로 대신 찾는다.
+    /// </summary>
+    Task<MenuDto?> GetEffectivePermissionByKeyAsync(string userId, string module, string screenClassNm);
 }
 
 public class MenuPermissionService : IMenuPermissionService
@@ -52,20 +61,29 @@ public class MenuPermissionService : IMenuPermissionService
         return MenuPermissionMerger.Merge(menus, authRows);
     }
 
-    public async Task<MenuDto?> GetEffectivePermissionAsync(string userId, string menuCd)
+    public async Task<MenuDto?> GetEffectivePermissionAsync(string userId, long menuId)
     {
         var permissions = await GetEffectivePermissionsAsync(userId);
-        return permissions.FirstOrDefault(m => m.MenuCd == menuCd);
+        return permissions.FirstOrDefault(m => m.MenuId == menuId);
+    }
+
+    public async Task<MenuDto?> GetEffectivePermissionByKeyAsync(string userId, string module, string screenClassNm)
+    {
+        var permissions = await GetEffectivePermissionsAsync(userId);
+        return permissions.FirstOrDefault(m =>
+            string.Equals(m.Module, module, StringComparison.OrdinalIgnoreCase) &&
+            string.Equals(m.ScreenClassNm, screenClassNm, StringComparison.OrdinalIgnoreCase));
     }
 
     private static MenuDto ToDto(MenuRow m, bool allowAll) => new()
     {
-        MenuCd = m.MenuCd,
+        MenuId = m.MenuId,
         MenuNm = m.MenuNm,
-        UpperMenuCd = m.UpperMenuCd,
+        UpperMenuId = m.UpperMenuId,
         MenuLevel = m.MenuLevel,
         MenuType = m.MenuType,
-        FormClassNm = m.FormClassNm,
+        Module = m.Module,
+        ScreenClassNm = m.ScreenClassNm,
         IconNm = m.IconNm,
         SortOrder = m.SortOrder,
         ViewYn = allowAll,

@@ -53,8 +53,8 @@ public partial class frmDept
             this.colEmail = new DevExpress.XtraGrid.Columns.GridColumn();
             this.panelWyn1 = new WYNLAB.Base.Controls.PanelWyn();
             this.panelWyn7 = new WYNLAB.Base.Controls.PanelWyn();
-            this.btnDeletRow2 = new DevExpress.XtraEditors.SimpleButton();
-            this.btnAddRow2 = new DevExpress.XtraEditors.SimpleButton();
+            this.btnDeletRow2 = new WYNLAB.Base.Controls.ButtonWyn();
+            this.btnAddRow2 = new WYNLAB.Base.Controls.ButtonWyn();
             this.sectionHeaderWyn2 = new WYNLAB.Base.Controls.SectionHeaderWyn();
             this.panelWyn5 = new WYNLAB.Base.Controls.PanelWyn();
             this.panData = new WYNLAB.Base.Controls.PanelWyn();
@@ -124,7 +124,6 @@ public partial class frmDept
             // panBase
             // 
             this.panBase.Appearance.BackColor = System.Drawing.Color.White;
-            this.panBase.Appearance.Options.UseBackColor = true;
             this.panBase.Controls.Add(this.panelWyn3);
             this.panBase.Controls.Add(this.panHeader);
             this.panBase.Controls.Add(this.paTitle);
@@ -277,13 +276,9 @@ public partial class frmDept
             // btnDeletRow2
             // 
             this.btnDeletRow2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnDeletRow2.Appearance.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(253)))), ((int)(((byte)(236)))), ((int)(((byte)(234)))));
-            this.btnDeletRow2.Appearance.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(245)))), ((int)(((byte)(198)))), ((int)(((byte)(193)))));
-            this.btnDeletRow2.Appearance.Font = new System.Drawing.Font("Segoe MDL2 Assets", 11F);
-            this.btnDeletRow2.Appearance.Options.UseBackColor = true;
-            this.btnDeletRow2.Appearance.Options.UseBorderColor = true;
-            this.btnDeletRow2.Appearance.Options.UseFont = true;
-            this.btnDeletRow2.ImageOptions.Image = ((System.Drawing.Image)(resources.GetObject("btnDeletRow2.ImageOptions.Image")));
+            this.btnDeletRow2.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(253)))), ((int)(((byte)(236)))), ((int)(((byte)(234)))));
+            this.btnDeletRow2.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(245)))), ((int)(((byte)(198)))), ((int)(((byte)(193)))));
+            this.btnDeletRow2.Image = ((System.Drawing.Image)(resources.GetObject("btnDeletRow2.ImageOptions.Image")));
             this.btnDeletRow2.Location = new System.Drawing.Point(42, 2);
             this.btnDeletRow2.Name = "btnDeletRow2";
             this.btnDeletRow2.Size = new System.Drawing.Size(24, 22);
@@ -294,13 +289,9 @@ public partial class frmDept
             // btnAddRow2
             // 
             this.btnAddRow2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnAddRow2.Appearance.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(228)))), ((int)(((byte)(245)))), ((int)(((byte)(231)))));
-            this.btnAddRow2.Appearance.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(198)))), ((int)(((byte)(231)))), ((int)(((byte)(203)))));
-            this.btnAddRow2.Appearance.Font = new System.Drawing.Font("Segoe MDL2 Assets", 11F);
-            this.btnAddRow2.Appearance.Options.UseBackColor = true;
-            this.btnAddRow2.Appearance.Options.UseBorderColor = true;
-            this.btnAddRow2.Appearance.Options.UseFont = true;
-            this.btnAddRow2.ImageOptions.Image = ((System.Drawing.Image)(resources.GetObject("btnAddRow2.ImageOptions.Image")));
+            this.btnAddRow2.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(228)))), ((int)(((byte)(245)))), ((int)(((byte)(231)))));
+            this.btnAddRow2.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(198)))), ((int)(((byte)(231)))), ((int)(((byte)(203)))));
+            this.btnAddRow2.Image = ((System.Drawing.Image)(resources.GetObject("btnAddRow2.ImageOptions.Image")));
             this.btnAddRow2.Location = new System.Drawing.Point(10, 2);
             this.btnAddRow2.Name = "btnAddRow2";
             this.btnAddRow2.Size = new System.Drawing.Size(24, 22);
@@ -368,7 +359,6 @@ public partial class frmDept
             // lblDeptCd
             // 
             this.lblDeptCd.Appearance.Font = new System.Drawing.Font("맑은 고딕", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
-            this.lblDeptCd.Appearance.Options.UseFont = true;
             this.lblDeptCd.Location = new System.Drawing.Point(11, 20);
             this.lblDeptCd.Name = "lblDeptCd";
             this.lblDeptCd.Size = new System.Drawing.Size(48, 15);
@@ -381,7 +371,6 @@ public partial class frmDept
             this.txtDeptCd.Name = "txtDeptCd";
             this.txtDeptCd.Properties.Appearance.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(249)))), ((int)(((byte)(219)))));
             this.txtDeptCd.Properties.Appearance.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))));
-            this.txtDeptCd.Properties.Appearance.Options.UseBackColor = true;
             this.txtDeptCd.Properties.Appearance.Options.UseForeColor = true;
             this.txtDeptCd.Required = true;
             this.txtDeptCd.Size = new System.Drawing.Size(97, 20);
@@ -390,7 +379,6 @@ public partial class frmDept
             // lblDeptNm
             // 
             this.lblDeptNm.Appearance.Font = new System.Drawing.Font("맑은 고딕", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
-            this.lblDeptNm.Appearance.Options.UseFont = true;
             this.lblDeptNm.Location = new System.Drawing.Point(11, 50);
             this.lblDeptNm.Name = "lblDeptNm";
             this.lblDeptNm.Size = new System.Drawing.Size(36, 15);
@@ -403,7 +391,6 @@ public partial class frmDept
             this.txtDeptNm.Name = "txtDeptNm";
             this.txtDeptNm.Properties.Appearance.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(249)))), ((int)(((byte)(219)))));
             this.txtDeptNm.Properties.Appearance.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))));
-            this.txtDeptNm.Properties.Appearance.Options.UseBackColor = true;
             this.txtDeptNm.Properties.Appearance.Options.UseForeColor = true;
             this.txtDeptNm.Required = true;
             this.txtDeptNm.Size = new System.Drawing.Size(300, 20);
@@ -412,7 +399,6 @@ public partial class frmDept
             // lblParDeptCd
             // 
             this.lblParDeptCd.Appearance.Font = new System.Drawing.Font("맑은 고딕", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
-            this.lblParDeptCd.Appearance.Options.UseFont = true;
             this.lblParDeptCd.Location = new System.Drawing.Point(11, 80);
             this.lblParDeptCd.Name = "lblParDeptCd";
             this.lblParDeptCd.Size = new System.Drawing.Size(72, 15);
@@ -433,7 +419,6 @@ public partial class frmDept
             // lblParDeptNm
             // 
             this.lblParDeptNm.Appearance.Font = new System.Drawing.Font("맑은 고딕", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
-            this.lblParDeptNm.Appearance.Options.UseFont = true;
             this.lblParDeptNm.Location = new System.Drawing.Point(220, 80);
             this.lblParDeptNm.Name = "lblParDeptNm";
             this.lblParDeptNm.Size = new System.Drawing.Size(60, 15);
@@ -443,7 +428,6 @@ public partial class frmDept
             // lblDeptType
             // 
             this.lblDeptType.Appearance.Font = new System.Drawing.Font("맑은 고딕", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
-            this.lblDeptType.Appearance.Options.UseFont = true;
             this.lblDeptType.Location = new System.Drawing.Point(11, 110);
             this.lblDeptType.Name = "lblDeptType";
             this.lblDeptType.Size = new System.Drawing.Size(48, 15);
@@ -460,7 +444,6 @@ public partial class frmDept
             // lblRemark
             // 
             this.lblRemark.Appearance.Font = new System.Drawing.Font("맑은 고딕", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
-            this.lblRemark.Appearance.Options.UseFont = true;
             this.lblRemark.Location = new System.Drawing.Point(11, 140);
             this.lblRemark.Name = "lblRemark";
             this.lblRemark.Size = new System.Drawing.Size(24, 15);
@@ -589,7 +572,6 @@ public partial class frmDept
             // panHeader
             // 
             this.panHeader.Appearance.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(240)))), ((int)(((byte)(240)))), ((int)(((byte)(240)))));
-            this.panHeader.Appearance.Options.UseBackColor = true;
             this.panHeader.BorderStyle = DevExpress.XtraEditors.Controls.BorderStyles.Default;
             this.panHeader.Controls.Add(this.txtDeptCd_Q);
             this.panHeader.Controls.Add(this.labelControl1);
@@ -611,7 +593,6 @@ public partial class frmDept
             // labelControl1
             // 
             this.labelControl1.Appearance.Font = new System.Drawing.Font("맑은 고딕", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
-            this.labelControl1.Appearance.Options.UseFont = true;
             this.labelControl1.Location = new System.Drawing.Point(25, 18);
             this.labelControl1.Name = "labelControl1";
             this.labelControl1.Size = new System.Drawing.Size(65, 15);
@@ -642,7 +623,6 @@ public partial class frmDept
             // 
             // frmDept
             // 
-            this.Appearance.Options.UseFont = true;
             this.ClientSize = new System.Drawing.Size(1165, 600);
             this.Controls.Add(this.panBase);
             this.Name = "frmDept";
@@ -726,8 +706,8 @@ public partial class frmDept
     private PanelWyn panHeader;
     private TextEditWyn txtDeptCd_Q;
     private DevExpress.XtraEditors.LabelControl labelControl1;
-    private DevExpress.XtraEditors.SimpleButton btnDeletRow2;
-    private DevExpress.XtraEditors.SimpleButton btnAddRow2;
+    private ButtonWyn btnDeletRow2;
+    private ButtonWyn btnAddRow2;
     private PanelWyn panelWyn7;
     private PanelWyn panelWyn8;
     private PopupLookupEditWyn txtParDeptNm;

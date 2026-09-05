@@ -35,7 +35,6 @@ public partial class TemplateForm : BaseForm
         InitializeComponent();
 
         Text = "화면명";
-        MenuCd = "MENU_CD_HERE";
 
         gvw1.FocusedRowObjectChanged += Gvw1_FocusedRowObjectChanged;
 
@@ -179,7 +178,7 @@ public partial class TemplateForm : BaseForm
         }
 
         _editingCd = wasNew ? result.GeneratedCode : _editingCd;
-        await QueryClick();
+        await QueryCore(preserveSelection: true); // 방금 저장한 행 유지 - QueryClick(사용자 조회)과 다른 경로
         Toast.Show(wasNew ? "등록되었습니다." : "수정되었습니다.");
     }
 

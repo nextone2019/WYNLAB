@@ -10,9 +10,16 @@ public interface IGenericDataRepository
 {
     /// <summary>메뉴에 등록된 프로시저 접두사(TSMMENU.PROC_PREFIX). 없으면 null - 그 메뉴는
     /// 범용 통로를 쓰지 않는다는 뜻이다.</summary>
-    Task<string?> GetProcPrefixAsync(string menuCd);
+    Task<string?> GetProcPrefixAsync(long menuId);
 
     Task<DataQueryResponse> QueryAsync(string procName, Dictionary<string, string?> parameters);
+
+    /// <summary>QueryAsync와 동일하지만 프로시저가 아니라 원본 SQL 텍스트를 그대로 실행한다 -
+    /// LookUp관리(sysLookupM.source_type='Q')처럼 관리자가 프로시저 없이 쿼리문 자체를 등록해둔
+    /// 경우에 쓴다. sqlText는 관리자가 저장해둔 값(같은 신뢰 수준의 텍스트, 프로시저 이름과
+    /// 동급)이고, parameters는 QueryAsync와 똑같이 SqlParameter로만 바인딩되므로 값 자체가
+    /// SQL로 해석될 걱정은 없다.</summary>
+    Task<DataQueryResponse> QueryRawAsync(string sqlText, Dictionary<string, string?> parameters);
 
     Task<ProcResult> SaveAsync(string procName, Dictionary<string, string?> parameters, string userId, string? clientPc);
 }
@@ -30,25 +37,34 @@ public class GenericDataRepository : IGenericDataRepository
 
     public GenericDataRepository(IDapperContext context) => _context = context;
 
-    public async Task<string?> GetProcPrefixAsync(string menuCd)
+    public async Task<string?> GetProcPrefixAsync(long menuId)
     {
         using var conn = _context.CreateConnection();
         return await conn.QueryFirstOrDefaultAsync<string?>(
-            "SELECT PROC_PREFIX FROM TSMMENU WHERE MENU_CD = @menuCd", new { menuCd });
+            "SELECT PROC_PREFIX FROM TSMMENU WHERE MENU_ID = @menuId", new { menuId });
     }
 
-    public async Task<DataQueryResponse> QueryAsync(string procName, Dictionary<string, string?> parameters)
+    public Task<DataQueryResponse> QueryAsync(string procName, Dictionary<string, string?> parameters) =>
+        ExecuteQueryAsync(procName, CommandType.StoredProcedure, parameters);
+
+    public Task<DataQueryResponse> QueryRawAsync(string sqlText, Dictionary<string, string?> parameters) =>
+        ExecuteQueryAsync(sqlText, CommandType.Text, parameters);
+
+    /// <summary>QueryAsync/QueryRawAsync가 공유하는 실행부 - 프로시저 이름이냐 SQL 텍스트냐(CommandType)
+    /// 차이만 있고 나머지는 완전히 같다.
+    ///
+    /// Dapper의 QueryMultipleAsync/GridReader.ReadAsync는 결과셋이 0건이면 컬럼 이름 자체를
+    /// 알 방법이 없다(동적 행을 하나도 안 만드므로) - 소분류가 하나도 없는 대분류를 조회하면
+    /// Tables가 컬럼 정보 없는 빈 결과가 되어, 그리드가 스키마 없는 DataTable에 바인딩된다.
+    /// 그 상태에서 새 행을 추가해 값을 입력해도 실제로는 어느 컬럼에도 붙지 않아 포커스를
+    /// 옮기면 그대로 사라졌다(실제로 겪음 - frmMinorCode 소분류 그리드). SqlDataReader를 직접
+    /// 써서 FieldCount/GetName으로 행 개수와 무관하게 항상 컬럼 스키마를 얻는다.</summary>
+    private async Task<DataQueryResponse> ExecuteQueryAsync(string commandText, CommandType commandType, Dictionary<string, string?> parameters)
     {
-        // Dapper의 QueryMultipleAsync/GridReader.ReadAsync는 결과셋이 0건이면 컬럼 이름 자체를
-        // 알 방법이 없다(동적 행을 하나도 안 만드므로) - 소분류가 하나도 없는 대분류를 조회하면
-        // Tables가 컬럼 정보 없는 빈 결과가 되어, 그리드가 스키마 없는 DataTable에 바인딩된다.
-        // 그 상태에서 새 행을 추가해 값을 입력해도 실제로는 어느 컬럼에도 붙지 않아 포커스를
-        // 옮기면 그대로 사라졌다(실제로 겪음 - frmMinorCode 소분류 그리드). SqlDataReader를 직접
-        // 써서 FieldCount/GetName으로 행 개수와 무관하게 항상 컬럼 스키마를 얻는다.
         using var conn = (SqlConnection)_context.CreateConnection();
         using var cmd = conn.CreateCommand();
-        cmd.CommandText = procName;
-        cmd.CommandType = CommandType.StoredProcedure;
+        cmd.CommandText = commandText;
+        cmd.CommandType = commandType;
         foreach (var kv in parameters.Where(kv => kv.Key.StartsWith("p_", StringComparison.OrdinalIgnoreCase)))
             cmd.Parameters.AddWithValue(kv.Key, (object?)kv.Value ?? DBNull.Value);
 

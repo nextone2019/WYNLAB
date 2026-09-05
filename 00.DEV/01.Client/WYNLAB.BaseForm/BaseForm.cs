@@ -17,8 +17,12 @@ namespace WYNLAB.Base;
 /// </summary>
 public class BaseForm : XtraForm
 {
-    /// <summary>MENU.MENU_CD - 로그인 시 내려받은 권한을 이 코드로 조회해서 버튼 활성화/비활성화 처리</summary>
-    public string MenuCd { get; set; } = string.Empty;
+    /// <summary>TSMMENU.MENU_ID - 로그인 시 내려받은 권한을 이 값으로 조회해서 버튼 활성화/
+    /// 비활성화 처리. 화면 자신이 생성자에서 정하는 값이 아니라 ShellForm이 메뉴트리/바로가기/
+    /// 화면검색 등으로 이 화면을 열 때 그 순간 채워준다(ShellForm.OpenMenuForm 참고) - MENU_ID는
+    /// DB(로컬/서버)마다 IDENTITY로 다르게 채번되어 화면 스스로 상수로 못 박아두기 때문이다
+    /// (예전 MenuCd 문자열은 화면이 직접 "SM_MENU"처럼 하드코딩했었다).</summary>
+    public long MenuId { get; set; }
 
     public bool CanInsert { get; protected set; }
     public bool CanUpdate { get; protected set; }
@@ -68,20 +72,28 @@ public class BaseForm : XtraForm
     // 검색조건을 하나 추가할 때 화면과 프로시저만 고치면 되고 서버는 배포하지 않아도 된다.
     // 설계 배경과 보안 모델은 저장소 루트의 GENERIC_DATA_API.md 참고.
     //
-    // MenuCd는 화면이 이미 갖고 있으므로 여기서 자동으로 채운다 - 서버가 이 값으로 권한과
-    // 실행 가능한 프로시저를 판단하기 때문에, 화면마다 손으로 넘기게 두면 빠뜨리기 쉽다.
+    // MenuId는 화면이 이미 갖고 있으므로(ShellForm이 열 때 채워줌) 여기서 자동으로 채운다 -
+    // 서버가 이 값으로 권한과 실행 가능한 프로시저를 판단하기 때문에, 화면마다 손으로 넘기게
+    // 두면 빠뜨리기 쉽다.
 
     /// <summary>조회 - 첫 번째 결과셋을 돌려준다. 그리드에 그대로 바인딩하면 된다.</summary>
     protected Task<System.Data.DataTable> QueryAsync(string procName, object? parameters = null) =>
-        ProcData.QueryAsync(MenuCd, procName, parameters);
+        ProcData.QueryAsync(MenuId, procName, parameters);
 
     /// <summary>조회 - 결과셋을 여러 개 돌려주는 프로시저용.</summary>
     protected Task<List<System.Data.DataTable>> QueryMultiAsync(string procName, object? parameters = null) =>
-        ProcData.QueryMultiAsync(MenuCd, procName, parameters);
+        ProcData.QueryMultiAsync(MenuId, procName, parameters);
 
     /// <summary>저장/삭제 - 필요한 권한은 서버가 p_work_type(N/U/D)을 보고 판단한다.</summary>
     protected Task<WYNLAB.Shared.Dtos.ApiResult> SaveAsync(string procName, object? parameters = null) =>
-        ProcData.SaveAsync(MenuCd, procName, parameters);
+        ProcData.SaveAsync(MenuId, procName, parameters);
+
+    /// <summary>ProcData.ToDataTable(internal, WYNLAB.BaseForm 전용)을 다른 모듈 어셈블리의
+    /// BaseForm 자식 화면들도 쓸 수 있게 다시 열어준다 - api/data/query가 아닌 별도 엔드포인트를
+    /// 직접 호출해서 DataQueryResponse를 받은 경우(예: frmSysLookup의 실행결과 미리보기)에
+    /// 그리드에 바인딩할 DataTable로 바꿀 때 쓴다.</summary>
+    protected static System.Data.DataTable ToDataTable(WYNLAB.Shared.Dtos.DataTableResult result) =>
+        ProcData.ToDataTable(result);
 
     public BaseForm()
     {
@@ -253,7 +265,7 @@ public class BaseForm : XtraForm
             view.LayoutResetRequested += async (s, e) => await ResetGridLayoutAsync(view);
         }
 
-        if (string.IsNullOrEmpty(MenuCd)) return;
+        if (MenuId <= 0) return;
 
         // 전용 컨트롤러(api/grid-layout)를 쓴다 - 범용 데이터 통로(QueryAsync -> api/data/query)는
         // "그 메뉴에 등록된 PROC_PREFIX로 시작하는 프로시저만" 허용하는데, 이 기능은 특정 화면
@@ -268,7 +280,7 @@ public class BaseForm : XtraForm
         // 조용히 건너뛰고 디자이너 기본 배치(CapturePristineLayout으로 이미 잡아둔 상태)로 연다.
         try
         {
-            var saved = await ApiClient.GetAsync<List<GridLayoutItemDto>>($"api/grid-layout?menuCd={Uri.EscapeDataString(MenuCd)}") ?? new();
+            var saved = await ApiClient.GetAsync<List<GridLayoutItemDto>>($"api/grid-layout?menuId={MenuId}") ?? new();
             foreach (var item in saved)
             {
                 var view = views.FirstOrDefault(v => v.Name == item.GridKey);
@@ -292,11 +304,11 @@ public class BaseForm : XtraForm
 
     private async Task SaveGridLayoutAsync(GridViewWyn view)
     {
-        if (string.IsNullOrEmpty(MenuCd)) return; // MenuCd 없는 화면은 저장 위치를 특정할 수 없다
+        if (MenuId <= 0) return; // MenuId 없는 화면은 저장 위치를 특정할 수 없다
 
         var result = await ApiClient.PutAsync<SaveGridLayoutRequest, ApiResult>("api/grid-layout", new SaveGridLayoutRequest
         {
-            MenuCd = MenuCd,
+            MenuId = MenuId,
             GridKey = view.Name,
             LayoutXml = view.SaveLayoutXml()
         });
@@ -308,10 +320,10 @@ public class BaseForm : XtraForm
     private async Task ResetGridLayoutAsync(GridViewWyn view)
     {
         view.RestorePristineLayout();
-        if (string.IsNullOrEmpty(MenuCd)) return; // 저장된 적이 없으니 지울 것도 없다
+        if (MenuId <= 0) return; // 저장된 적이 없으니 지울 것도 없다
 
         var result = await ApiClient.DeleteAsync<ApiResult>(
-            $"api/grid-layout?menuCd={Uri.EscapeDataString(MenuCd)}&gridKey={Uri.EscapeDataString(view.Name)}");
+            $"api/grid-layout?menuId={MenuId}&gridKey={Uri.EscapeDataString(view.Name)}");
 
         if (result?.Success == true) Toast.Show("기본 배치로 초기화했습니다.");
         else AppMessageBox.Show(result?.Message ?? "레이아웃 초기화에 실패했습니다.", "초기화 실패");
@@ -352,8 +364,18 @@ public class BaseForm : XtraForm
             else if (child is GridControl grid && grid.MainView is GridView gv)
             {
                 foreach (DevExpress.XtraGrid.Columns.GridColumn col in gv.Columns)
-                    if (string.IsNullOrEmpty(col.ToolTip) && !string.IsNullOrWhiteSpace(col.FieldName))
-                        col.ToolTip = $"BindingField : {col.FieldName}";
+                {
+                    if (!string.IsNullOrEmpty(col.ToolTip)) continue;
+
+                    // 보통은 FieldName이 이미 실제 DB 컬럼명이라(DataTable 바인딩) 그대로 쓴다.
+                    // List<T> 바인딩 그리드(frmUserAuth 등)는 FieldName이 C# 프로퍼티명(PascalCase,
+                    // 예: UserNm)이라 같은 필드를 가리키는 panData 쪽 BindingFieldTag(DB 컬럼명,
+                    // 예: USER_NM)와 표기가 어긋난다 - 그런 컬럼은 col.Tag에 BindingFieldTag를
+                    // 명시적으로 얹어두면(panData 컨트롤과 같은 방식) 그걸 우선한다(2026-09-03,
+                    // 사용자권한관리에서 실제로 발견된 불일치).
+                    if (col.Tag is BindingFieldTag colTag) col.ToolTip = $"BindingField : {colTag.Field}";
+                    else if (!string.IsNullOrWhiteSpace(col.FieldName)) col.ToolTip = $"BindingField : {col.FieldName}";
+                }
             }
             else if (child is TreeList tree)
             {
@@ -373,9 +395,9 @@ public class BaseForm : XtraForm
     /// </summary>
     protected virtual void ApplyMenuAuth()
     {
-        if (string.IsNullOrEmpty(MenuCd)) return;
+        if (MenuId <= 0) return;
 
-        var auth = SessionManager.Current.GetMenuAuth(MenuCd);
+        var auth = SessionManager.Current.GetMenuAuth(MenuId);
         CanInsert = auth?.InsertYn ?? false;
         CanUpdate = auth?.UpdateYn ?? false;
         CanDelete = auth?.DeleteYn ?? false;
@@ -385,7 +407,10 @@ public class BaseForm : XtraForm
     }
 
     /// <summary>
-    /// 모든 업무화면 공통 타이틀 바 - 폴더 아이콘 + 화면명(Text) + 화면코드(MenuCd, 대괄호).
+    /// 모든 업무화면 공통 타이틀 바 - 폴더 아이콘 + 화면명(Text) + 화면 식별자(대괄호). 예전엔
+    /// MenuCd 문자열("[SM_MENU]")을 그대로 보여줬는데, MENU_ID(정수)로 바뀌면서 그 자체는 사람이
+    /// 읽고 알아볼 수 없어 SessionManager 세션 메뉴 목록에서 Module.ScreenClassNm("[SM.frmMenu]")을
+    /// 찾아 대신 보여준다 - 개발/문의 시 "이 화면이 뭔지" 식별하는 용도는 그대로 유지된다.
     /// 화면마다 제목 영역을 제각각 만들지 않고 이 메서드 하나로 통일해서, 어떤 화면을 열어도
     /// 같은 위치/스타일로 "지금 보고 있는 화면이 뭔지" 바로 알 수 있게 한다.
     /// 반드시 다른 Dock=Top 패널(조회조건 등)보다 나중에 Controls.Add 해야 맨 위를 차지한다.
@@ -418,9 +443,12 @@ public class BaseForm : XtraForm
         lblTitle.Appearance.Font = AppFonts.BodyBold;
         lblTitle.Appearance.ForeColor = Color.FromArgb(55, 55, 55);
 
+        var screenKey = SessionManager.Current.GetMenuAuth(MenuId) is { } menu && !string.IsNullOrEmpty(menu.ScreenClassNm)
+            ? $"{menu.Module}.{menu.ScreenClassNm}"
+            : null;
         var lblCode = new LabelControl
         {
-            Text = string.IsNullOrEmpty(MenuCd) ? string.Empty : $"[{MenuCd}]",
+            Text = string.IsNullOrEmpty(screenKey) ? string.Empty : $"[{screenKey}]",
             AutoSizeMode = LabelAutoSizeMode.Default
         };
         lblCode.Appearance.Font = AppFonts.Caption;

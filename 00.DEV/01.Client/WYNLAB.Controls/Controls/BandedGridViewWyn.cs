@@ -20,6 +20,14 @@ public class BandedGridViewWyn : BandedGridView
         _behavior = new GridViewWynBehavior(this);
     }
 
+    /// <summary>GridViewWyn.EndInit과 같은 이유 - 화면이 `.Role = ...`을 한 번도 명시적으로 안
+    /// 건드려도 Query 잠금이 최소 한 번은 적용되게 한다.</summary>
+    public override void EndInit()
+    {
+        base.EndInit();
+        _behavior.EnsureRoleApplied();
+    }
+
     [Category("WYNLAB")]
     [Description("왼쪽 인디케이터에 행 번호(1, 2, 3...)를 표시합니다.")]
     [DefaultValue(false)]

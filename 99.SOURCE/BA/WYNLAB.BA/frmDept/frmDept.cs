@@ -24,7 +24,6 @@ public partial class frmDept : BaseForm
         InitializeComponent();
 
         Text = "부서등록";
-        MenuCd = "BA_DEPT";
 
         tree1.KeyFieldName = "dept_cd";
         tree1.ParentFieldName = "par_dept_cd";
@@ -75,7 +74,13 @@ public partial class frmDept : BaseForm
     /// 첫 노드에 포커스를 주면서 FocusedNodeChanged가 발생하는데, 그게 복원하려는 노드가
     /// 아니면 잠깐 엉뚱한 부서로 EnterEditMode가 실행되므로, 포커스 복원이 끝날 때까지
     /// 이벤트를 끊어두고 마지막에 한 번만 명시적으로 처리한다.</summary>
-    public override async Task QueryClick()
+    // 사용자 조회(preserveSelection: false, 항상 0번 노드부터)와 저장/삭제 뒤 내부 재조회
+    // (preserveSelection: true, 방금 편집하던 노드 유지)는 다른 동작이어야 한다(2026-09-02,
+    // [[feedback_query_refocus_after_save]] - 지금까지 _editingDeptCd를 무조건 복원해서 목록
+    // 중간 부서를 보다가 조회를 눌러도 그 노드가 계속 선택된 채로 남아있었다).
+    public override async Task QueryClick() => await QueryCore(preserveSelection: false);
+
+    private async Task QueryCore(bool preserveSelection)
     {
         var detpCd = txtDeptCd_Q.Text.Trim();
 
@@ -85,7 +90,7 @@ public partial class frmDept : BaseForm
             p_dept_cd = detpCd
         });
 
-        var editingDeptCd = _editingDeptCd;
+        var editingDeptCd = preserveSelection ? _editingDeptCd : null;
 
         tree1.FocusedNodeChanged -= Tree1_FocusedNodeChanged;
         try
@@ -103,7 +108,14 @@ public partial class frmDept : BaseForm
             tree1.FocusedNodeChanged += Tree1_FocusedNodeChanged;
         }
 
-        var row = editingDeptCd == null ? null : FindDeptRow(editingDeptCd);
+        // DevExpress가 DataSource 세팅 시(위에서 복원 시도한 노드가 없으면 특히) 자동으로 어떤
+        // 노드엔가 포커스를 준다(보통 첫 번째) - 이벤트를 끊어놨으므로 EnterEditMode가 안 불려서
+        // panData는 안 채워졌는데 트리는 그 노드가 하이라이트된 채로 남는다(2026-09-04 실제
+        // 발견 - 조회하면 최상단 부서가 선택된 것처럼 보이는데 우측 상세는 빈 화면). 지금
+        // 실제로 포커스된 노드 기준으로 채운다 - 복원 시도 성공/실패, 최초 조회 전부 이
+        // 한 줄로 통일된다(editingDeptCd로 다시 찾을 필요 없음).
+        var focusedDeptCd = tree1.FocusedNode?.GetValue("dept_cd") as string;
+        var row = string.IsNullOrEmpty(focusedDeptCd) ? null : FindDeptRow(focusedDeptCd);
         if (row != null) EnterEditMode(row);
         else EnterNewMode();
     }
@@ -173,7 +185,8 @@ public partial class frmDept : BaseForm
             return;
         }
 
-        await QueryClick();
+        _editingDeptCd = txtDeptCd.Text.ToUpper();
+        await QueryCore(preserveSelection: true); // 방금 저장한 행 유지 - QueryClick(사용자 조회)과 다른 경로
         Toast.Show(wasNew ? "등록되었습니다." : "수정되었습니다.");
     }
 

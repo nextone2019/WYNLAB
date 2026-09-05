@@ -54,8 +54,8 @@ public partial class frmSysPopup
             this.repositoryItemCheckEditVisible = new DevExpress.XtraEditors.Repository.RepositoryItemCheckEdit();
             this.panelWyn1 = new WYNLAB.Base.Controls.PanelWyn();
             this.panelWyn7 = new WYNLAB.Base.Controls.PanelWyn();
-            this.btnDeletRow2 = new DevExpress.XtraEditors.SimpleButton();
-            this.btnAddRow2 = new DevExpress.XtraEditors.SimpleButton();
+            this.btnDeletRow2 = new WYNLAB.Base.Controls.ButtonWyn();
+            this.btnAddRow2 = new WYNLAB.Base.Controls.ButtonWyn();
             this.sectionHeaderWyn2 = new WYNLAB.Base.Controls.SectionHeaderWyn();
             this.grd3 = new WYNLAB.Base.Controls.GridControlWyn();
             this.gvw3 = new WYNLAB.Base.Controls.GridViewWyn();
@@ -67,8 +67,8 @@ public partial class frmSysPopup
             this.repositoryItemComboBoxSearchControlType = new DevExpress.XtraEditors.Repository.RepositoryItemComboBox();
             this.panelWyn9 = new WYNLAB.Base.Controls.PanelWyn();
             this.panelWyn10 = new WYNLAB.Base.Controls.PanelWyn();
-            this.btnDeletRow3 = new DevExpress.XtraEditors.SimpleButton();
-            this.btnAddRow3 = new DevExpress.XtraEditors.SimpleButton();
+            this.btnDeletRow3 = new WYNLAB.Base.Controls.ButtonWyn();
+            this.btnAddRow3 = new WYNLAB.Base.Controls.ButtonWyn();
             this.sectionHeaderWyn5 = new WYNLAB.Base.Controls.SectionHeaderWyn();
             this.panelWyn5 = new WYNLAB.Base.Controls.PanelWyn();
             this.panData = new WYNLAB.Base.Controls.PanelWyn();
@@ -93,7 +93,7 @@ public partial class frmSysPopup
             this.txtPopupNm = new WYNLAB.Base.Controls.TextEditWyn();
             this.lblProcNm = new DevExpress.XtraEditors.LabelControl();
             this.txtProcNm = new WYNLAB.Base.Controls.TextEditWyn();
-            this.btnGenerateColumns = new DevExpress.XtraEditors.SimpleButton();
+            this.btnGenerateColumns = new WYNLAB.Base.Controls.ButtonWyn();
             this.lblHierarchical = new DevExpress.XtraEditors.LabelControl();
             this.chkHierarchical = new WYNLAB.Base.Controls.CheckBoxWyn();
             this.lblKeyField = new DevExpress.XtraEditors.LabelControl();
@@ -165,7 +165,6 @@ public partial class frmSysPopup
             // panBase
             //
             this.panBase.Appearance.BackColor = System.Drawing.Color.White;
-            this.panBase.Appearance.Options.UseBackColor = true;
             this.panBase.Controls.Add(this.panelWyn3);
             this.panBase.Controls.Add(this.panHeader);
             this.panBase.Controls.Add(this.paTitle);
@@ -344,13 +343,9 @@ public partial class frmSysPopup
             // btnDeletRow2
             //
             this.btnDeletRow2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnDeletRow2.Appearance.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(253)))), ((int)(((byte)(236)))), ((int)(((byte)(234)))));
-            this.btnDeletRow2.Appearance.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(245)))), ((int)(((byte)(198)))), ((int)(((byte)(193)))));
-            this.btnDeletRow2.Appearance.Font = new System.Drawing.Font("Segoe MDL2 Assets", 11F);
-            this.btnDeletRow2.Appearance.Options.UseBackColor = true;
-            this.btnDeletRow2.Appearance.Options.UseBorderColor = true;
-            this.btnDeletRow2.Appearance.Options.UseFont = true;
-            this.btnDeletRow2.ImageOptions.Image = ((System.Drawing.Image)(resources.GetObject("btnDeletRow2.ImageOptions.Image")));
+            this.btnDeletRow2.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(253)))), ((int)(((byte)(236)))), ((int)(((byte)(234)))));
+            this.btnDeletRow2.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(245)))), ((int)(((byte)(198)))), ((int)(((byte)(193)))));
+            this.btnDeletRow2.Image = ((System.Drawing.Image)(resources.GetObject("btnDeletRow2.ImageOptions.Image")));
             this.btnDeletRow2.Location = new System.Drawing.Point(42, 2);
             this.btnDeletRow2.Name = "btnDeletRow2";
             this.btnDeletRow2.Size = new System.Drawing.Size(24, 22);
@@ -362,13 +357,9 @@ public partial class frmSysPopup
             // btnAddRow2
             //
             this.btnAddRow2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnAddRow2.Appearance.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(228)))), ((int)(((byte)(245)))), ((int)(((byte)(231)))));
-            this.btnAddRow2.Appearance.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(198)))), ((int)(((byte)(231)))), ((int)(((byte)(203)))));
-            this.btnAddRow2.Appearance.Font = new System.Drawing.Font("Segoe MDL2 Assets", 11F);
-            this.btnAddRow2.Appearance.Options.UseBackColor = true;
-            this.btnAddRow2.Appearance.Options.UseBorderColor = true;
-            this.btnAddRow2.Appearance.Options.UseFont = true;
-            this.btnAddRow2.ImageOptions.Image = ((System.Drawing.Image)(resources.GetObject("btnAddRow2.ImageOptions.Image")));
+            this.btnAddRow2.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(228)))), ((int)(((byte)(245)))), ((int)(((byte)(231)))));
+            this.btnAddRow2.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(198)))), ((int)(((byte)(231)))), ((int)(((byte)(203)))));
+            this.btnAddRow2.Image = ((System.Drawing.Image)(resources.GetObject("btnAddRow2.ImageOptions.Image")));
             this.btnAddRow2.Location = new System.Drawing.Point(10, 2);
             this.btnAddRow2.Name = "btnAddRow2";
             this.btnAddRow2.Size = new System.Drawing.Size(24, 22);
@@ -500,13 +491,9 @@ public partial class frmSysPopup
             // btnDeletRow3
             //
             this.btnDeletRow3.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnDeletRow3.Appearance.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(253)))), ((int)(((byte)(236)))), ((int)(((byte)(234)))));
-            this.btnDeletRow3.Appearance.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(245)))), ((int)(((byte)(198)))), ((int)(((byte)(193)))));
-            this.btnDeletRow3.Appearance.Font = new System.Drawing.Font("Segoe MDL2 Assets", 11F);
-            this.btnDeletRow3.Appearance.Options.UseBackColor = true;
-            this.btnDeletRow3.Appearance.Options.UseBorderColor = true;
-            this.btnDeletRow3.Appearance.Options.UseFont = true;
-            this.btnDeletRow3.ImageOptions.Image = ((System.Drawing.Image)(resources.GetObject("btnDeletRow2.ImageOptions.Image")));
+            this.btnDeletRow3.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(253)))), ((int)(((byte)(236)))), ((int)(((byte)(234)))));
+            this.btnDeletRow3.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(245)))), ((int)(((byte)(198)))), ((int)(((byte)(193)))));
+            this.btnDeletRow3.Image = ((System.Drawing.Image)(resources.GetObject("btnDeletRow2.ImageOptions.Image")));
             this.btnDeletRow3.Location = new System.Drawing.Point(42, 2);
             this.btnDeletRow3.Name = "btnDeletRow3";
             this.btnDeletRow3.Size = new System.Drawing.Size(24, 22);
@@ -518,13 +505,9 @@ public partial class frmSysPopup
             // btnAddRow3
             //
             this.btnAddRow3.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnAddRow3.Appearance.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(228)))), ((int)(((byte)(245)))), ((int)(((byte)(231)))));
-            this.btnAddRow3.Appearance.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(198)))), ((int)(((byte)(231)))), ((int)(((byte)(203)))));
-            this.btnAddRow3.Appearance.Font = new System.Drawing.Font("Segoe MDL2 Assets", 11F);
-            this.btnAddRow3.Appearance.Options.UseBackColor = true;
-            this.btnAddRow3.Appearance.Options.UseBorderColor = true;
-            this.btnAddRow3.Appearance.Options.UseFont = true;
-            this.btnAddRow3.ImageOptions.Image = ((System.Drawing.Image)(resources.GetObject("btnAddRow2.ImageOptions.Image")));
+            this.btnAddRow3.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(228)))), ((int)(((byte)(245)))), ((int)(((byte)(231)))));
+            this.btnAddRow3.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(198)))), ((int)(((byte)(231)))), ((int)(((byte)(203)))));
+            this.btnAddRow3.Image = ((System.Drawing.Image)(resources.GetObject("btnAddRow2.ImageOptions.Image")));
             this.btnAddRow3.Location = new System.Drawing.Point(10, 2);
             this.btnAddRow3.Name = "btnAddRow3";
             this.btnAddRow3.Size = new System.Drawing.Size(24, 22);
@@ -593,7 +576,6 @@ public partial class frmSysPopup
             // lblPopupKey
             //
             this.lblPopupKey.Appearance.Font = new System.Drawing.Font("맑은 고딕", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
-            this.lblPopupKey.Appearance.Options.UseFont = true;
             this.lblPopupKey.Location = new System.Drawing.Point(11, 12);
             this.lblPopupKey.Name = "lblPopupKey";
             this.lblPopupKey.Size = new System.Drawing.Size(90, 15);
@@ -610,7 +592,6 @@ public partial class frmSysPopup
             // lblPopupNm
             //
             this.lblPopupNm.Appearance.Font = new System.Drawing.Font("맑은 고딕", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
-            this.lblPopupNm.Appearance.Options.UseFont = true;
             this.lblPopupNm.Location = new System.Drawing.Point(220, 12);
             this.lblPopupNm.Name = "lblPopupNm";
             this.lblPopupNm.Size = new System.Drawing.Size(70, 15);
@@ -627,7 +608,6 @@ public partial class frmSysPopup
             // lblProcNm
             //
             this.lblProcNm.Appearance.Font = new System.Drawing.Font("맑은 고딕", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
-            this.lblProcNm.Appearance.Options.UseFont = true;
             this.lblProcNm.Location = new System.Drawing.Point(11, 40);
             this.lblProcNm.Name = "lblProcNm";
             this.lblProcNm.Size = new System.Drawing.Size(90, 15);
@@ -653,7 +633,6 @@ public partial class frmSysPopup
             // lblHierarchical
             //
             this.lblHierarchical.Appearance.Font = new System.Drawing.Font("맑은 고딕", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
-            this.lblHierarchical.Appearance.Options.UseFont = true;
             this.lblHierarchical.Location = new System.Drawing.Point(410, 40);
             this.lblHierarchical.Name = "lblHierarchical";
             this.lblHierarchical.Size = new System.Drawing.Size(70, 15);
@@ -671,7 +650,6 @@ public partial class frmSysPopup
             // lblKeyField
             //
             this.lblKeyField.Appearance.Font = new System.Drawing.Font("맑은 고딕", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
-            this.lblKeyField.Appearance.Options.UseFont = true;
             this.lblKeyField.Location = new System.Drawing.Point(11, 68);
             this.lblKeyField.Name = "lblKeyField";
             this.lblKeyField.Size = new System.Drawing.Size(90, 15);
@@ -688,7 +666,6 @@ public partial class frmSysPopup
             // lblParentField
             //
             this.lblParentField.Appearance.Font = new System.Drawing.Font("맑은 고딕", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
-            this.lblParentField.Appearance.Options.UseFont = true;
             this.lblParentField.Location = new System.Drawing.Point(220, 68);
             this.lblParentField.Name = "lblParentField";
             this.lblParentField.Size = new System.Drawing.Size(70, 15);
@@ -705,7 +682,6 @@ public partial class frmSysPopup
             // lblDisplayField
             //
             this.lblDisplayField.Appearance.Font = new System.Drawing.Font("맑은 고딕", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
-            this.lblDisplayField.Appearance.Options.UseFont = true;
             this.lblDisplayField.Location = new System.Drawing.Point(11, 96);
             this.lblDisplayField.Name = "lblDisplayField";
             this.lblDisplayField.Size = new System.Drawing.Size(90, 15);
@@ -722,7 +698,6 @@ public partial class frmSysPopup
             // lblUseYn
             //
             this.lblUseYn.Appearance.Font = new System.Drawing.Font("맑은 고딕", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
-            this.lblUseYn.Appearance.Options.UseFont = true;
             this.lblUseYn.Location = new System.Drawing.Point(220, 96);
             this.lblUseYn.Name = "lblUseYn";
             this.lblUseYn.Size = new System.Drawing.Size(70, 15);
@@ -740,7 +715,6 @@ public partial class frmSysPopup
             // lblPopupWidth
             //
             this.lblPopupWidth.Appearance.Font = new System.Drawing.Font("맑은 고딕", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
-            this.lblPopupWidth.Appearance.Options.UseFont = true;
             this.lblPopupWidth.Location = new System.Drawing.Point(11, 124);
             this.lblPopupWidth.Name = "lblPopupWidth";
             this.lblPopupWidth.Size = new System.Drawing.Size(90, 15);
@@ -757,7 +731,6 @@ public partial class frmSysPopup
             // lblPopupHeight
             //
             this.lblPopupHeight.Appearance.Font = new System.Drawing.Font("맑은 고딕", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
-            this.lblPopupHeight.Appearance.Options.UseFont = true;
             this.lblPopupHeight.Location = new System.Drawing.Point(220, 124);
             this.lblPopupHeight.Name = "lblPopupHeight";
             this.lblPopupHeight.Size = new System.Drawing.Size(70, 15);
@@ -774,7 +747,6 @@ public partial class frmSysPopup
             // lblRemark
             //
             this.lblRemark.Appearance.Font = new System.Drawing.Font("맑은 고딕", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
-            this.lblRemark.Appearance.Options.UseFont = true;
             this.lblRemark.Location = new System.Drawing.Point(11, 152);
             this.lblRemark.Name = "lblRemark";
             this.lblRemark.Size = new System.Drawing.Size(90, 15);
@@ -921,7 +893,6 @@ public partial class frmSysPopup
             // panHeader
             //
             this.panHeader.Appearance.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(240)))), ((int)(((byte)(240)))), ((int)(((byte)(240)))));
-            this.panHeader.Appearance.Options.UseBackColor = true;
             this.panHeader.BorderStyle = DevExpress.XtraEditors.Controls.BorderStyles.Default;
             this.panHeader.Controls.Add(this.txtSearchQ);
             this.panHeader.Controls.Add(this.labelControl1);
@@ -943,7 +914,6 @@ public partial class frmSysPopup
             // labelControl1
             //
             this.labelControl1.Appearance.Font = new System.Drawing.Font("맑은 고딕", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
-            this.labelControl1.Appearance.Options.UseFont = true;
             this.labelControl1.Location = new System.Drawing.Point(25, 18);
             this.labelControl1.Name = "labelControl1";
             this.labelControl1.Size = new System.Drawing.Size(77, 15);
@@ -974,7 +944,6 @@ public partial class frmSysPopup
             //
             // frmSysPopup
             //
-            this.Appearance.Options.UseFont = true;
             this.ClientSize = new System.Drawing.Size(1165, 600);
             this.Controls.Add(this.panBase);
             this.Name = "frmSysPopup";
@@ -1042,7 +1011,7 @@ public partial class frmSysPopup
     private TextEditWyn txtPopupNm;
     private DevExpress.XtraEditors.LabelControl lblProcNm;
     private TextEditWyn txtProcNm;
-    private DevExpress.XtraEditors.SimpleButton btnGenerateColumns;
+    private ButtonWyn btnGenerateColumns;
     private DevExpress.XtraEditors.LabelControl lblHierarchical;
     private CheckBoxWyn chkHierarchical;
     private DevExpress.XtraEditors.LabelControl lblKeyField;
@@ -1087,8 +1056,8 @@ public partial class frmSysPopup
     private PanelWyn panHeader;
     private TextEditWyn txtSearchQ;
     private DevExpress.XtraEditors.LabelControl labelControl1;
-    private DevExpress.XtraEditors.SimpleButton btnDeletRow2;
-    private DevExpress.XtraEditors.SimpleButton btnAddRow2;
+    private ButtonWyn btnDeletRow2;
+    private ButtonWyn btnAddRow2;
     private PanelWyn panelWyn7;
     private PanelWyn panelWyn8;
     private GridControlWyn grd3;
@@ -1101,7 +1070,7 @@ public partial class frmSysPopup
     private DevExpress.XtraEditors.Repository.RepositoryItemComboBox repositoryItemComboBoxSearchControlType;
     private PanelWyn panelWyn9;
     private PanelWyn panelWyn10;
-    private DevExpress.XtraEditors.SimpleButton btnDeletRow3;
-    private DevExpress.XtraEditors.SimpleButton btnAddRow3;
+    private ButtonWyn btnDeletRow3;
+    private ButtonWyn btnAddRow3;
     private SectionHeaderWyn sectionHeaderWyn5;
 }

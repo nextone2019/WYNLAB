@@ -265,25 +265,28 @@ internal sealed class GridViewWynBehavior
         }
     }
 
-    // RowAdd/RowDelete - 행추가/행삭제는 Role(셀 편집 가능 여부)과 완전히 별개 축이다. grd3/grd4
-    // (소속그룹/소속사원 체크그리드) 같은 "편집은 되지만 행 자체는 늘거나 줄면 안 되는" 그리드가
-    // 있어서, Role=Edit이어도 이 이벤트를 안 붙이면 추가/삭제 버튼은 아예 안 뜬다 - 구독 여부
-    // 하나로 버튼 노출까지 자동으로 맞춰진다(RefreshAddDeleteButtons 참고). DevExpress
-    // EmbeddedNavigator의 Append/Remove 버튼 기본 동작(View.AddNewRow()/DeleteRow()를 그냥 실행)도
-    // 여기서 가로채서 안 쓴다 - frmMinorCode.NewRowClick처럼 화면마다 있는 검증 로직(예: "대분류를
-    // 먼저 저장해야 함")을 건너뛰고 그리드가 직접 행을 만들어버리는 구멍이 될 수 있기 때문이다.
+    // RowAdd/RowDelete - 행추가/행삭제 클릭을 실제로 처리할지는 이 구독 여부로 결정하지만,
+    // EmbeddedNavigator 버튼의 노출(Visible)은 2026-09-03부터 순수하게 Role만 따른다(사장님 지시 -
+    // "조회 화면은 5개 버튼 전부 Visible:false, 수정/저장/삭제 화면은 5개 전부 Visible:true", Grid/
+    // BandedGrid 공통). 예전엔 RowAdd/RowDelete 구독 여부로 Append/Remove만 따로 숨겼었는데
+    // (frmUserAuth 같은 "편집은 되지만 행 자체는 안 늘어야 하는" 그리드를 위해), 지금은 Role
+    // 하나로 5개 버튼이 전부 통일되게 바뀌었다 - 그런 그리드가 필요해지면 별도 논의.
+    // 구독자가 없어도 버튼이 보일 수 있으므로, DevExpress 기본 동작(View.AddNewRow()/DeleteRow()를
+    // 그냥 실행)이 새서 화면마다 있는 검증 로직(예: frmMinorCode.NewRowClick의 "대분류를 먼저
+    // 저장해야 함")을 건너뛰지 않도록 OnNavigatorButtonClick에서 구독 여부와 무관하게 항상
+    // e.Handled=true로 가로챈다(구독 없으면 조용히 무시).
     private EventHandler? _rowAdd;
     public event EventHandler? RowAdd
     {
-        add { _rowAdd += value; RefreshAddDeleteButtons(); }
-        remove { _rowAdd -= value; RefreshAddDeleteButtons(); }
+        add => _rowAdd += value;
+        remove => _rowAdd -= value;
     }
 
     private EventHandler? _rowDelete;
     public event EventHandler? RowDelete
     {
-        add { _rowDelete += value; RefreshAddDeleteButtons(); }
-        remove { _rowDelete -= value; RefreshAddDeleteButtons(); }
+        add => _rowDelete += value;
+        remove => _rowDelete -= value;
     }
 
     private bool _navigatorWired;
@@ -293,6 +296,18 @@ internal sealed class GridViewWynBehavior
     /// GridControl에도 안 붙은 시점(생성자 직후)엔 null이다 - 화면 생성자가 InitializeComponent()
     /// 뒤에 Role을 설정하는 게 표준 사용법이라 실제로는 항상 연결된 뒤에 호출되므로, 여기선 null이면
     /// 그냥 건너뛴다(재시도용 이벤트 구독까지는 필요 없음 - 실제로 그런 순서로 안 불림).</summary>
+    /// <summary>화면이 `.Role = ...`을 한 번도 명시적으로 설정하지 않은 그리드를 위한 안전장치.
+    /// `Role` 프로퍼티는 세터를 거쳐야만 ApplyRole()이 불리는데(필드 기본값 GridRoleWyn.Query는
+    /// 그냥 초기값일 뿐 세터를 안 거치므로 아무 효과가 없다), Designer의 [DefaultValue(Query)]
+    /// 때문에 "디자이너에서 굳이 안 건드린 그리드"는 InitializeComponent()에 `gvw1.Role = ...`
+    /// 코드 자체가 생성되지 않는다 - 그 결과 EmbeddedNavigator가 DevExpress 순정 기본값(추가/
+    /// 삭제/편집 버튼 전부 보임+활성) 그대로 남는 사고가 실제로 있었다(frmSysLookup grd1,
+    /// Role=Query 의도였지만 한 번도 안 불림, 2026-09-02). GridViewWyn/BandedGridViewWyn이
+    /// EndInit()에서 이 메서드를 호출해 명시적 설정 여부와 무관하게 항상 한 번은 잠금을
+    /// 적용한다 - 그 뒤 화면 생성자가 실제로 `.Role = ...`을 부르면 그때 다시 ApplyRole()이
+    /// 불려 최종 상태를 덮어쓰므로 순서 상관없이 항상 맞다.</summary>
+    public void EnsureRoleApplied() => ApplyRole();
+
     private void ApplyRole()
     {
         var editable = _role == GridRoleWyn.Edit;
@@ -304,10 +319,14 @@ internal sealed class GridViewWynBehavior
 
         WireNavigatorButtonClick(navigator);
 
+        // EmbeddedNavigator 5개 버튼(Append/Delete/Edit/EndEdit/CancelEdit) 전부 Role 하나로
+        // 통일해서 노출한다 - 조회 화면(Query)은 전부 숨김, 수정/저장/삭제 화면(Edit)은 전부
+        // 노출(사장님 지시, 2026-09-03).
+        navigator.Buttons.Append.Visible = editable;
+        navigator.Buttons.Remove.Visible = editable;
         navigator.Buttons.Edit.Visible = editable;
         navigator.Buttons.EndEdit.Visible = editable;
         navigator.Buttons.CancelEdit.Visible = editable;
-        RefreshAddDeleteButtons();
     }
 
     private void WireNavigatorButtonClick(ControlNavigator navigator)
@@ -317,34 +336,24 @@ internal sealed class GridViewWynBehavior
         navigator.ButtonClick += OnNavigatorButtonClick;
     }
 
-    /// <summary>DevExpress 기본 동작(AddNewRow/DeleteRow를 바로 실행) 대신 RowAdd/RowDelete
-    /// 이벤트를 호출한다 - 구독자가 없으면(RefreshAddDeleteButtons가 버튼을 이미 숨겼으므로) 이
-    /// 핸들러 자체가 거의 안 불리지만, 방어적으로 한 번 더 구독 여부를 확인한다.</summary>
+    /// <summary>DevExpress 기본 동작(AddNewRow/DeleteRow를 그냥 실행)을 절대 그대로 두지 않는다 -
+    /// RowAdd/RowDelete 구독 여부와 무관하게 항상 e.Handled=true로 가로채고, 구독이 있을 때만
+    /// 실제로 그 델리게이트를 부른다. Append/Remove 버튼이 이제 Role만으로 노출되므로(구독 여부와
+    /// 무관), 구독 없이 눌렸을 때 DevExpress 기본 동작이 새면 화면마다 있는 검증 로직(예:
+    /// frmMinorCode.NewRowClick의 "대분류를 먼저 저장해야 함")을 건너뛰고 그리드가 직접 행을
+    /// 만들어버리는 구멍이 생긴다 - 그래서 구독 없으면 조용히 무시(no-op)한다.</summary>
     private void OnNavigatorButtonClick(object? sender, NavigatorButtonClickEventArgs e)
     {
-        if (e.Button.ButtonType == NavigatorButtonType.Append && _rowAdd != null)
+        if (e.Button.ButtonType == NavigatorButtonType.Append)
         {
             e.Handled = true;
-            _rowAdd(_view, EventArgs.Empty);
+            _rowAdd?.Invoke(_view, EventArgs.Empty);
         }
-        else if (e.Button.ButtonType == NavigatorButtonType.Remove && _rowDelete != null)
+        else if (e.Button.ButtonType == NavigatorButtonType.Remove)
         {
             e.Handled = true;
-            _rowDelete(_view, EventArgs.Empty);
+            _rowDelete?.Invoke(_view, EventArgs.Empty);
         }
-    }
-
-    /// <summary>Role 변경, RowAdd/RowDelete 구독/해제 어느 쪽이 먼저 일어나도(순서 무관) 최종
-    /// 상태가 항상 맞도록 두 경로 모두 이 메서드를 거친다. GridControl에 아직 안 붙었으면(Role이
-    /// 아직 한 번도 설정 안 됐거나 생성자 직후) 조용히 건너뛴다 - ApplyRole이 나중에 다시 부른다.</summary>
-    private void RefreshAddDeleteButtons()
-    {
-        var navigator = _view.GridControl?.EmbeddedNavigator;
-        if (navigator == null) return;
-
-        var editable = _role == GridRoleWyn.Edit;
-        navigator.Buttons.Append.Visible = editable && _rowAdd != null;
-        navigator.Buttons.Remove.Visible = editable && _rowDelete != null;
     }
 
     /// <summary>저장 성공 후 호출 - 수정 강조 표시를 전부 지운다.</summary>

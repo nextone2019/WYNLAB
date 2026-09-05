@@ -7,7 +7,7 @@ namespace WYNLAB.Base;
 /// 범용 데이터 통로(api/data/*)로 저장프로시저를 부르는 헬퍼. 설계 배경은 저장소 루트의
 /// GENERIC_DATA_API.md 참고.
 ///
-/// 화면은 BaseForm의 QueryAsync/SaveAsync를 쓰면 되고(메뉴코드가 자동으로 채워짐), 이 클래스를
+/// 화면은 BaseForm의 QueryAsync/SaveAsync를 쓰면 되고(메뉴ID가 자동으로 채워짐), 이 클래스를
 /// 직접 부를 일은 BaseForm을 상속하지 않는 곳(팝업 등)뿐이다.
 /// </summary>
 public static class ProcData
@@ -16,14 +16,14 @@ public static class ProcData
     /// 조회 프로시저를 실행하고 첫 번째 결과셋을 DataTable로 돌려준다.
     /// 결과셋이 여럿인 프로시저는 QueryMultiAsync를 쓴다.
     /// </summary>
-    public static async Task<DataTable> QueryAsync(string menuCd, string procName, object? parameters = null)
+    public static async Task<DataTable> QueryAsync(long menuId, string procName, object? parameters = null)
     {
-        var tables = await QueryMultiAsync(menuCd, procName, parameters);
+        var tables = await QueryMultiAsync(menuId, procName, parameters);
         return tables.Count > 0 ? tables[0] : new DataTable();
     }
 
     /// <summary>결과셋을 여러 개 돌려주는 프로시저용(예: 대분류+소분류를 한 번에 조회).</summary>
-    public static async Task<List<DataTable>> QueryMultiAsync(string menuCd, string procName, object? parameters = null)
+    public static async Task<List<DataTable>> QueryMultiAsync(long menuId, string procName, object? parameters = null)
     {
         var callParams = ToParams(parameters);
         var stopwatch = System.Diagnostics.Stopwatch.StartNew();
@@ -32,17 +32,17 @@ public static class ProcData
         {
             var response = await ApiClient.PostAsync<DataRequest, DataQueryResponse>("api/data/query", new DataRequest
             {
-                MenuCd = menuCd,
+                MenuId = menuId,
                 ProcName = procName,
                 Params = callParams
             });
 
-            ApiCallLog.Record(menuCd, procName, callParams, success: true, message: null, stopwatch.ElapsedMilliseconds);
+            ApiCallLog.Record(menuId.ToString(), procName, callParams, success: true, message: null, stopwatch.ElapsedMilliseconds);
             return (response?.Tables ?? new()).Select(ToDataTable).ToList();
         }
         catch (Exception ex)
         {
-            ApiCallLog.Record(menuCd, procName, callParams, success: false, message: ex.Message, stopwatch.ElapsedMilliseconds);
+            ApiCallLog.Record(menuId.ToString(), procName, callParams, success: false, message: ex.Message, stopwatch.ElapsedMilliseconds);
             throw;
         }
     }
@@ -52,7 +52,7 @@ public static class ProcData
     /// 판단하므로(N/U/D), 화면은 그 값을 파라미터에 담아 보내기만 하면 된다.
     /// p_user_id/p_client_pc는 서버가 직접 채우므로 화면에서 보낼 필요가 없다.
     /// </summary>
-    public static async Task<ApiResult> SaveAsync(string menuCd, string procName, object? parameters = null)
+    public static async Task<ApiResult> SaveAsync(long menuId, string procName, object? parameters = null)
     {
         var callParams = ToParams(parameters);
         var stopwatch = System.Diagnostics.Stopwatch.StartNew();
@@ -61,17 +61,17 @@ public static class ProcData
         {
             var result = await ApiClient.PostAsync<DataRequest, ApiResult>("api/data/save", new DataRequest
             {
-                MenuCd = menuCd,
+                MenuId = menuId,
                 ProcName = procName,
                 Params = callParams
             }) ?? new ApiResult { Success = false, Message = "서버 응답을 받지 못했습니다." };
 
-            ApiCallLog.Record(menuCd, procName, callParams, result.Success, result.Message, stopwatch.ElapsedMilliseconds);
+            ApiCallLog.Record(menuId.ToString(), procName, callParams, result.Success, result.Message, stopwatch.ElapsedMilliseconds);
             return result;
         }
         catch (Exception ex)
         {
-            ApiCallLog.Record(menuCd, procName, callParams, success: false, message: ex.Message, stopwatch.ElapsedMilliseconds);
+            ApiCallLog.Record(menuId.ToString(), procName, callParams, success: false, message: ex.Message, stopwatch.ElapsedMilliseconds);
             throw;
         }
     }
@@ -95,7 +95,7 @@ public static class ProcData
     }
 
     /// <summary>
-    /// 익명 객체(new { p_work_type = "Q", p_major_cd = "CM" })를 파라미터 딕셔너리로 바꾼다.
+    /// 익명 객체(new { p_work_type = "Q", p_major_cd = "CM0001" })를 파라미터 딕셔너리로 바꾼다.
     /// 화면 코드에서 딕셔너리를 직접 만들면 중괄호가 겹쳐 읽기 나빠서, 익명 객체를 받는다.
     ///
     /// 관리항목1~10처럼 파라미터 이름을 반복문으로 만들어야 하는 화면(frmMinorCode.SaveClick 등)은
@@ -148,7 +148,7 @@ public static class ProcData
     /// 중복 오류가 났다). AcceptChanges 이후에야 방금 로드한 행은 Unchanged, 그 다음 사용자가
     /// 그리드에서 실제로 편집/추가/삭제한 행만 Modified/Added/Deleted로 구분된다.
     /// </summary>
-    /// <summary>PopupLookupForm처럼 BaseForm을 상속하지 않아 menuCd 기반 QueryAsync를 못 쓰는
+    /// <summary>PopupLookupForm처럼 BaseForm을 상속하지 않아 menuId 기반 QueryAsync를 못 쓰는
     /// 곳(api/lookups/* 같은 별도 엔드포인트를 직접 호출)도 이 변환 로직만은 그대로 재사용할 수
     /// 있도록 internal로 연다 - JsonElement 언래핑을 빠뜨리면 그리드 정렬/검색이 조용히 깨진다
     /// (아래 UnwrapJsonValue 설명 참고).</summary>

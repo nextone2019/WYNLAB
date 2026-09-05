@@ -43,8 +43,8 @@ public partial class frmMinorCode
             this.gridColumn7 = new DevExpress.XtraGrid.Columns.GridColumn();
             this.panelWyn1 = new WYNLAB.Base.Controls.PanelWyn();
             this.panelWyn7 = new WYNLAB.Base.Controls.PanelWyn();
-            this.btnDeletRow2 = new DevExpress.XtraEditors.SimpleButton();
-            this.btnAddRow2 = new DevExpress.XtraEditors.SimpleButton();
+            this.btnDeletRow2 = new WYNLAB.Base.Controls.ButtonWyn();
+            this.btnAddRow2 = new WYNLAB.Base.Controls.ButtonWyn();
             this.sectionHeaderWyn2 = new WYNLAB.Base.Controls.SectionHeaderWyn();
             this.panelWyn5 = new WYNLAB.Base.Controls.PanelWyn();
             this.panData = new WYNLAB.Base.Controls.PanelWyn();
@@ -174,7 +174,6 @@ public partial class frmMinorCode
             // panBase
             // 
             this.panBase.Appearance.BackColor = System.Drawing.Color.White;
-            this.panBase.Appearance.Options.UseBackColor = true;
             this.panBase.Controls.Add(this.panelWyn3);
             this.panBase.Controls.Add(this.panHeader);
             this.panBase.Controls.Add(this.paTitle);
@@ -319,13 +318,9 @@ public partial class frmMinorCode
             // btnDeletRow2
             // 
             this.btnDeletRow2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnDeletRow2.Appearance.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(253)))), ((int)(((byte)(236)))), ((int)(((byte)(234)))));
-            this.btnDeletRow2.Appearance.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(245)))), ((int)(((byte)(198)))), ((int)(((byte)(193)))));
-            this.btnDeletRow2.Appearance.Font = new System.Drawing.Font("Segoe MDL2 Assets", 11F);
-            this.btnDeletRow2.Appearance.Options.UseBackColor = true;
-            this.btnDeletRow2.Appearance.Options.UseBorderColor = true;
-            this.btnDeletRow2.Appearance.Options.UseFont = true;
-            this.btnDeletRow2.ImageOptions.Image = ((System.Drawing.Image)(resources.GetObject("btnDeletRow2.ImageOptions.Image")));
+            this.btnDeletRow2.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(253)))), ((int)(((byte)(236)))), ((int)(((byte)(234)))));
+            this.btnDeletRow2.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(245)))), ((int)(((byte)(198)))), ((int)(((byte)(193)))));
+            this.btnDeletRow2.Image = ((System.Drawing.Image)(resources.GetObject("btnDeletRow2.ImageOptions.Image")));
             this.btnDeletRow2.Location = new System.Drawing.Point(42, 2);
             this.btnDeletRow2.Name = "btnDeletRow2";
             this.btnDeletRow2.Size = new System.Drawing.Size(24, 22);
@@ -337,13 +332,9 @@ public partial class frmMinorCode
             // btnAddRow2
             // 
             this.btnAddRow2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnAddRow2.Appearance.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(228)))), ((int)(((byte)(245)))), ((int)(((byte)(231)))));
-            this.btnAddRow2.Appearance.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(198)))), ((int)(((byte)(231)))), ((int)(((byte)(203)))));
-            this.btnAddRow2.Appearance.Font = new System.Drawing.Font("Segoe MDL2 Assets", 11F);
-            this.btnAddRow2.Appearance.Options.UseBackColor = true;
-            this.btnAddRow2.Appearance.Options.UseBorderColor = true;
-            this.btnAddRow2.Appearance.Options.UseFont = true;
-            this.btnAddRow2.ImageOptions.Image = ((System.Drawing.Image)(resources.GetObject("btnAddRow2.ImageOptions.Image")));
+            this.btnAddRow2.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(228)))), ((int)(((byte)(245)))), ((int)(((byte)(231)))));
+            this.btnAddRow2.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(198)))), ((int)(((byte)(231)))), ((int)(((byte)(203)))));
+            this.btnAddRow2.Image = ((System.Drawing.Image)(resources.GetObject("btnAddRow2.ImageOptions.Image")));
             this.btnAddRow2.Location = new System.Drawing.Point(10, 2);
             this.btnAddRow2.Name = "btnAddRow2";
             this.btnAddRow2.Size = new System.Drawing.Size(24, 22);
@@ -533,7 +524,6 @@ public partial class frmMinorCode
             // labelControl15
             // 
             this.labelControl15.Appearance.Font = new System.Drawing.Font("맑은 고딕", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
-            this.labelControl15.Appearance.Options.UseFont = true;
             this.labelControl15.Location = new System.Drawing.Point(381, 150);
             this.labelControl15.Name = "labelControl15";
             this.labelControl15.Size = new System.Drawing.Size(38, 15);
@@ -543,7 +533,6 @@ public partial class frmMinorCode
             // labelControl11
             // 
             this.labelControl11.Appearance.Font = new System.Drawing.Font("맑은 고딕", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
-            this.labelControl11.Appearance.Options.UseFont = true;
             this.labelControl11.Location = new System.Drawing.Point(388, 49);
             this.labelControl11.Name = "labelControl11";
             this.labelControl11.Size = new System.Drawing.Size(31, 15);
@@ -553,7 +542,6 @@ public partial class frmMinorCode
             // labelControl14
             // 
             this.labelControl14.Appearance.Font = new System.Drawing.Font("맑은 고딕", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
-            this.labelControl14.Appearance.Options.UseFont = true;
             this.labelControl14.Location = new System.Drawing.Point(388, 127);
             this.labelControl14.Name = "labelControl14";
             this.labelControl14.Size = new System.Drawing.Size(31, 15);
@@ -563,7 +551,6 @@ public partial class frmMinorCode
             // labelControl10
             // 
             this.labelControl10.Appearance.Font = new System.Drawing.Font("맑은 고딕", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
-            this.labelControl10.Appearance.Options.UseFont = true;
             this.labelControl10.Location = new System.Drawing.Point(40, 150);
             this.labelControl10.Name = "labelControl10";
             this.labelControl10.Size = new System.Drawing.Size(31, 15);
@@ -573,7 +560,6 @@ public partial class frmMinorCode
             // labelControl13
             // 
             this.labelControl13.Appearance.Font = new System.Drawing.Font("맑은 고딕", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
-            this.labelControl13.Appearance.Options.UseFont = true;
             this.labelControl13.Location = new System.Drawing.Point(388, 101);
             this.labelControl13.Name = "labelControl13";
             this.labelControl13.Size = new System.Drawing.Size(31, 15);
@@ -583,7 +569,6 @@ public partial class frmMinorCode
             // labelControl9
             // 
             this.labelControl9.Appearance.Font = new System.Drawing.Font("맑은 고딕", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
-            this.labelControl9.Appearance.Options.UseFont = true;
             this.labelControl9.Location = new System.Drawing.Point(40, 127);
             this.labelControl9.Name = "labelControl9";
             this.labelControl9.Size = new System.Drawing.Size(31, 15);
@@ -593,7 +578,6 @@ public partial class frmMinorCode
             // labelControl12
             // 
             this.labelControl12.Appearance.Font = new System.Drawing.Font("맑은 고딕", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
-            this.labelControl12.Appearance.Options.UseFont = true;
             this.labelControl12.Location = new System.Drawing.Point(388, 75);
             this.labelControl12.Name = "labelControl12";
             this.labelControl12.Size = new System.Drawing.Size(31, 15);
@@ -603,7 +587,6 @@ public partial class frmMinorCode
             // labelControl8
             // 
             this.labelControl8.Appearance.Font = new System.Drawing.Font("맑은 고딕", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
-            this.labelControl8.Appearance.Options.UseFont = true;
             this.labelControl8.Location = new System.Drawing.Point(40, 101);
             this.labelControl8.Name = "labelControl8";
             this.labelControl8.Size = new System.Drawing.Size(31, 15);
@@ -613,7 +596,6 @@ public partial class frmMinorCode
             // labelControl6
             // 
             this.labelControl6.Appearance.Font = new System.Drawing.Font("맑은 고딕", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
-            this.labelControl6.Appearance.Options.UseFont = true;
             this.labelControl6.Location = new System.Drawing.Point(40, 75);
             this.labelControl6.Name = "labelControl6";
             this.labelControl6.Size = new System.Drawing.Size(31, 15);
@@ -623,7 +605,6 @@ public partial class frmMinorCode
             // labelControl7
             // 
             this.labelControl7.Appearance.Font = new System.Drawing.Font("맑은 고딕", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
-            this.labelControl7.Appearance.Options.UseFont = true;
             this.labelControl7.Location = new System.Drawing.Point(40, 49);
             this.labelControl7.Name = "labelControl7";
             this.labelControl7.Size = new System.Drawing.Size(31, 15);
@@ -633,7 +614,6 @@ public partial class frmMinorCode
             // labelControl5
             // 
             this.labelControl5.Appearance.Font = new System.Drawing.Font("맑은 고딕", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
-            this.labelControl5.Appearance.Options.UseFont = true;
             this.labelControl5.Location = new System.Drawing.Point(241, 20);
             this.labelControl5.Name = "labelControl5";
             this.labelControl5.Size = new System.Drawing.Size(48, 15);
@@ -643,7 +623,6 @@ public partial class frmMinorCode
             // labelControl4
             // 
             this.labelControl4.Appearance.Font = new System.Drawing.Font("맑은 고딕", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
-            this.labelControl4.Appearance.Options.UseFont = true;
             this.labelControl4.Location = new System.Drawing.Point(11, 20);
             this.labelControl4.Name = "labelControl4";
             this.labelControl4.Size = new System.Drawing.Size(60, 15);
@@ -919,7 +898,6 @@ public partial class frmMinorCode
             // panHeader
             // 
             this.panHeader.Appearance.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(240)))), ((int)(((byte)(240)))), ((int)(((byte)(240)))));
-            this.panHeader.Appearance.Options.UseBackColor = true;
             this.panHeader.BorderStyle = DevExpress.XtraEditors.Controls.BorderStyles.Default;
             this.panHeader.Controls.Add(this.txtminor_cd_q);
             this.panHeader.Controls.Add(this.labelControl1);
@@ -941,7 +919,6 @@ public partial class frmMinorCode
             // labelControl1
             // 
             this.labelControl1.Appearance.Font = new System.Drawing.Font("맑은 고딕", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
-            this.labelControl1.Appearance.Options.UseFont = true;
             this.labelControl1.Location = new System.Drawing.Point(25, 18);
             this.labelControl1.Name = "labelControl1";
             this.labelControl1.Size = new System.Drawing.Size(77, 15);
@@ -972,7 +949,6 @@ public partial class frmMinorCode
             // 
             // frmMinorCode
             // 
-            this.Appearance.Options.UseFont = true;
             this.ClientSize = new System.Drawing.Size(1165, 600);
             this.Controls.Add(this.panBase);
             this.Name = "frmMinorCode";
@@ -1114,8 +1090,8 @@ public partial class frmMinorCode
     private PanelWyn panHeader;
     private TextEditWyn txtminor_cd_q;
     private DevExpress.XtraEditors.LabelControl labelControl1;
-    private DevExpress.XtraEditors.SimpleButton btnDeletRow2;
-    private DevExpress.XtraEditors.SimpleButton btnAddRow2;
+    private ButtonWyn btnDeletRow2;
+    private ButtonWyn btnAddRow2;
     private PanelWyn panelWyn7;
     private DevExpress.XtraEditors.Repository.RepositoryItemCheckEdit repositoryItemCheckEdit1;
     private PanelWyn panelWyn8;

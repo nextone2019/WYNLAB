@@ -1,0 +1,103 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- AI Builder(SYS_AI_BUILDER)가 화면을 생성할 때 복제하는 원본 - 실제로 배포되는 화면이
+       아니라 VS에서 직접 열어 디자인(제목영역/여백/색상 등)을 다듬는 용도다. 그래서
+       Deploy-Local.ps1/Deploy-Package.ps1의 모듈 빌드 목록에는 일부러 안 넣는다(WYNLAB.SM.TEMPLATE와
+       같은 성격 - 다만 그건 SM 전용 Save-As 빈 틀이고, 이건 AI Builder가 모든 모듈에 공통으로
+       복제해가는 템플릿이라 특정 모듈 밑이 아니라 99.SOURCE/TEMPLATE에 독립적으로 둔다). -->
+  <PropertyGroup>
+    <TargetFramework>net48</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <UseWindowsForms>true</UseWindowsForms>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <RootNamespace>WYNLAB.TEMPLATE</RootNamespace>
+    <GenerateResourceUsePreserializedResources>true</GenerateResourceUsePreserializedResources>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="System.Resources.Extensions" Version="8.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- DevExpress 21.2 로컬 설치 기반 참조 -->
+    <Reference Include="DevExpress.Data.v21.2">
+      <HintPath>C:\Program Files (x86)\DevExpress 21.2\Components\Bin\Framework\DevExpress.Data.v21.2.dll</HintPath>
+    </Reference>
+    <Reference Include="DevExpress.Data.Desktop.v21.2">
+      <HintPath>C:\Program Files (x86)\DevExpress 21.2\Components\Bin\Framework\DevExpress.Data.Desktop.v21.2.dll</HintPath>
+    </Reference>
+    <Reference Include="DevExpress.Utils.v21.2">
+      <HintPath>C:\Program Files (x86)\DevExpress 21.2\Components\Bin\Framework\DevExpress.Utils.v21.2.dll</HintPath>
+    </Reference>
+    <Reference Include="DevExpress.XtraBars.v21.2">
+      <HintPath>C:\Program Files (x86)\DevExpress 21.2\Components\Bin\Framework\DevExpress.XtraBars.v21.2.dll</HintPath>
+    </Reference>
+    <Reference Include="DevExpress.XtraEditors.v21.2">
+      <HintPath>C:\Program Files (x86)\DevExpress 21.2\Components\Bin\Framework\DevExpress.XtraEditors.v21.2.dll</HintPath>
+    </Reference>
+    <Reference Include="DevExpress.XtraGrid.v21.2">
+      <HintPath>C:\Program Files (x86)\DevExpress 21.2\Components\Bin\Framework\DevExpress.XtraGrid.v21.2.dll</HintPath>
+    </Reference>
+    <Reference Include="DevExpress.XtraLayout.v21.2">
+      <HintPath>C:\Program Files (x86)\DevExpress 21.2\Components\Bin\Framework\DevExpress.XtraLayout.v21.2.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\00.DEV\01.Client\WYNLAB.BaseForm\WYNLAB.BaseForm.csproj" />
+    <ProjectReference Include="..\..\..\00.DEV\01.Client\WYNLAB.Controls\WYNLAB.Controls.csproj" />
+    <ProjectReference Include="..\..\..\00.DEV\03.Shared\WYNLAB.Shared\WYNLAB.Shared.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- "TplMasterFormSubGrid - 복사.*"는 사용자가 탐색기에서 만든 원본과 동일한 복제본(수정
+         전 백업으로 보임) - 삭제하지 않고 컴파일에서만 뺀다(SDK 기본 글롭이 *.cs를 전부
+         잡아서, 이름만 다르고 클래스명은 똑같은 파일이 있으면 CS0102/CS0111 중복정의로 빌드가
+         깨진다). 실제로 편집할 게 아니면 지워도 되는 파일. -->
+    <Compile Remove="TplMasterFormSubGrid - 복사.cs" />
+    <Compile Remove="TplMasterFormSubGrid - 복사.Designer.cs" />
+    <EmbeddedResource Remove="TplMasterFormSubGrid - 복사.resx" />
+
+    <Compile Update="Properties\Resources.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
+    <Compile Update="TplSingleGrid.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="TplSingleGrid.Designer.cs">
+      <DependentUpon>TplSingleGrid.cs</DependentUpon>
+    </Compile>
+
+    <Compile Update="TplMasterSubGrid.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="TplMasterSubGrid.Designer.cs">
+      <DependentUpon>TplMasterSubGrid.cs</DependentUpon>
+    </Compile>
+
+    <Compile Update="TplMasterFormSubGrid.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="TplMasterFormSubGrid.Designer.cs">
+      <DependentUpon>TplMasterFormSubGrid.cs</DependentUpon>
+    </Compile>
+
+    <Compile Update="TplMasterFormTabGrid.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="TplMasterFormTabGrid.Designer.cs">
+      <DependentUpon>TplMasterFormTabGrid.cs</DependentUpon>
+    </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Update="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+  </ItemGroup>
+
+</Project>

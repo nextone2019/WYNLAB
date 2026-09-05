@@ -13,7 +13,7 @@ public class GridLayoutItemDto
 /// <summary>그리드 레이아웃 저장 요청.</summary>
 public class SaveGridLayoutRequest
 {
-    public string MenuCd { get; set; } = string.Empty;
+    public long MenuId { get; set; }
     public string GridKey { get; set; } = string.Empty;
     public string LayoutXml { get; set; } = string.Empty;
 }

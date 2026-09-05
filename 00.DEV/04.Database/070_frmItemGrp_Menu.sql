@@ -1,0 +1,9 @@
+-- AI Builder가 자동 생성 - frmItemGrp 화면 메뉴 등록.
+-- 적용 전 검토 필요(다른 마이그레이션과 동일한 규칙) - 자동 실행되지 않는다.
+
+IF NOT EXISTS (SELECT 1 FROM TSMMENU WHERE MENU_CD = 'BA_ITEMGRP')
+BEGIN
+    INSERT INTO TSMMENU (MENU_CD, MENU_NM, UPPER_MENU_CD, MENU_LEVEL, MENU_TYPE, FORM_CLASS_NM, PROC_PREFIX, SORT_ORDER, USE_YN, REG_DT)
+    VALUES ('BA_ITEMGRP', N'품목그룹등록', 'BA_ITEM_G', 3, 'FORM', 'WYNLAB.BA.frmItemGrp, WYNLAB.BA', 'USP_BA_ITEMGRP_', 10, 'Y', GETDATE());
+END
+GO

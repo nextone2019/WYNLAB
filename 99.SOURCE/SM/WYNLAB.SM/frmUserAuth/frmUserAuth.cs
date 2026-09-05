@@ -1,5 +1,6 @@
 using DevExpress.XtraEditors.Repository;
 using DevExpress.XtraGrid.Views.Base;
+using DevExpress.XtraGrid.Views.Grid;
 using DevExpress.XtraTreeList.Columns;
 using WYNLAB.Base;
 using WYNLAB.Base.Controls;
@@ -17,8 +18,8 @@ namespace WYNLAB.SM;
 /// txtuser_grp_nm/txtdescription) + 소속 사용자 체크그리드(grd4) + 메뉴권한트리(tree2).
 ///
 /// BACK_frmUserManage가 이미 쓰던 api/users, api/users/{id}/groups, api/user-groups, api/menu-auth를
-/// 그대로 재사용한다 - 서버는 전혀 안 건드렸고, 권한 체크도 전부 MenuCd="SM_USER" 기준이라
-/// 그 값을 그대로 쓴다.
+/// 그대로 재사용한다 - 서버는 전혀 안 건드렸고, 권한 체크도 전부 Module="SM"/ScreenClassNm="frmUserAuth"
+/// 기준이라 그 값을 그대로 쓴다.
 /// </summary>
 public partial class frmUserAuth : BaseForm
 {
@@ -27,7 +28,15 @@ public partial class frmUserAuth : BaseForm
     private string? _editingUserId; // null이면 신규모드
 
     private List<UserGroupAssignDto> _groups = new(); // grd3 - 전체 그룹 + 이 사용자의 소속여부(체크)
-    private List<MenuAuthItemDto> _authItems = new(); // tree1
+    private List<MenuAuthItemDto> _authItems = new(); // tree1 - 화면표시는 본인권한 OR 소속그룹권한(합산값)
+
+    // tree1 저장 시 합산표시값을 그대로 보내면 그룹이 준 권한이 이 사용자 개인 권한으로 굳어버린다
+    // (LoadAuthAsync/BuildAuthSaveItem 참고) - 그래서 로드 시점의 "본인 전용값"과 "표시된 합산값"을
+    // MenuId 기준으로 따로 스냅샷해뒀다가, 저장 시 칸별로 지금 값이 로드시점 합산값과 같으면(=관리자가
+    // 안 건드림) 본인 전용값을 그대로 돌려보내고, 다르면(=관리자가 실제로 체크/해제함) 지금 값을
+    // 그대로 본인권한으로 저장한다.
+    private Dictionary<long, MenuAuthItemDto> _authOwnSnapshot = new();
+    private Dictionary<long, MenuAuthItemDto> _authUnionSnapshot = new();
 
     // FocusedRowObjectChanged 핸들러 안에서 시작하는 그룹/권한 로딩(비동기)이 끝날 때까지
     // DrawingSuspension을 유지하기 위한 대기용 - BACK_frmUserManage와 같은 이유
@@ -53,10 +62,25 @@ public partial class frmUserAuth : BaseForm
         InitializeComponent();
 
         Text = "사용자권한관리";
-        MenuCd = "SM_USER";
 
         gvw1.FocusedRowObjectChanged += Gvw1_FocusedRowObjectChanged;
         gvw2.FocusedRowObjectChanged += Gvw2_FocusedRowObjectChanged;
+
+        // grd1(사용자 목록)/grd2(사용자그룹 목록) - 조회/선택 전용 그리드라 Role=Query(기본값이지만
+        // 명시)로 편집을 막는다. GridViewWynBehavior가 OptionsClipboard.AllowCopy는 Role과
+        // 무관하게 항상 켜두므로 편집만 막히고 셀 복사(Ctrl+C)는 그대로 된다(2026-09-04, "grd1은
+        // 조회 전용이야. Enable을 막아줘. 대신에 컬럼별로 데이터를 복사는 할수 있도록 해줘" -
+        // 모든 화면의 조회 그리드에 공통 적용되어야 하는 규칙이라 프로퍼티 하나로 해결되는
+        // GridViewWyn으로 옮겼다). HighlightFocusedRow도 이제 그 프로퍼티로 대신한다.
+        gvw1.Role = GridRoleWyn.Query;
+        gvw1.HighlightFocusedRow = true;
+        gvw2.Role = GridRoleWyn.Query;
+        gvw2.HighlightFocusedRow = true;
+
+        // grd3(소속그룹 체크)/grd4(소속사원 체크)는 실제로 편집(체크토글)이 되는 그리드라 순정
+        // GridView로 남겨둔다 - 포커스행 강조만 기존 방식대로 직접 붙인다.
+        gvw3.RowCellStyle += HighlightFocusedRow;
+        gvw4.RowCellStyle += HighlightFocusedRow;
 
         ConfigureAuthTree(tree1, _authCols1);
         ConfigureAuthTree(tree2, _authCols2);
@@ -65,21 +89,31 @@ public partial class frmUserAuth : BaseForm
 
         ConfigureEmpPopup();
 
+        // grd1(사용자 목록)의 "사용"(gridColumn11, FieldName=UseYn) 컬럼 - LookUpColumnEdit
+        // (Designer.cs의 lookUpColumnEdit3, LookupKey="L_CM0100")로 Designer에서 직접 연결했다.
+        // 코드에서 따로 셋업할 필요 없음(2026-09-04).
+
         // 개발자용 마우스오버 툴팁(BindingField)이 읽어갈 정보 - 실제 적용은
-        // BaseForm.ApplyBindingFieldTooltips가 공통으로 처리한다. TSMUSER/TSMUSERGRP도
-        // TSMMENU처럼 컬럼명이 대문자라 그대로 맞춘다. txtEmpNm은 PopupLookupEditWyn이라
+        // BaseForm.ApplyBindingFieldTooltips가 공통으로 처리한다. txtEmpNm은 PopupLookupEditWyn이라
         // "Popup : P_EMP"도 자동으로 같이 붙는다.
-        txtuser_id.Tag = new BindingFieldTag("USER_ID");
-        txtuser_nm.Tag = new BindingFieldTag("USER_NM");
-        checkBoxWyn1.Tag = new BindingFieldTag("USE_YN");
-        chkDeveloperYn.Tag = new BindingFieldTag("DEVELOPER_YN");
-        txtEmpNm.Tag = new BindingFieldTag("EMP_NM");
-        txtEmpNo.Tag = new BindingFieldTag("EMP_NO");
-        txtDeptCd.Tag = new BindingFieldTag("DEPT_CD");
-        txtDeptNm.Tag = new BindingFieldTag("DEPT_NM");
-        txtuser_grp_cd.Tag = new BindingFieldTag("USER_GRP_CD");
-        txtuser_grp_nm.Tag = new BindingFieldTag("USER_GRP_NM");
-        memodescription.Tag = new BindingFieldTag("DESCRIPTION");
+        //
+        // grd1~4는 DataTable이 아니라 List<T>(UserListItemDto 등)에 바인딩돼서 GridColumn.FieldName이
+        // 이미 C# 프로퍼티명(PascalCase, 예: UserNm)이다 - 다른 화면(DataTable 바인딩이라 FieldName이
+        // 곧 DB 컬럼명)과 달리 여기는 PascalCase가 "진짜 바인딩 값"이다. 그래서 panData 쪽도 DB
+        // 컬럼명(USER_NM) 대신 같은 PascalCase(UserNm)로 맞춘다(2026-09-03, 사장님 지시 - "UserNm이
+        // 맞지 않아? 통일시켜줘"). 그리드 컬럼은 FieldName이 이미 PascalCase라 별도 Tag가 필요 없다.
+        txtuser_id.Tag = new BindingFieldTag("UserId");
+        txtuser_nm.Tag = new BindingFieldTag("UserNm");
+        cboUseYn.Tag = new BindingFieldTag("UseYn");
+        chkDeveloperYn.Tag = new BindingFieldTag("DeveloperYn");
+        txtEmpNm.Tag = new BindingFieldTag("EmpNm");
+        txtEmpNo.Tag = new BindingFieldTag("EmpNo");
+        txtDeptCd.Tag = new BindingFieldTag("DeptCd");
+        txtDeptNm.Tag = new BindingFieldTag("DeptNm");
+        txtEmail.Tag = new BindingFieldTag("Email");
+        txtuser_grp_cd.Tag = new BindingFieldTag("UserGrpCd");
+        txtuser_grp_nm.Tag = new BindingFieldTag("UserGrpNm");
+        memodescription.Tag = new BindingFieldTag("Description");
 
         // 탭이 바뀔 때마다 반대편 탭에서 방금 수정했을 수도 있는 데이터를 다시 불러온다 -
         // 그리드 포커스행이 그대로면 FocusedRowObjectChanged가 재발생하지 않아 저장 전 상태로
@@ -102,6 +136,16 @@ public partial class frmUserAuth : BaseForm
         // 오픈 시 자동 조회하지 않는다 - 검색창에 조건을 넣고 조회 버튼(또는 Ctrl+Q)을 눌러야 뜬다.
     }
 
+    /// <summary>gvw1~4 공통 - 포커스된 행 전체를 배경색으로 강조한다(GridViewWynBehavior.
+    /// OnRowCellStyle과 같은 로직, 그리드 4개가 전부 이 하나의 핸들러를 공유하므로 sender에서
+    /// 실제 뷰를 가져온다).</summary>
+    private static void HighlightFocusedRow(object? sender, RowCellStyleEventArgs e)
+    {
+        if (sender is not GridView view || e.RowHandle != view.FocusedRowHandle) return;
+        e.Appearance.BackColor = UiTheme.GridFocusedRowBackColor;
+        e.Appearance.Options.UseBackColor = true;
+    }
+
     private void SearchOnEnter(TextEditWyn box)
     {
         box.KeyDown += (s, e) =>
@@ -119,8 +163,8 @@ public partial class frmUserAuth : BaseForm
     /// 메뉴마다 달라서(메뉴등록/frmMenu에서 정의) 디자이너에 고정 텍스트로 박아둘 수 없기 때문.</summary>
     private void ConfigureAuthTree(TreeListWyn tree, TreeListColumn[] authCols)
     {
-        tree.KeyFieldName = "MenuCd";
-        tree.ParentFieldName = "UpperMenuCd";
+        tree.KeyFieldName = "MenuId";
+        tree.ParentFieldName = "UpperMenuId";
         tree.OptionsBehavior.Editable = true;
 
         var colMenuNm = tree.Columns["MenuNm"];
@@ -160,8 +204,8 @@ public partial class frmUserAuth : BaseForm
     /// 기본 캡션("Auth01" 등)으로 되돌린다.</summary>
     private static void SyncAuthColumns(TreeListWyn tree, List<MenuAuthItemDto> items, TreeListColumn[] authCols)
     {
-        var menuCd = tree.FocusedNode?.GetValue("MenuCd") as string;
-        var item = menuCd != null ? items.FirstOrDefault(i => i.MenuCd == menuCd) : null;
+        var menuId = tree.FocusedNode?.GetValue("MenuId") is long id ? id : (long?)null;
+        var item = menuId != null ? items.FirstOrDefault(i => i.MenuId == menuId) : null;
         for (var i = 0; i < 10; i++)
         {
             var caption = item != null && i < item.AuthNm.Length ? item.AuthNm[i] : null;
@@ -348,18 +392,21 @@ public partial class frmUserAuth : BaseForm
             txtuser_id.Text = string.Empty;
             txtuser_id.ReadOnly = false;
             txtuser_nm.Text = string.Empty;
-            checkBoxWyn1.Checked = true;
-            checkBoxWyn1.Enabled = false; // 신규는 서버에서 항상 'Y'로 생성됨(BACK_frmUserManage와 같은 규칙)
+            cboUseYn.EditValue = "Y";
+            //checkBoxWyn1.Enabled = false; // 신규는 서버에서 항상 'Y'로 생성됨(BACK_frmUserManage와 같은 규칙)
             chkDeveloperYn.Checked = false; // 신규는 서버에서 항상 'N'으로 생성됨 - 이 화면으로는 못 바꿈
             txtEmpNm.Text = string.Empty;
             txtEmpNo.Text = string.Empty;
             txtDeptCd.Text = string.Empty;
             txtDeptNm.Text = string.Empty;
+            txtEmail.Text = string.Empty;
         });
 
         _groups = new();
         grd3.DataSource = null;
         _authItems = new();
+        _authOwnSnapshot = new();
+        _authUnionSnapshot = new();
         tree1.DataSource = null;
         SyncAuthColumns(tree1, _authItems, _authCols1);
         //tree1.Enabled = false;
@@ -375,13 +422,14 @@ public partial class frmUserAuth : BaseForm
             txtuser_id.Text = user.UserId;
             txtuser_id.ReadOnly = true; // 아이디는 PK라 수정 불가
             txtuser_nm.Text = user.UserNm;
-            checkBoxWyn1.Checked = user.UseYn;
-            checkBoxWyn1.Enabled = true;
+            cboUseYn.EditValue = user.UseYn ? "Y" : "N"; // user.UseYn은 bool, cboUseYn(L_CM0100) 값필드는 "Y"/"N" 문자열
+            //checkBoxWyn1.Enabled = true;
             chkDeveloperYn.Checked = user.DeveloperYn; // 조회 전용 표시 - Enabled=false라 여기서 못 바꿈
             txtEmpNm.Text = user.EmpNm ?? string.Empty;
             txtEmpNo.Text = user.EmpNo ?? string.Empty;
             txtDeptCd.Text = user.DeptCd ?? string.Empty;
             txtDeptNm.Text = user.DeptNm ?? string.Empty;
+            txtEmail.Text = user.Email ?? string.Empty;
         });
 
         await LoadGroupsAsync(user.UserId);
@@ -394,10 +442,45 @@ public partial class frmUserAuth : BaseForm
         grd3.DataSource = _groups;
     }
 
+    /// <summary>tree1에 본인권한만 보여주면, 소속그룹으로 받은 권한이 있어도 체크가 안 된 것처럼
+    /// 보여 혼란을 준다(그룹 PROD_STF에 출하요청등록 권한을 줬는데, 그 그룹 소속 사용자를 여기서
+    /// 보면 체크가 안 되어 있던 실제 버그 - 2026-09-02 보고). 그래서 본인권한(GetAuth)에 소속그룹
+    /// 전체가 합산된 "실제 효과"(로그인시와 동일한 MenuPermissionMerger 로직, api/menu-auth/effective)
+    /// 를 OR로 얹어서 표시한다. 저장 시 이 합산값을 그대로 보내면 안 되므로(위 필드 주석 참고)
+    /// 로드 시점 스냅샷을 같이 남긴다.</summary>
     private async Task LoadAuthAsync(string userId)
     {
-        _authItems = await ApiClient.GetAsync<List<MenuAuthItemDto>>(
+        var ownItems = await ApiClient.GetAsync<List<MenuAuthItemDto>>(
             $"api/menu-auth?targetType=USER&targetCd={Uri.EscapeDataString(userId)}") ?? new();
+        var effective = await ApiClient.GetAsync<List<MenuDto>>(
+            $"api/menu-auth/effective?userId={Uri.EscapeDataString(userId)}") ?? new();
+        var effectiveByMenuId = effective.ToDictionary(m => m.MenuId);
+
+        _authOwnSnapshot = ownItems.ToDictionary(i => i.MenuId, CloneAuthValues);
+
+        foreach (var item in ownItems)
+        {
+            if (!effectiveByMenuId.TryGetValue(item.MenuId, out var eff)) continue;
+            item.ViewYn |= eff.ViewYn;
+            item.InsertYn |= eff.InsertYn;
+            item.UpdateYn |= eff.UpdateYn;
+            item.DeleteYn |= eff.DeleteYn;
+            item.PrintYn |= eff.PrintYn;
+            item.ExcelYn |= eff.ExcelYn;
+            item.Auth01 |= eff.Auth[0];
+            item.Auth02 |= eff.Auth[1];
+            item.Auth03 |= eff.Auth[2];
+            item.Auth04 |= eff.Auth[3];
+            item.Auth05 |= eff.Auth[4];
+            item.Auth06 |= eff.Auth[5];
+            item.Auth07 |= eff.Auth[6];
+            item.Auth08 |= eff.Auth[7];
+            item.Auth09 |= eff.Auth[8];
+            item.Auth10 |= eff.Auth[9];
+        }
+
+        _authItems = ownItems;
+        _authUnionSnapshot = ownItems.ToDictionary(i => i.MenuId, CloneAuthValues);
 
         tree1.BeginUpdate();
         try
@@ -413,6 +496,49 @@ public partial class frmUserAuth : BaseForm
         SyncAuthColumns(tree1, _authItems, _authCols1);
     }
 
+    private static MenuAuthItemDto CloneAuthValues(MenuAuthItemDto src) => new()
+    {
+        MenuId = src.MenuId,
+        ViewYn = src.ViewYn, InsertYn = src.InsertYn, UpdateYn = src.UpdateYn,
+        DeleteYn = src.DeleteYn, PrintYn = src.PrintYn, ExcelYn = src.ExcelYn,
+        Auth01 = src.Auth01, Auth02 = src.Auth02, Auth03 = src.Auth03, Auth04 = src.Auth04, Auth05 = src.Auth05,
+        Auth06 = src.Auth06, Auth07 = src.Auth07, Auth08 = src.Auth08, Auth09 = src.Auth09, Auth10 = src.Auth10,
+    };
+
+    /// <summary>tree1이 바인딩하는 _authItems는 표시용 합산값(본인 OR 그룹)이라 그대로 저장하면
+    /// 그룹이 준 권한까지 이 사용자 개인 권한으로 굳어버린다(나중에 그룹에서 빠지거나 그룹 권한이
+    /// 바뀌어도 이 사용자만 그대로 남는 문제). 칸별로 로드 시점 합산값과 지금 값을 비교해서 안
+    /// 바뀌었으면(관리자가 안 건드림) 본인 전용값을 그대로 돌려보내고, 바뀌었으면(관리자가 실제로
+    /// 체크/해제함) 지금 값을 그대로 본인권한으로 저장한다.</summary>
+    private MenuAuthItemDto BuildAuthSaveItem(MenuAuthItemDto current)
+    {
+        var own = _authOwnSnapshot.TryGetValue(current.MenuId, out var ownVal) ? ownVal : new MenuAuthItemDto { MenuId = current.MenuId };
+        var loadUnion = _authUnionSnapshot.TryGetValue(current.MenuId, out var unionVal) ? unionVal : own;
+
+        static bool Resolve(bool cur, bool load, bool ownVal) => cur == load ? ownVal : cur;
+
+        return new MenuAuthItemDto
+        {
+            MenuId = current.MenuId,
+            ViewYn = Resolve(current.ViewYn, loadUnion.ViewYn, own.ViewYn),
+            InsertYn = Resolve(current.InsertYn, loadUnion.InsertYn, own.InsertYn),
+            UpdateYn = Resolve(current.UpdateYn, loadUnion.UpdateYn, own.UpdateYn),
+            DeleteYn = Resolve(current.DeleteYn, loadUnion.DeleteYn, own.DeleteYn),
+            PrintYn = Resolve(current.PrintYn, loadUnion.PrintYn, own.PrintYn),
+            ExcelYn = Resolve(current.ExcelYn, loadUnion.ExcelYn, own.ExcelYn),
+            Auth01 = Resolve(current.Auth01, loadUnion.Auth01, own.Auth01),
+            Auth02 = Resolve(current.Auth02, loadUnion.Auth02, own.Auth02),
+            Auth03 = Resolve(current.Auth03, loadUnion.Auth03, own.Auth03),
+            Auth04 = Resolve(current.Auth04, loadUnion.Auth04, own.Auth04),
+            Auth05 = Resolve(current.Auth05, loadUnion.Auth05, own.Auth05),
+            Auth06 = Resolve(current.Auth06, loadUnion.Auth06, own.Auth06),
+            Auth07 = Resolve(current.Auth07, loadUnion.Auth07, own.Auth07),
+            Auth08 = Resolve(current.Auth08, loadUnion.Auth08, own.Auth08),
+            Auth09 = Resolve(current.Auth09, loadUnion.Auth09, own.Auth09),
+            Auth10 = Resolve(current.Auth10, loadUnion.Auth10, own.Auth10),
+        };
+    }
+
     private async Task SaveUserAsync()
     {
         if (string.IsNullOrWhiteSpace(txtuser_id.Text) || string.IsNullOrWhiteSpace(txtuser_nm.Text))
@@ -423,6 +549,7 @@ public partial class frmUserAuth : BaseForm
 
         var wasNew = _editingUserId == null;
         var empNo = string.IsNullOrWhiteSpace(txtEmpNo.Text) ? null : txtEmpNo.Text;
+        var email = string.IsNullOrWhiteSpace(txtEmail.Text) ? null : txtEmail.Text;
         ApiResult? result;
 
         if (wasNew)
@@ -435,7 +562,8 @@ public partial class frmUserAuth : BaseForm
                 UserId = txtuser_id.Text,
                 UserNm = txtuser_nm.Text,
                 Password = txtuser_id.Text,
-                EmpNo = empNo
+                EmpNo = empNo,
+                Email = email
             };
             result = await ApiClient.PostAsync<UserCreateRequest, ApiResult>("api/users", req);
         }
@@ -444,8 +572,10 @@ public partial class frmUserAuth : BaseForm
             var req = new UserUpdateRequest
             {
                 UserNm = txtuser_nm.Text,
-                UseYn = checkBoxWyn1.Checked,
-                EmpNo = empNo
+                UseYn = cboUseYn.EditValue?.ToString() == "Y", // cboUseYn(L_CM0100)은 값필드가 "Y"/"N" 문자열이고
+                                                                // DTO.UseYn은 bool이라 여기서 변환한다.
+                EmpNo = empNo,
+                Email = email
             };
             result = await ApiClient.PutAsync<UserUpdateRequest, ApiResult>($"api/users/{_editingUserId}", req);
         }
@@ -473,8 +603,9 @@ public partial class frmUserAuth : BaseForm
 
             tree1.CloseEditor();
             tree1.PostEditor();
+            var authItemsToSave = _authItems.Select(BuildAuthSaveItem).ToList();
             var authResult = await ApiClient.PutAsync<SaveMenuAuthRequest, ApiResult>("api/menu-auth",
-                new SaveMenuAuthRequest { TargetType = "USER", TargetCd = savedUserId, Items = _authItems });
+                new SaveMenuAuthRequest { TargetType = "USER", TargetCd = savedUserId, Items = authItemsToSave });
             if (authResult == null || !authResult.Success)
             {
                 AppMessageBox.Show(authResult?.Message ?? "권한 저장에 실패했습니다.", "저장 실패");
@@ -694,5 +825,10 @@ public partial class frmUserAuth : BaseForm
         _editingUserGrpCd = savedUserGrpCd;
         await QueryGroupsAsync(preserveSelection: true);
         Toast.Show(wasNew ? "사용자그룹이 등록되었습니다." : "수정되었습니다.");
+    }
+
+    private void grd1_Click(object sender, EventArgs e)
+    {
+
     }
 }

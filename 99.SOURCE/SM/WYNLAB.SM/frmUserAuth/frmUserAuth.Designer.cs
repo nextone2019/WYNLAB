@@ -56,8 +56,8 @@ public partial class frmUserAuth
             this.repositoryItemCheckEdit5 = new DevExpress.XtraEditors.Repository.RepositoryItemCheckEdit();
             this.panelWyn27 = new WYNLAB.Base.Controls.PanelWyn();
             this.panelWyn28 = new WYNLAB.Base.Controls.PanelWyn();
-            this.simpleButton5 = new DevExpress.XtraEditors.SimpleButton();
-            this.simpleButton6 = new DevExpress.XtraEditors.SimpleButton();
+            this.simpleButton5 = new WYNLAB.Base.Controls.ButtonWyn();
+            this.simpleButton6 = new WYNLAB.Base.Controls.ButtonWyn();
             this.sectionHeaderWyn9 = new WYNLAB.Base.Controls.SectionHeaderWyn();
             this.splitterWyn3 = new WYNLAB.Base.Controls.SplitterWyn();
             this.panelWyn26 = new WYNLAB.Base.Controls.PanelWyn();
@@ -69,27 +69,44 @@ public partial class frmUserAuth
             this.gridColumn5 = new DevExpress.XtraGrid.Columns.GridColumn();
             this.panelWyn13 = new WYNLAB.Base.Controls.PanelWyn();
             this.panelWyn14 = new WYNLAB.Base.Controls.PanelWyn();
-            this.simpleButton1 = new DevExpress.XtraEditors.SimpleButton();
-            this.simpleButton2 = new DevExpress.XtraEditors.SimpleButton();
+            this.simpleButton1 = new WYNLAB.Base.Controls.ButtonWyn();
+            this.simpleButton2 = new WYNLAB.Base.Controls.ButtonWyn();
             this.sectionHeaderWyn5 = new WYNLAB.Base.Controls.SectionHeaderWyn();
-            this.panelWyn15 = new WYNLAB.Base.Controls.PanelWyn();
-            this.panelWyn16 = new WYNLAB.Base.Controls.PanelWyn();
-            this.checkBoxWyn1 = new WYNLAB.Base.Controls.CheckBoxWyn();
-            this.chkDeveloperYn = new WYNLAB.Base.Controls.CheckBoxWyn();
-            this.labelControl2 = new DevExpress.XtraEditors.LabelControl();
-            this.labelControl4 = new DevExpress.XtraEditors.LabelControl();
-            this.txtuser_nm = new WYNLAB.Base.Controls.TextEditWyn();
-            this.txtuser_id = new WYNLAB.Base.Controls.TextEditWyn();
-            this.panelWyn17 = new WYNLAB.Base.Controls.PanelWyn();
-            this.sectionHeaderWyn6 = new WYNLAB.Base.Controls.SectionHeaderWyn();
-            this.splitterWyn2 = new WYNLAB.Base.Controls.SplitterWyn();
+            this.splitterWyn5 = new WYNLAB.Base.Controls.SplitterWyn();
+            this.panelWyn29 = new WYNLAB.Base.Controls.PanelWyn();
             this.panelWyn18 = new WYNLAB.Base.Controls.PanelWyn();
             this.grd1 = new WYNLAB.Base.Controls.GridControlWyn();
-            this.gvw1 = new DevExpress.XtraGrid.Views.Grid.GridView();
+            this.gvw1 = new WYNLAB.Base.Controls.GridViewWyn();
             this.gridColumn1 = new DevExpress.XtraGrid.Columns.GridColumn();
             this.gridColumn2 = new DevExpress.XtraGrid.Columns.GridColumn();
+            this.gridColumn11 = new DevExpress.XtraGrid.Columns.GridColumn();
+            this.lookUpColumnEdit1 = new WYNLAB.Base.Controls.LookUpColumnEdit();
+            this.gridColumn12 = new DevExpress.XtraGrid.Columns.GridColumn();
+            this.lookUpColumnEdit2 = new WYNLAB.Base.Controls.LookUpColumnEdit();
             this.panelWyn19 = new WYNLAB.Base.Controls.PanelWyn();
             this.sectionHeaderWyn7 = new WYNLAB.Base.Controls.SectionHeaderWyn();
+            this.splitterWyn2 = new WYNLAB.Base.Controls.SplitterWyn();
+            this.panelWyn15 = new WYNLAB.Base.Controls.PanelWyn();
+            this.panelWyn16 = new WYNLAB.Base.Controls.PanelWyn();
+            this.labelControl10 = new DevExpress.XtraEditors.LabelControl();
+            this.cboUserType = new WYNLAB.Base.Controls.LookUpEditWyn();
+            this.cboUseYn = new WYNLAB.Base.Controls.LookUpEditWyn();
+            this.txtEmpNm = new WYNLAB.Base.Controls.PopupLookupEditWyn();
+            this.chkDeveloperYn = new WYNLAB.Base.Controls.CheckBoxWyn();
+            this.labelControl9 = new DevExpress.XtraEditors.LabelControl();
+            this.labelControl8 = new DevExpress.XtraEditors.LabelControl();
+            this.labelControl7 = new DevExpress.XtraEditors.LabelControl();
+            this.labelControl2 = new DevExpress.XtraEditors.LabelControl();
+            this.labelControl4 = new DevExpress.XtraEditors.LabelControl();
+            this.txtDeptCd = new WYNLAB.Base.Controls.TextEditWyn();
+            this.txtDeptNm = new WYNLAB.Base.Controls.TextEditWyn();
+            this.txtEmpNo = new WYNLAB.Base.Controls.TextEditWyn();
+            this.txtuser_nm = new WYNLAB.Base.Controls.TextEditWyn();
+            this.txtuser_id = new WYNLAB.Base.Controls.TextEditWyn();
+            this.txtEmail = new WYNLAB.Base.Controls.TextEditWyn();
+            this.labelControlEmail = new DevExpress.XtraEditors.LabelControl();
+            this.panelWyn17 = new WYNLAB.Base.Controls.PanelWyn();
+            this.sectionHeaderWyn6 = new WYNLAB.Base.Controls.SectionHeaderWyn();
             this.panelWyn20 = new WYNLAB.Base.Controls.PanelWyn();
             this.txtUserGrpIdQ = new WYNLAB.Base.Controls.TextEditWyn();
             this.labelControl26 = new DevExpress.XtraEditors.LabelControl();
@@ -113,8 +130,8 @@ public partial class frmUserAuth
             this.repositoryItemCheckEdit8 = new DevExpress.XtraEditors.Repository.RepositoryItemCheckEdit();
             this.panelWyn1 = new WYNLAB.Base.Controls.PanelWyn();
             this.panelWyn7 = new WYNLAB.Base.Controls.PanelWyn();
-            this.btnDeletRow2 = new DevExpress.XtraEditors.SimpleButton();
-            this.btnAddRow2 = new DevExpress.XtraEditors.SimpleButton();
+            this.btnDeletRow2 = new WYNLAB.Base.Controls.ButtonWyn();
+            this.btnAddRow2 = new WYNLAB.Base.Controls.ButtonWyn();
             this.sectionHeaderWyn2 = new WYNLAB.Base.Controls.SectionHeaderWyn();
             this.splitterWyn4 = new WYNLAB.Base.Controls.SplitterWyn();
             this.panelWyn22 = new WYNLAB.Base.Controls.PanelWyn();
@@ -126,8 +143,8 @@ public partial class frmUserAuth
             this.gridColumn10 = new DevExpress.XtraGrid.Columns.GridColumn();
             this.panelWyn23 = new WYNLAB.Base.Controls.PanelWyn();
             this.panelWyn24 = new WYNLAB.Base.Controls.PanelWyn();
-            this.simpleButton3 = new DevExpress.XtraEditors.SimpleButton();
-            this.simpleButton4 = new DevExpress.XtraEditors.SimpleButton();
+            this.simpleButton3 = new WYNLAB.Base.Controls.ButtonWyn();
+            this.simpleButton4 = new WYNLAB.Base.Controls.ButtonWyn();
             this.sectionHeaderWyn8 = new WYNLAB.Base.Controls.SectionHeaderWyn();
             this.panelWyn5 = new WYNLAB.Base.Controls.PanelWyn();
             this.panData = new WYNLAB.Base.Controls.PanelWyn();
@@ -142,7 +159,7 @@ public partial class frmUserAuth
             this.splitterWyn1 = new WYNLAB.Base.Controls.SplitterWyn();
             this.panelWyn8 = new WYNLAB.Base.Controls.PanelWyn();
             this.grd2 = new WYNLAB.Base.Controls.GridControlWyn();
-            this.gvw2 = new DevExpress.XtraGrid.Views.Grid.GridView();
+            this.gvw2 = new WYNLAB.Base.Controls.GridViewWyn();
             this.gridColumn6 = new DevExpress.XtraGrid.Columns.GridColumn();
             this.gridColumn7 = new DevExpress.XtraGrid.Columns.GridColumn();
             this.panelWyn2 = new WYNLAB.Base.Controls.PanelWyn();
@@ -152,12 +169,17 @@ public partial class frmUserAuth
             this.labelControl1 = new DevExpress.XtraEditors.LabelControl();
             this.paTitle = new WYNLAB.Base.Controls.PanelWyn();
             this.sectionHeaderWyn1 = new WYNLAB.Base.Controls.SectionHeaderWyn();
-            this.labelControl7 = new DevExpress.XtraEditors.LabelControl();
-            this.txtEmpNm = new WYNLAB.Base.Controls.PopupLookupEditWyn();
-            this.txtEmpNo = new WYNLAB.Base.Controls.TextEditWyn();
-            this.txtDeptNm = new WYNLAB.Base.Controls.TextEditWyn();
-            this.txtDeptCd = new WYNLAB.Base.Controls.TextEditWyn();
-            this.labelControl8 = new DevExpress.XtraEditors.LabelControl();
+            this.colAuth01 = new DevExpress.XtraTreeList.Columns.TreeListColumn();
+            this.colAuth02 = new DevExpress.XtraTreeList.Columns.TreeListColumn();
+            this.colAuth03 = new DevExpress.XtraTreeList.Columns.TreeListColumn();
+            this.colAuth04 = new DevExpress.XtraTreeList.Columns.TreeListColumn();
+            this.colAuth05 = new DevExpress.XtraTreeList.Columns.TreeListColumn();
+            this.colAuth06 = new DevExpress.XtraTreeList.Columns.TreeListColumn();
+            this.colAuth07 = new DevExpress.XtraTreeList.Columns.TreeListColumn();
+            this.colAuth08 = new DevExpress.XtraTreeList.Columns.TreeListColumn();
+            this.colAuth09 = new DevExpress.XtraTreeList.Columns.TreeListColumn();
+            this.colAuth10 = new DevExpress.XtraTreeList.Columns.TreeListColumn();
+            this.repositoryItemCheckEdit11 = new DevExpress.XtraEditors.Repository.RepositoryItemCheckEdit();
             ((System.ComponentModel.ISupportInitialize)(this.panBase)).BeginInit();
             this.panBase.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.tabControlWyn1)).BeginInit();
@@ -189,22 +211,32 @@ public partial class frmUserAuth
             this.panelWyn13.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.panelWyn14)).BeginInit();
             this.panelWyn14.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.panelWyn15)).BeginInit();
-            this.panelWyn15.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.panelWyn16)).BeginInit();
-            this.panelWyn16.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.checkBoxWyn1.Properties)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.chkDeveloperYn.Properties)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.txtuser_nm.Properties)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.txtuser_id.Properties)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.panelWyn17)).BeginInit();
-            this.panelWyn17.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.panelWyn29)).BeginInit();
+            this.panelWyn29.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.panelWyn18)).BeginInit();
             this.panelWyn18.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.grd1)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.gvw1)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.lookUpColumnEdit1)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.lookUpColumnEdit2)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.panelWyn19)).BeginInit();
             this.panelWyn19.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.panelWyn15)).BeginInit();
+            this.panelWyn15.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.panelWyn16)).BeginInit();
+            this.panelWyn16.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.cboUserType.Properties)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.cboUseYn.Properties)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.txtEmpNm.Properties)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.chkDeveloperYn.Properties)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.txtDeptCd.Properties)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.txtDeptNm.Properties)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.txtEmpNo.Properties)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.txtuser_nm.Properties)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.txtuser_id.Properties)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.txtEmail.Properties)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.panelWyn17)).BeginInit();
+            this.panelWyn17.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.panelWyn20)).BeginInit();
             this.panelWyn20.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.txtUserGrpIdQ.Properties)).BeginInit();
@@ -255,10 +287,7 @@ public partial class frmUserAuth
             ((System.ComponentModel.ISupportInitialize)(this.txtUserGrpCdQ.Properties)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.paTitle)).BeginInit();
             this.paTitle.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.txtEmpNm.Properties)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.txtEmpNo.Properties)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.txtDeptNm.Properties)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.txtDeptCd.Properties)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.repositoryItemCheckEdit11)).BeginInit();
             this.SuspendLayout();
             // 
             // panBase
@@ -272,7 +301,7 @@ public partial class frmUserAuth
             this.panBase.Location = new System.Drawing.Point(0, 0);
             this.panBase.Name = "panBase";
             this.panBase.Padding = new System.Windows.Forms.Padding(3, 0, 3, 3);
-            this.panBase.Size = new System.Drawing.Size(1165, 600);
+            this.panBase.Size = new System.Drawing.Size(1618, 648);
             this.panBase.TabIndex = 5;
             // 
             // tabControlWyn1
@@ -293,7 +322,7 @@ public partial class frmUserAuth
             this.tabControlWyn1.Location = new System.Drawing.Point(3, 30);
             this.tabControlWyn1.Name = "tabControlWyn1";
             this.tabControlWyn1.SelectedTabPage = this.xtraTabPage1;
-            this.tabControlWyn1.Size = new System.Drawing.Size(1159, 567);
+            this.tabControlWyn1.Size = new System.Drawing.Size(1612, 615);
             this.tabControlWyn1.TabIndex = 10;
             this.tabControlWyn1.TabPages.AddRange(new DevExpress.XtraTab.XtraTabPage[] {
             this.xtraTabPage1,
@@ -303,7 +332,7 @@ public partial class frmUserAuth
             // 
             this.xtraTabPage1.Controls.Add(this.panelWyn10);
             this.xtraTabPage1.Name = "xtraTabPage1";
-            this.xtraTabPage1.Size = new System.Drawing.Size(1157, 541);
+            this.xtraTabPage1.Size = new System.Drawing.Size(1610, 589);
             this.xtraTabPage1.Text = "  사용자별 권한관리    ";
             // 
             // panelWyn10
@@ -314,19 +343,19 @@ public partial class frmUserAuth
             this.panelWyn10.EdgeLineColor = System.Drawing.Color.FromArgb(((int)(((byte)(228)))), ((int)(((byte)(229)))), ((int)(((byte)(232)))));
             this.panelWyn10.Location = new System.Drawing.Point(0, 0);
             this.panelWyn10.Name = "panelWyn10";
-            this.panelWyn10.Size = new System.Drawing.Size(1157, 541);
+            this.panelWyn10.Size = new System.Drawing.Size(1610, 589);
             this.panelWyn10.TabIndex = 9;
             // 
             // panelWyn11
             // 
             this.panelWyn11.Controls.Add(this.panelWyn12);
-            this.panelWyn11.Controls.Add(this.splitterWyn2);
-            this.panelWyn11.Controls.Add(this.panelWyn18);
+            this.panelWyn11.Controls.Add(this.splitterWyn5);
+            this.panelWyn11.Controls.Add(this.panelWyn29);
             this.panelWyn11.Dock = System.Windows.Forms.DockStyle.Fill;
             this.panelWyn11.EdgeLineColor = System.Drawing.Color.FromArgb(((int)(((byte)(228)))), ((int)(((byte)(229)))), ((int)(((byte)(232)))));
             this.panelWyn11.Location = new System.Drawing.Point(0, 49);
             this.panelWyn11.Name = "panelWyn11";
-            this.panelWyn11.Size = new System.Drawing.Size(1157, 492);
+            this.panelWyn11.Size = new System.Drawing.Size(1610, 540);
             this.panelWyn11.TabIndex = 7;
             // 
             // panelWyn12
@@ -334,13 +363,12 @@ public partial class frmUserAuth
             this.panelWyn12.Controls.Add(this.panelWyn25);
             this.panelWyn12.Controls.Add(this.splitterWyn3);
             this.panelWyn12.Controls.Add(this.panelWyn26);
-            this.panelWyn12.Controls.Add(this.panelWyn15);
             this.panelWyn12.Dock = System.Windows.Forms.DockStyle.Fill;
             this.panelWyn12.EdgeLineColor = System.Drawing.Color.FromArgb(((int)(((byte)(228)))), ((int)(((byte)(229)))), ((int)(((byte)(232)))));
-            this.panelWyn12.Location = new System.Drawing.Point(412, 0);
+            this.panelWyn12.Location = new System.Drawing.Point(0, 213);
             this.panelWyn12.Name = "panelWyn12";
             this.panelWyn12.Padding = new System.Windows.Forms.Padding(3, 0, 0, 0);
-            this.panelWyn12.Size = new System.Drawing.Size(745, 492);
+            this.panelWyn12.Size = new System.Drawing.Size(1610, 327);
             this.panelWyn12.TabIndex = 7;
             // 
             // panelWyn25
@@ -349,9 +377,9 @@ public partial class frmUserAuth
             this.panelWyn25.Controls.Add(this.panelWyn27);
             this.panelWyn25.Dock = System.Windows.Forms.DockStyle.Fill;
             this.panelWyn25.EdgeLineColor = System.Drawing.Color.FromArgb(((int)(((byte)(228)))), ((int)(((byte)(229)))), ((int)(((byte)(232)))));
-            this.panelWyn25.Location = new System.Drawing.Point(329, 132);
+            this.panelWyn25.Location = new System.Drawing.Point(313, 0);
             this.panelWyn25.Name = "panelWyn25";
-            this.panelWyn25.Size = new System.Drawing.Size(416, 360);
+            this.panelWyn25.Size = new System.Drawing.Size(1297, 327);
             this.panelWyn25.TabIndex = 10;
             // 
             // tree1
@@ -366,7 +394,17 @@ public partial class frmUserAuth
             this.colViewYn,
             this.colInsertYn,
             this.colUpdateYn,
-            this.colDeleteYn});
+            this.colDeleteYn,
+            this.colAuth01,
+            this.colAuth02,
+            this.colAuth03,
+            this.colAuth04,
+            this.colAuth05,
+            this.colAuth06,
+            this.colAuth07,
+            this.colAuth08,
+            this.colAuth09,
+            this.colAuth10});
             this.tree1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tree1.Location = new System.Drawing.Point(0, 27);
             this.tree1.Name = "tree1";
@@ -378,21 +416,22 @@ public partial class frmUserAuth
             this.repositoryItemCheckEdit3,
             this.repositoryItemCheckEdit4,
             this.repositoryItemCheckEdit5,
-            this.repositoryItemCheckEdit10});
+            this.repositoryItemCheckEdit10,
+            this.repositoryItemCheckEdit11});
             this.tree1.RowHeight = 26;
-            this.tree1.Size = new System.Drawing.Size(416, 333);
+            this.tree1.Size = new System.Drawing.Size(1297, 300);
             this.tree1.TabIndex = 9;
             // 
             // colMenuCd
             // 
-            this.colMenuCd.Caption = "메뉴코드";
-            this.colMenuCd.FieldName = "MenuCd";
+            this.colMenuCd.Caption = "메뉴ID";
+            this.colMenuCd.FieldName = "MenuId";
             this.colMenuCd.Name = "colMenuCd";
-            // 
+            //
             // treeListColumn2
-            // 
-            this.treeListColumn2.Caption = "상위메뉴코드";
-            this.treeListColumn2.FieldName = "UpperMenuCd";
+            //
+            this.treeListColumn2.Caption = "상위메뉴ID";
+            this.treeListColumn2.FieldName = "UpperMenuId";
             this.treeListColumn2.Name = "treeListColumn2";
             // 
             // treeListColumn3
@@ -402,7 +441,7 @@ public partial class frmUserAuth
             this.treeListColumn3.Name = "treeListColumn3";
             this.treeListColumn3.Visible = true;
             this.treeListColumn3.VisibleIndex = 0;
-            this.treeListColumn3.Width = 195;
+            this.treeListColumn3.Width = 174;
             // 
             // colMenuType
             // 
@@ -433,7 +472,7 @@ public partial class frmUserAuth
             this.colInsertYn.Name = "colInsertYn";
             this.colInsertYn.Visible = true;
             this.colInsertYn.VisibleIndex = 2;
-            this.colInsertYn.Width = 36;
+            this.colInsertYn.Width = 40;
             // 
             // repositoryItemCheckEdit3
             // 
@@ -448,7 +487,7 @@ public partial class frmUserAuth
             this.colUpdateYn.Name = "colUpdateYn";
             this.colUpdateYn.Visible = true;
             this.colUpdateYn.VisibleIndex = 3;
-            this.colUpdateYn.Width = 46;
+            this.colUpdateYn.Width = 40;
             // 
             // repositoryItemCheckEdit4
             // 
@@ -463,7 +502,7 @@ public partial class frmUserAuth
             this.colDeleteYn.Name = "colDeleteYn";
             this.colDeleteYn.Visible = true;
             this.colDeleteYn.VisibleIndex = 4;
-            this.colDeleteYn.Width = 43;
+            this.colDeleteYn.Width = 40;
             // 
             // repositoryItemCheckEdit5
             // 
@@ -479,7 +518,7 @@ public partial class frmUserAuth
             this.panelWyn27.Location = new System.Drawing.Point(0, 0);
             this.panelWyn27.Name = "panelWyn27";
             this.panelWyn27.Padding = new System.Windows.Forms.Padding(5, 0, 0, 2);
-            this.panelWyn27.Size = new System.Drawing.Size(416, 27);
+            this.panelWyn27.Size = new System.Drawing.Size(1297, 27);
             this.panelWyn27.TabIndex = 8;
             // 
             // panelWyn28
@@ -488,7 +527,7 @@ public partial class frmUserAuth
             this.panelWyn28.Controls.Add(this.simpleButton6);
             this.panelWyn28.Dock = System.Windows.Forms.DockStyle.Right;
             this.panelWyn28.EdgeLineColor = System.Drawing.Color.FromArgb(((int)(((byte)(228)))), ((int)(((byte)(229)))), ((int)(((byte)(232)))));
-            this.panelWyn28.Location = new System.Drawing.Point(348, 0);
+            this.panelWyn28.Location = new System.Drawing.Point(1229, 0);
             this.panelWyn28.Name = "panelWyn28";
             this.panelWyn28.Size = new System.Drawing.Size(68, 25);
             this.panelWyn28.TabIndex = 9;
@@ -497,15 +536,15 @@ public partial class frmUserAuth
             // simpleButton5
             // 
             this.simpleButton5.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.simpleButton5.Appearance.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(253)))), ((int)(((byte)(236)))), ((int)(((byte)(234)))));
-            this.simpleButton5.Appearance.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(245)))), ((int)(((byte)(198)))), ((int)(((byte)(193)))));
-            this.simpleButton5.Appearance.Font = new System.Drawing.Font("Segoe MDL2 Assets", 11F);
-            this.simpleButton5.Appearance.Options.UseBackColor = true;
-            this.simpleButton5.Appearance.Options.UseBorderColor = true;
-            this.simpleButton5.Appearance.Options.UseFont = true;
-            this.simpleButton5.ImageOptions.Image = ((System.Drawing.Image)(resources.GetObject("simpleButton5.ImageOptions.Image")));
+            this.simpleButton5.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(245)))), ((int)(((byte)(198)))), ((int)(((byte)(193)))));
+            this.simpleButton5.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.simpleButton5.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(253)))), ((int)(((byte)(236)))), ((int)(((byte)(234)))));
+            this.simpleButton5.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(28)))), ((int)(((byte)(84)))), ((int)(((byte)(187)))));
+            this.simpleButton5.HoverColor = System.Drawing.Color.FromArgb(((int)(((byte)(216)))), ((int)(((byte)(231)))), ((int)(((byte)(253)))));
+            this.simpleButton5.Image = ((System.Drawing.Image)(resources.GetObject("simpleButton5.Image")));
             this.simpleButton5.Location = new System.Drawing.Point(42, 2);
             this.simpleButton5.Name = "simpleButton5";
+            this.simpleButton5.PressedColor = System.Drawing.Color.FromArgb(((int)(((byte)(189)))), ((int)(((byte)(213)))), ((int)(((byte)(250)))));
             this.simpleButton5.Size = new System.Drawing.Size(24, 22);
             this.simpleButton5.TabIndex = 0;
             this.simpleButton5.Text = "";
@@ -515,15 +554,15 @@ public partial class frmUserAuth
             // simpleButton6
             // 
             this.simpleButton6.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.simpleButton6.Appearance.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(228)))), ((int)(((byte)(245)))), ((int)(((byte)(231)))));
-            this.simpleButton6.Appearance.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(198)))), ((int)(((byte)(231)))), ((int)(((byte)(203)))));
-            this.simpleButton6.Appearance.Font = new System.Drawing.Font("Segoe MDL2 Assets", 11F);
-            this.simpleButton6.Appearance.Options.UseBackColor = true;
-            this.simpleButton6.Appearance.Options.UseBorderColor = true;
-            this.simpleButton6.Appearance.Options.UseFont = true;
-            this.simpleButton6.ImageOptions.Image = ((System.Drawing.Image)(resources.GetObject("simpleButton6.ImageOptions.Image")));
+            this.simpleButton6.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(198)))), ((int)(((byte)(231)))), ((int)(((byte)(203)))));
+            this.simpleButton6.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.simpleButton6.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(228)))), ((int)(((byte)(245)))), ((int)(((byte)(231)))));
+            this.simpleButton6.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(28)))), ((int)(((byte)(84)))), ((int)(((byte)(187)))));
+            this.simpleButton6.HoverColor = System.Drawing.Color.FromArgb(((int)(((byte)(216)))), ((int)(((byte)(231)))), ((int)(((byte)(253)))));
+            this.simpleButton6.Image = ((System.Drawing.Image)(resources.GetObject("simpleButton6.Image")));
             this.simpleButton6.Location = new System.Drawing.Point(10, 2);
             this.simpleButton6.Name = "simpleButton6";
+            this.simpleButton6.PressedColor = System.Drawing.Color.FromArgb(((int)(((byte)(189)))), ((int)(((byte)(213)))), ((int)(((byte)(250)))));
             this.simpleButton6.Size = new System.Drawing.Size(24, 22);
             this.simpleButton6.TabIndex = 0;
             this.simpleButton6.Text = "";
@@ -538,7 +577,7 @@ public partial class frmUserAuth
             this.sectionHeaderWyn9.Icon = WYNLAB.Base.Controls.SectionHeaderIcon.Folder;
             this.sectionHeaderWyn9.Location = new System.Drawing.Point(5, 0);
             this.sectionHeaderWyn9.Name = "sectionHeaderWyn9";
-            this.sectionHeaderWyn9.Size = new System.Drawing.Size(411, 25);
+            this.sectionHeaderWyn9.Size = new System.Drawing.Size(1292, 25);
             this.sectionHeaderWyn9.SvgIcon = ((DevExpress.Utils.Svg.SvgImage)(resources.GetObject("sectionHeaderWyn9.SvgIcon")));
             this.sectionHeaderWyn9.TabIndex = 8;
             this.sectionHeaderWyn9.Text = "사용자별권한 등록";
@@ -546,9 +585,9 @@ public partial class frmUserAuth
             // splitterWyn3
             // 
             this.splitterWyn3.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(255)))), ((int)(((byte)(255)))));
-            this.splitterWyn3.Location = new System.Drawing.Point(319, 132);
+            this.splitterWyn3.Location = new System.Drawing.Point(303, 0);
             this.splitterWyn3.Name = "splitterWyn3";
-            this.splitterWyn3.Size = new System.Drawing.Size(10, 360);
+            this.splitterWyn3.Size = new System.Drawing.Size(10, 327);
             this.splitterWyn3.TabIndex = 11;
             this.splitterWyn3.TabStop = false;
             // 
@@ -558,9 +597,9 @@ public partial class frmUserAuth
             this.panelWyn26.Controls.Add(this.panelWyn13);
             this.panelWyn26.Dock = System.Windows.Forms.DockStyle.Left;
             this.panelWyn26.EdgeLineColor = System.Drawing.Color.FromArgb(((int)(((byte)(228)))), ((int)(((byte)(229)))), ((int)(((byte)(232)))));
-            this.panelWyn26.Location = new System.Drawing.Point(3, 132);
+            this.panelWyn26.Location = new System.Drawing.Point(3, 0);
             this.panelWyn26.Name = "panelWyn26";
-            this.panelWyn26.Size = new System.Drawing.Size(316, 360);
+            this.panelWyn26.Size = new System.Drawing.Size(300, 327);
             this.panelWyn26.TabIndex = 10;
             // 
             // grd3
@@ -571,7 +610,7 @@ public partial class frmUserAuth
             this.grd3.Name = "grd3";
             this.grd3.RepositoryItems.AddRange(new DevExpress.XtraEditors.Repository.RepositoryItem[] {
             this.repositoryItemCheckEdit1});
-            this.grd3.Size = new System.Drawing.Size(316, 333);
+            this.grd3.Size = new System.Drawing.Size(300, 300);
             this.grd3.TabIndex = 9;
             this.grd3.ViewCollection.AddRange(new DevExpress.XtraGrid.Views.Base.BaseView[] {
             this.gvw3});
@@ -609,16 +648,17 @@ public partial class frmUserAuth
             this.gridColumn4.Name = "gridColumn4";
             this.gridColumn4.Visible = true;
             this.gridColumn4.VisibleIndex = 1;
-            this.gridColumn4.Width = 86;
+            this.gridColumn4.Width = 80;
             // 
             // gridColumn5
             // 
             this.gridColumn5.Caption = "사용자그룹명";
             this.gridColumn5.FieldName = "UserGrpNm";
             this.gridColumn5.Name = "gridColumn5";
+            this.gridColumn5.OptionsColumn.AllowEdit = false;
             this.gridColumn5.Visible = true;
             this.gridColumn5.VisibleIndex = 2;
-            this.gridColumn5.Width = 167;
+            this.gridColumn5.Width = 152;
             // 
             // panelWyn13
             // 
@@ -629,7 +669,7 @@ public partial class frmUserAuth
             this.panelWyn13.Location = new System.Drawing.Point(0, 0);
             this.panelWyn13.Name = "panelWyn13";
             this.panelWyn13.Padding = new System.Windows.Forms.Padding(5, 0, 0, 2);
-            this.panelWyn13.Size = new System.Drawing.Size(316, 27);
+            this.panelWyn13.Size = new System.Drawing.Size(300, 27);
             this.panelWyn13.TabIndex = 8;
             // 
             // panelWyn14
@@ -638,7 +678,7 @@ public partial class frmUserAuth
             this.panelWyn14.Controls.Add(this.simpleButton2);
             this.panelWyn14.Dock = System.Windows.Forms.DockStyle.Right;
             this.panelWyn14.EdgeLineColor = System.Drawing.Color.FromArgb(((int)(((byte)(228)))), ((int)(((byte)(229)))), ((int)(((byte)(232)))));
-            this.panelWyn14.Location = new System.Drawing.Point(248, 0);
+            this.panelWyn14.Location = new System.Drawing.Point(232, 0);
             this.panelWyn14.Name = "panelWyn14";
             this.panelWyn14.Size = new System.Drawing.Size(68, 25);
             this.panelWyn14.TabIndex = 9;
@@ -647,15 +687,15 @@ public partial class frmUserAuth
             // simpleButton1
             // 
             this.simpleButton1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.simpleButton1.Appearance.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(253)))), ((int)(((byte)(236)))), ((int)(((byte)(234)))));
-            this.simpleButton1.Appearance.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(245)))), ((int)(((byte)(198)))), ((int)(((byte)(193)))));
-            this.simpleButton1.Appearance.Font = new System.Drawing.Font("Segoe MDL2 Assets", 11F);
-            this.simpleButton1.Appearance.Options.UseBackColor = true;
-            this.simpleButton1.Appearance.Options.UseBorderColor = true;
-            this.simpleButton1.Appearance.Options.UseFont = true;
-            this.simpleButton1.ImageOptions.Image = ((System.Drawing.Image)(resources.GetObject("simpleButton1.ImageOptions.Image")));
+            this.simpleButton1.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(245)))), ((int)(((byte)(198)))), ((int)(((byte)(193)))));
+            this.simpleButton1.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.simpleButton1.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(253)))), ((int)(((byte)(236)))), ((int)(((byte)(234)))));
+            this.simpleButton1.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(28)))), ((int)(((byte)(84)))), ((int)(((byte)(187)))));
+            this.simpleButton1.HoverColor = System.Drawing.Color.FromArgb(((int)(((byte)(216)))), ((int)(((byte)(231)))), ((int)(((byte)(253)))));
+            this.simpleButton1.Image = ((System.Drawing.Image)(resources.GetObject("simpleButton1.Image")));
             this.simpleButton1.Location = new System.Drawing.Point(42, 2);
             this.simpleButton1.Name = "simpleButton1";
+            this.simpleButton1.PressedColor = System.Drawing.Color.FromArgb(((int)(((byte)(189)))), ((int)(((byte)(213)))), ((int)(((byte)(250)))));
             this.simpleButton1.Size = new System.Drawing.Size(24, 22);
             this.simpleButton1.TabIndex = 0;
             this.simpleButton1.Text = "";
@@ -665,15 +705,15 @@ public partial class frmUserAuth
             // simpleButton2
             // 
             this.simpleButton2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.simpleButton2.Appearance.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(228)))), ((int)(((byte)(245)))), ((int)(((byte)(231)))));
-            this.simpleButton2.Appearance.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(198)))), ((int)(((byte)(231)))), ((int)(((byte)(203)))));
-            this.simpleButton2.Appearance.Font = new System.Drawing.Font("Segoe MDL2 Assets", 11F);
-            this.simpleButton2.Appearance.Options.UseBackColor = true;
-            this.simpleButton2.Appearance.Options.UseBorderColor = true;
-            this.simpleButton2.Appearance.Options.UseFont = true;
-            this.simpleButton2.ImageOptions.Image = ((System.Drawing.Image)(resources.GetObject("simpleButton2.ImageOptions.Image")));
+            this.simpleButton2.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(198)))), ((int)(((byte)(231)))), ((int)(((byte)(203)))));
+            this.simpleButton2.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.simpleButton2.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(228)))), ((int)(((byte)(245)))), ((int)(((byte)(231)))));
+            this.simpleButton2.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(28)))), ((int)(((byte)(84)))), ((int)(((byte)(187)))));
+            this.simpleButton2.HoverColor = System.Drawing.Color.FromArgb(((int)(((byte)(216)))), ((int)(((byte)(231)))), ((int)(((byte)(253)))));
+            this.simpleButton2.Image = ((System.Drawing.Image)(resources.GetObject("simpleButton2.Image")));
             this.simpleButton2.Location = new System.Drawing.Point(10, 2);
             this.simpleButton2.Name = "simpleButton2";
+            this.simpleButton2.PressedColor = System.Drawing.Color.FromArgb(((int)(((byte)(189)))), ((int)(((byte)(213)))), ((int)(((byte)(250)))));
             this.simpleButton2.Size = new System.Drawing.Size(24, 22);
             this.simpleButton2.TabIndex = 0;
             this.simpleButton2.Text = "";
@@ -688,158 +728,74 @@ public partial class frmUserAuth
             this.sectionHeaderWyn5.Icon = WYNLAB.Base.Controls.SectionHeaderIcon.Folder;
             this.sectionHeaderWyn5.Location = new System.Drawing.Point(5, 0);
             this.sectionHeaderWyn5.Name = "sectionHeaderWyn5";
-            this.sectionHeaderWyn5.Size = new System.Drawing.Size(311, 25);
+            this.sectionHeaderWyn5.Size = new System.Drawing.Size(295, 25);
             this.sectionHeaderWyn5.SvgIcon = ((DevExpress.Utils.Svg.SvgImage)(resources.GetObject("sectionHeaderWyn5.SvgIcon")));
             this.sectionHeaderWyn5.TabIndex = 8;
-            this.sectionHeaderWyn5.Text = "사용자별권한 등록";
+            this.sectionHeaderWyn5.Text = "사용자그룹 LIST";
             // 
-            // panelWyn15
+            // splitterWyn5
             // 
-            this.panelWyn15.Controls.Add(this.panelWyn16);
-            this.panelWyn15.Controls.Add(this.panelWyn17);
-            this.panelWyn15.Dock = System.Windows.Forms.DockStyle.Top;
-            this.panelWyn15.EdgeLineColor = System.Drawing.Color.FromArgb(((int)(((byte)(228)))), ((int)(((byte)(229)))), ((int)(((byte)(232)))));
-            this.panelWyn15.Location = new System.Drawing.Point(3, 0);
-            this.panelWyn15.Name = "panelWyn15";
-            this.panelWyn15.Size = new System.Drawing.Size(742, 132);
-            this.panelWyn15.TabIndex = 6;
+            this.splitterWyn5.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(255)))), ((int)(((byte)(255)))));
+            this.splitterWyn5.Dock = System.Windows.Forms.DockStyle.Top;
+            this.splitterWyn5.Location = new System.Drawing.Point(0, 203);
+            this.splitterWyn5.Name = "splitterWyn5";
+            this.splitterWyn5.Size = new System.Drawing.Size(1610, 10);
+            this.splitterWyn5.TabIndex = 14;
+            this.splitterWyn5.TabStop = false;
             // 
-            // panelWyn16
+            // panelWyn29
             // 
-            this.panelWyn16.BorderStyle = DevExpress.XtraEditors.Controls.BorderStyles.Default;
-            this.panelWyn16.Controls.Add(this.txtEmpNm);
-            this.panelWyn16.Controls.Add(this.checkBoxWyn1);
-            this.panelWyn16.Controls.Add(this.chkDeveloperYn);
-            this.panelWyn16.Controls.Add(this.labelControl8);
-            this.panelWyn16.Controls.Add(this.labelControl7);
-            this.panelWyn16.Controls.Add(this.labelControl2);
-            this.panelWyn16.Controls.Add(this.labelControl4);
-            this.panelWyn16.Controls.Add(this.txtDeptCd);
-            this.panelWyn16.Controls.Add(this.txtDeptNm);
-            this.panelWyn16.Controls.Add(this.txtEmpNo);
-            this.panelWyn16.Controls.Add(this.txtuser_nm);
-            this.panelWyn16.Controls.Add(this.txtuser_id);
-            this.panelWyn16.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.panelWyn16.EdgeLineColor = System.Drawing.Color.FromArgb(((int)(((byte)(228)))), ((int)(((byte)(229)))), ((int)(((byte)(232)))));
-            this.panelWyn16.Location = new System.Drawing.Point(0, 27);
-            this.panelWyn16.Name = "panelWyn16";
-            this.panelWyn16.Size = new System.Drawing.Size(742, 105);
-            this.panelWyn16.TabIndex = 8;
-            // 
-            // checkBoxWyn1
-            // 
-            this.checkBoxWyn1.Location = new System.Drawing.Point(225, 16);
-            this.checkBoxWyn1.Name = "checkBoxWyn1";
-            this.checkBoxWyn1.Properties.Caption = "사용";
-            this.checkBoxWyn1.Size = new System.Drawing.Size(80, 20);
-            this.checkBoxWyn1.TabIndex = 7;
-            // 
-            // chkDeveloperYn
-            // 
-            this.chkDeveloperYn.Enabled = false;
-            this.chkDeveloperYn.Location = new System.Drawing.Point(225, 43);
-            this.chkDeveloperYn.Name = "chkDeveloperYn";
-            this.chkDeveloperYn.Properties.Caption = "시스템개발자";
-            this.chkDeveloperYn.Size = new System.Drawing.Size(180, 20);
-            this.chkDeveloperYn.TabIndex = 9;
-            // 
-            // labelControl2
-            // 
-            this.labelControl2.Appearance.Font = new System.Drawing.Font("맑은 고딕", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
-            this.labelControl2.Appearance.Options.UseFont = true;
-            this.labelControl2.Location = new System.Drawing.Point(35, 46);
-            this.labelControl2.Name = "labelControl2";
-            this.labelControl2.Size = new System.Drawing.Size(48, 15);
-            this.labelControl2.TabIndex = 4;
-            this.labelControl2.Text = "사용자명";
-            // 
-            // labelControl4
-            // 
-            this.labelControl4.Appearance.Font = new System.Drawing.Font("맑은 고딕", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
-            this.labelControl4.Appearance.Options.UseFont = true;
-            this.labelControl4.Location = new System.Drawing.Point(35, 18);
-            this.labelControl4.Name = "labelControl4";
-            this.labelControl4.Size = new System.Drawing.Size(48, 15);
-            this.labelControl4.TabIndex = 4;
-            this.labelControl4.Text = "사용자ID";
-            // 
-            // txtuser_nm
-            // 
-            this.txtuser_nm.Location = new System.Drawing.Point(89, 43);
-            this.txtuser_nm.Name = "txtuser_nm";
-            this.txtuser_nm.Size = new System.Drawing.Size(97, 20);
-            this.txtuser_nm.TabIndex = 6;
-            // 
-            // txtuser_id
-            // 
-            this.txtuser_id.Location = new System.Drawing.Point(89, 16);
-            this.txtuser_id.Name = "txtuser_id";
-            this.txtuser_id.Size = new System.Drawing.Size(97, 20);
-            this.txtuser_id.TabIndex = 5;
-            // 
-            // panelWyn17
-            // 
-            this.panelWyn17.Controls.Add(this.sectionHeaderWyn6);
-            this.panelWyn17.Dock = System.Windows.Forms.DockStyle.Top;
-            this.panelWyn17.EdgeLineColor = System.Drawing.Color.FromArgb(((int)(((byte)(228)))), ((int)(((byte)(229)))), ((int)(((byte)(232)))));
-            this.panelWyn17.Location = new System.Drawing.Point(0, 0);
-            this.panelWyn17.Name = "panelWyn17";
-            this.panelWyn17.Padding = new System.Windows.Forms.Padding(5, 0, 0, 2);
-            this.panelWyn17.Size = new System.Drawing.Size(742, 27);
-            this.panelWyn17.TabIndex = 7;
-            // 
-            // sectionHeaderWyn6
-            // 
-            this.sectionHeaderWyn6.BackColor = System.Drawing.Color.White;
-            this.sectionHeaderWyn6.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.sectionHeaderWyn6.Font = new System.Drawing.Font("맑은 고딕", 9F, ((System.Drawing.FontStyle)((System.Drawing.FontStyle.Bold | System.Drawing.FontStyle.Underline))), System.Drawing.GraphicsUnit.Point, ((byte)(129)));
-            this.sectionHeaderWyn6.Icon = WYNLAB.Base.Controls.SectionHeaderIcon.Folder;
-            this.sectionHeaderWyn6.Location = new System.Drawing.Point(5, 0);
-            this.sectionHeaderWyn6.Name = "sectionHeaderWyn6";
-            this.sectionHeaderWyn6.Padding = new System.Windows.Forms.Padding(0, 0, 3, 0);
-            this.sectionHeaderWyn6.Size = new System.Drawing.Size(737, 25);
-            this.sectionHeaderWyn6.SvgIcon = ((DevExpress.Utils.Svg.SvgImage)(resources.GetObject("sectionHeaderWyn6.SvgIcon")));
-            this.sectionHeaderWyn6.TabIndex = 8;
-            this.sectionHeaderWyn6.Text = "사용자정보 등록";
-            // 
-            // splitterWyn2
-            // 
-            this.splitterWyn2.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(255)))), ((int)(((byte)(255)))));
-            this.splitterWyn2.Location = new System.Drawing.Point(402, 0);
-            this.splitterWyn2.Name = "splitterWyn2";
-            this.splitterWyn2.Size = new System.Drawing.Size(10, 492);
-            this.splitterWyn2.TabIndex = 9;
-            this.splitterWyn2.TabStop = false;
+            this.panelWyn29.Controls.Add(this.panelWyn18);
+            this.panelWyn29.Controls.Add(this.splitterWyn2);
+            this.panelWyn29.Controls.Add(this.panelWyn15);
+            this.panelWyn29.Dock = System.Windows.Forms.DockStyle.Top;
+            this.panelWyn29.EdgeLineColor = System.Drawing.Color.FromArgb(((int)(((byte)(228)))), ((int)(((byte)(229)))), ((int)(((byte)(232)))));
+            this.panelWyn29.Location = new System.Drawing.Point(0, 0);
+            this.panelWyn29.Name = "panelWyn29";
+            this.panelWyn29.Size = new System.Drawing.Size(1610, 203);
+            this.panelWyn29.TabIndex = 13;
             // 
             // panelWyn18
             // 
             this.panelWyn18.Controls.Add(this.grd1);
             this.panelWyn18.Controls.Add(this.panelWyn19);
-            this.panelWyn18.Dock = System.Windows.Forms.DockStyle.Left;
+            this.panelWyn18.Dock = System.Windows.Forms.DockStyle.Fill;
             this.panelWyn18.EdgeLineColor = System.Drawing.Color.FromArgb(((int)(((byte)(228)))), ((int)(((byte)(229)))), ((int)(((byte)(232)))));
             this.panelWyn18.Location = new System.Drawing.Point(0, 0);
             this.panelWyn18.Name = "panelWyn18";
-            this.panelWyn18.Size = new System.Drawing.Size(402, 492);
+            this.panelWyn18.Size = new System.Drawing.Size(1138, 203);
             this.panelWyn18.TabIndex = 12;
             // 
             // grd1
             // 
             this.grd1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.grd1.EmbeddedNavigator.Buttons.Append.Visible = false;
+            this.grd1.EmbeddedNavigator.Buttons.CancelEdit.Visible = false;
+            this.grd1.EmbeddedNavigator.Buttons.Edit.Visible = false;
+            this.grd1.EmbeddedNavigator.Buttons.EndEdit.Visible = false;
+            this.grd1.EmbeddedNavigator.Buttons.Remove.Visible = false;
             this.grd1.Location = new System.Drawing.Point(0, 27);
             this.grd1.MainView = this.gvw1;
             this.grd1.Name = "grd1";
-            this.grd1.Size = new System.Drawing.Size(402, 465);
+            this.grd1.RepositoryItems.AddRange(new DevExpress.XtraEditors.Repository.RepositoryItem[] {
+            this.lookUpColumnEdit1,
+            this.lookUpColumnEdit2});
+            this.grd1.Size = new System.Drawing.Size(1138, 176);
             this.grd1.TabIndex = 12;
             this.grd1.ViewCollection.AddRange(new DevExpress.XtraGrid.Views.Base.BaseView[] {
             this.gvw1});
+            this.grd1.Click += new System.EventHandler(this.grd1_Click);
             // 
             // gvw1
             // 
             this.gvw1.Columns.AddRange(new DevExpress.XtraGrid.Columns.GridColumn[] {
             this.gridColumn1,
-            this.gridColumn2});
+            this.gridColumn2,
+            this.gridColumn11,
+            this.gridColumn12});
             this.gvw1.GridControl = this.grd1;
             this.gvw1.Name = "gvw1";
+            this.gvw1.OptionsBehavior.Editable = false;
             this.gvw1.OptionsView.ColumnAutoWidth = false;
             this.gvw1.OptionsView.ShowGroupPanel = false;
             // 
@@ -859,7 +815,44 @@ public partial class frmUserAuth
             this.gridColumn2.Name = "gridColumn2";
             this.gridColumn2.Visible = true;
             this.gridColumn2.VisibleIndex = 1;
-            this.gridColumn2.Width = 200;
+            this.gridColumn2.Width = 136;
+            // 
+            // gridColumn11
+            // 
+            this.gridColumn11.Caption = "사용";
+            this.gridColumn11.ColumnEdit = this.lookUpColumnEdit1;
+            this.gridColumn11.FieldName = "UseYnCd";
+            this.gridColumn11.Name = "gridColumn11";
+            this.gridColumn11.OptionsColumn.AllowEdit = false;
+            this.gridColumn11.Visible = true;
+            this.gridColumn11.VisibleIndex = 2;
+            this.gridColumn11.Width = 90;
+            // 
+            // lookUpColumnEdit1
+            // 
+            this.lookUpColumnEdit1.AutoHeight = false;
+            this.lookUpColumnEdit1.Buttons.AddRange(new DevExpress.XtraEditors.Controls.EditorButton[] {
+            new DevExpress.XtraEditors.Controls.EditorButton(DevExpress.XtraEditors.Controls.ButtonPredefines.Combo)});
+            this.lookUpColumnEdit1.LookupKey = "L_CM0100";
+            this.lookUpColumnEdit1.Name = "lookUpColumnEdit1";
+            this.lookUpColumnEdit1.NullText = "";
+            // 
+            // gridColumn12
+            // 
+            this.gridColumn12.Caption = "사용자구분";
+            this.gridColumn12.ColumnEdit = this.lookUpColumnEdit2;
+            this.gridColumn12.Name = "gridColumn12";
+            this.gridColumn12.Visible = true;
+            this.gridColumn12.VisibleIndex = 3;
+            // 
+            // lookUpColumnEdit2
+            // 
+            this.lookUpColumnEdit2.AutoHeight = false;
+            this.lookUpColumnEdit2.Buttons.AddRange(new DevExpress.XtraEditors.Controls.EditorButton[] {
+            new DevExpress.XtraEditors.Controls.EditorButton(DevExpress.XtraEditors.Controls.ButtonPredefines.Combo)});
+            this.lookUpColumnEdit2.LookupKey = "L_SM0002";
+            this.lookUpColumnEdit2.Name = "lookUpColumnEdit2";
+            this.lookUpColumnEdit2.NullText = "";
             // 
             // panelWyn19
             // 
@@ -869,7 +862,7 @@ public partial class frmUserAuth
             this.panelWyn19.Location = new System.Drawing.Point(0, 0);
             this.panelWyn19.Name = "panelWyn19";
             this.panelWyn19.Padding = new System.Windows.Forms.Padding(5, 0, 0, 2);
-            this.panelWyn19.Size = new System.Drawing.Size(402, 27);
+            this.panelWyn19.Size = new System.Drawing.Size(1138, 27);
             this.panelWyn19.TabIndex = 11;
             // 
             // sectionHeaderWyn7
@@ -880,10 +873,242 @@ public partial class frmUserAuth
             this.sectionHeaderWyn7.Icon = WYNLAB.Base.Controls.SectionHeaderIcon.Folder;
             this.sectionHeaderWyn7.Location = new System.Drawing.Point(5, 0);
             this.sectionHeaderWyn7.Name = "sectionHeaderWyn7";
-            this.sectionHeaderWyn7.Size = new System.Drawing.Size(397, 25);
+            this.sectionHeaderWyn7.Size = new System.Drawing.Size(1133, 25);
             this.sectionHeaderWyn7.SvgIcon = ((DevExpress.Utils.Svg.SvgImage)(resources.GetObject("sectionHeaderWyn7.SvgIcon")));
             this.sectionHeaderWyn7.TabIndex = 8;
             this.sectionHeaderWyn7.Text = "사용자 LIST";
+            // 
+            // splitterWyn2
+            // 
+            this.splitterWyn2.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(255)))), ((int)(((byte)(255)))));
+            this.splitterWyn2.Dock = System.Windows.Forms.DockStyle.Right;
+            this.splitterWyn2.Location = new System.Drawing.Point(1138, 0);
+            this.splitterWyn2.Name = "splitterWyn2";
+            this.splitterWyn2.Size = new System.Drawing.Size(10, 203);
+            this.splitterWyn2.TabIndex = 13;
+            this.splitterWyn2.TabStop = false;
+            // 
+            // panelWyn15
+            // 
+            this.panelWyn15.Controls.Add(this.panelWyn16);
+            this.panelWyn15.Controls.Add(this.panelWyn17);
+            this.panelWyn15.Dock = System.Windows.Forms.DockStyle.Right;
+            this.panelWyn15.EdgeLineColor = System.Drawing.Color.FromArgb(((int)(((byte)(228)))), ((int)(((byte)(229)))), ((int)(((byte)(232)))));
+            this.panelWyn15.Location = new System.Drawing.Point(1148, 0);
+            this.panelWyn15.Name = "panelWyn15";
+            this.panelWyn15.Size = new System.Drawing.Size(462, 203);
+            this.panelWyn15.TabIndex = 6;
+            // 
+            // panelWyn16
+            // 
+            this.panelWyn16.BorderStyle = DevExpress.XtraEditors.Controls.BorderStyles.Default;
+            this.panelWyn16.Controls.Add(this.labelControl10);
+            this.panelWyn16.Controls.Add(this.cboUserType);
+            this.panelWyn16.Controls.Add(this.cboUseYn);
+            this.panelWyn16.Controls.Add(this.txtEmpNm);
+            this.panelWyn16.Controls.Add(this.chkDeveloperYn);
+            this.panelWyn16.Controls.Add(this.labelControl9);
+            this.panelWyn16.Controls.Add(this.labelControl8);
+            this.panelWyn16.Controls.Add(this.labelControl7);
+            this.panelWyn16.Controls.Add(this.labelControl2);
+            this.panelWyn16.Controls.Add(this.labelControl4);
+            this.panelWyn16.Controls.Add(this.txtDeptCd);
+            this.panelWyn16.Controls.Add(this.txtDeptNm);
+            this.panelWyn16.Controls.Add(this.txtEmpNo);
+            this.panelWyn16.Controls.Add(this.txtuser_nm);
+            this.panelWyn16.Controls.Add(this.txtuser_id);
+            this.panelWyn16.Controls.Add(this.txtEmail);
+            this.panelWyn16.Controls.Add(this.labelControlEmail);
+            this.panelWyn16.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.panelWyn16.EdgeLineColor = System.Drawing.Color.FromArgb(((int)(((byte)(228)))), ((int)(((byte)(229)))), ((int)(((byte)(232)))));
+            this.panelWyn16.Location = new System.Drawing.Point(0, 27);
+            this.panelWyn16.Name = "panelWyn16";
+            this.panelWyn16.Size = new System.Drawing.Size(462, 176);
+            this.panelWyn16.TabIndex = 8;
+            // 
+            // labelControl10
+            // 
+            this.labelControl10.Appearance.Font = new System.Drawing.Font("맑은 고딕", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
+            this.labelControl10.Appearance.Options.UseFont = true;
+            this.labelControl10.Location = new System.Drawing.Point(194, 47);
+            this.labelControl10.Name = "labelControl10";
+            this.labelControl10.Size = new System.Drawing.Size(60, 15);
+            this.labelControl10.TabIndex = 14;
+            this.labelControl10.Text = "사용자구분";
+            // 
+            // cboUserType
+            // 
+            this.cboUserType.EditValue = "";
+            this.cboUserType.Location = new System.Drawing.Point(258, 44);
+            this.cboUserType.LookupKey = "L_SM0002";
+            this.cboUserType.Name = "cboUserType";
+            this.cboUserType.Properties.Buttons.AddRange(new DevExpress.XtraEditors.Controls.EditorButton[] {
+            new DevExpress.XtraEditors.Controls.EditorButton(DevExpress.XtraEditors.Controls.ButtonPredefines.Combo)});
+            this.cboUserType.Properties.NullText = "";
+            this.cboUserType.Size = new System.Drawing.Size(190, 20);
+            this.cboUserType.TabIndex = 13;
+            // 
+            // cboUseYn
+            // 
+            this.cboUseYn.EditValue = "";
+            this.cboUseYn.Location = new System.Drawing.Point(258, 15);
+            this.cboUseYn.LookupKey = "L_CM0100";
+            this.cboUseYn.Name = "cboUseYn";
+            this.cboUseYn.Properties.Buttons.AddRange(new DevExpress.XtraEditors.Controls.EditorButton[] {
+            new DevExpress.XtraEditors.Controls.EditorButton(DevExpress.XtraEditors.Controls.ButtonPredefines.Combo)});
+            this.cboUseYn.Properties.NullText = "";
+            this.cboUseYn.Size = new System.Drawing.Size(89, 20);
+            this.cboUseYn.TabIndex = 12;
+            // 
+            // txtEmpNm
+            // 
+            this.txtEmpNm.Location = new System.Drawing.Point(89, 72);
+            this.txtEmpNm.LookupKey = "P_EMP";
+            this.txtEmpNm.MatchField = "emp_nm";
+            this.txtEmpNm.Name = "txtEmpNm";
+            this.txtEmpNm.Properties.Buttons.AddRange(new DevExpress.XtraEditors.Controls.EditorButton[] {
+            new DevExpress.XtraEditors.Controls.EditorButton(DevExpress.XtraEditors.Controls.ButtonPredefines.Ellipsis, "", 24, true, true, false, editorButtonImageOptions1, new DevExpress.Utils.KeyShortcut(System.Windows.Forms.Keys.None), serializableAppearanceObject1, serializableAppearanceObject2, serializableAppearanceObject3, serializableAppearanceObject4, "", null, null, DevExpress.Utils.ToolTipAnchor.Default)});
+            this.txtEmpNm.Size = new System.Drawing.Size(97, 20);
+            this.txtEmpNm.TabIndex = 10;
+            this.txtEmpNm.ToolTip = null;
+            // 
+            // chkDeveloperYn
+            // 
+            this.chkDeveloperYn.Enabled = false;
+            this.chkDeveloperYn.Location = new System.Drawing.Point(353, 16);
+            this.chkDeveloperYn.Name = "chkDeveloperYn";
+            this.chkDeveloperYn.Properties.Caption = "시스템개발자";
+            this.chkDeveloperYn.Size = new System.Drawing.Size(95, 20);
+            this.chkDeveloperYn.TabIndex = 9;
+            // 
+            // labelControl9
+            // 
+            this.labelControl9.Appearance.Font = new System.Drawing.Font("맑은 고딕", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
+            this.labelControl9.Appearance.Options.UseFont = true;
+            this.labelControl9.Location = new System.Drawing.Point(206, 18);
+            this.labelControl9.Name = "labelControl9";
+            this.labelControl9.Size = new System.Drawing.Size(48, 15);
+            this.labelControl9.TabIndex = 4;
+            this.labelControl9.Text = "사용여부";
+            // 
+            // labelControl8
+            // 
+            this.labelControl8.Appearance.Font = new System.Drawing.Font("맑은 고딕", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
+            this.labelControl8.Appearance.Options.UseFont = true;
+            this.labelControl8.Location = new System.Drawing.Point(230, 75);
+            this.labelControl8.Name = "labelControl8";
+            this.labelControl8.Size = new System.Drawing.Size(24, 15);
+            this.labelControl8.TabIndex = 4;
+            this.labelControl8.Text = "부서";
+            // 
+            // labelControl7
+            // 
+            this.labelControl7.Appearance.Font = new System.Drawing.Font("맑은 고딕", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
+            this.labelControl7.Appearance.Options.UseFont = true;
+            this.labelControl7.Location = new System.Drawing.Point(35, 75);
+            this.labelControl7.Name = "labelControl7";
+            this.labelControl7.Size = new System.Drawing.Size(36, 15);
+            this.labelControl7.TabIndex = 4;
+            this.labelControl7.Text = "사원명";
+            // 
+            // labelControl2
+            // 
+            this.labelControl2.Appearance.Font = new System.Drawing.Font("맑은 고딕", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
+            this.labelControl2.Appearance.Options.UseFont = true;
+            this.labelControl2.Location = new System.Drawing.Point(35, 47);
+            this.labelControl2.Name = "labelControl2";
+            this.labelControl2.Size = new System.Drawing.Size(48, 15);
+            this.labelControl2.TabIndex = 4;
+            this.labelControl2.Text = "사용자명";
+            // 
+            // labelControl4
+            // 
+            this.labelControl4.Appearance.Font = new System.Drawing.Font("맑은 고딕", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
+            this.labelControl4.Appearance.Options.UseFont = true;
+            this.labelControl4.Location = new System.Drawing.Point(35, 18);
+            this.labelControl4.Name = "labelControl4";
+            this.labelControl4.Size = new System.Drawing.Size(48, 15);
+            this.labelControl4.TabIndex = 4;
+            this.labelControl4.Text = "사용자ID";
+            // 
+            // txtDeptCd
+            // 
+            this.txtDeptCd.Location = new System.Drawing.Point(599, 209);
+            this.txtDeptCd.Name = "txtDeptCd";
+            this.txtDeptCd.Size = new System.Drawing.Size(97, 20);
+            this.txtDeptCd.TabIndex = 6;
+            this.txtDeptCd.Visible = false;
+            // 
+            // txtDeptNm
+            // 
+            this.txtDeptNm.Location = new System.Drawing.Point(258, 72);
+            this.txtDeptNm.Name = "txtDeptNm";
+            this.txtDeptNm.Size = new System.Drawing.Size(190, 20);
+            this.txtDeptNm.TabIndex = 6;
+            // 
+            // txtEmpNo
+            // 
+            this.txtEmpNo.Location = new System.Drawing.Point(599, 183);
+            this.txtEmpNo.Name = "txtEmpNo";
+            this.txtEmpNo.Size = new System.Drawing.Size(97, 20);
+            this.txtEmpNo.TabIndex = 6;
+            this.txtEmpNo.Visible = false;
+            // 
+            // txtuser_nm
+            // 
+            this.txtuser_nm.Location = new System.Drawing.Point(89, 44);
+            this.txtuser_nm.Name = "txtuser_nm";
+            this.txtuser_nm.Size = new System.Drawing.Size(97, 20);
+            this.txtuser_nm.TabIndex = 6;
+            // 
+            // txtuser_id
+            // 
+            this.txtuser_id.Location = new System.Drawing.Point(89, 16);
+            this.txtuser_id.Name = "txtuser_id";
+            this.txtuser_id.Size = new System.Drawing.Size(97, 20);
+            this.txtuser_id.TabIndex = 5;
+            // 
+            // txtEmail
+            // 
+            this.txtEmail.Location = new System.Drawing.Point(89, 100);
+            this.txtEmail.Name = "txtEmail";
+            this.txtEmail.Size = new System.Drawing.Size(359, 20);
+            this.txtEmail.TabIndex = 11;
+            // 
+            // labelControlEmail
+            // 
+            this.labelControlEmail.Appearance.Font = new System.Drawing.Font("맑은 고딕", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
+            this.labelControlEmail.Appearance.Options.UseFont = true;
+            this.labelControlEmail.Location = new System.Drawing.Point(35, 105);
+            this.labelControlEmail.Name = "labelControlEmail";
+            this.labelControlEmail.Size = new System.Drawing.Size(36, 15);
+            this.labelControlEmail.TabIndex = 4;
+            this.labelControlEmail.Text = "이메일";
+            // 
+            // panelWyn17
+            // 
+            this.panelWyn17.Controls.Add(this.sectionHeaderWyn6);
+            this.panelWyn17.Dock = System.Windows.Forms.DockStyle.Top;
+            this.panelWyn17.EdgeLineColor = System.Drawing.Color.FromArgb(((int)(((byte)(228)))), ((int)(((byte)(229)))), ((int)(((byte)(232)))));
+            this.panelWyn17.Location = new System.Drawing.Point(0, 0);
+            this.panelWyn17.Name = "panelWyn17";
+            this.panelWyn17.Padding = new System.Windows.Forms.Padding(5, 0, 0, 2);
+            this.panelWyn17.Size = new System.Drawing.Size(462, 27);
+            this.panelWyn17.TabIndex = 7;
+            // 
+            // sectionHeaderWyn6
+            // 
+            this.sectionHeaderWyn6.BackColor = System.Drawing.Color.White;
+            this.sectionHeaderWyn6.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.sectionHeaderWyn6.Font = new System.Drawing.Font("맑은 고딕", 9F, ((System.Drawing.FontStyle)((System.Drawing.FontStyle.Bold | System.Drawing.FontStyle.Underline))), System.Drawing.GraphicsUnit.Point, ((byte)(129)));
+            this.sectionHeaderWyn6.Icon = WYNLAB.Base.Controls.SectionHeaderIcon.Folder;
+            this.sectionHeaderWyn6.Location = new System.Drawing.Point(5, 0);
+            this.sectionHeaderWyn6.Name = "sectionHeaderWyn6";
+            this.sectionHeaderWyn6.Padding = new System.Windows.Forms.Padding(0, 0, 3, 0);
+            this.sectionHeaderWyn6.Size = new System.Drawing.Size(457, 25);
+            this.sectionHeaderWyn6.SvgIcon = ((DevExpress.Utils.Svg.SvgImage)(resources.GetObject("sectionHeaderWyn6.SvgIcon")));
+            this.sectionHeaderWyn6.TabIndex = 8;
+            this.sectionHeaderWyn6.Text = "사용자정보 등록";
             // 
             // panelWyn20
             // 
@@ -896,7 +1121,7 @@ public partial class frmUserAuth
             this.panelWyn20.EdgeLineColor = System.Drawing.Color.FromArgb(((int)(((byte)(228)))), ((int)(((byte)(229)))), ((int)(((byte)(232)))));
             this.panelWyn20.Location = new System.Drawing.Point(0, 0);
             this.panelWyn20.Name = "panelWyn20";
-            this.panelWyn20.Size = new System.Drawing.Size(1157, 49);
+            this.panelWyn20.Size = new System.Drawing.Size(1610, 49);
             this.panelWyn20.TabIndex = 8;
             // 
             // txtUserGrpIdQ
@@ -921,7 +1146,7 @@ public partial class frmUserAuth
             // 
             this.xtraTabPage2.Controls.Add(this.panelWyn9);
             this.xtraTabPage2.Name = "xtraTabPage2";
-            this.xtraTabPage2.Size = new System.Drawing.Size(1157, 541);
+            this.xtraTabPage2.Size = new System.Drawing.Size(1610, 589);
             this.xtraTabPage2.Text = "  사용자그룹별 권한관리    ";
             // 
             // panelWyn9
@@ -932,7 +1157,7 @@ public partial class frmUserAuth
             this.panelWyn9.EdgeLineColor = System.Drawing.Color.FromArgb(((int)(((byte)(228)))), ((int)(((byte)(229)))), ((int)(((byte)(232)))));
             this.panelWyn9.Location = new System.Drawing.Point(0, 0);
             this.panelWyn9.Name = "panelWyn9";
-            this.panelWyn9.Size = new System.Drawing.Size(1157, 541);
+            this.panelWyn9.Size = new System.Drawing.Size(1610, 589);
             this.panelWyn9.TabIndex = 9;
             // 
             // panelWyn3
@@ -944,7 +1169,7 @@ public partial class frmUserAuth
             this.panelWyn3.EdgeLineColor = System.Drawing.Color.FromArgb(((int)(((byte)(228)))), ((int)(((byte)(229)))), ((int)(((byte)(232)))));
             this.panelWyn3.Location = new System.Drawing.Point(0, 49);
             this.panelWyn3.Name = "panelWyn3";
-            this.panelWyn3.Size = new System.Drawing.Size(1157, 492);
+            this.panelWyn3.Size = new System.Drawing.Size(1610, 540);
             this.panelWyn3.TabIndex = 7;
             // 
             // panelWyn4
@@ -958,7 +1183,7 @@ public partial class frmUserAuth
             this.panelWyn4.Location = new System.Drawing.Point(412, 0);
             this.panelWyn4.Name = "panelWyn4";
             this.panelWyn4.Padding = new System.Windows.Forms.Padding(3, 0, 0, 0);
-            this.panelWyn4.Size = new System.Drawing.Size(745, 492);
+            this.panelWyn4.Size = new System.Drawing.Size(1198, 540);
             this.panelWyn4.TabIndex = 7;
             // 
             // panelWyn21
@@ -969,7 +1194,7 @@ public partial class frmUserAuth
             this.panelWyn21.EdgeLineColor = System.Drawing.Color.FromArgb(((int)(((byte)(228)))), ((int)(((byte)(229)))), ((int)(((byte)(232)))));
             this.panelWyn21.Location = new System.Drawing.Point(317, 194);
             this.panelWyn21.Name = "panelWyn21";
-            this.panelWyn21.Size = new System.Drawing.Size(428, 298);
+            this.panelWyn21.Size = new System.Drawing.Size(881, 346);
             this.panelWyn21.TabIndex = 11;
             // 
             // tree2
@@ -998,19 +1223,19 @@ public partial class frmUserAuth
             this.repositoryItemCheckEdit8,
             this.repositoryItemCheckEdit9});
             this.tree2.RowHeight = 26;
-            this.tree2.Size = new System.Drawing.Size(428, 271);
+            this.tree2.Size = new System.Drawing.Size(881, 319);
             this.tree2.TabIndex = 10;
             // 
             // treeListColumn1
             // 
-            this.treeListColumn1.Caption = "메뉴코드";
-            this.treeListColumn1.FieldName = "MenuCd";
+            this.treeListColumn1.Caption = "메뉴ID";
+            this.treeListColumn1.FieldName = "MenuId";
             this.treeListColumn1.Name = "treeListColumn1";
             // 
             // treeListColumn4
             // 
-            this.treeListColumn4.Caption = "상위메뉴코드";
-            this.treeListColumn4.FieldName = "UpperMenuCd";
+            this.treeListColumn4.Caption = "상위메뉴ID";
+            this.treeListColumn4.FieldName = "UpperMenuId";
             this.treeListColumn4.Name = "treeListColumn4";
             // 
             // treeListColumn5
@@ -1099,7 +1324,7 @@ public partial class frmUserAuth
             this.panelWyn1.Location = new System.Drawing.Point(0, 0);
             this.panelWyn1.Name = "panelWyn1";
             this.panelWyn1.Padding = new System.Windows.Forms.Padding(5, 0, 0, 2);
-            this.panelWyn1.Size = new System.Drawing.Size(428, 27);
+            this.panelWyn1.Size = new System.Drawing.Size(881, 27);
             this.panelWyn1.TabIndex = 8;
             // 
             // panelWyn7
@@ -1108,7 +1333,7 @@ public partial class frmUserAuth
             this.panelWyn7.Controls.Add(this.btnAddRow2);
             this.panelWyn7.Dock = System.Windows.Forms.DockStyle.Right;
             this.panelWyn7.EdgeLineColor = System.Drawing.Color.FromArgb(((int)(((byte)(228)))), ((int)(((byte)(229)))), ((int)(((byte)(232)))));
-            this.panelWyn7.Location = new System.Drawing.Point(360, 0);
+            this.panelWyn7.Location = new System.Drawing.Point(813, 0);
             this.panelWyn7.Name = "panelWyn7";
             this.panelWyn7.Size = new System.Drawing.Size(68, 25);
             this.panelWyn7.TabIndex = 9;
@@ -1117,15 +1342,15 @@ public partial class frmUserAuth
             // btnDeletRow2
             // 
             this.btnDeletRow2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnDeletRow2.Appearance.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(253)))), ((int)(((byte)(236)))), ((int)(((byte)(234)))));
-            this.btnDeletRow2.Appearance.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(245)))), ((int)(((byte)(198)))), ((int)(((byte)(193)))));
-            this.btnDeletRow2.Appearance.Font = new System.Drawing.Font("Segoe MDL2 Assets", 11F);
-            this.btnDeletRow2.Appearance.Options.UseBackColor = true;
-            this.btnDeletRow2.Appearance.Options.UseBorderColor = true;
-            this.btnDeletRow2.Appearance.Options.UseFont = true;
-            this.btnDeletRow2.ImageOptions.Image = ((System.Drawing.Image)(resources.GetObject("btnDeletRow2.ImageOptions.Image")));
+            this.btnDeletRow2.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(245)))), ((int)(((byte)(198)))), ((int)(((byte)(193)))));
+            this.btnDeletRow2.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.btnDeletRow2.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(253)))), ((int)(((byte)(236)))), ((int)(((byte)(234)))));
+            this.btnDeletRow2.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(28)))), ((int)(((byte)(84)))), ((int)(((byte)(187)))));
+            this.btnDeletRow2.HoverColor = System.Drawing.Color.FromArgb(((int)(((byte)(216)))), ((int)(((byte)(231)))), ((int)(((byte)(253)))));
+            this.btnDeletRow2.Image = ((System.Drawing.Image)(resources.GetObject("btnDeletRow2.Image")));
             this.btnDeletRow2.Location = new System.Drawing.Point(42, 2);
             this.btnDeletRow2.Name = "btnDeletRow2";
+            this.btnDeletRow2.PressedColor = System.Drawing.Color.FromArgb(((int)(((byte)(189)))), ((int)(((byte)(213)))), ((int)(((byte)(250)))));
             this.btnDeletRow2.Size = new System.Drawing.Size(24, 22);
             this.btnDeletRow2.TabIndex = 0;
             this.btnDeletRow2.Text = "";
@@ -1135,15 +1360,15 @@ public partial class frmUserAuth
             // btnAddRow2
             // 
             this.btnAddRow2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnAddRow2.Appearance.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(228)))), ((int)(((byte)(245)))), ((int)(((byte)(231)))));
-            this.btnAddRow2.Appearance.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(198)))), ((int)(((byte)(231)))), ((int)(((byte)(203)))));
-            this.btnAddRow2.Appearance.Font = new System.Drawing.Font("Segoe MDL2 Assets", 11F);
-            this.btnAddRow2.Appearance.Options.UseBackColor = true;
-            this.btnAddRow2.Appearance.Options.UseBorderColor = true;
-            this.btnAddRow2.Appearance.Options.UseFont = true;
-            this.btnAddRow2.ImageOptions.Image = ((System.Drawing.Image)(resources.GetObject("btnAddRow2.ImageOptions.Image")));
+            this.btnAddRow2.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(198)))), ((int)(((byte)(231)))), ((int)(((byte)(203)))));
+            this.btnAddRow2.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.btnAddRow2.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(228)))), ((int)(((byte)(245)))), ((int)(((byte)(231)))));
+            this.btnAddRow2.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(28)))), ((int)(((byte)(84)))), ((int)(((byte)(187)))));
+            this.btnAddRow2.HoverColor = System.Drawing.Color.FromArgb(((int)(((byte)(216)))), ((int)(((byte)(231)))), ((int)(((byte)(253)))));
+            this.btnAddRow2.Image = ((System.Drawing.Image)(resources.GetObject("btnAddRow2.Image")));
             this.btnAddRow2.Location = new System.Drawing.Point(10, 2);
             this.btnAddRow2.Name = "btnAddRow2";
+            this.btnAddRow2.PressedColor = System.Drawing.Color.FromArgb(((int)(((byte)(189)))), ((int)(((byte)(213)))), ((int)(((byte)(250)))));
             this.btnAddRow2.Size = new System.Drawing.Size(24, 22);
             this.btnAddRow2.TabIndex = 0;
             this.btnAddRow2.Text = "";
@@ -1158,7 +1383,7 @@ public partial class frmUserAuth
             this.sectionHeaderWyn2.Icon = WYNLAB.Base.Controls.SectionHeaderIcon.Folder;
             this.sectionHeaderWyn2.Location = new System.Drawing.Point(5, 0);
             this.sectionHeaderWyn2.Name = "sectionHeaderWyn2";
-            this.sectionHeaderWyn2.Size = new System.Drawing.Size(423, 25);
+            this.sectionHeaderWyn2.Size = new System.Drawing.Size(876, 25);
             this.sectionHeaderWyn2.SvgIcon = ((DevExpress.Utils.Svg.SvgImage)(resources.GetObject("sectionHeaderWyn2.SvgIcon")));
             this.sectionHeaderWyn2.TabIndex = 8;
             this.sectionHeaderWyn2.Text = "사용자그룹별 권한등록";
@@ -1168,7 +1393,7 @@ public partial class frmUserAuth
             this.splitterWyn4.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(255)))), ((int)(((byte)(255)))));
             this.splitterWyn4.Location = new System.Drawing.Point(307, 194);
             this.splitterWyn4.Name = "splitterWyn4";
-            this.splitterWyn4.Size = new System.Drawing.Size(10, 298);
+            this.splitterWyn4.Size = new System.Drawing.Size(10, 346);
             this.splitterWyn4.TabIndex = 12;
             this.splitterWyn4.TabStop = false;
             // 
@@ -1180,7 +1405,7 @@ public partial class frmUserAuth
             this.panelWyn22.EdgeLineColor = System.Drawing.Color.FromArgb(((int)(((byte)(228)))), ((int)(((byte)(229)))), ((int)(((byte)(232)))));
             this.panelWyn22.Location = new System.Drawing.Point(3, 194);
             this.panelWyn22.Name = "panelWyn22";
-            this.panelWyn22.Size = new System.Drawing.Size(304, 298);
+            this.panelWyn22.Size = new System.Drawing.Size(304, 346);
             this.panelWyn22.TabIndex = 11;
             // 
             // grd4
@@ -1267,15 +1492,15 @@ public partial class frmUserAuth
             // simpleButton3
             // 
             this.simpleButton3.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.simpleButton3.Appearance.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(253)))), ((int)(((byte)(236)))), ((int)(((byte)(234)))));
-            this.simpleButton3.Appearance.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(245)))), ((int)(((byte)(198)))), ((int)(((byte)(193)))));
-            this.simpleButton3.Appearance.Font = new System.Drawing.Font("Segoe MDL2 Assets", 11F);
-            this.simpleButton3.Appearance.Options.UseBackColor = true;
-            this.simpleButton3.Appearance.Options.UseBorderColor = true;
-            this.simpleButton3.Appearance.Options.UseFont = true;
-            this.simpleButton3.ImageOptions.Image = ((System.Drawing.Image)(resources.GetObject("simpleButton3.ImageOptions.Image")));
+            this.simpleButton3.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(245)))), ((int)(((byte)(198)))), ((int)(((byte)(193)))));
+            this.simpleButton3.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.simpleButton3.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(253)))), ((int)(((byte)(236)))), ((int)(((byte)(234)))));
+            this.simpleButton3.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(28)))), ((int)(((byte)(84)))), ((int)(((byte)(187)))));
+            this.simpleButton3.HoverColor = System.Drawing.Color.FromArgb(((int)(((byte)(216)))), ((int)(((byte)(231)))), ((int)(((byte)(253)))));
+            this.simpleButton3.Image = ((System.Drawing.Image)(resources.GetObject("simpleButton3.Image")));
             this.simpleButton3.Location = new System.Drawing.Point(42, 2);
             this.simpleButton3.Name = "simpleButton3";
+            this.simpleButton3.PressedColor = System.Drawing.Color.FromArgb(((int)(((byte)(189)))), ((int)(((byte)(213)))), ((int)(((byte)(250)))));
             this.simpleButton3.Size = new System.Drawing.Size(24, 22);
             this.simpleButton3.TabIndex = 0;
             this.simpleButton3.Text = "";
@@ -1285,15 +1510,15 @@ public partial class frmUserAuth
             // simpleButton4
             // 
             this.simpleButton4.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.simpleButton4.Appearance.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(228)))), ((int)(((byte)(245)))), ((int)(((byte)(231)))));
-            this.simpleButton4.Appearance.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(198)))), ((int)(((byte)(231)))), ((int)(((byte)(203)))));
-            this.simpleButton4.Appearance.Font = new System.Drawing.Font("Segoe MDL2 Assets", 11F);
-            this.simpleButton4.Appearance.Options.UseBackColor = true;
-            this.simpleButton4.Appearance.Options.UseBorderColor = true;
-            this.simpleButton4.Appearance.Options.UseFont = true;
-            this.simpleButton4.ImageOptions.Image = ((System.Drawing.Image)(resources.GetObject("simpleButton4.ImageOptions.Image")));
+            this.simpleButton4.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(198)))), ((int)(((byte)(231)))), ((int)(((byte)(203)))));
+            this.simpleButton4.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.simpleButton4.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(228)))), ((int)(((byte)(245)))), ((int)(((byte)(231)))));
+            this.simpleButton4.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(28)))), ((int)(((byte)(84)))), ((int)(((byte)(187)))));
+            this.simpleButton4.HoverColor = System.Drawing.Color.FromArgb(((int)(((byte)(216)))), ((int)(((byte)(231)))), ((int)(((byte)(253)))));
+            this.simpleButton4.Image = ((System.Drawing.Image)(resources.GetObject("simpleButton4.Image")));
             this.simpleButton4.Location = new System.Drawing.Point(10, 2);
             this.simpleButton4.Name = "simpleButton4";
+            this.simpleButton4.PressedColor = System.Drawing.Color.FromArgb(((int)(((byte)(189)))), ((int)(((byte)(213)))), ((int)(((byte)(250)))));
             this.simpleButton4.Size = new System.Drawing.Size(24, 22);
             this.simpleButton4.TabIndex = 0;
             this.simpleButton4.Text = "";
@@ -1311,7 +1536,7 @@ public partial class frmUserAuth
             this.sectionHeaderWyn8.Size = new System.Drawing.Size(299, 25);
             this.sectionHeaderWyn8.SvgIcon = ((DevExpress.Utils.Svg.SvgImage)(resources.GetObject("sectionHeaderWyn8.SvgIcon")));
             this.sectionHeaderWyn8.TabIndex = 8;
-            this.sectionHeaderWyn8.Text = "사용자그룹별 권한등록";
+            this.sectionHeaderWyn8.Text = "소속 사용자 LIST";
             // 
             // panelWyn5
             // 
@@ -1321,7 +1546,7 @@ public partial class frmUserAuth
             this.panelWyn5.EdgeLineColor = System.Drawing.Color.FromArgb(((int)(((byte)(228)))), ((int)(((byte)(229)))), ((int)(((byte)(232)))));
             this.panelWyn5.Location = new System.Drawing.Point(3, 0);
             this.panelWyn5.Name = "panelWyn5";
-            this.panelWyn5.Size = new System.Drawing.Size(742, 194);
+            this.panelWyn5.Size = new System.Drawing.Size(1195, 194);
             this.panelWyn5.TabIndex = 6;
             // 
             // panData
@@ -1337,12 +1562,12 @@ public partial class frmUserAuth
             this.panData.EdgeLineColor = System.Drawing.Color.FromArgb(((int)(((byte)(228)))), ((int)(((byte)(229)))), ((int)(((byte)(232)))));
             this.panData.Location = new System.Drawing.Point(0, 27);
             this.panData.Name = "panData";
-            this.panData.Size = new System.Drawing.Size(742, 167);
+            this.panData.Size = new System.Drawing.Size(1195, 167);
             this.panData.TabIndex = 8;
             // 
             // memodescription
             // 
-            this.memodescription.Location = new System.Drawing.Point(108, 46);
+            this.memodescription.Location = new System.Drawing.Point(92, 42);
             this.memodescription.Name = "memodescription";
             this.memodescription.Size = new System.Drawing.Size(354, 108);
             this.memodescription.TabIndex = 10;
@@ -1351,7 +1576,7 @@ public partial class frmUserAuth
             // 
             this.labelControl6.Appearance.Font = new System.Drawing.Font("맑은 고딕", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
             this.labelControl6.Appearance.Options.UseFont = true;
-            this.labelControl6.Location = new System.Drawing.Point(58, 52);
+            this.labelControl6.Location = new System.Drawing.Point(42, 48);
             this.labelControl6.Name = "labelControl6";
             this.labelControl6.Size = new System.Drawing.Size(46, 15);
             this.labelControl6.TabIndex = 6;
@@ -1361,7 +1586,7 @@ public partial class frmUserAuth
             // 
             this.labelControl3.Appearance.Font = new System.Drawing.Font("맑은 고딕", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
             this.labelControl3.Appearance.Options.UseFont = true;
-            this.labelControl3.Location = new System.Drawing.Point(211, 22);
+            this.labelControl3.Location = new System.Drawing.Point(195, 18);
             this.labelControl3.Name = "labelControl3";
             this.labelControl3.Size = new System.Drawing.Size(72, 15);
             this.labelControl3.TabIndex = 6;
@@ -1371,7 +1596,7 @@ public partial class frmUserAuth
             // 
             this.labelControl5.Appearance.Font = new System.Drawing.Font("맑은 고딕", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
             this.labelControl5.Appearance.Options.UseFont = true;
-            this.labelControl5.Location = new System.Drawing.Point(32, 22);
+            this.labelControl5.Location = new System.Drawing.Point(16, 18);
             this.labelControl5.Name = "labelControl5";
             this.labelControl5.Size = new System.Drawing.Size(72, 15);
             this.labelControl5.TabIndex = 7;
@@ -1379,14 +1604,14 @@ public partial class frmUserAuth
             // 
             // txtuser_grp_nm
             // 
-            this.txtuser_grp_nm.Location = new System.Drawing.Point(289, 19);
+            this.txtuser_grp_nm.Location = new System.Drawing.Point(273, 15);
             this.txtuser_grp_nm.Name = "txtuser_grp_nm";
             this.txtuser_grp_nm.Size = new System.Drawing.Size(173, 20);
             this.txtuser_grp_nm.TabIndex = 8;
             // 
             // txtuser_grp_cd
             // 
-            this.txtuser_grp_cd.Location = new System.Drawing.Point(108, 20);
+            this.txtuser_grp_cd.Location = new System.Drawing.Point(92, 16);
             this.txtuser_grp_cd.Name = "txtuser_grp_cd";
             this.txtuser_grp_cd.Size = new System.Drawing.Size(97, 20);
             this.txtuser_grp_cd.TabIndex = 9;
@@ -1401,7 +1626,7 @@ public partial class frmUserAuth
             this.panelWyn6.Location = new System.Drawing.Point(0, 0);
             this.panelWyn6.Name = "panelWyn6";
             this.panelWyn6.Padding = new System.Windows.Forms.Padding(5, 0, 0, 2);
-            this.panelWyn6.Size = new System.Drawing.Size(742, 27);
+            this.panelWyn6.Size = new System.Drawing.Size(1195, 27);
             this.panelWyn6.TabIndex = 7;
             // 
             // sectionHeaderWyn3
@@ -1413,7 +1638,7 @@ public partial class frmUserAuth
             this.sectionHeaderWyn3.Location = new System.Drawing.Point(5, 0);
             this.sectionHeaderWyn3.Name = "sectionHeaderWyn3";
             this.sectionHeaderWyn3.Padding = new System.Windows.Forms.Padding(0, 0, 3, 0);
-            this.sectionHeaderWyn3.Size = new System.Drawing.Size(737, 25);
+            this.sectionHeaderWyn3.Size = new System.Drawing.Size(1190, 25);
             this.sectionHeaderWyn3.SvgIcon = ((DevExpress.Utils.Svg.SvgImage)(resources.GetObject("sectionHeaderWyn3.SvgIcon")));
             this.sectionHeaderWyn3.TabIndex = 8;
             this.sectionHeaderWyn3.Text = "사용자그룹 등록";
@@ -1423,7 +1648,7 @@ public partial class frmUserAuth
             this.splitterWyn1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(255)))), ((int)(((byte)(255)))));
             this.splitterWyn1.Location = new System.Drawing.Point(402, 0);
             this.splitterWyn1.Name = "splitterWyn1";
-            this.splitterWyn1.Size = new System.Drawing.Size(10, 492);
+            this.splitterWyn1.Size = new System.Drawing.Size(10, 540);
             this.splitterWyn1.TabIndex = 9;
             this.splitterWyn1.TabStop = false;
             // 
@@ -1435,16 +1660,21 @@ public partial class frmUserAuth
             this.panelWyn8.EdgeLineColor = System.Drawing.Color.FromArgb(((int)(((byte)(228)))), ((int)(((byte)(229)))), ((int)(((byte)(232)))));
             this.panelWyn8.Location = new System.Drawing.Point(0, 0);
             this.panelWyn8.Name = "panelWyn8";
-            this.panelWyn8.Size = new System.Drawing.Size(402, 492);
+            this.panelWyn8.Size = new System.Drawing.Size(402, 540);
             this.panelWyn8.TabIndex = 12;
             // 
             // grd2
             // 
             this.grd2.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.grd2.EmbeddedNavigator.Buttons.Append.Visible = false;
+            this.grd2.EmbeddedNavigator.Buttons.CancelEdit.Visible = false;
+            this.grd2.EmbeddedNavigator.Buttons.Edit.Visible = false;
+            this.grd2.EmbeddedNavigator.Buttons.EndEdit.Visible = false;
+            this.grd2.EmbeddedNavigator.Buttons.Remove.Visible = false;
             this.grd2.Location = new System.Drawing.Point(0, 27);
             this.grd2.MainView = this.gvw2;
             this.grd2.Name = "grd2";
-            this.grd2.Size = new System.Drawing.Size(402, 465);
+            this.grd2.Size = new System.Drawing.Size(402, 513);
             this.grd2.TabIndex = 12;
             this.grd2.ViewCollection.AddRange(new DevExpress.XtraGrid.Views.Base.BaseView[] {
             this.gvw2});
@@ -1456,6 +1686,7 @@ public partial class frmUserAuth
             this.gridColumn7});
             this.gvw2.GridControl = this.grd2;
             this.gvw2.Name = "gvw2";
+            this.gvw2.OptionsBehavior.Editable = false;
             this.gvw2.OptionsView.ColumnAutoWidth = false;
             this.gvw2.OptionsView.ShowGroupPanel = false;
             // 
@@ -1514,7 +1745,7 @@ public partial class frmUserAuth
             this.panHeader.EdgeLineColor = System.Drawing.Color.FromArgb(((int)(((byte)(228)))), ((int)(((byte)(229)))), ((int)(((byte)(232)))));
             this.panHeader.Location = new System.Drawing.Point(0, 0);
             this.panHeader.Name = "panHeader";
-            this.panHeader.Size = new System.Drawing.Size(1157, 49);
+            this.panHeader.Size = new System.Drawing.Size(1610, 49);
             this.panHeader.TabIndex = 8;
             // 
             // txtUserGrpCdQ
@@ -1542,7 +1773,7 @@ public partial class frmUserAuth
             this.paTitle.EdgeLineColor = System.Drawing.Color.FromArgb(((int)(((byte)(228)))), ((int)(((byte)(229)))), ((int)(((byte)(232)))));
             this.paTitle.Location = new System.Drawing.Point(3, 0);
             this.paTitle.Name = "paTitle";
-            this.paTitle.Size = new System.Drawing.Size(1159, 30);
+            this.paTitle.Size = new System.Drawing.Size(1612, 30);
             this.paTitle.TabIndex = 5;
             // 
             // sectionHeaderWyn1
@@ -1553,70 +1784,111 @@ public partial class frmUserAuth
             this.sectionHeaderWyn1.Icon = WYNLAB.Base.Controls.SectionHeaderIcon.Folder;
             this.sectionHeaderWyn1.Location = new System.Drawing.Point(0, 0);
             this.sectionHeaderWyn1.Name = "sectionHeaderWyn1";
-            this.sectionHeaderWyn1.Size = new System.Drawing.Size(1159, 30);
+            this.sectionHeaderWyn1.Size = new System.Drawing.Size(1612, 30);
             this.sectionHeaderWyn1.SvgIcon = ((DevExpress.Utils.Svg.SvgImage)(resources.GetObject("sectionHeaderWyn1.SvgIcon")));
             this.sectionHeaderWyn1.TabIndex = 8;
             this.sectionHeaderWyn1.Text = "사용자권한관리 [frmUserAuth]";
             // 
-            // labelControl7
+            // colAuth01
             // 
-            this.labelControl7.Appearance.Font = new System.Drawing.Font("맑은 고딕", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
-            this.labelControl7.Appearance.Options.UseFont = true;
-            this.labelControl7.Location = new System.Drawing.Point(35, 70);
-            this.labelControl7.Name = "labelControl7";
-            this.labelControl7.Size = new System.Drawing.Size(36, 15);
-            this.labelControl7.TabIndex = 4;
-            this.labelControl7.Text = "사원명";
+            this.colAuth01.Caption = "권한1";
+            this.colAuth01.ColumnEdit = this.repositoryItemCheckEdit11;
+            this.colAuth01.FieldName = "권한1";
+            this.colAuth01.Name = "colAuth01";
+            this.colAuth01.Visible = true;
+            this.colAuth01.VisibleIndex = 5;
+            this.colAuth01.Width = 45;
             // 
-            // txtEmpNm
+            // colAuth02
             // 
-            this.txtEmpNm.Location = new System.Drawing.Point(89, 70);
-            this.txtEmpNm.LookupKey = "P_EMP";
-            this.txtEmpNm.MatchField = "emp_nm";
-            this.txtEmpNm.Name = "txtEmpNm";
-            this.txtEmpNm.Properties.Buttons.AddRange(new DevExpress.XtraEditors.Controls.EditorButton[] {
-            new DevExpress.XtraEditors.Controls.EditorButton(DevExpress.XtraEditors.Controls.ButtonPredefines.Ellipsis, "", 24, true, true, false, editorButtonImageOptions1, new DevExpress.Utils.KeyShortcut(System.Windows.Forms.Keys.None), serializableAppearanceObject1, serializableAppearanceObject2, serializableAppearanceObject3, serializableAppearanceObject4, "", null, null, DevExpress.Utils.ToolTipAnchor.Default)});
-            this.txtEmpNm.Size = new System.Drawing.Size(97, 20);
-            this.txtEmpNm.TabIndex = 10;
-            this.txtEmpNm.ToolTip = null;
+            this.colAuth02.Caption = "권한2";
+            this.colAuth02.FieldName = "권한2";
+            this.colAuth02.Name = "colAuth02";
+            this.colAuth02.Visible = true;
+            this.colAuth02.VisibleIndex = 6;
+            this.colAuth02.Width = 45;
             // 
-            // txtEmpNo
+            // colAuth03
             // 
-            this.txtEmpNo.Location = new System.Drawing.Point(602, 70);
-            this.txtEmpNo.Name = "txtEmpNo";
-            this.txtEmpNo.Size = new System.Drawing.Size(97, 20);
-            this.txtEmpNo.TabIndex = 6;
-            this.txtEmpNo.Visible = false;
+            this.colAuth03.Caption = "권한3";
+            this.colAuth03.FieldName = "권한3";
+            this.colAuth03.Name = "colAuth03";
+            this.colAuth03.Visible = true;
+            this.colAuth03.VisibleIndex = 7;
+            this.colAuth03.Width = 45;
             // 
-            // txtDeptNm
+            // colAuth04
             // 
-            this.txtDeptNm.Location = new System.Drawing.Point(239, 70);
-            this.txtDeptNm.Name = "txtDeptNm";
-            this.txtDeptNm.Size = new System.Drawing.Size(190, 20);
-            this.txtDeptNm.TabIndex = 6;
+            this.colAuth04.Caption = "권한4";
+            this.colAuth04.FieldName = "권한4";
+            this.colAuth04.Name = "colAuth04";
+            this.colAuth04.Visible = true;
+            this.colAuth04.VisibleIndex = 8;
+            this.colAuth04.Width = 45;
             // 
-            // txtDeptCd
+            // colAuth05
             // 
-            this.txtDeptCd.Location = new System.Drawing.Point(602, 96);
-            this.txtDeptCd.Name = "txtDeptCd";
-            this.txtDeptCd.Size = new System.Drawing.Size(97, 20);
-            this.txtDeptCd.TabIndex = 6;
-            this.txtDeptCd.Visible = false;
+            this.colAuth05.Caption = "권한5";
+            this.colAuth05.FieldName = "권한5";
+            this.colAuth05.Name = "colAuth05";
+            this.colAuth05.Visible = true;
+            this.colAuth05.VisibleIndex = 9;
+            this.colAuth05.Width = 45;
             // 
-            // labelControl8
+            // colAuth06
             // 
-            this.labelControl8.Appearance.Font = new System.Drawing.Font("맑은 고딕", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
-            this.labelControl8.Appearance.Options.UseFont = true;
-            this.labelControl8.Location = new System.Drawing.Point(206, 73);
-            this.labelControl8.Name = "labelControl8";
-            this.labelControl8.Size = new System.Drawing.Size(24, 15);
-            this.labelControl8.TabIndex = 4;
-            this.labelControl8.Text = "부서";
+            this.colAuth06.Caption = "권한6";
+            this.colAuth06.FieldName = "권한6";
+            this.colAuth06.Name = "colAuth06";
+            this.colAuth06.Visible = true;
+            this.colAuth06.VisibleIndex = 10;
+            this.colAuth06.Width = 45;
+            // 
+            // colAuth07
+            // 
+            this.colAuth07.Caption = "권한7";
+            this.colAuth07.FieldName = "권한7";
+            this.colAuth07.Name = "colAuth07";
+            this.colAuth07.Visible = true;
+            this.colAuth07.VisibleIndex = 11;
+            this.colAuth07.Width = 45;
+            // 
+            // colAuth08
+            // 
+            this.colAuth08.Caption = "권한8";
+            this.colAuth08.FieldName = "권한8";
+            this.colAuth08.Name = "colAuth08";
+            this.colAuth08.Visible = true;
+            this.colAuth08.VisibleIndex = 12;
+            this.colAuth08.Width = 45;
+            // 
+            // colAuth09
+            // 
+            this.colAuth09.Caption = "권한9";
+            this.colAuth09.FieldName = "권한9";
+            this.colAuth09.Name = "colAuth09";
+            this.colAuth09.Visible = true;
+            this.colAuth09.VisibleIndex = 13;
+            this.colAuth09.Width = 45;
+            // 
+            // colAuth10
+            // 
+            this.colAuth10.Caption = "권한10";
+            this.colAuth10.FieldName = "권한10";
+            this.colAuth10.Name = "colAuth10";
+            this.colAuth10.Visible = true;
+            this.colAuth10.VisibleIndex = 14;
+            this.colAuth10.Width = 45;
+            // 
+            // repositoryItemCheckEdit11
+            // 
+            this.repositoryItemCheckEdit11.AutoHeight = false;
+            this.repositoryItemCheckEdit11.Name = "repositoryItemCheckEdit11";
             // 
             // frmUserAuth
             // 
             this.Appearance.Options.UseFont = true;
-            this.ClientSize = new System.Drawing.Size(1165, 600);
+            this.ClientSize = new System.Drawing.Size(1618, 648);
             this.Controls.Add(this.panBase);
             this.Name = "frmUserAuth";
             ((System.ComponentModel.ISupportInitialize)(this.panBase)).EndInit();
@@ -1650,23 +1922,33 @@ public partial class frmUserAuth
             this.panelWyn13.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.panelWyn14)).EndInit();
             this.panelWyn14.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.panelWyn29)).EndInit();
+            this.panelWyn29.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.panelWyn18)).EndInit();
+            this.panelWyn18.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.grd1)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.gvw1)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.lookUpColumnEdit1)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.lookUpColumnEdit2)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.panelWyn19)).EndInit();
+            this.panelWyn19.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.panelWyn15)).EndInit();
             this.panelWyn15.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.panelWyn16)).EndInit();
             this.panelWyn16.ResumeLayout(false);
             this.panelWyn16.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.checkBoxWyn1.Properties)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.cboUserType.Properties)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.cboUseYn.Properties)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.txtEmpNm.Properties)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.chkDeveloperYn.Properties)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.txtDeptCd.Properties)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.txtDeptNm.Properties)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.txtEmpNo.Properties)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.txtuser_nm.Properties)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.txtuser_id.Properties)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.txtEmail.Properties)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.panelWyn17)).EndInit();
             this.panelWyn17.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.panelWyn18)).EndInit();
-            this.panelWyn18.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.grd1)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.gvw1)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.panelWyn19)).EndInit();
-            this.panelWyn19.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.panelWyn20)).EndInit();
             this.panelWyn20.ResumeLayout(false);
             this.panelWyn20.PerformLayout();
@@ -1720,10 +2002,7 @@ public partial class frmUserAuth
             ((System.ComponentModel.ISupportInitialize)(this.txtUserGrpCdQ.Properties)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.paTitle)).EndInit();
             this.paTitle.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.txtEmpNm.Properties)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.txtEmpNo.Properties)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.txtDeptNm.Properties)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.txtDeptCd.Properties)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.repositoryItemCheckEdit11)).EndInit();
             this.ResumeLayout(false);
 
     }
@@ -1744,8 +2023,8 @@ public partial class frmUserAuth
     private PanelWyn panHeader;
     private TextEditWyn txtUserGrpCdQ;
     private DevExpress.XtraEditors.LabelControl labelControl1;
-    private DevExpress.XtraEditors.SimpleButton btnDeletRow2;
-    private DevExpress.XtraEditors.SimpleButton btnAddRow2;
+    private ButtonWyn btnDeletRow2;
+    private ButtonWyn btnAddRow2;
     private PanelWyn panelWyn7;
     private PanelWyn panelWyn8;
     private PanelWyn panelWyn9;
@@ -1756,14 +2035,13 @@ public partial class frmUserAuth
     private PanelWyn panelWyn12;
     private PanelWyn panelWyn13;
     private PanelWyn panelWyn14;
-    private DevExpress.XtraEditors.SimpleButton simpleButton1;
-    private DevExpress.XtraEditors.SimpleButton simpleButton2;
+    private ButtonWyn simpleButton1;
+    private ButtonWyn simpleButton2;
     private SectionHeaderWyn sectionHeaderWyn5;
     private PanelWyn panelWyn15;
     private PanelWyn panelWyn16;
     private PanelWyn panelWyn17;
     private SectionHeaderWyn sectionHeaderWyn6;
-    private SplitterWyn splitterWyn2;
     private PanelWyn panelWyn18;
     private PanelWyn panelWyn19;
     private SectionHeaderWyn sectionHeaderWyn7;
@@ -1772,12 +2050,14 @@ public partial class frmUserAuth
     private DevExpress.XtraEditors.LabelControl labelControl26;
     private DevExpress.XtraTab.XtraTabPage xtraTabPage2;
     private GridControlWyn grd1;
-    private DevExpress.XtraGrid.Views.Grid.GridView gvw1;
+    private GridViewWyn gvw1;
     private GridControlWyn grd2;
-    private DevExpress.XtraGrid.Views.Grid.GridView gvw2;
+    private GridViewWyn gvw2;
     private DevExpress.XtraEditors.LabelControl labelControl2;
     private DevExpress.XtraEditors.LabelControl labelControl4;
     private TextEditWyn txtuser_nm;
+    private TextEditWyn txtEmail;
+    private DevExpress.XtraEditors.LabelControl labelControlEmail;
     private TextEditWyn txtuser_id;
     private DevExpress.XtraGrid.Columns.GridColumn gridColumn1;
     private DevExpress.XtraGrid.Columns.GridColumn gridColumn2;
@@ -1794,7 +2074,6 @@ public partial class frmUserAuth
     private DevExpress.XtraEditors.Repository.RepositoryItemCheckEdit repositoryItemCheckEdit1;
     private DevExpress.XtraGrid.Columns.GridColumn gridColumn4;
     private DevExpress.XtraGrid.Columns.GridColumn gridColumn5;
-    private CheckBoxWyn checkBoxWyn1;
     private CheckBoxWyn chkDeveloperYn;
     private TreeListWyn tree1;
     private GridControlWyn grd4;
@@ -1808,15 +2087,15 @@ public partial class frmUserAuth
     private PanelWyn panelWyn22;
     private PanelWyn panelWyn23;
     private PanelWyn panelWyn24;
-    private DevExpress.XtraEditors.SimpleButton simpleButton3;
-    private DevExpress.XtraEditors.SimpleButton simpleButton4;
+    private ButtonWyn simpleButton3;
+    private ButtonWyn simpleButton4;
     private SectionHeaderWyn sectionHeaderWyn8;
     private MemoEditWyn memodescription;
     private PanelWyn panelWyn25;
     private PanelWyn panelWyn27;
     private PanelWyn panelWyn28;
-    private DevExpress.XtraEditors.SimpleButton simpleButton5;
-    private DevExpress.XtraEditors.SimpleButton simpleButton6;
+    private ButtonWyn simpleButton5;
+    private ButtonWyn simpleButton6;
     private SectionHeaderWyn sectionHeaderWyn9;
     private SplitterWyn splitterWyn3;
     private PanelWyn panelWyn26;
@@ -1851,4 +2130,26 @@ public partial class frmUserAuth
     private TextEditWyn txtDeptNm;
     private TextEditWyn txtEmpNo;
     private DevExpress.XtraEditors.LabelControl labelControl8;
+    private LookUpEditWyn cboUseYn;
+    private DevExpress.XtraEditors.LabelControl labelControl9;
+    private DevExpress.XtraEditors.LabelControl labelControl10;
+    private LookUpEditWyn cboUserType;
+    private DevExpress.XtraGrid.Columns.GridColumn gridColumn11;
+    private LookUpColumnEdit lookUpColumnEdit1;
+    private DevExpress.XtraGrid.Columns.GridColumn gridColumn12;
+    private LookUpColumnEdit lookUpColumnEdit2;
+    private SplitterWyn splitterWyn5;
+    private PanelWyn panelWyn29;
+    private SplitterWyn splitterWyn2;
+    private DevExpress.XtraTreeList.Columns.TreeListColumn colAuth01;
+    private DevExpress.XtraEditors.Repository.RepositoryItemCheckEdit repositoryItemCheckEdit11;
+    private DevExpress.XtraTreeList.Columns.TreeListColumn colAuth02;
+    private DevExpress.XtraTreeList.Columns.TreeListColumn colAuth03;
+    private DevExpress.XtraTreeList.Columns.TreeListColumn colAuth04;
+    private DevExpress.XtraTreeList.Columns.TreeListColumn colAuth05;
+    private DevExpress.XtraTreeList.Columns.TreeListColumn colAuth06;
+    private DevExpress.XtraTreeList.Columns.TreeListColumn colAuth07;
+    private DevExpress.XtraTreeList.Columns.TreeListColumn colAuth08;
+    private DevExpress.XtraTreeList.Columns.TreeListColumn colAuth09;
+    private DevExpress.XtraTreeList.Columns.TreeListColumn colAuth10;
 }

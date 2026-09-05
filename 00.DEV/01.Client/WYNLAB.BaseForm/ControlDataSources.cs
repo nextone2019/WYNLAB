@@ -57,9 +57,13 @@ public static class ControlDataSources
         // 참고) - 그래서 새 LookUp을 추가해도 이 등록 자체는 코드 변경이 필요 없다.
         ComboLookupProvider.Fetch = async (lookupKey, parameters) =>
         {
-            var items = await ApiClient.PostAsync<Dictionary<string, string?>, List<LookupItemDto>>(
+            var result = await ApiClient.PostAsync<Dictionary<string, string?>, LookupItemsResultDto>(
                 $"api/combo-lookups/{Uri.EscapeDataString(lookupKey)}/items", parameters) ?? new();
-            return items.Select(i => new CodeLookupItem { Value = i.Value, Display = i.Display });
+            return new ComboLookupResult
+            {
+                Items = result.Items.Select(i => new CodeLookupItem { Value = i.Value, Display = i.Display, Row = i.Row }).ToList(),
+                Columns = result.Columns.Select(c => new ComboColumnDef { ColumnNm = c.ColumnNm, Caption = c.Caption, Width = c.Width }).ToList()
+            };
         };
     }
 }

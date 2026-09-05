@@ -1,6 +1,7 @@
 using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
+using WYNLAB.Api.Authorization;
 using WYNLAB.Api.Data;
 using WYNLAB.Api.Repositories;
 using WYNLAB.Api.Repositories.Framework;
@@ -19,18 +20,29 @@ builder.Services.AddScoped<IMenuAuthAssignRepository, MenuAuthAssignRepository>(
 builder.Services.AddScoped<IMinorCodeManageRepository, MinorCodeManageRepository>();
 builder.Services.AddScoped<IShortcutRepository, ShortcutRepository>();
 builder.Services.AddScoped<IGridLayoutRepository, GridLayoutRepository>();
+builder.Services.AddScoped<IPwdResetRepository, PwdResetRepository>();
+
+// SMTP는 회사마다 값이 다르므로 appsettings/user-secrets(개발)나 web.config
+// environmentVariables(운영, Deploy-Local.ps1이 DB연결문자열을 넣는 자리와 동일)에서만
+// 온다 - SmtpSettings.cs 설명 참고.
+builder.Services.Configure<SmtpSettings>(builder.Configuration.GetSection("Smtp"));
+builder.Services.AddScoped<IEmailService, EmailService>();
 
 // 화면별 Repository를 만들지 않고 프로시저를 그대로 실행하는 범용 통로(GENERIC_DATA_API.md 참고).
 // 특정 화면 소속이 아니라서 Repositories\SM\ 같은 모듈 폴더가 아니라 루트에 둔다.
 builder.Services.AddScoped<IGenericDataRepository, GenericDataRepository>();
 builder.Services.AddScoped<IPopupLookupRepository, PopupLookupRepository>();
+builder.Services.AddScoped<IScreenBuilderRepository, ScreenBuilderRepository>();
 builder.Services.AddScoped<ILookupRepository, LookupRepository>();
 builder.Services.AddScoped<IMenuRepository, MenuRepository>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IJwtTokenService, JwtTokenService>();
 builder.Services.AddScoped<IMenuPermissionService, MenuPermissionService>();
 
-builder.Services.AddControllers();
+// MustChangePasswordFilter를 전역으로 걸어서, 비밀번호를 먼저 바꿔야 하는 계정의 토큰으로는
+// change-password 말고 어떤 API도 못 부르게 한다(클라이언트 쪽 다이얼로그 우회 방지 - 자세한
+// 이유는 그 필터 클래스 설명 참고).
+builder.Services.AddControllers(options => options.Filters.Add<MustChangePasswordFilter>());
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 

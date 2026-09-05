@@ -28,7 +28,7 @@ public class PopupAdminController : ControllerBase
     }
 
     [HttpPost("describe-proc")]
-    [RequireMenuPermission("SYS_POPUP", MenuAction.View)]
+    [RequireMenuPermission("SYS", "frmSysPopup", MenuAction.View)]
     public async Task<ActionResult<DescribeProcResultDto>> DescribeProc([FromBody] DescribeColumnsRequest request)
     {
         if (string.IsNullOrWhiteSpace(request.ProcName) || !request.ProcName.StartsWith("SSP_POP_", StringComparison.OrdinalIgnoreCase))

@@ -24,21 +24,21 @@ public class GridLayoutController : ControllerBase
     public GridLayoutController(IGridLayoutRepository repo) => _repo = repo;
 
     [HttpGet]
-    public async Task<ActionResult<List<GridLayoutItemDto>>> Get([FromQuery] string menuCd) =>
-        Ok(await _repo.GetAsync(CurrentUserId, menuCd));
+    public async Task<ActionResult<List<GridLayoutItemDto>>> Get([FromQuery] long menuId) =>
+        Ok(await _repo.GetAsync(CurrentUserId, menuId));
 
     [HttpPut]
     public async Task<ActionResult<ApiResult>> Save([FromBody] SaveGridLayoutRequest request)
     {
-        var result = await _repo.SaveAsync(CurrentUserId, request.MenuCd, request.GridKey, request.LayoutXml);
+        var result = await _repo.SaveAsync(CurrentUserId, request.MenuId, request.GridKey, request.LayoutXml);
         if (!result.IsSuccess) return Ok(new ApiResult { Success = false, Message = result.FailMessage });
         return Ok(new ApiResult { Success = true });
     }
 
     [HttpDelete]
-    public async Task<ActionResult<ApiResult>> Delete([FromQuery] string menuCd, [FromQuery] string gridKey)
+    public async Task<ActionResult<ApiResult>> Delete([FromQuery] long menuId, [FromQuery] string gridKey)
     {
-        var result = await _repo.DeleteAsync(CurrentUserId, menuCd, gridKey);
+        var result = await _repo.DeleteAsync(CurrentUserId, menuId, gridKey);
         if (!result.IsSuccess) return Ok(new ApiResult { Success = false, Message = result.FailMessage });
         return Ok(new ApiResult { Success = true });
     }

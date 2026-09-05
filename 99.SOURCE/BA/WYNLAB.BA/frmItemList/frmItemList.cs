@@ -16,7 +16,6 @@ public partial class frmItemList : BaseForm
         InitializeComponent();
 
         Text = "품목현황";
-        MenuCd = "BA_ITEMLIST";
 
         // 조회전용 - 편집/행추가삭제 전부 막는다(등록/수정은 frmItem에서).
         gvw1.Role = GridRoleWyn.Query;

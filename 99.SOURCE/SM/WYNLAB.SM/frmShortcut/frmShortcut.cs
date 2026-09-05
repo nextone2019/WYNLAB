@@ -25,7 +25,6 @@ public class frmShortcut : BaseForm
     public frmShortcut()
     {
         Text = "단축키설정";
-        MenuCd = "SM_SHORTCUT";
 
         var body = BuildBody();
         Controls.Add(body);
@@ -39,7 +38,14 @@ public class frmShortcut : BaseForm
     /// ProcessCmdKey가 참조하는 세션 캐시도 매번 최신 상태여야 한다.</summary>
     public override async Task QueryClick()
     {
-        var table = await QueryAsync("USP_SM_SHORTCUT_Q", new { p_work_type = "Q" });
+        // p_user_id를 빼먹으면 프로시저의 기본값(NULL)으로 실행되어 TSMUSERSHORTCUT LEFT JOIN이
+        // 절대 매치되지 않는다 - 그러면 실제로 재정의한 게 있어도 전부 "기본값"으로만 보이고
+        // 초기화 버튼도 항상 비활성 상태로 남는다(2026-09-02 실제 발견 - 이 사용자의 조회
+        // 단축키가 실제로는 Ctrl+R로 재정의돼 있었는데 이 화면은 계속 Ctrl+Q/기본값으로만
+        // 보여줘서 아무도 그 사실을 몰랐다). api/data 범용 통로는 조회(Query) 요청에는 로그인
+        // 사용자 id를 서버가 자동으로 안 채워준다(저장/삭제만 그렇게 한다) - 그래서 조회는
+        // 화면이 직접 넘겨야 한다.
+        var table = await QueryAsync("USP_SM_SHORTCUT_Q", new { p_work_type = "Q", p_user_id = Session.UserId });
         var shortcuts = new List<ShortcutDto>();
 
         foreach (DataRow row in table.Rows)

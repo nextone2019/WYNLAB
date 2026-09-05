@@ -9,7 +9,7 @@ namespace WYNLAB.Api.Controllers.SM;
 
 /// <summary>
 /// 기초코드등록 화면(TSMMAJOR/TSMMINOR)용 API. 로그인 필수(JWT).
-/// 각 액션은 [RequireMenuPermission("SM_MINOR_CODE", ...)]로 TSMMENUAUTH 기준 권한을 서버에서도 검증한다.
+/// 각 액션은 [RequireMenuPermission("SM", "frmMinorCode", ...)]로 TSMMENUAUTH 기준 권한을 서버에서도 검증한다.
 /// </summary>
 [ApiController]
 [Route("api/minor-codes")]
@@ -22,7 +22,7 @@ public class MinorCodeController : ControllerBase
 
     /// <summary>대분류 리스트 + (selectedMajorCd로 넘어온) 소분류 리스트를 한 번에 조회</summary>
     [HttpGet]
-    [RequireMenuPermission("SM_MINOR_CODE", MenuAction.View)]
+    [RequireMenuPermission("SM", "frmMinorCode", MenuAction.View)]
     public async Task<ActionResult<MinorCodeQueryResponse>> Get(
         [FromQuery] string? majorCd, [FromQuery] string? majorNm, [FromQuery] string? selectedMajorCd)
     {
@@ -33,7 +33,7 @@ public class MinorCodeController : ControllerBase
     /// <summary>대분류 그리드(grd1) 포커스 행만 바뀌었을 때 쓰는 가벼운 조회 - 대분류
     /// 목록은 안 건드리고 이 대분류의 소분류 목록만 돌려준다.</summary>
     [HttpGet("{majorCd}/minors")]
-    [RequireMenuPermission("SM_MINOR_CODE", MenuAction.View)]
+    [RequireMenuPermission("SM", "frmMinorCode", MenuAction.View)]
     public async Task<ActionResult<List<MinorItemDto>>> GetMinors(string majorCd)
     {
         var result = await _repo.GetMinorsAsync(majorCd);
@@ -55,7 +55,7 @@ public class MinorCodeController : ControllerBase
     }
 
     [HttpPost]
-    [RequireMenuPermission("SM_MINOR_CODE", MenuAction.Insert)]
+    [RequireMenuPermission("SM", "frmMinorCode", MenuAction.Insert)]
     public async Task<ActionResult<ApiResult>> Create([FromBody] MajorSaveRequest request)
     {
         var result = await _repo.SaveMajorAsync("N", request, CurrentUserId, ClientIp);
@@ -66,7 +66,7 @@ public class MinorCodeController : ControllerBase
     }
 
     [HttpPut("{majorCd}")]
-    [RequireMenuPermission("SM_MINOR_CODE", MenuAction.Update)]
+    [RequireMenuPermission("SM", "frmMinorCode", MenuAction.Update)]
     public async Task<ActionResult<ApiResult>> Update(string majorCd, [FromBody] MajorSaveRequest request)
     {
         request.major_cd = majorCd;
@@ -81,7 +81,7 @@ public class MinorCodeController : ControllerBase
     /// USP_SM_MINORCODE_S의 'D' 분기가 정하며, 막는 경우 프로시저가 ReturnCode/ReturnMsg로
     /// 사유를 돌려주면 화면에 그대로 표시된다.</summary>
     [HttpDelete("{majorCd}")]
-    [RequireMenuPermission("SM_MINOR_CODE", MenuAction.Delete)]
+    [RequireMenuPermission("SM", "frmMinorCode", MenuAction.Delete)]
     public async Task<ActionResult<ApiResult>> Delete(string majorCd)
     {
         var result = await _repo.SaveMajorAsync("D", new MajorSaveRequest { major_cd = majorCd }, CurrentUserId, ClientIp);
@@ -93,7 +93,7 @@ public class MinorCodeController : ControllerBase
 
     /// <summary>이 대분류의 소분류 그리드를 화면에서 넘어온 목록으로 전체 치환</summary>
     [HttpPut("{majorCd}/minors")]
-    [RequireMenuPermission("SM_MINOR_CODE", MenuAction.Update)]
+    [RequireMenuPermission("SM", "frmMinorCode", MenuAction.Update)]
     public async Task<ActionResult<ApiResult>> SaveMinors(string majorCd, [FromBody] SaveMinorsRequest request)
     {
         var result = await _repo.SaveMinorsAsync(majorCd, request.Items, CurrentUserId, ClientIp);

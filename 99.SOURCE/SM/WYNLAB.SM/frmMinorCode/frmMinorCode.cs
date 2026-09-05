@@ -62,7 +62,6 @@ public partial class frmMinorCode : BaseForm
         InitializeComponent();
 
         Text = "기초코드등록";
-        MenuCd = "SM_MINOR_CODE";
 
         gvw1.FocusedRowObjectChanged += Gvw1_FocusedRowObjectChanged;
         gvw2.InitNewRow += Gvw2_InitNewRow;
@@ -101,7 +100,13 @@ public partial class frmMinorCode : BaseForm
     /// 프로시저에 같은 이름의 파라미터(기본값 NULL)와 WHERE 조건을 넣으면 된다 - 서버 API는
     /// 손대지 않으므로 배포도, 서비스 중단도 없다.
     /// </summary>
-    public override async Task QueryClick()
+    // 사용자가 조회 버튼을 누른 경우(preserveSelection: false, 항상 0번 행부터 새로 시작)와
+    // 저장/삭제 뒤 내부 재조회(preserveSelection: true, 방금 편집하던 행 유지)는 다른 동작이어야
+    // 한다 - 지금까지는 _editingMajorCd를 무조건 복원해서, 목록 중간 행을 보다가 조회를 눌러도
+    // 그 행이 계속 선택된 채로 남아있었다(2026-09-02 실제 발견, [[feedback_query_refocus_after_save]]).
+    public override async Task QueryClick() => await QueryCore(preserveSelection: false);
+
+    private async Task QueryCore(bool preserveSelection)
     {
         // panHeader의 검색창(txtminor_cd_q) 하나로 대분류코드/명을 같이 검색한다("대분류코드/명" 라벨).
         var keyword = txtminor_cd_q.Text.Trim();
@@ -113,7 +118,9 @@ public partial class frmMinorCode : BaseForm
             p_major_nm = keyword
         });
 
-        if (_editingMajorCd == null)
+        var editingMajorCd = preserveSelection ? _editingMajorCd : null;
+
+        if (editingMajorCd == null)
         {
             // 편집 중이던 대분류가 없으면(최초 조회 등) DevExpress 기본 동작(재바인딩 시 자동으로
             // 첫 행에 포커스 -> FocusedRowObjectChanged -> EnterEditMode)에 그대로 맡긴다.
@@ -121,7 +128,7 @@ public partial class frmMinorCode : BaseForm
             return;
         }
 
-        var targetRow = FindMajorRow(_editingMajorCd);
+        var targetRow = FindMajorRow(editingMajorCd);
 
         // 편집 중이던 대분류가 있으면 그 행에 포커스를 정확히 복원한다(예: 저장 버튼을 누르면
         // SaveClick이 QueryClick을 다시 부르는데, 저장 전 보고 있던 행 그대로 유지되어야 한다).
@@ -138,7 +145,7 @@ public partial class frmMinorCode : BaseForm
             grd1.DataSource = _majors;
             if (targetRow != null)
             {
-                var handle = FindMajorRowHandle(_editingMajorCd);
+                var handle = FindMajorRowHandle(editingMajorCd);
                 if (handle != null) gvw1.FocusedRowHandle = handle.Value;
             }
         }
@@ -640,7 +647,7 @@ public partial class frmMinorCode : BaseForm
 
         _editingMajorCd = savedMajorCd;
         gvw2.ClearDirtyMarks();
-        await QueryClick();
+        await QueryCore(preserveSelection: true); // 방금 저장한 행 유지 - QueryClick(사용자 조회)과 다른 경로
         Toast.Show(wasNew ? "대분류코드가 등록되었습니다." : "수정되었습니다.");
     }
 

@@ -85,8 +85,14 @@ public class PictureEditWyn : PictureEdit
                 EditValue = null;
                 return;
             }
+            // Image.FromStream(stream)이 반환하는 Image는 스트림을 필요할 때마다 다시 읽는
+            // 지연 로딩 방식이라, 여기서 stream을 dispose하면 나중에(예: 저장 시 이 프로퍼티의
+            // getter가 img.Save를 호출할 때) "GDI+에서 일반 오류가 발생했습니다" 예외가 난다
+            // (사원등록 사진 Load 후 저장 시 실제로 겪음, 2026-09-02). new Bitmap(image)으로
+            // 복제하면 원본 스트림과 완전히 분리된 독립 비트맵이 되어 안전하게 dispose할 수 있다.
             using var stream = new MemoryStream(value);
-            EditValue = Image.FromStream(stream);
+            using var loaded = Image.FromStream(stream);
+            EditValue = new Bitmap(loaded);
         }
     }
 }

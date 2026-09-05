@@ -1,5 +1,10 @@
 using System.Drawing;
 using System.Drawing.Imaging;
+using System.Reflection;
+using System.Text;
+using DevExpress.LookAndFeel;
+using DevExpress.Utils.Controls;
+using DevExpress.Utils.Svg;
 
 namespace WYNLAB.Shell;
 
@@ -24,7 +29,9 @@ internal static class SvgIcons
 {
     // 자주 쓰는 아이콘 이름을 한 곳에 모아둔다 - 호출부에 URL 인코딩된 긴 문자열이 흩어지면
     // 오타가 나도 조용히 아이콘만 안 보여서 원인을 찾기 어렵다.
-    public const string Home = "svgimages/icon%20builder/actions_home.svg";
+    // Home은 2026-09-03에 사용자가 고른 Lucide 세트(embedded:home.svg)로 바뀌었다 - 아래
+    // 상단 툴바 아이콘 블록 주석 참고.
+    public const string Home = "embedded:home.svg";
     public const string Settings = "svgimages/icon%20builder/actions_settings.svg";
     public const string ShoppingCart = "svgimages/icon%20builder/shopping_shoppingcart.svg";
     public const string Database = "svgimages/icon%20builder/actions_database.svg";
@@ -33,6 +40,34 @@ internal static class SvgIcons
     public const string Security = "svgimages/icon%20builder/security_security.svg";
     public const string Money = "svgimages/icon%20builder/business_money.svg";
     public const string Folder = "svgimages/business%20objects/bo_folder.svg";
+    /// <summary>{ } 코드 브라켓 모양 - "Developer Tool" 최상위 메뉴용(icon builder 계열엔 코드/
+    /// 개발도구를 나타낼 만한 아이콘이 없어서 xaf 계열에서 골랐다).</summary>
+    public const string Code = "svgimages/xaf/action_showscript.svg";
+
+    // 상단 툴바 아이콘 - 예전엔 DevExpress 번들 SVG 세트(icon%20builder/xaf 등)를 썼는데,
+    // 2026-09-03에 사용자가 직접 고른 Lucide 아이콘(Assets/ToolbarIcons/*.svg, EmbeddedResource)
+    // 세트로 전부 갈아끼웠다 - "embedded:" 접두사로 Load()가 DevExpress 리소스캐시 대신
+    // LoadEmbedded로 분기하게 한다(아래 Load 참고). 탭목록/탭전체닫기/SQL로그 3개만 사용자가
+    // 준 세트에 대응하는 파일이 없어서 DevExpress 번들 그대로 남겨뒀다.
+    public const string ToolbarSearch = "embedded:query.svg";
+    public const string ToolbarNew = "embedded:new.svg";
+    public const string ToolbarDelete = "embedded:delete.svg";
+    public const string ToolbarRowAdd = "embedded:addrow.svg";
+    public const string ToolbarRowDelete = "embedded:deleterow.svg";
+    public const string ToolbarSave = "embedded:save.svg";
+    public const string ToolbarPrint = "embedded:print.svg";
+    public const string ToolbarTabList = "svgimages/xaf/action_windowlist.svg";
+    public const string ToolbarCloseAll = "svgimages/xaf/action_closeallwindows.svg";
+    public const string ToolbarSqlLog = "svgimages/icon%20builder/actions_database.svg";
+    public const string ToolbarLogout = "embedded:logout.svg";
+
+    /// <summary>사이드바 메뉴 접기/펼치기 버튼(sidebarToggleButton)이 상태에 따라 바꿔 끼우는
+    /// 두 아이콘 - "이 아이콘을 누르면 일어날 동작"을 보여주는 관례라(현재 상태를 그리는 게
+    /// 아니라), 펼쳐진 상태에선 MenuHide(접어라)를, 접힌 상태에선 MenuView(펼쳐라)를 보여준다
+    /// (ShellForm.RefreshSidebarToggleIcon 참고). 예전엔 상태와 무관하게 햄버거 아이콘
+    /// 하나(NavigationToggle)만 썼었다.</summary>
+    public const string MenuHide = "embedded:menu_hide.svg";
+    public const string MenuView = "embedded:menu_view.svg";
 
     /// <summary>
     /// 아이콘을 size×size 이미지로 만들어 돌려준다. 이름을 못 찾으면(오타/버전 차이) null -
@@ -42,6 +77,9 @@ internal static class SvgIcons
     {
         try
         {
+            if (resourceName.StartsWith("embedded:", StringComparison.Ordinal))
+                return LoadEmbedded(resourceName.Substring("embedded:".Length), size, color);
+
             // GetSvgImage는 SvgImage(벡터)가 아니라 이미 요청한 크기로 그려진 Image를 돌려준다 -
             // 별도의 래스터화 단계가 필요 없다.
             //
@@ -60,6 +98,27 @@ internal static class SvgIcons
             // 아이콘을 못 만드는 상황(리소스 없음 등)에 앱이 멈출 이유는 없다.
             return null;
         }
+    }
+
+    /// <summary>Assets/ToolbarIcons에 EmbeddedResource로 구운 커스텀 SVG(사용자가 직접 고른
+    /// Lucide 아이콘셋)를 불러온다. Lucide는 stroke="currentColor"로 그려서 색을 CSS가
+    /// 채워주는 걸 전제하는데, DevExpress SvgImage는 그 키워드 자체를 색으로 해석 못 한다
+    /// (실제로 검은색 등 예측 불가한 값으로 떨어질 수 있어 확인 안 하고 그대로 안 씀) - 그래서
+    /// 파싱 전에 SVG 텍스트에서 그 자리를 원하는 색의 헥스값으로 직접 치환해둔다. 이렇게 하면
+    /// DevExpress 번들 세트처럼 래스터화 후 ColorMatrix로 다시 물들이는(Tint) 단계가 필요 없다 -
+    /// 이미 원하는 색으로 그려져 나온다.</summary>
+    private static Image? LoadEmbedded(string fileName, int size, Color color)
+    {
+        var resourcePath = $"WYNLAB.Shell.Assets.ToolbarIcons.{fileName}";
+        using var resourceStream = typeof(SvgIcons).Assembly.GetManifestResourceStream(resourcePath);
+        if (resourceStream == null) return null;
+
+        using var reader = new StreamReader(resourceStream);
+        var svgText = reader.ReadToEnd().Replace("currentColor", ColorTranslator.ToHtml(color));
+
+        using var svgStream = new MemoryStream(Encoding.UTF8.GetBytes(svgText));
+        var svgImage = SvgImage.FromStream(svgStream);
+        return ImageHelper.CreateImageFromSvgImage(svgImage, new Size(size, size), UserLookAndFeel.Default);
     }
 
     /// <summary>모양(알파)은 그대로 두고 색만 지정한 색으로 바꾼다.</summary>

@@ -13,6 +13,7 @@ public class UserRow
     public string? DeptCd { get; set; }
     public string? DeptNm { get; set; }
     public string PasswordHash { get; set; } = string.Empty;
+    public string? Email { get; set; }
     public string UseYn { get; set; } = "Y";
     /// <summary>TSMUSER.DEVELOPER_YN - "시스템관리자" 판단 조건(사장님 지시, 2026-08-31).
     /// USER_TYPE(아래, 메뉴권한 우회용 일반 관리자)과는 별개 축이다.</summary>
@@ -21,6 +22,10 @@ public class UserRow
     /// 이 값 기준이다(MenuPermissionService/AuthService 참고).</summary>
     public string UserType { get; set; } = "U";
     public int PwdFailCnt { get; set; }
+    /// <summary>TSMUSER.MUST_CHANGE_PWD_YN - 'Y'면 로그인은 성공해도 새 비밀번호를 강제로
+    /// 설정해야 한다(AuthService.LoginAsync 참고). 만료로 인한 강제변경/관리자 초기화 둘 다
+    /// 이 플래그 하나로 처리한다.</summary>
+    public string MustChangePwdYn { get; set; } = "N";
 }
 
 /// <summary>SSP_WYNLAB_GetSession 프로시저의 결과셋 2개를 담는 조합 모델</summary>

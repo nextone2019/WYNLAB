@@ -1,0 +1,17 @@
+-- Developer Tool(SYS) 산하에 "AI Builder" 서브그룹과 그 아래 frmAIBuilder 화면을 등록한다.
+-- 화면생성기(화면개발 자동화) 도구 자리 - 실제 기능은 아직 설계 논의 중이라 이 마이그레이션은
+-- 메뉴 등록만 하고, 화면 자체는 빈 틀(placeholder)로 시작한다.
+
+IF NOT EXISTS (SELECT 1 FROM TSMMENU WHERE MENU_CD = 'SYS_AI_G')
+BEGIN
+    INSERT INTO TSMMENU (MENU_CD, MENU_NM, UPPER_MENU_CD, MENU_LEVEL, MENU_TYPE, SORT_ORDER, USE_YN, REG_DT)
+    VALUES ('SYS_AI_G', N'AI Builder', 'SYS', 2, 'GROUP', 30, 'Y', GETDATE());
+END
+GO
+
+IF NOT EXISTS (SELECT 1 FROM TSMMENU WHERE MENU_CD = 'SYS_AI_BUILDER')
+BEGIN
+    INSERT INTO TSMMENU (MENU_CD, MENU_NM, UPPER_MENU_CD, MENU_LEVEL, MENU_TYPE, FORM_CLASS_NM, SORT_ORDER, USE_YN, REG_DT)
+    VALUES ('SYS_AI_BUILDER', N'AI Builder', 'SYS_AI_G', 3, 'FORM', 'WYNLAB.SYS.frmAIBuilder, WYNLAB.SYS', 10, 'Y', GETDATE());
+END
+GO

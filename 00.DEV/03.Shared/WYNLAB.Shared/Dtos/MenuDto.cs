@@ -6,12 +6,18 @@ namespace WYNLAB.Shared.Dtos;
 /// </summary>
 public class MenuDto
 {
-    public string MenuCd { get; set; } = string.Empty;
+    public long MenuId { get; set; }
     public string MenuNm { get; set; } = string.Empty;
-    public string? UpperMenuCd { get; set; }
+    public long? UpperMenuId { get; set; }
     public int MenuLevel { get; set; }
     public string MenuType { get; set; } = "FORM"; // FORM / GROUP
-    public string? FormClassNm { get; set; }        // 리플렉션으로 로딩할 화면 클래스 풀네임
+
+    /// <summary>리플렉션으로 화면을 로딩할 때 쓴다 - Module="SM"/ScreenClassNm="frmMenu"를
+    /// "WYNLAB.{Module}.{ScreenClassNm}, WYNLAB.{Module}" 형태로 조합해서 Type.GetType()에 넘긴다
+    /// (ShellForm.OpenMenuForm 참고). 예전엔 이 조합된 문자열 자체를 FORM_CLASS_NM 한 컬럼에
+    /// 저장했는데, 두 값이 사실 독립적인 정보(모듈/클래스명)라 분리했다.</summary>
+    public string? Module { get; set; }
+    public string? ScreenClassNm { get; set; }
     public string? IconNm { get; set; }
     public int SortOrder { get; set; }
 

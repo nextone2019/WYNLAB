@@ -248,6 +248,67 @@ Restart-WebAppPool -Name "WYNLAB-Api"
 확인: 브라우저로 `http://192.168.160.10:8090/` 접속해서 응답 오는지 확인(Production 환경이라
 Swagger는 꺼져있는 게 정상 - `Program.cs` 참고).
 
+### 6-2-1. 비밀번호 찾기(이메일 인증코드) - SMTP 설정
+
+로그인 화면의 "비밀번호를 잊으셨나요?" 기능(사용자가 등록해둔 이메일로 6자리 인증코드를 받아
+직접 새 비밀번호를 설정)이 실제로 메일을 보내려면, 6-2와 같은 자리(web.config의
+`<environmentVariables>`)에 SMTP 접속정보를 같이 넣어야 한다. 코드에는 이 값이 전혀 없다 -
+회사마다 메일서버가 다르기 때문(`WYNLAB.Api\Services\SmtpSettings.cs` 설명 참고).
+
+```xml
+<environmentVariable name="Smtp__Host" value="<SMTP 서버 주소, 예: smtp.gmail.com>" />
+<environmentVariable name="Smtp__Port" value="587" />
+<environmentVariable name="Smtp__UserName" value="<발신 계정>" />
+<environmentVariable name="Smtp__Password" value="<발신 계정 비밀번호 - Gmail이면 앱 비밀번호, 아래 참고>" />
+<environmentVariable name="Smtp__FromAddress" value="<발신 계정과 보통 동일>" />
+<environmentVariable name="Smtp__FromDisplayName" value="WYNLAB" />
+```
+
+**어떤 메일서버를 쓸지 두 가지 경로가 있다**:
+
+1. **그 회사가 이미 쓰는 사내 메일서버(Exchange 등)** - IT 담당자에게 SMTP 호스트/포트/계정
+   정보를 요청하면 된다. 보통 포트 25(암호화 없음, 사내망 전용) 또는 587(TLS)을 쓴다.
+2. **전용 Gmail 계정을 새로 하나 만들어서 발신 전용으로 사용** - 사내 메일서버가 없거나
+   당장 준비가 안 됐을 때의 대안. 아래 순서를 따른다(개발 중 실제로 겪은 함정 포함):
+   1. 발신 전용 Gmail 계정 생성 (예: `wynlab.noreply@gmail.com` - 실제 담당자 개인 계정과는
+      분리하는 걸 권장, 계정이 사람이 바뀌어도 안 흔들리게)
+   2. https://myaccount.google.com/security 에서 **2단계 인증을 켠다** - 전화번호(SMS) 방식이
+      제일 간단하다. **이게 꺼져있으면 다음 단계(앱 비밀번호)가 아예 안 보인다.**
+   3. https://myaccount.google.com/apppasswords 에서 앱 비밀번호를 발급받는다(앱 이름은 아무거나,
+      예: "WYNLAB"). **16자리 코드**가 나온다.
+   4. **`Smtp__Password`엔 이 16자리 앱 비밀번호를 넣어야 한다 - 그 Gmail 계정의 로그인
+      비밀번호를 그대로 넣으면 안 된다.** 로그인 비밀번호를 넣으면 인증 자체가 거부되고
+      ("The SMTP server requires a secure connection or the client was not authenticated...
+      5.7.0 Authentication Required"), 그런데 실패 여부가 사용자 화면엔 절대 안 나타난다
+      (계정 존재 여부를 감추기 위해 항상 "요청이 접수되었습니다"만 보여주도록 만들어서,
+      AuthService의 메일 발송 실패가 조용히 무시됨 - `AuthService.RequestPasswordResetAsync`
+      참고). **그래서 SMTP 설정을 처음 넣을 땐 반드시 아래 "발송 테스트"로 직접 확인해야 한다
+      - 화면에서 "접수되었습니다"가 떴다고 실제로 메일이 갔다는 뜻이 아니다(실제로 겪음).**
+
+**발송 테스트** (web.config에 값 넣고 앱풀 재시작한 뒤, PowerShell에서 바로 확인 가능 - 서버에
+아무 코드도 새로 배포할 필요 없음):
+
+```powershell
+$smtpHost = "<Smtp__Host 값>"; $smtpPort = <Smtp__Port 값>
+$user = "<Smtp__UserName 값>"; $pass = "<Smtp__Password 값>"; $from = "<Smtp__FromAddress 값>"
+$to = "<테스트로 받아볼 아무 메일주소>"
+
+$client = New-Object System.Net.Mail.SmtpClient($smtpHost, $smtpPort)
+$client.EnableSsl = $true
+$client.Credentials = New-Object System.Net.NetworkCredential($user, $pass)
+$msg = New-Object System.Net.Mail.MailMessage($from, $to, "[WYNLAB] SMTP 테스트", "이 메일이 도착하면 설정이 정상입니다.")
+$client.Send($msg)
+"SUCCESS"
+```
+
+에러가 나면 그 메시지가 바로 원인이다(인증 실패/호스트 못 찾음/포트 막힘 등). `SUCCESS`가
+찍히고 실제로 메일이 도착하면 설정이 끝난 것이다.
+
+**추가로 필요한 것 - 사용자별 이메일 등록**: 이 기능은 `TSMUSER.EMAIL`이 채워진 계정에만
+동작한다(비어있으면 조용히 무시 - 역시 계정 존재 여부를 감추기 위함). 관리자가
+사용자권한관리(frmUserAuth) 화면에서 각 사용자의 이메일을 미리 등록해둬야 그 사용자가 이
+기능을 쓸 수 있다.
+
 **중요 - 모듈 DLL이 WYNLAB.Shared에 새 타입을 추가했다면 Shell도 같이 재게시해야 한다**:
 Shell(ClickOnce)은 `WYNLAB.Shared.dll`/`WYNLAB.BaseForm.dll`/`WYNLAB.Controls.dll`을 자기 패키지 안에 번들해서
 배포한다. 화면 모듈(`WYNLAB.SM.*.dll`)이 `WYNLAB.Shared`에 새로 추가된 DTO 등을 참조하는데
@@ -401,6 +462,8 @@ D:\WYNLAB\Generate-Manifest.ps1 -TargetDir "D:\WYNLAB\CoreAssembly"
 - [ ] 서버에서 `iisreset` 후에도 2개 사이트가 다시 정상 기동(자동 시작)
 - [ ] 화면 DLL을 `Modules\SM\`에 넣고 클라이언트(운영 환경)로 로그인 → 메뉴 클릭 시 화면이 뜸
 - [ ] ClickOnce 설치 URL(`http://192.168.160.10:8091/WYNLAB.application`)로 브라우저 접속 시 설치가 시작됨
+- [ ] (SMTP 설정했다면) 6-2-1의 발송 테스트 스크립트로 실제 메일이 도착하는지 확인 - 화면의
+      "요청이 접수되었습니다" 메시지는 발송 성공을 보장하지 않는다
 
 막히는 단계가 있으면 그 번호(예: "4번에서 New-Website 실행했는데 이런 에러 났어")로 알려주면
 바로 짚어줄게.

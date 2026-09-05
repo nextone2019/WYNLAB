@@ -30,6 +30,16 @@ $svcRoot = "D:\WYNLAB_SVC"
 $localConnStr = "Server=tcp:localhost,15434;Database=WYNLAB;User Id=wynlab;Password=@nextone.com12!@;TrustServerCertificate=True;"
 $localJwtKey = "8QkiVHgACqcQWl1KZpiumQ5Xnc99e2lVr20uokT1yqbJKYrZqCY6gt5xQdULz"
 
+# SMTP는 여기 스크립트(git 추적됨)에 직접 못 박아넣는다 - 개인 Gmail 계정 비밀번호라 DB
+# 비밀번호/JWT키보다 훨씬 민감하다. 대신 $svcRoot(D:\WYNLAB_SVC, 저장소 바깥이라 git과 무관)에
+# 있는 로컬 전용 파일에서 읽는다 - 파일이 없으면 그냥 건너뛴다(SMTP 값 없이도 나머지 배포는
+# 정상 진행되어야 함, 메일 발송 기능만 안 될 뿐).
+$smtpLocalFile = "$svcRoot\smtp-local.json"
+$smtp = $null
+if (Test-Path $smtpLocalFile) {
+    $smtp = Get-Content $smtpLocalFile -Raw | ConvertFrom-Json
+}
+
 Write-Host "=== 1) WYNLAB.Api 게시 -> $svcRoot\Api ===" -ForegroundColor Cyan
 Push-Location "$root\02.Server\WYNLAB.Api"
 try {
@@ -51,6 +61,12 @@ foreach ($ev in $webConfig.configuration.location.'system.webServer'.aspNetCore.
         "ASPNETCORE_ENVIRONMENT"      { $ev.value = "Development" }
         "ConnectionStrings__WynlabDb" { $ev.value = $localConnStr }
         "Jwt__SecretKey"              { $ev.value = $localJwtKey }
+        "Smtp__Host"           { if ($smtp) { $ev.value = $smtp.Host } }
+        "Smtp__Port"           { if ($smtp) { $ev.value = [string]$smtp.Port } }
+        "Smtp__UserName"       { if ($smtp) { $ev.value = $smtp.UserName } }
+        "Smtp__Password"       { if ($smtp) { $ev.value = $smtp.Password } }
+        "Smtp__FromAddress"    { if ($smtp) { $ev.value = $smtp.FromAddress } }
+        "Smtp__FromDisplayName" { if ($smtp) { $ev.value = $smtp.FromDisplayName } }
     }
 }
 $webConfig.Save($webConfigPath)
@@ -75,10 +91,14 @@ if ($IncludeShell) {
     $shellDir = "$root\01.Client\WYNLAB.Shell"
     Push-Location $shellDir
     try {
-        Remove-Item -Recurse -Force "bin\Release\net48\publish" -ErrorAction SilentlyContinue
-        Remove-Item -Recurse -Force "bin\Release\net48\app.publish" -ErrorAction SilentlyContinue
-        Remove-Item -Force "obj\Release\net48\WYNLAB.exe.manifest" -ErrorAction SilentlyContinue
-        Remove-Item -Force "obj\Release\net48\WYNLAB.application" -ErrorAction SilentlyContinue
+        # Debug로 게시한다(DevLocal.pubxml 주석 참고) - Release는 appsettings.Prod.json을
+        # 물어서 이 PC의 D:\WYNLAB_SVC가 아니라 회사 서버(192.168.160.10)를 바라보는 셸이
+        # 나온다. 지금은 로컬 Api/CoreAssembly/Modules만 떠 있으므로 반드시 Debug여야
+        # appsettings.Dev.json(진짜 localhost:8090/8091)이 게시물에 들어간다.
+        Remove-Item -Recurse -Force "bin\Debug\net48\publish" -ErrorAction SilentlyContinue
+        Remove-Item -Recurse -Force "bin\Debug\net48\app.publish" -ErrorAction SilentlyContinue
+        Remove-Item -Force "obj\Debug\net48\WYNLAB.exe.manifest" -ErrorAction SilentlyContinue
+        Remove-Item -Force "obj\Debug\net48\WYNLAB.application" -ErrorAction SilentlyContinue
 
         # Deploy-Package.ps1의 같은 계산과 동일한 이유(그 스크립트 주석 참고) - build/revision을
         # 같은 시계(기준일부터 총 분)에서 나눠 만들어 버전 역행이 구조적으로 불가능하게 한다.
@@ -87,11 +107,11 @@ if ($IncludeShell) {
         $revision = [int]($totalMinutes % 65536)
         $version = "1.0.$build.$revision"
 
-        & $msbuild WYNLAB.Shell.csproj /t:Publish /p:PublishProfile=DevLocal /p:Configuration=Release `
+        & $msbuild WYNLAB.Shell.csproj /t:Publish /p:PublishProfile=DevLocal /p:Configuration=Debug `
             /p:ApplicationVersion=$version /p:UpdateRequired=true /p:MinimumRequiredVersion=$version
         if ($LASTEXITCODE -ne 0) { throw "ClickOnce 게시 실패" }
 
-        robocopy "bin\Release\net48\publish" "$svcRoot\ClickOnce" /MIR /NFL /NDL /NJH /NJS | Out-Null
+        robocopy "bin\Debug\net48\publish" "$svcRoot\ClickOnce" /MIR /NFL /NDL /NJH /NJS | Out-Null
         if ($LASTEXITCODE -ge 8) { throw "ClickOnce 파일 복사 실패 (robocopy 종료 코드 $LASTEXITCODE)" }
         $global:LASTEXITCODE = 0
         Write-Host "  게시 버전: $version"

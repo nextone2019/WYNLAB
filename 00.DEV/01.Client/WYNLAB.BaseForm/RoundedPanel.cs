@@ -37,7 +37,11 @@ public class RoundedPanel : Panel
     private static GraphicsPath RoundedRect(Rectangle bounds, int radius)
     {
         var path = new GraphicsPath();
-        var d = radius * 2;
+        // 지름(d)이 실제 사각형의 폭/높이보다 크면 네 모서리 호가 서로 겹치거나 bounds
+        // 바깥으로 넘어가서 찌그러진 모양이 그려진다 - 폭이 아주 좁은 사용처(사이드바
+        // 세로 강조바 등, CornerRadius = 폭/2로 "완전한 캡슐"을 노린 경우)에서 실제로 겪었다.
+        // 짧은 변 기준으로 지름을 clamp해서 항상 bounds 안에 들어가는 호만 그리게 한다.
+        var d = Math.Min(radius * 2, Math.Min(bounds.Width, bounds.Height));
         path.AddArc(bounds.X, bounds.Y, d, d, 180, 90);
         path.AddArc(bounds.Right - d, bounds.Y, d, d, 270, 90);
         path.AddArc(bounds.Right - d, bounds.Bottom - d, d, d, 0, 90);

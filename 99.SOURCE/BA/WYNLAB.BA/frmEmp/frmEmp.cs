@@ -28,7 +28,6 @@ public partial class frmEmp : BaseForm
         InitializeComponent();
 
         Text = "사원등록";
-        MenuCd = "BA_EMP";
 
         gvw1.FocusedRowObjectChanged += Gvw1_FocusedRowObjectChanged;
 

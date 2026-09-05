@@ -26,6 +26,15 @@ public class GridViewWyn : GridView
         _behavior = new GridViewWynBehavior(this);
     }
 
+    /// <summary>Designer가 InitializeComponent()에서 항상 호출하는 지점 - 화면이 `.Role = ...`을
+    /// 한 번도 명시적으로 안 건드려도 여기서 Query 잠금이 최소 한 번은 적용되게 한다
+    /// (GridViewWynBehavior.EnsureRoleApplied 참고).</summary>
+    public override void EndInit()
+    {
+        base.EndInit();
+        _behavior.EnsureRoleApplied();
+    }
+
     /// <summary>행번호 표시 - 기본은 꺼져있다(선택적). 켜면 왼쪽 인디케이터에 1, 2, 3... 순번이 표시된다.</summary>
     [Category("WYNLAB")]
     [Description("왼쪽 인디케이터에 행 번호(1, 2, 3...)를 표시합니다.")]
@@ -78,9 +87,11 @@ public class GridViewWyn : GridView
         set => _behavior.Role = value;
     }
 
-    /// <summary>EmbeddedNavigator의 추가(Append) 버튼을 가로챈 이벤트 - 구독해야만 버튼이
-    /// 보이고, 클릭 시 여기 붙인 로직만 실행된다(DevExpress 기본 동작인 AddNewRow() 자동실행은
-    /// 없다). Role=Query면 구독해도 버튼이 안 뜬다.</summary>
+    /// <summary>EmbeddedNavigator의 추가(Append) 버튼을 가로챈 이벤트 - 버튼 노출은 Role만
+    /// 따른다(Query면 항상 숨김, Edit이면 항상 노출, 구독 여부와 무관). 클릭 시 DevExpress 기본
+    /// 동작(AddNewRow() 자동실행)은 절대 안 쓰고, 이 이벤트에 붙인 로직만 실행된다 - 구독이
+    /// 없으면 클릭해도 조용히 아무 일도 안 일어난다(화면마다 있는 검증 로직을 건너뛰는 걸
+    /// 막기 위함).</summary>
     public event EventHandler? RowAdd
     {
         add => _behavior.RowAdd += value;

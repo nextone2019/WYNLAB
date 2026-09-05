@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using WYNLAB.Api.Authorization;
@@ -8,7 +9,7 @@ namespace WYNLAB.Api.Controllers.SM;
 
 /// <summary>
 /// 메뉴관리 화면(TSMMENU)용 CRUD API. 로그인 필수(JWT).
-/// 각 액션은 [RequireMenuPermission("SM_MENU", ...)]로 TSMMENUAUTH 기준 권한을 서버에서도 검증한다.
+/// 각 액션은 [RequireMenuPermission("SM", "MENU.frmMenu", ...)]로 TSMMENUAUTH 기준 권한을 서버에서도 검증한다.
 /// </summary>
 [ApiController]
 [Route("api/menus")]
@@ -20,7 +21,7 @@ public class MenusController : ControllerBase
     public MenusController(IMenuManageRepository repo) => _repo = repo;
 
     [HttpGet]
-    [RequireMenuPermission("SM_MENU", MenuAction.View)]
+    [RequireMenuPermission("SM", "MENU.frmMenu", MenuAction.View)]
     public async Task<ActionResult<List<MenuListItemDto>>> GetAll()
     {
         var rows = await _repo.GetAllAsync();
@@ -28,14 +29,12 @@ public class MenusController : ControllerBase
     }
 
     [HttpPost]
-    [RequireMenuPermission("SM_MENU", MenuAction.Insert)]
+    [RequireMenuPermission("SM", "MENU.frmMenu", MenuAction.Insert)]
     public async Task<ActionResult<ApiResult>> Create([FromBody] MenuCreateRequest request)
     {
-        if (await _repo.ExistsAsync(request.MenuCd))
-            return Ok(new ApiResult { Success = false, Message = "이미 존재하는 메뉴코드입니다." });
-
-        var result = await _repo.CreateAsync(request.MenuCd, request.MenuNm, request.UpperMenuCd, request.MenuLevel,
-            request.MenuType, request.FormClassNm, request.IconNm, request.SortOrder, request.AuthNm);
+        var result = await _repo.CreateAsync(request.MenuNm, request.UpperMenuId, request.MenuLevel,
+            request.MenuType, request.Module, request.ScreenClassNm, request.IconNm, request.ProcPrefix, request.SortOrder, request.AuthNm,
+            CurrentUserId, ClientIp);
 
         if (!result.IsSuccess)
             return Ok(new ApiResult { Success = false, Message = result.FailMessage });
@@ -43,15 +42,16 @@ public class MenusController : ControllerBase
         return Ok(new ApiResult { Success = true, GeneratedCode = result.GeneratedCode });
     }
 
-    [HttpPut("{menuCd}")]
-    [RequireMenuPermission("SM_MENU", MenuAction.Update)]
-    public async Task<ActionResult<ApiResult>> Update(string menuCd, [FromBody] MenuUpdateRequest request)
+    [HttpPut("{menuId}")]
+    [RequireMenuPermission("SM", "MENU.frmMenu", MenuAction.Update)]
+    public async Task<ActionResult<ApiResult>> Update(long menuId, [FromBody] MenuUpdateRequest request)
     {
-        if (!await _repo.ExistsAsync(menuCd))
+        if (!await _repo.ExistsAsync(menuId))
             return Ok(new ApiResult { Success = false, Message = "존재하지 않는 메뉴입니다." });
 
-        var result = await _repo.UpdateAsync(menuCd, request.MenuNm, request.UpperMenuCd, request.MenuLevel,
-            request.MenuType, request.FormClassNm, request.IconNm, request.SortOrder, request.UseYn, request.AuthNm);
+        var result = await _repo.UpdateAsync(menuId, request.MenuNm, request.UpperMenuId, request.MenuLevel,
+            request.MenuType, request.Module, request.ScreenClassNm, request.IconNm, request.ProcPrefix, request.SortOrder, request.UseYn, request.AuthNm,
+            CurrentUserId, ClientIp);
 
         if (!result.IsSuccess)
             return Ok(new ApiResult { Success = false, Message = result.FailMessage });
@@ -59,11 +59,11 @@ public class MenusController : ControllerBase
         return Ok(new ApiResult { Success = true });
     }
 
-    [HttpDelete("{menuCd}")]
-    [RequireMenuPermission("SM_MENU", MenuAction.Delete)]
-    public async Task<ActionResult<ApiResult>> Delete(string menuCd)
+    [HttpDelete("{menuId}")]
+    [RequireMenuPermission("SM", "MENU.frmMenu", MenuAction.Delete)]
+    public async Task<ActionResult<ApiResult>> Delete(long menuId)
     {
-        var result = await _repo.SetUseYnAsync(menuCd, useYn: false);
+        var result = await _repo.SetUseYnAsync(menuId, useYn: false);
         if (!result.IsSuccess)
             return Ok(new ApiResult { Success = false, Message = result.FailMessage });
 
@@ -72,13 +72,15 @@ public class MenusController : ControllerBase
 
     private static MenuListItemDto MapToDto(MenuManageRow row) => new()
     {
-        MenuCd = row.MenuCd,
+        MenuId = row.MenuId,
         MenuNm = row.MenuNm,
-        UpperMenuCd = row.UpperMenuCd,
+        UpperMenuId = row.UpperMenuId,
         MenuLevel = row.MenuLevel,
         MenuType = row.MenuType,
-        FormClassNm = row.FormClassNm,
+        Module = row.Module,
+        ScreenClassNm = row.ScreenClassNm,
         IconNm = row.IconNm,
+        ProcPrefix = row.ProcPrefix,
         SortOrder = row.SortOrder,
         UseYn = row.UseYn == "Y",
         AuthNm = new[]
@@ -87,4 +89,7 @@ public class MenusController : ControllerBase
             row.Auth06Nm, row.Auth07Nm, row.Auth08Nm, row.Auth09Nm, row.Auth10Nm
         }
     };
+
+    private string CurrentUserId => User.FindFirstValue(ClaimTypes.NameIdentifier) ?? string.Empty;
+    private string? ClientIp => HttpContext.Connection.RemoteIpAddress?.ToString();
 }

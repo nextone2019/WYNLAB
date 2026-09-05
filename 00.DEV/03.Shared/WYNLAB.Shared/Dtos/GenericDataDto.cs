@@ -10,10 +10,10 @@ namespace WYNLAB.Shared.Dtos;
 /// </summary>
 public class DataRequest
 {
-    /// <summary>호출하는 화면의 메뉴코드(TSMMENU.MENU_CD). 서버가 이 값으로 두 가지를 확인한다 -
+    /// <summary>호출하는 화면의 메뉴ID(TSMMENU.MENU_ID). 서버가 이 값으로 두 가지를 확인한다 -
     /// ① 로그인 사용자가 이 메뉴에 대한 권한이 있는지 ② 요청한 프로시저가 이 메뉴에 등록된
-    /// 것인지(TSMMENU.PROC_PREFIX). 화면에서 직접 채우지 않아도 BaseForm이 자기 MenuCd로 채워준다.</summary>
-    public string MenuCd { get; set; } = string.Empty;
+    /// 것인지(TSMMENU.PROC_PREFIX). 화면에서 직접 채우지 않아도 BaseForm이 자기 MenuId로 채워준다.</summary>
+    public long MenuId { get; set; }
 
     /// <summary>실행할 저장프로시저 이름(예: "USP_SM_MINORCODE_Q").
     /// 아무 프로시저나 부를 수 있으면 안 되므로, 서버가 MenuCd에 등록된 접두사로 시작하는지 검사한다.</summary>

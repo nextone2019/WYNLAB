@@ -17,15 +17,18 @@ namespace WYNLAB.SM.MENU;
 ///
 /// 신규 등록 규칙:
 /// - Shell 툴바 "입력"(NewClick) -> 좌측 트리에서 현재 선택된 메뉴가 있으면 그 메뉴의
-///   "하위 메뉴"로 신규 등록 (상위메뉴코드/메뉴레벨 자동 세팅, 직접 입력 불가)
+///   "하위 메뉴"로 신규 등록 (상위메뉴ID/메뉴레벨 자동 세팅, 직접 입력 불가)
 /// - 우측 상단 "최상위 메뉴로 등록" 버튼 -> 트리 선택과 무관하게 항상 최상위(모듈)로 신규 등록
+///
+/// MENU_ID는 BIGINT IDENTITY라 더는 사람이 입력하지 않는다(서버가 채번) - 메뉴코드 자기입력
+/// 필드는 없어졌고, 대신 등록된 메뉴의 ID를 읽기전용으로만 보여준다.
 /// </summary>
 public class frmMenu : BaseForm
 {
     private List<MenuListItemDto> _menus = new();
 
-    private string? _editingMenuCd;   // null이면 신규모드, 값이 있으면 그 메뉴 수정모드
-    private string? _lastSelectedCd;  // 트리에서 마지막으로 선택된 메뉴 (신규 시 상위메뉴 후보)
+    private long? _editingMenuId;   // null이면 신규모드, 값이 있으면 그 메뉴 수정모드
+    private long? _lastSelectedId;  // 트리에서 마지막으로 선택된 메뉴 (신규 시 상위메뉴 후보)
 
     // 트리 폭은 사용자가 스플리터로 조절할 수 있게 하되(SplitContainerControl), 우측 입력
     // 필드들은 FixedControlWidth로 각자 고정폭이라 스플리터를 옮기거나 MDI 창을 리사이즈해도
@@ -34,27 +37,35 @@ public class frmMenu : BaseForm
     private readonly Panel leftPanel = new() { Dock = DockStyle.Fill };
     private readonly Panel rightPanel = new() { Dock = DockStyle.Fill };
     private readonly TreeList menuTree = new();
-    private readonly TreeListColumn colMenuCd = new() { FieldName = "MenuCd", Caption = "메뉴코드" };
+    private readonly TreeListColumn colMenuId = new() { FieldName = "MenuId", Caption = "메뉴ID" };
     private readonly TreeListColumn colMenuNm = new() { FieldName = "MenuNm", Caption = "메뉴명" };
 
     private readonly LabelControl lblFormTitle = new();
     private readonly LabelControl lblFormHint = new();
     private readonly SimpleButton btnNewTop = new() { Text = "최상위 메뉴로 등록" };
 
-    private readonly TextEdit txtMenuCd = new();
+    // 메뉴ID는 서버 채번(IDENTITY) - 항상 읽기전용, 신규모드에선 저장 전까지 비어있다.
+    private readonly TextEdit txtMenuId = new() { Properties = { ReadOnly = true } };
     private readonly TextEdit txtMenuNm = new();
-    private readonly TextEdit txtUpperMenuCd = new() { Properties = { ReadOnly = true } };
+    private readonly TextEdit txtUpperMenuId = new() { Properties = { ReadOnly = true } };
 
     // 상위메뉴를 이름으로 찾아서 고르는 팝업(P_MENU, 메뉴 자기참조 트리) - 고르면 MapField가
-    // 위 txtUpperMenuCd를 같이 채운다. 트리 클릭으로 자동 세팅되던 상위메뉴를 이제 이 필드로도
-    // 바꿀 수 있으므로, txtUpperMenuCd.EditValueChanged에서 메뉴레벨을 다시 계산해야 한다
+    // 위 txtUpperMenuId를 같이 채운다. 트리 클릭으로 자동 세팅되던 상위메뉴를 이제 이 필드로도
+    // 바꿀 수 있으므로, txtUpperMenuId.EditValueChanged에서 메뉴레벨을 다시 계산해야 한다
     // (아래 생성자 참고) - 안 그러면 신규모드에서 트리로 잡힌 레벨이 팝업으로 부모를 바꾼
     // 뒤에도 안 바뀌어서 저장 시 실제 부모 레벨과 안 맞는 값이 들어간다.
     private readonly PopupLookupEditWyn txtUpperMenuNm = new();
     private readonly SpinEdit spnMenuLevel = new() { Properties = { MinValue = 1, MaxValue = 5, ReadOnly = true } };
     private readonly ComboBoxEdit cboMenuType = new();
-    private readonly TextEdit txtFormClassNm = new();
+    private readonly TextEdit txtModule = new();
+    private readonly TextEdit txtScreenClassNm = new();
     private readonly TextEdit txtIconNm = new();
+
+    // 범용 데이터 통로(api/data/*)가 이 메뉴에서 호출을 허용할 프로시저 접두사 - 비어있으면
+    // 그 메뉴로는 api/data/* 저장/조회가 전부 거부된다(DataController.ValidateAsync ②단계).
+    // 지금까지는 이 값을 UI에서 아예 편집할 방법이 없어서 마이그레이션 스크립트로만 채워졌었다
+    // (2026-09-04 실제 발견 - AI Builder가 즉시등록한 메뉴는 전부 이게 비어서 저장이 막혔음).
+    private readonly TextEdit txtProcPrefix = new();
     private readonly SpinEdit spnSortOrder = new() { Properties = { MinValue = 0, MaxValue = 9999 } };
     private readonly CheckEdit chkUseYn = new() { Text = "사용" };
 
@@ -75,25 +86,24 @@ public class frmMenu : BaseForm
     public frmMenu()
     {
         Text = "메뉴관리";
-        MenuCd = "SM_MENU";
 
         cboMenuType.Properties.Items.AddRange(new[] { "GROUP", "FORM" });
         cboMenuType.Properties.TextEditStyle = TextEditStyles.DisableTextEditor;
 
         // 상위메뉴 팝업(멀티필드 모드) - MatchField가 이 컨트롤 자신이 대표하는 팝업 결과
-        // 컬럼(menu_nm)을 가리키고, MapField가 나머지 컬럼(menu_cd)을 txtUpperMenuCd에 채운다.
+        // 컬럼(menu_nm)을 가리키고, MapField가 나머지 컬럼(menu_id)을 txtUpperMenuId에 채운다.
         txtUpperMenuNm.LookupKey = "P_MENU";
         txtUpperMenuNm.MatchField = "menu_nm";
-        txtUpperMenuNm.MapField("menu_cd", txtUpperMenuCd);
+        txtUpperMenuNm.MapField("menu_id", txtUpperMenuId);
 
-        // 상위메뉴코드가 어떤 경로로 바뀌든(트리 클릭 기반 신규모드 진입, 또는 방금 추가한
+        // 상위메뉴ID가 어떤 경로로 바뀌든(트리 클릭 기반 신규모드 진입, 또는 방금 추가한
         // 팝업으로 직접 변경) 메뉴레벨을 항상 "그 부모의 레벨 + 1"로 다시 맞춘다 - 팝업으로
         // 부모를 바꿨는데 예전 레벨이 그대로 남으면 저장 시 실제 계층과 안 맞는 레벨이 들어간다.
-        txtUpperMenuCd.EditValueChanged += (s, e) =>
+        txtUpperMenuId.EditValueChanged += (s, e) =>
         {
-            var parent = string.IsNullOrWhiteSpace(txtUpperMenuCd.Text)
-                ? null
-                : _menus.FirstOrDefault(m => m.MenuCd == txtUpperMenuCd.Text);
+            var parent = long.TryParse(txtUpperMenuId.Text, out var parentId)
+                ? _menus.FirstOrDefault(m => m.MenuId == parentId)
+                : null;
             spnMenuLevel.Value = (parent?.MenuLevel ?? 0) + 1;
         };
 
@@ -101,14 +111,16 @@ public class frmMenu : BaseForm
         // BaseForm.ApplyBindingFieldTooltips가 공통으로 처리한다. TSMMENU는 다른 BA 테이블과
         // 달리 컬럼명이 대문자라 그대로 맞춘다. txtUpperMenuNm은 PopupLookupEditWyn이라
         // "Popup : P_MENU"도 자동으로 같이 붙는다.
-        txtMenuCd.Tag = new BindingFieldTag("MENU_CD");
+        txtMenuId.Tag = new BindingFieldTag("MENU_ID");
         txtMenuNm.Tag = new BindingFieldTag("MENU_NM");
-        txtUpperMenuCd.Tag = new BindingFieldTag("UPPER_MENU_CD");
-        txtUpperMenuNm.Tag = new BindingFieldTag("UPPER_MENU_CD");
+        txtUpperMenuId.Tag = new BindingFieldTag("UPPER_MENU_ID");
+        txtUpperMenuNm.Tag = new BindingFieldTag("UPPER_MENU_ID");
         spnMenuLevel.Tag = new BindingFieldTag("MENU_LEVEL");
         cboMenuType.Tag = new BindingFieldTag("MENU_TYPE");
-        txtFormClassNm.Tag = new BindingFieldTag("FORM_CLASS_NM");
+        txtModule.Tag = new BindingFieldTag("MODULE");
+        txtScreenClassNm.Tag = new BindingFieldTag("SCREEN_CLASS_NM");
         txtIconNm.Tag = new BindingFieldTag("ICON_NM");
+        txtProcPrefix.Tag = new BindingFieldTag("PROC_PREFIX");
         spnSortOrder.Tag = new BindingFieldTag("SORT_ORDER");
         chkUseYn.Tag = new BindingFieldTag("USE_YN");
         for (var i = 0; i < txtAuthNm.Length; i++)
@@ -118,10 +130,10 @@ public class frmMenu : BaseForm
         BuildRightPanel();
         splitContainer.Panel1.Controls.Add(leftPanel);
         splitContainer.Panel2.Controls.Add(rightPanel);
-        // 트리 컬럼 폭 합(메뉴코드 90 + 메뉴명 170 = 260)에 계층 들여쓰기(레벨이 깊어질수록
-        // 늘어남)까지 감안해서 여유를 둔다 - 컬럼이 메뉴명 하나였을 때(280)보다 넓혀야 한다.
+        // 트리 컬럼 폭 합(메뉴ID 70 + 메뉴명 170 = 240)에 계층 들여쓰기(레벨이 깊어질수록
+        // 늘어남)까지 감안해서 여유를 둔다.
         splitContainer.Panel1.MinSize = 260;
-        splitContainer.Panel2.MinSize = 500; // 우측 필드 중 화면 클래스명(420px)이 가장 넓어서 그보다 여유있게
+        splitContainer.Panel2.MinSize = 500; // 우측 필드 중 화면 클래스명(300px)이 가장 넓어서 그보다 여유있게
         splitContainer.SplitterPosition = 340;
 
         // Dock 추가 순서: Fill(splitContainer) 먼저, Top(타이틀바)은 나중에 추가해야 맨 위를 차지한다
@@ -143,22 +155,22 @@ public class frmMenu : BaseForm
 
         // 버그 수정: Dock을 실제로 지정한 적이 없어서 트리가 기본 크기(작은 박스)로만 떠 있었다.
         menuTree.Dock = DockStyle.Fill;
-        menuTree.KeyFieldName = "MenuCd";
-        menuTree.ParentFieldName = "UpperMenuCd";
+        menuTree.KeyFieldName = "MenuId";
+        menuTree.ParentFieldName = "UpperMenuId";
         menuTree.OptionsBehavior.Editable = false;
         menuTree.OptionsView.ShowIndicator = false;
         menuTree.OptionsView.ShowHorzLines = false;
         menuTree.OptionsView.ShowVertLines = false;
         menuTree.RowHeight = 26; // 기본 행높이는 다소 빡빡해 보여서 살짝 여유를 줌
         menuTree.Appearance.Row.Font = AppFonts.Body;
-        colMenuCd.Visible = true;
-        colMenuCd.VisibleIndex = 0;
-        colMenuCd.Width = 90;
+        colMenuId.Visible = true;
+        colMenuId.VisibleIndex = 0;
+        colMenuId.Width = 70;
         colMenuNm.Visible = true;
         colMenuNm.VisibleIndex = 1;
         colMenuNm.Width = 170;
-        menuTree.Columns.AddRange(new[] { colMenuCd, colMenuNm });
-        menuTree.OptionsView.ShowColumns = true; // 컬럼이 둘이라 헤더로 구분해준다(메뉴코드/메뉴명)
+        menuTree.Columns.AddRange(new[] { colMenuId, colMenuNm });
+        menuTree.OptionsView.ShowColumns = true; // 컬럼이 둘이라 헤더로 구분해준다(메뉴ID/메뉴명)
         // 두 컬럼 폭 합이 패널보다 좁아도(또는 스플리터로 더 늘려도) 남는/모자란 폭을 컬럼들이
         // 나눠 채우게 해서 가로 스크롤바가 생기지 않게 한다 - 컬럼이 하나였을 때도 같은 이유로 켰었다.
         menuTree.OptionsView.AutoWidth = true;
@@ -225,7 +237,7 @@ public class frmMenu : BaseForm
 
         // 입력 컨트롤 폰트를 앱 공통 스케일(AppFonts.Body)로 통일 - 지정하지 않으면
         // DevExpress 기본 폰트(Tahoma 8.25pt)로 표시되어 화면마다 크기가 들쭉날쭉해 보였다.
-        foreach (var edit in new BaseEdit[] { txtMenuCd, txtMenuNm, txtUpperMenuCd, txtUpperMenuNm, spnMenuLevel, cboMenuType, txtFormClassNm, txtIconNm, spnSortOrder, chkUseYn }.Concat(txtAuthNm))
+        foreach (var edit in new BaseEdit[] { txtMenuId, txtMenuNm, txtUpperMenuId, txtUpperMenuNm, spnMenuLevel, cboMenuType, txtModule, txtScreenClassNm, txtIconNm, txtProcPrefix, spnSortOrder, chkUseYn }.Concat(txtAuthNm))
         {
             edit.Properties.Appearance.Font = AppFonts.Body;
             edit.Properties.Appearance.Options.UseFont = true;
@@ -235,16 +247,18 @@ public class frmMenu : BaseForm
         // 무조건 늘어남)을 끄고, 짧은 코드/콤보는 짧게, 긴 클래스명은 넉넉하게 잡는다.
         // 창 크기가 바뀌어도 이 폭은 그대로 유지된다(FixedControlWidth 참고).
         var groupBasic = root.AddGroup("기본정보").StyleAsSection();
-        groupBasic.AddItem("메뉴코드", txtMenuCd).MarkRequired().FixedControlWidth(160);
+        groupBasic.AddItem("메뉴ID", txtMenuId).FixedControlWidth(100);
         groupBasic.AddItem("메뉴명", txtMenuNm).MarkRequired().FixedControlWidth(220);
-        groupBasic.AddItem("상위메뉴코드", txtUpperMenuCd).FixedControlWidth(160);
+        groupBasic.AddItem("상위메뉴ID", txtUpperMenuId).FixedControlWidth(100);
         groupBasic.AddItem("상위메뉴명", txtUpperMenuNm).FixedControlWidth(220);
         groupBasic.AddItem("메뉴레벨", spnMenuLevel).FixedControlWidth(70);
         groupBasic.AddItem("메뉴유형", cboMenuType).MarkRequired().FixedControlWidth(130);
 
         var groupAdvanced = root.AddGroup("연결정보").StyleAsSection();
-        groupAdvanced.AddItem("화면 클래스명", txtFormClassNm).FixedControlWidth(420);
+        groupAdvanced.AddItem("모듈", txtModule).FixedControlWidth(120);
+        groupAdvanced.AddItem("화면 클래스명", txtScreenClassNm).FixedControlWidth(300);
         groupAdvanced.AddItem("아이콘명", txtIconNm).FixedControlWidth(150);
+        groupAdvanced.AddItem("Proc Prefix", txtProcPrefix).FixedControlWidth(220);
         groupAdvanced.AddItem("정렬순서", spnSortOrder).FixedControlWidth(70);
 
         var groupStatus = root.AddGroup("상태").StyleAsSection();
@@ -276,11 +290,11 @@ public class frmMenu : BaseForm
         btnSaveInline.Click += async (s, e) => await SaveClick();
 
         btnCancelEdit.Size = new Size(90, 32);
-        btnCancelEdit.Click += (s, e) => EnterNewMode(_lastSelectedCd);
+        btnCancelEdit.Click += (s, e) => EnterNewMode(_lastSelectedId);
 
         // 복사(Save As) - 지금 선택된 메뉴가 있을 때만 의미가 있다(EnterEditMode/EnterNewMode에서
-        // Enabled를 맞춘다). 저장은 하지 않고 신규입력 상태(메뉴코드만 비움)로만 만들어둔다 -
-        // 나머지 값은 전부 그대로 복사돼 있으니 메뉴코드만 채우고 저장 누르면 된다.
+        // Enabled를 맞춘다). 저장은 하지 않고 신규입력 상태(메뉴ID만 비움)로만 만들어둔다 -
+        // 나머지 값은 전부 그대로 복사돼 있으니 저장 누르면 새 ID로 채번된다.
         btnCopy.Size = new Size(90, 32);
         btnCopy.Enabled = false;
         btnCopy.Click += (s, e) => EnterCopyMode();
@@ -307,7 +321,7 @@ public class frmMenu : BaseForm
         menuTree.ExpandAll();
 
         // 편집 중이던 메뉴가 여전히 존재하면 선택 유지, 없어졌으면(삭제됨) 신규모드로 복귀
-        if (_editingMenuCd != null && _menus.All(m => m.MenuCd != _editingMenuCd))
+        if (_editingMenuId != null && _menus.All(m => m.MenuId != _editingMenuId))
         {
             EnterNewMode(null);
         }
@@ -315,25 +329,25 @@ public class frmMenu : BaseForm
 
     public override Task NewClick()
     {
-        EnterNewMode(_lastSelectedCd);
+        EnterNewMode(_lastSelectedId);
         return Task.CompletedTask;
     }
 
     public override async Task DeleteClick()
     {
-        if (_editingMenuCd == null)
+        if (_editingMenuId == null)
         {
             AppMessageBox.Show("삭제할 메뉴를 왼쪽 트리에서 선택해주세요.", "안내");
             return;
         }
 
-        var menu = _menus.FirstOrDefault(m => m.MenuCd == _editingMenuCd);
+        var menu = _menus.FirstOrDefault(m => m.MenuId == _editingMenuId);
         var confirm = AppMessageBox.Show(
-            $"'{menu?.MenuNm}({_editingMenuCd})' 메뉴를 사용중지 처리하시겠습니까?\n하위 메뉴가 있다면 좌측 메뉴트리에서 같이 사라집니다.",
+            $"'{menu?.MenuNm}(ID:{_editingMenuId})' 메뉴를 사용중지 처리하시겠습니까?\n하위 메뉴가 있다면 좌측 메뉴트리에서 같이 사라집니다.",
             "삭제 확인", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
         if (confirm != DialogResult.Yes) return;
 
-        await ApiClient.DeleteAsync($"api/menus/{_editingMenuCd}");
+        await ApiClient.DeleteAsync($"api/menus/{_editingMenuId}");
         await QueryClick();
         Toast.Show("사용중지 처리되었습니다.");
     }
@@ -343,39 +357,40 @@ public class frmMenu : BaseForm
         var node = menuTree.FocusedNode;
         if (node == null) return;
 
-        var menuCd = (string)node.GetValue("MenuCd");
-        var menu = _menus.FirstOrDefault(m => m.MenuCd == menuCd);
+        var menuId = Convert.ToInt64(node.GetValue("MenuId"));
+        var menu = _menus.FirstOrDefault(m => m.MenuId == menuId);
         if (menu == null) return;
 
-        _lastSelectedCd = menuCd;
+        _lastSelectedId = menuId;
         EnterEditMode(menu);
     }
 
     /// <summary>
-    /// 신규모드 진입. parentCd가 있으면 그 메뉴의 하위로, forceTop이면(또는 parentCd가 null이면)
-    /// 트리 선택과 무관하게 최상위(모듈)로 등록되도록 상위메뉴코드/메뉴레벨을 자동 세팅한다.
+    /// 신규모드 진입. parentId가 있으면 그 메뉴의 하위로, forceTop이면(또는 parentId가 null이면)
+    /// 트리 선택과 무관하게 최상위(모듈)로 등록되도록 상위메뉴ID/메뉴레벨을 자동 세팅한다.
     /// </summary>
     /// <summary>편집 컨트롤 값을 채우는 부분은 SuppressDirtyTracking으로 감싼다 - 안 그러면
     /// 코드가 값을 채우는 것뿐인데 TrackDirty(layoutControl)가 "사용자가 고쳤다"로 오인해서,
     /// 트리 선택/신규모드 진입 직후부터 화면을 닫을 때 저장 확인이 뜨는 오작동이 생긴다.</summary>
-    private void EnterNewMode(string? parentCd, bool forceTop = false)
+    private void EnterNewMode(long? parentId, bool forceTop = false)
     {
-        var newParentCd = forceTop ? null : parentCd;
-        var parent = newParentCd != null ? _menus.FirstOrDefault(m => m.MenuCd == newParentCd) : null;
+        var newParentId = forceTop ? null : parentId;
+        var parent = newParentId != null ? _menus.FirstOrDefault(m => m.MenuId == newParentId) : null;
 
         SuppressDirtyTracking(() =>
         {
-            _editingMenuCd = null;
+            _editingMenuId = null;
 
-            txtMenuCd.Text = string.Empty;
-            txtMenuCd.Enabled = true;
+            txtMenuId.Text = string.Empty;
             txtMenuNm.Text = string.Empty;
-            txtUpperMenuCd.Text = parent?.MenuCd ?? string.Empty;
+            txtUpperMenuId.Text = parent?.MenuId.ToString() ?? string.Empty;
             txtUpperMenuNm.Text = parent?.MenuNm ?? string.Empty;
             spnMenuLevel.Value = (parent?.MenuLevel ?? 0) + 1;
             cboMenuType.SelectedItem = "FORM";
-            txtFormClassNm.Text = string.Empty;
+            txtModule.Text = string.Empty;
+            txtScreenClassNm.Text = string.Empty;
             txtIconNm.Text = string.Empty;
+            txtProcPrefix.Text = string.Empty;
             spnSortOrder.Value = 0;
             chkUseYn.Checked = true;
             chkUseYn.Enabled = false; // 신규는 항상 사용상태로 생성됨(서버에서 'Y' 고정)
@@ -391,52 +406,52 @@ public class frmMenu : BaseForm
         txtMenuNm.Focus();
     }
 
-    /// <summary>지금 우측 패널에 표시된 값(선택된 메뉴 한 건)을 그대로 둔 채 메뉴코드만 비우고
-    /// 신규입력 상태로 전환한다 - 저장은 여기서 하지 않는다(사용자가 메뉴코드를 채우고 직접
-    /// 저장 버튼을 눌러야 실제로 등록됨). 비슷한 메뉴를 여러 개 등록할 때 매번 전체 필드를
-    /// 다시 채울 필요 없이 코드/명만 바꿔서 저장하면 되도록 하기 위함(사장님 요청).</summary>
+    /// <summary>지금 우측 패널에 표시된 값(선택된 메뉴 한 건)을 그대로 둔 채 메뉴ID만 비우고
+    /// 신규입력 상태로 전환한다 - 저장은 여기서 하지 않는다(사용자가 직접 저장 버튼을 눌러야
+    /// 새 ID로 실제 등록됨). 비슷한 메뉴를 여러 개 등록할 때 매번 전체 필드를 다시 채울 필요
+    /// 없이 몇 군데만 바꿔서 저장하면 되도록 하기 위함(사장님 요청).</summary>
     private void EnterCopyMode()
     {
-        if (_editingMenuCd == null) return; // btnCopy가 이 상태에선 비활성화라 보통 여기 안 옴
+        if (_editingMenuId == null) return; // btnCopy가 이 상태에선 비활성화라 보통 여기 안 옴
 
-        var sourceCd = _editingMenuCd;
+        var sourceId = _editingMenuId;
         var sourceNm = txtMenuNm.Text;
 
         SuppressDirtyTracking(() =>
         {
-            _editingMenuCd = null;
-            txtMenuCd.Text = string.Empty;
-            txtMenuCd.Enabled = true;
-            // 메뉴명/상위메뉴/레벨/유형/화면클래스명/아이콘/정렬순서/AUTH01~10은 그대로 복사 -
+            _editingMenuId = null;
+            txtMenuId.Text = string.Empty;
+            // 메뉴명/상위메뉴/레벨/유형/모듈/화면클래스명/아이콘/정렬순서/AUTH01~10은 그대로 복사 -
             // 여기서 일부러 안 지운다.
             chkUseYn.Checked = true;
             chkUseYn.Enabled = false; // 신규는 항상 사용상태로 생성됨(서버에서 'Y' 고정)
         });
 
         lblFormTitle.Text = "메뉴 복사 등록";
-        lblFormHint.Text = $"'{sourceNm}({sourceCd})'의 값을 그대로 복사했습니다. 메뉴코드를 입력하고 저장하세요.";
+        lblFormHint.Text = $"'{sourceNm}(ID:{sourceId})'의 값을 그대로 복사했습니다. 확인 후 저장하면 새 ID로 등록됩니다.";
 
         btnCopy.Enabled = false;
-        txtMenuCd.Focus();
+        txtMenuNm.Focus();
     }
 
     private void EnterEditMode(MenuListItemDto menu)
     {
-        var parent = menu.UpperMenuCd != null ? _menus.FirstOrDefault(m => m.MenuCd == menu.UpperMenuCd) : null;
+        var parent = menu.UpperMenuId != null ? _menus.FirstOrDefault(m => m.MenuId == menu.UpperMenuId) : null;
 
         SuppressDirtyTracking(() =>
         {
-            _editingMenuCd = menu.MenuCd;
+            _editingMenuId = menu.MenuId;
 
-            txtMenuCd.Text = menu.MenuCd;
-            txtMenuCd.Enabled = false; // 메뉴코드는 PK라 수정 불가
+            txtMenuId.Text = menu.MenuId.ToString();
             txtMenuNm.Text = menu.MenuNm;
-            txtUpperMenuCd.Text = menu.UpperMenuCd ?? string.Empty;
+            txtUpperMenuId.Text = menu.UpperMenuId?.ToString() ?? string.Empty;
             txtUpperMenuNm.Text = parent?.MenuNm ?? string.Empty;
             spnMenuLevel.Value = menu.MenuLevel;
             cboMenuType.SelectedItem = menu.MenuType;
-            txtFormClassNm.Text = menu.FormClassNm;
+            txtModule.Text = menu.Module ?? string.Empty;
+            txtScreenClassNm.Text = menu.ScreenClassNm ?? string.Empty;
             txtIconNm.Text = menu.IconNm;
+            txtProcPrefix.Text = menu.ProcPrefix ?? string.Empty;
             spnSortOrder.Value = menu.SortOrder;
             chkUseYn.Checked = menu.UseYn;
             chkUseYn.Enabled = true;
@@ -452,26 +467,28 @@ public class frmMenu : BaseForm
 
     public override async Task SaveClick()
     {
-        if (string.IsNullOrWhiteSpace(txtMenuCd.Text) || string.IsNullOrWhiteSpace(txtMenuNm.Text))
+        if (string.IsNullOrWhiteSpace(txtMenuNm.Text))
         {
-            AppMessageBox.Show("메뉴코드와 메뉴명은 필수입니다.", "확인");
+            AppMessageBox.Show("메뉴명은 필수입니다.", "확인");
             return;
         }
 
-        // 화면 클래스명은 "Namespace.클래스명, 어셈블리명" 형태의 손입력 텍스트라 오타가 나도
-        // 저장 시점엔 아무 에러가 안 나고, 나중에 그 메뉴를 클릭했을 때서야 화면을 못 찾는다는
-        // 에러로 드러난다 - 저장 전에 미리 Type.GetType으로 실제 존재하는 클래스인지 확인해서
-        // 막는다. Shell.exe가 시작할 때 ModuleLoader.LoadAll이 Modules\ 폴더의 모든 화면 dll을
-        // 이미 로드해뒀고 AssemblyResolve 훅도 걸어놔서(ModuleLoader.cs 참고), 여기서
-        // Type.GetType을 호출하면 ShellForm.OpenMenuForm이 실제 메뉴 클릭 시 찾는 것과 완전히
-        // 같은 경로로 찾아본다 - 여기서 못 찾으면 실제 클릭해도 못 찾는다는 뜻.
+        // 모듈/화면 클래스명은 "WYNLAB.{Module}.{ScreenClassNm}, WYNLAB.{Module}" 형태로 조합되는
+        // 손입력 텍스트라 오타가 나도 저장 시점엔 아무 에러가 안 나고, 나중에 그 메뉴를 클릭했을
+        // 때서야 화면을 못 찾는다는 에러로 드러난다 - 저장 전에 미리 Type.GetType으로 실제
+        // 존재하는 클래스인지 확인해서 막는다(ShellForm.OpenMenuForm과 같은 조합 방식).
+        // Shell.exe가 시작할 때 ModuleLoader.LoadAll이 Modules\ 폴더의 모든 화면 dll을 이미
+        // 로드해뒀고 AssemblyResolve 훅도 걸어놔서(ModuleLoader.cs 참고), 여기서 Type.GetType을
+        // 호출하면 ShellForm이 실제 메뉴 클릭 시 찾는 것과 완전히 같은 경로로 찾아본다.
+        var module = txtModule.Text.Trim();
+        var screenClassNm = txtScreenClassNm.Text.Trim();
         if ((string)cboMenuType.SelectedItem == "FORM"
-            && !string.IsNullOrWhiteSpace(txtFormClassNm.Text)
-            && Type.GetType(txtFormClassNm.Text) == null)
+            && !string.IsNullOrWhiteSpace(module) && !string.IsNullOrWhiteSpace(screenClassNm)
+            && Type.GetType($"WYNLAB.{module}.{screenClassNm}, WYNLAB.{module}") == null)
         {
             AppMessageBox.Show(
-                $"화면 클래스명을 찾을 수 없습니다: {txtFormClassNm.Text}\n" +
-                "\"Namespace.클래스명, 어셈블리명\" 형식이 맞는지, 해당 화면 모듈(dll)이 배포되어 있는지 확인해주세요.",
+                $"화면 클래스를 찾을 수 없습니다: WYNLAB.{module}.{screenClassNm}, WYNLAB.{module}\n" +
+                "모듈/화면 클래스명이 맞는지, 해당 화면 모듈(dll)이 배포되어 있는지 확인해주세요.",
                 "확인");
             return;
         }
@@ -480,43 +497,47 @@ public class frmMenu : BaseForm
         try
         {
             ApiResult? result;
-            string savedMenuCd;
-            var wasNew = _editingMenuCd == null;
+            long savedMenuId;
+            var wasNew = _editingMenuId == null;
             var authNm = txtAuthNm.Select(t => string.IsNullOrWhiteSpace(t.Text) ? null : t.Text).ToArray();
+            var upperMenuId = long.TryParse(txtUpperMenuId.Text, out var parsedUpperId) ? parsedUpperId : (long?)null;
 
-            if (_editingMenuCd != null)
+            if (_editingMenuId != null)
             {
-                savedMenuCd = _editingMenuCd;
+                savedMenuId = _editingMenuId.Value;
                 var req = new MenuUpdateRequest
                 {
                     MenuNm = txtMenuNm.Text,
-                    UpperMenuCd = txtUpperMenuCd.Text,
+                    UpperMenuId = upperMenuId,
                     MenuLevel = (int)spnMenuLevel.Value,
                     MenuType = (string)cboMenuType.SelectedItem,
-                    FormClassNm = txtFormClassNm.Text,
+                    Module = module,
+                    ScreenClassNm = screenClassNm,
                     IconNm = txtIconNm.Text,
+                    ProcPrefix = txtProcPrefix.Text.Trim(),
                     SortOrder = (int)spnSortOrder.Value,
                     UseYn = chkUseYn.Checked,
                     AuthNm = authNm
                 };
-                result = await ApiClient.PutAsync<MenuUpdateRequest, ApiResult>($"api/menus/{_editingMenuCd}", req);
+                result = await ApiClient.PutAsync<MenuUpdateRequest, ApiResult>($"api/menus/{_editingMenuId}", req);
             }
             else
             {
-                savedMenuCd = txtMenuCd.Text;
                 var req = new MenuCreateRequest
                 {
-                    MenuCd = txtMenuCd.Text,
                     MenuNm = txtMenuNm.Text,
-                    UpperMenuCd = string.IsNullOrWhiteSpace(txtUpperMenuCd.Text) ? null : txtUpperMenuCd.Text,
+                    UpperMenuId = upperMenuId,
                     MenuLevel = (int)spnMenuLevel.Value,
                     MenuType = (string)cboMenuType.SelectedItem,
-                    FormClassNm = txtFormClassNm.Text,
+                    Module = module,
+                    ScreenClassNm = screenClassNm,
                     IconNm = txtIconNm.Text,
+                    ProcPrefix = txtProcPrefix.Text.Trim(),
                     SortOrder = (int)spnSortOrder.Value,
                     AuthNm = authNm
                 };
                 result = await ApiClient.PostAsync<MenuCreateRequest, ApiResult>("api/menus", req);
+                savedMenuId = result != null && result.Success && long.TryParse(result.GeneratedCode, out var newId) ? newId : 0;
             }
 
             if (result == null || !result.Success)
@@ -527,7 +548,7 @@ public class frmMenu : BaseForm
 
             await QueryClick();
 
-            var savedNode = menuTree.FindNodeByKeyID(savedMenuCd);
+            var savedNode = menuTree.FindNodeByKeyID(savedMenuId);
             if (savedNode != null) menuTree.FocusedNode = savedNode;
 
             Toast.Show(wasNew ? "메뉴가 등록되었습니다." : "수정되었습니다.");

@@ -8,11 +8,14 @@ public interface IUserManageRepository
 {
     Task<List<UserManageRow>> GetAllAsync(string? userId = null, string? userNm = null);
     Task<bool> ExistsAsync(string userId);
-    Task<ProcResult> CreateAsync(string userId, string userNm, string passwordHash, string? empNo);
-    Task<ProcResult> UpdateAsync(string userId, string userNm, string? empNo, bool useYn);
+    Task<ProcResult> CreateAsync(string userId, string userNm, string passwordHash, string? empNo, string? email);
+    Task<ProcResult> UpdateAsync(string userId, string userNm, string? empNo, string? email, bool useYn);
     Task<ProcResult> SetUseYnAsync(string userId, bool useYn);
     Task<List<UserGroupAssignRow>> GetUserGroupsAsync(string userId);
     Task<ProcResult> ReplaceUserGroupsAsync(string userId, List<string> userGrpCds);
+    /// <summary>비밀번호 교체(강제변경 다이얼로그 등) - 현재 비밀번호 확인은 AuthService가
+    /// BCrypt로 이미 끝내고 새 해시만 넘어온다. MUST_CHANGE_PWD_YN도 여기서 같이 'N'으로 풀린다.</summary>
+    Task<ProcResult> ChangePasswordAsync(string userId, string newPasswordHash);
 }
 
 /// <summary>DB 조회 전용 - 목록 화면 표시용 (비밀번호 해시는 절대 포함하지 않음)</summary>
@@ -24,6 +27,7 @@ public class UserManageRow
     public string? EmpNm { get; set; }
     public string? DeptCd { get; set; }
     public string? DeptNm { get; set; }
+    public string? Email { get; set; }
     public string UseYn { get; set; } = "Y";
     /// <summary>TSMUSER.DEVELOPER_YN - 조회 전용(표시용). CreateAsync/UpdateAsync엔 이 값을
     /// 받는 파라미터가 아예 없다 - 이 화면으로는 절대 못 바꾼다(사장님 지시, 2026-08-31).</summary>
@@ -73,7 +77,7 @@ public class UserManageRepository : IUserManageRepository
         return count > 0;
     }
 
-    public async Task<ProcResult> CreateAsync(string userId, string userNm, string passwordHash, string? empNo)
+    public async Task<ProcResult> CreateAsync(string userId, string userNm, string passwordHash, string? empNo, string? email)
     {
         using var conn = _context.CreateConnection();
         var p = new DynamicParameters();
@@ -82,13 +86,14 @@ public class UserManageRepository : IUserManageRepository
         p.Add("p_user_nm", userNm);
         p.Add("p_password_hash", passwordHash);
         p.Add("p_emp_no", empNo);
+        p.Add("p_email", email);
         p.AddStandardOutputs(withGeneratedCode: true, pascalCase: true);
 
         await conn.ExecuteAsync("USP_SM_USERAUTH_S", p, commandType: CommandType.StoredProcedure);
         return p.ReadStandardOutputs(withGeneratedCode: true, pascalCase: true);
     }
 
-    public async Task<ProcResult> UpdateAsync(string userId, string userNm, string? empNo, bool useYn)
+    public async Task<ProcResult> UpdateAsync(string userId, string userNm, string? empNo, string? email, bool useYn)
     {
         using var conn = _context.CreateConnection();
         var p = new DynamicParameters();
@@ -96,11 +101,25 @@ public class UserManageRepository : IUserManageRepository
         p.Add("p_user_id", userId);
         p.Add("p_user_nm", userNm);
         p.Add("p_emp_no", empNo);
+        p.Add("p_email", email);
         p.Add("p_use_yn", useYn ? "Y" : "N");
         p.AddStandardOutputs(withGeneratedCode: true, pascalCase: true);
 
         await conn.ExecuteAsync("USP_SM_USERAUTH_S", p, commandType: CommandType.StoredProcedure);
         return p.ReadStandardOutputs(withGeneratedCode: true, pascalCase: true);
+    }
+
+    public async Task<ProcResult> ChangePasswordAsync(string userId, string newPasswordHash)
+    {
+        using var conn = _context.CreateConnection();
+        var p = new DynamicParameters();
+        p.Add("p_work_type", "U");
+        p.Add("p_user_id", userId);
+        p.Add("p_password_hash", newPasswordHash);
+        p.AddStandardOutputs(pascalCase: true);
+
+        await conn.ExecuteAsync("USP_SM_USERAUTH_S_3", p, commandType: CommandType.StoredProcedure);
+        return p.ReadStandardOutputs(pascalCase: true);
     }
 
     /// <summary>물리삭제 대신 USE_YN='N' 처리 - 이력/참조무결성 보존을 위한 표준 삭제 방식(work_type='D')</summary>

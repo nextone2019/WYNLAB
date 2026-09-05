@@ -15,7 +15,7 @@ namespace WYNLAB.Base;
 public class ApiCallLogEntry
 {
     public DateTime Timestamp { get; set; }
-    public string MenuCd { get; set; } = string.Empty;
+    public string MenuId { get; set; } = string.Empty;
     public string ProcName { get; set; } = string.Empty;
     public Dictionary<string, string?> Params { get; set; } = new();
     public bool Success { get; set; }
@@ -63,14 +63,14 @@ public static class ApiCallLog
 
     public static BindingList<ApiCallLogEntry> Entries { get; } = new();
 
-    public static void Record(string menuCd, string procName, Dictionary<string, string?> callParams, bool success, string? message, long durationMs)
+    public static void Record(string menuId, string procName, Dictionary<string, string?> callParams, bool success, string? message, long durationMs)
     {
         if (!IsCapturing) return;
 
         Entries.Add(new ApiCallLogEntry
         {
             Timestamp = DateTime.Now,
-            MenuCd = menuCd,
+            MenuId = menuId,
             ProcName = procName,
             Params = callParams,
             Success = success,

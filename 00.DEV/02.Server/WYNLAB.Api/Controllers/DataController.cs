@@ -88,14 +88,14 @@ public class DataController : ControllerBase
     /// </summary>
     private async Task<ActionResult?> ValidateAsync(DataRequest request, MenuAction action)
     {
-        if (string.IsNullOrWhiteSpace(request.MenuCd) || string.IsNullOrWhiteSpace(request.ProcName))
-            return BadRequest(new ApiResult { Success = false, Message = "메뉴코드와 프로시저명은 필수입니다." });
+        if (request.MenuId <= 0 || string.IsNullOrWhiteSpace(request.ProcName))
+            return BadRequest(new ApiResult { Success = false, Message = "메뉴ID와 프로시저명은 필수입니다." });
 
         if (string.IsNullOrEmpty(CurrentUserId)) return Unauthorized();
 
-        // ① 메뉴 권한 - RequireMenuPermissionAttribute가 하던 검사와 같되, 메뉴코드가 요청에
+        // ① 메뉴 권한 - RequireMenuPermissionAttribute가 하던 검사와 같되, 메뉴ID가 요청에
         //    담겨 오므로 런타임에 확인한다.
-        var permission = await _permissions.GetEffectivePermissionAsync(CurrentUserId, request.MenuCd);
+        var permission = await _permissions.GetEffectivePermissionAsync(CurrentUserId, request.MenuId);
         var allowed = permission != null && action switch
         {
             MenuAction.View => permission.ViewYn,
@@ -111,7 +111,7 @@ public class DataController : ControllerBase
 
         // ② 프로시저 화이트리스트 - 그 메뉴에 등록된 접두사로 시작하는 프로시저만 실행할 수 있다.
         //    이게 없으면 권한 있는 메뉴 하나만 가지고 아무 프로시저나 부를 수 있게 된다.
-        var prefix = await _repo.GetProcPrefixAsync(request.MenuCd);
+        var prefix = await _repo.GetProcPrefixAsync(request.MenuId);
         if (string.IsNullOrWhiteSpace(prefix))
             return Forbid(new ApiResult { Success = false, Message = "이 메뉴는 범용 데이터 통로를 사용하도록 설정되어 있지 않습니다." });
 

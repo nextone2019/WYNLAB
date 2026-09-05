@@ -26,7 +26,6 @@ public partial class frmAcc : BaseForm
         InitializeComponent();
 
         Text = "사업장등록";
-        MenuCd = "BA_ACC";
 
         gvw1.FocusedRowObjectChanged += Gvw1_FocusedRowObjectChanged;
 

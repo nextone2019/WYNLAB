@@ -6,19 +6,20 @@ namespace WYNLAB.Api.Repositories.SM;
 
 public class MenuRow
 {
-    public string MenuCd { get; set; } = string.Empty;
+    public long MenuId { get; set; }
     public string MenuNm { get; set; } = string.Empty;
-    public string? UpperMenuCd { get; set; }
+    public long? UpperMenuId { get; set; }
     public int MenuLevel { get; set; }
     public string MenuType { get; set; } = "FORM";
-    public string? FormClassNm { get; set; }
+    public string? Module { get; set; }
+    public string? ScreenClassNm { get; set; }
     public string? IconNm { get; set; }
     public int SortOrder { get; set; }
 }
 
 public class MenuAuthRow
 {
-    public string MenuCd { get; set; } = string.Empty;
+    public long MenuId { get; set; }
     public string AuthTargetType { get; set; } = string.Empty; // USER / GRP
     public string AuthTargetCd { get; set; } = string.Empty;
     public string ViewYn { get; set; } = "N";
