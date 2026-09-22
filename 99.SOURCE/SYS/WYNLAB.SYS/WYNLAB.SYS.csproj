@@ -48,6 +48,9 @@
     <Reference Include="DevExpress.XtraLayout.v21.2">
       <HintPath>C:\Program Files (x86)\DevExpress 21.2\Components\Bin\Framework\DevExpress.XtraLayout.v21.2.dll</HintPath>
     </Reference>
+    <Reference Include="DevExpress.XtraTreeList.v21.2">
+      <HintPath>C:\Program Files (x86)\DevExpress 21.2\Components\Bin\Framework\DevExpress.XtraTreeList.v21.2.dll</HintPath>
+    </Reference>
   </ItemGroup>
 
   <ItemGroup>
@@ -61,6 +64,11 @@
     </Reference>
     <Reference Include="WYNLAB.Shared">
       <HintPath>..\..\..\00.DEV\03.Shared\WYNLAB.Shared\bin\Debug\netstandard2.0\WYNLAB.Shared.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <!-- 파일첨부/전자결재 등 공용 팝업(어떤 모듈에도 속하지 않는 화면) - 00.DEV/MODULE_ARCHITECTURE.md -->
+    <Reference Include="WYNLAB.Popup">
+      <HintPath>..\..\POPUP\WYNLAB.Popup\bin\Debug\net48\WYNLAB.Popup.dll</HintPath>
       <Private>false</Private>
     </Reference>
   </ItemGroup>
@@ -96,6 +104,16 @@
     </Compile>
     <EmbeddedResource Update="frmAIBuilder\frmAIBuilder.resx">
       <DependentUpon>frmAIBuilder.cs</DependentUpon>
+    </EmbeddedResource>
+
+    <Compile Update="frmProcBuilder\frmProcBuilder.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="frmProcBuilder\frmProcBuilder.Designer.cs">
+      <DependentUpon>frmProcBuilder.cs</DependentUpon>
+    </Compile>
+    <EmbeddedResource Update="frmProcBuilder\frmProcBuilder.resx">
+      <DependentUpon>frmProcBuilder.cs</DependentUpon>
     </EmbeddedResource>
 
     <Compile Update="Properties\Resources.Designer.cs">

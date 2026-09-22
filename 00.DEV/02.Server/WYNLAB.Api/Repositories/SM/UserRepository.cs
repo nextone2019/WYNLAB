@@ -10,8 +10,12 @@ public class UserRow
     public string UserId { get; set; } = string.Empty;
     public string UserNm { get; set; } = string.Empty;
     public string? EmpNo { get; set; }
-    public string? DeptCd { get; set; }
     public string? DeptNm { get; set; }
+    /// <summary>TSMUSER.ACC_ID(TBAACC 참조, 2026-09-08 추가) - 로그인 세션에 사업장을 실어 보내기
+    /// 위함(BA 모듈 저장프로시저들의 "로그인 세션에 사업장 생기면 채우도록 전환" TODO가 이 값을
+    /// 쓰라는 뜻).</summary>
+    public long? AccId { get; set; }
+    public string? AccNm { get; set; }
     public string PasswordHash { get; set; } = string.Empty;
     public string? Email { get; set; }
     public string UseYn { get; set; } = "Y";
@@ -75,7 +79,7 @@ public class UserRepository : IUserRepository
         p.Add("p_user_id", userId);
         p.AddStandardOutputs(pascalCase: true);
 
-        await conn.ExecuteAsync("USP_SM_LOGIN_S", p, commandType: CommandType.StoredProcedure);
+        await conn.ExecuteAsync("SSP_SYS_LOGIN_S", p, commandType: CommandType.StoredProcedure);
         return p.ReadStandardOutputs(pascalCase: true);
     }
 
@@ -87,7 +91,7 @@ public class UserRepository : IUserRepository
         p.Add("p_user_id", userId);
         p.AddStandardOutputs(pascalCase: true);
 
-        await conn.ExecuteAsync("USP_SM_LOGIN_S_1", p, commandType: CommandType.StoredProcedure);
+        await conn.ExecuteAsync("SSP_SYS_LOGIN_S_1", p, commandType: CommandType.StoredProcedure);
         return p.ReadStandardOutputs(pascalCase: true);
     }
 
@@ -102,7 +106,7 @@ public class UserRepository : IUserRepository
         p.Add("p_result_cd", resultCd);
         p.AddStandardOutputs(pascalCase: true);
 
-        await conn.ExecuteAsync("USP_SM_LOGIN_S_2", p, commandType: CommandType.StoredProcedure);
+        await conn.ExecuteAsync("SSP_SYS_LOGIN_S_2", p, commandType: CommandType.StoredProcedure);
         return p.ReadStandardOutputs(pascalCase: true);
     }
 }

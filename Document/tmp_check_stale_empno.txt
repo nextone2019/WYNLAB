@@ -1,0 +1,152 @@
+﻿USP_BA_CUST_Q /* ---------- emp_no -> EMP_ID 완전 전환(089)에 맞춰 관련 프로시저 전부 수정 ----------
+   TBACUST/TBAITEM의 목록/리스트 조회는 TBAEMP를 EMP_ID로 조인해서 emp_nm을 같이 보여준다
+   (읽기전용 그리드라 이름으로 보여주는 게 낫다 - DEPT_ID/frmItemList 때와 같은 논리).
+   상세입력 필드(txtDetailEmpNo/txtEmpNo)는 여전히 원시 ID를 입력받는 텍스트박스 그대로 둔다
+   (팝업 작업은 사장님이 frmCust/frmItem에 직접 하겠다고 함 - 여긴 DB 배관만 정리).
+   USP_SM_USERAUTH_S는 이제 EMP_ID를 그대로 받아 저장한다(더는 emp_no로 TBAEMP를 찾아
+   내부에서 변환할 필요 없음 - 화면이 팝업에서 고른 EMP_ID를 직접 넘겨준다). */
+
+CREATE   PROCEDURE USP_BA_CUST_Q
+    @p_work_type VARCHAR(50),
+    ---------------------------------------------------------------------------------------------------
+    @p_cust_id BIGINT = NULL,
+    @p_cust_nm NVARCHAR(100) = NULL,
+    ---------------------------------------------------------------------------------------------------
+    @GeneratedCode VARCHAR(20) = NULL OUTPUT,
+    @ReturnCode INT = 0 OUTPUT,
+    @ReturnMsg NVARCHAR(200) = NULL OUTPUT,
+    @ErrorCode INT = 0 OUTPUT,
+    @ErrorMsg NVARCHAR(500) = NULL OUTPUT
+AS
+BEGIN
+    SET NOCOUNT ON;
+    SET @ReturnCode = 0; SET @ReturnMsg = N'성공'; SET @ErrorCode = 0; SET @ErrorMsg = NULL;
+
+    BEGIN TRY
+        IF @p_work_type = 'Q'
+        BEGIN
+            SELECT
+                a.CUST_ID, a.cust_nm, a.biz_no, a.tel, a.cur_cd, a.owner_nm, a.zip_code, a.addr1, a.addr2,
+                a.homepage, a.email, a.fax, a.biz_kind, a.biz_type, a.trans_open_date, a.vat_type, a.vat_rate,
+                a.remark, a.stat_cd, a.EMP_ID, b.emp_nm
+            FROM TBACUST a
+            LEFT JOIN TBAEMP b ON a.EMP_ID = b.EMP_ID
+            WHERE (@p_cust_id IS NULL OR a.CUST_ID = @p_cust_id)
+              AND (@p_cust_nm IS NULL OR a.cust_nm LIKE '%' + @p_cust_nm + '%')
+            ORDER BY a.CUST_ID;
+        END
+        ELSE IF @p_work_type = 'Q1'
+        BEGIN
+            SELECT CUST_ID, serl, prsn_nm, grade, tel1, tel2, fax, email
+            FROM TBACUSTPRSN
+            WHERE CUST_ID = @p_cust_id
+            ORDER BY serl;
+
+            SELECT CUST_ID, serl, bank_cd, acnt_no, remark
+            FROM TBACUSTACNT
+            WHERE CUST_ID = @p_cust_id
+            ORDER BY serl;
+        END
+    END TRY
+    BEGIN CATCH
+        SET @ReturnCode = -1;
+        SET @ReturnMsg = N'처리 중 오류가 발생했습니다.';
+        SET @ErrorCode = ERROR_NUMBER();
+        SET @ErrorMsg = ERROR_MESSAGE();
+    END CATCH
+END
+
+SSP_WYNLAB_GetSession 
+CREATE   PROCEDURE SSP_WYNLAB_GetSession
+    @p_work_type VARCHAR(50),
+    @p_user_id VARCHAR(20),
+    @GeneratedCode VARCHAR(50) = NULL OUTPUT,
+    @ReturnCode INT = 0 OUTPUT,
+    @ReturnMsg NVARCHAR(200) = NULL OUTPUT,
+    @ErrorCode INT = 0 OUTPUT,
+    @ErrorMsg NVARCHAR(500) = NULL OUTPUT
+AS
+BEGIN
+    SET NOCOUNT ON;
+    SET @ReturnCode = 0; SET @ReturnMsg = N'성공'; SET @ErrorCode = 0; SET @ErrorMsg = NULL;
+
+    BEGIN TRY
+        IF @p_work_type = 'Q'
+        BEGIN
+            SELECT
+                U.USER_ID       AS UserId,
+                U.USER_NM       AS UserNm,
+                E.emp_no        AS EmpNo,
+                D.DEPT_NM       AS DeptNm,
+                U.PASSWORD_HASH AS PasswordHash,
+                U.EMAIL         AS Email,
+                U.USE_YN        AS UseYn,
+                U.DEVELOPER_YN  AS DeveloperYn,
+                U.USER_TYPE     AS UserType,
+                U.PWD_FAIL_CNT  AS PwdFailCnt,
+                U.MUST_CHANGE_PWD_YN AS MustChangePwdYn
+            FROM TSMUSER U
+            LEFT JOIN TBAEMP E ON E.EMP_ID = U.EMP_ID
+            LEFT JOIN TBADEPT D ON D.DEPT_ID = E.DEPT_ID
+            WHERE U.USER_ID = @p_user_id;
+
+            SELECT USER_GRP_CD
+            FROM TSMUSERGRPMAP
+            WHERE USER_ID = @p_user_id;
+        END
+    END TRY
+    BEGIN CATCH
+        SET @ReturnCode = -1;
+        SET @ReturnMsg = N'처리 중 오류가 발생했습니다.';
+        SET @ErrorCode = ERROR_NUMBER();
+        SET @ErrorMsg = ERROR_MESSAGE();
+    END CATCH
+END
+
+USP_SM_USERAUTH_Q 
+CREATE   PROCEDURE [dbo].[USP_SM_USERAUTH_Q]
+    @p_work_type VARCHAR(50),
+    @p_user_id VARCHAR(20) = NULL,
+    @p_user_nm NVARCHAR(50) = NULL,
+    @GeneratedCode VARCHAR(50) = NULL OUTPUT,
+    @ReturnCode INT = 0 OUTPUT,
+    @ReturnMsg NVARCHAR(200) = NULL OUTPUT,
+    @ErrorCode INT = 0 OUTPUT,
+    @ErrorMsg NVARCHAR(500) = NULL OUTPUT
+AS
+BEGIN
+    SET NOCOUNT ON;
+    SET @ReturnCode = 0; SET @ReturnMsg = N'성공'; SET @ErrorCode = 0; SET @ErrorMsg = NULL;
+
+    BEGIN TRY
+        IF @p_work_type = 'Q'
+        BEGIN
+            SELECT  U.USER_ID AS UserId,
+                        U.USER_NM AS UserNm,
+                        U.EMP_ID AS EmpId,
+                        E.emp_no AS EmpNo,
+                        E.EMP_NM AS EmpNm,
+                        D.DEPT_NM AS DeptNm,
+                        U.EMAIL AS Email,
+                        U.USE_YN AS UseYn,
+                        U.DEVELOPER_YN AS DeveloperYn,
+                        U.USER_TYPE AS UserType,
+                        U.LAST_LOGIN_DT AS LastLoginDt
+            FROM    TSMUSER U
+                        LEFT JOIN TBAEMP E ON E.EMP_ID = U.EMP_ID
+                        LEFT JOIN TBADEPT D ON D.DEPT_ID = E.DEPT_ID
+            WHERE (@p_user_id IS NULL OR U.USER_ID LIKE '%' + @p_user_id + '%')
+              AND (@p_user_nm IS NULL OR U.USER_NM LIKE '%' + @p_user_nm + '%')
+            ORDER BY U.REG_DT DESC;
+        END
+    END TRY
+    BEGIN CATCH
+        SET @ReturnCode = -1;
+        SET @ReturnMsg = N'처리 중 오류가 발생했습니다.';
+        SET @ErrorCode = ERROR_NUMBER();
+        SET @ErrorMsg = ERROR_MESSAGE();
+    END CATCH
+END
+
+
+(3개 행 적용됨)

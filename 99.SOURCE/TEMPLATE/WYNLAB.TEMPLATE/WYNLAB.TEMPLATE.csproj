@@ -42,11 +42,15 @@
     <Reference Include="DevExpress.XtraLayout.v21.2">
       <HintPath>C:\Program Files (x86)\DevExpress 21.2\Components\Bin\Framework\DevExpress.XtraLayout.v21.2.dll</HintPath>
     </Reference>
+    <Reference Include="DevExpress.XtraTreeList.v21.2">
+      <HintPath>C:\Program Files (x86)\DevExpress 21.2\Components\Bin\Framework\DevExpress.XtraTreeList.v21.2.dll</HintPath>
+    </Reference>
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\..\..\00.DEV\01.Client\WYNLAB.BaseForm\WYNLAB.BaseForm.csproj" />
     <ProjectReference Include="..\..\..\00.DEV\01.Client\WYNLAB.Controls\WYNLAB.Controls.csproj" />
+    <ProjectReference Include="..\..\POPUP\WYNLAB.Popup\WYNLAB.Popup.csproj" />
     <ProjectReference Include="..\..\..\00.DEV\03.Shared\WYNLAB.Shared\WYNLAB.Shared.csproj" />
   </ItemGroup>
 
@@ -59,11 +63,25 @@
     <Compile Remove="TplMasterFormSubGrid - 복사.Designer.cs" />
     <EmbeddedResource Remove="TplMasterFormSubGrid - 복사.resx" />
 
+    <!-- "- 복사(2).Designer.cs"도 마찬가지 - 위와 같은 이유로 컴파일에서 뺀다(2026-09-06
+         발견: 아래 있던 <Compile Update>만으로는 안 빠지고 그대로 컴파일에 들어가서 진짜
+         TplMasterFormSubGrid.Designer.cs와 전 필드/메서드가 중복정의로 충돌했다 - 원인이
+         TplMasterOneSheet 쪽인 줄 알았는데 실제로는 이 파일이었다). -->
+    <Compile Remove="TplMasterFormSubGrid - 복사(2).Designer.cs" />
+
     <Compile Update="Properties\Resources.Designer.cs">
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
+
+    <Compile Update="TplMasterOneSheet.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="TplMasterOneSheet.Designer.cs">
+      <DependentUpon>TplMasterOneSheet.cs</DependentUpon>
+    </Compile>
+
     <Compile Update="TplSingleGrid.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -85,11 +103,11 @@
       <DependentUpon>TplMasterFormSubGrid.cs</DependentUpon>
     </Compile>
 
-    <Compile Update="TplMasterFormTabGrid.cs">
+    <Compile Update="TplTreeMasterSubGrid.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Update="TplMasterFormTabGrid.Designer.cs">
-      <DependentUpon>TplMasterFormTabGrid.cs</DependentUpon>
+    <Compile Update="TplTreeMasterSubGrid.Designer.cs">
+      <DependentUpon>TplTreeMasterSubGrid.cs</DependentUpon>
     </Compile>
   </ItemGroup>
 

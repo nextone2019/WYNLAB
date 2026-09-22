@@ -26,6 +26,11 @@ public partial class ForgotPasswordForm : XtraForm
     /// <summary>성공하면 여기 로그인된 응답이 담긴다 - LoginForm이 이 값으로 그대로 ShellForm을 연다.</summary>
     public LoginResponse? Result { get; private set; }
 
+    /// <summary>Result와 함께 채워지는 로그인 자격증명 - LoginForm이 SessionManager에 기억시켜서,
+    /// 이후 서비스 전환 시 재로그인 화면 없이 재사용할 수 있게 한다.</summary>
+    public string? ResultUserId { get; private set; }
+    public string? ResultPassword { get; private set; }
+
     private const int FormX = 24;
     private const int FieldWidth = 312;
 
@@ -179,6 +184,8 @@ public partial class ForgotPasswordForm : XtraForm
             }
 
             Result = response;
+            ResultUserId = txtUserId.Text.Trim();
+            ResultPassword = txtNewPassword.Text;
             DialogResult = DialogResult.OK;
             Close();
         }

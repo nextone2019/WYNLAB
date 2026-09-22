@@ -153,13 +153,17 @@ public class ButtonWyn : Control
         var fill = !Enabled ? DisabledFill : _pressed ? PressedColor : _hover ? HoverColor : FillColor;
         var border = !Enabled ? DisabledBorder : BorderColor;
 
-        var rect = new Rectangle(0, 0, Width - 1, Height - 1);
+        // (0,0,Width-1,Height-1)로 두면 원점(0,0)에서 시작하는 사각형이라 좌/상단은 컨트롤
+        // 경계에 딱 붙지만 우/하단은 1px 못 미친 지점(Width-1, Height-1)에서 끝난다 - 그 1px
+        // 틈은 채움도 테두리도 안 그리는 미착색 영역으로 남아서, 부모(PanelWyn, 순백색이 아닌
+        // DevExpress 스킨 배경)가 그대로 비쳐 보인다(2026-09-06 실제 발견 - "우측/하단만 진하게
+        // 보인다"는 증상의 진짜 원인. Inset 정렬 자체는 문제가 아니었다). 네 변 다 동일하게
+        // 컨트롤 경계까지 꽉 채우도록 Width/Height 그대로 쓴다 - Inset 정렬 펜은 경로 안쪽에만
+        // 그려지는 게 보장되므로 클리핑 방지용 여백이 애초에 필요 없다.
+        var rect = new Rectangle(0, 0, Width, Height);
         using (var path = RoundedRect(rect, CornerRadius))
         {
             using (var brush = new SolidBrush(fill)) g.FillPath(brush, path);
-            // Pen이 기본값(경로 중앙 정렬)이면 안티앨리어싱 때문에 테두리 바깥쪽 절반이 배경색과
-            // 섞여 우측/하단 모서리에 그림자처럼 번져 보인다(2026-09-04 실제 발견) - Inset으로
-            // 펜 전체를 경로 안쪽에만 그려서 또렷하게 만든다.
             using (var pen = new Pen(border) { Alignment = PenAlignment.Inset }) g.DrawPath(pen, path);
         }
 

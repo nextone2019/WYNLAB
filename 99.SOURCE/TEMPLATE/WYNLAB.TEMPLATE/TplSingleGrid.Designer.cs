@@ -15,6 +15,7 @@
 // 확인할 것 - 사라졌으면 저장을 취소하고 이 파일을 원본에서 다시 시작하는 게 안전하다.
 // @AI_BUILDER:END FILE_HEADER
 #nullable disable
+using WYNLAB.Base;
 using WYNLAB.Base.Controls;
 
 namespace WYNLAB.TEMPLATE;
@@ -146,7 +147,6 @@ public partial class TplSingleGrid
             this.sectionHeaderWyn1.Location = new System.Drawing.Point(5, 0);
             this.sectionHeaderWyn1.Name = "sectionHeaderWyn1";
             this.sectionHeaderWyn1.Size = new System.Drawing.Size(259, 25);
-            this.sectionHeaderWyn1.SvgIcon = ((DevExpress.Utils.Svg.SvgImage)(resources.GetObject("sectionHeaderWyn1.SvgIcon")));
             this.sectionHeaderWyn1.TabIndex = 8;
             this.sectionHeaderWyn1.Text = "FormName [frm]";
             // 

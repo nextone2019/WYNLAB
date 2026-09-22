@@ -57,15 +57,29 @@ function Build-Release([string]$ProjectOrSolution) {
     if ($LASTEXITCODE -ne 0) { throw "빌드 실패: $ProjectOrSolution" }
 }
 
-Write-Host "=== 2) CoreAssembly (BaseForm/Shared/Controls) ===" -ForegroundColor Cyan
+Write-Host "=== 2) CoreAssembly (BaseForm/Shared/Controls/Popup) ===" -ForegroundColor Cyan
 Build-Release "$root\01.Client\WYNLAB.BaseForm\WYNLAB.BaseForm.csproj"
 Build-Release "$root\01.Client\WYNLAB.Controls\WYNLAB.Controls.csproj"
 Build-Release "$root\03.Shared\WYNLAB.Shared\WYNLAB.Shared.csproj"
+# 파일첨부/전자결재 등 공용 팝업 - 어떤 모듈에도 속하지 않아 BaseForm 옆의 별도 프로젝트로 뒀다
+# (2026-09-12, 00.DEV/MODULE_ARCHITECTURE.md 참고). BaseForm/Controls/Shared을 참조하므로 그
+# 다음에 빌드한다. 2026-09-12에 99.SOURCE\POPUP\WYNLAB.Popup으로 옮겨졌다(사장님이 직접 옮김) -
+# 다른 화면 모듈과 같은 자리라 $legacySourceRoot 기준으로 찾는다(위 $moduleDirs 스캔과 같은 이유).
+# 폴더 위치만 옮겼을 뿐 Modules\가 아니라 CoreAssembly\로 배포되는 건 그대로다 - 그래서 아래
+# 모듈 스캔 루프(99.SOURCE 밑 전부 훑는 $moduleDirs)에 잡히지 않도록 .sln을 일부러 안 만든다.
+$popupProj = "$legacySourceRoot\99.SOURCE\POPUP\WYNLAB.Popup"
+Build-Release "$popupProj\WYNLAB.Popup.csproj"
 
 Copy-Item "$root\01.Client\WYNLAB.BaseForm\bin\Release\net48\WYNLAB.BaseForm.dll" "$deploy\CoreAssembly\" -Force
 Copy-Item "$root\01.Client\WYNLAB.BaseForm\bin\Release\net48\WYNLAB.BaseForm.pdb" "$deploy\CoreAssembly\" -Force -ErrorAction SilentlyContinue
 Copy-Item "$root\01.Client\WYNLAB.Controls\bin\Release\net48\WYNLAB.Controls.dll" "$deploy\CoreAssembly\" -Force
 Copy-Item "$root\03.Shared\WYNLAB.Shared\bin\Release\netstandard2.0\WYNLAB.Shared.dll" "$deploy\CoreAssembly\" -Force
+Copy-Item "$popupProj\bin\Release\net48\WYNLAB.Popup.dll" "$deploy\CoreAssembly\" -Force
+Copy-Item "$popupProj\bin\Release\net48\WYNLAB.Popup.pdb" "$deploy\CoreAssembly\" -Force -ErrorAction SilentlyContinue
+# popFileUpload.resx의 SvgIcon 리소스를 읽는 데 런타임에 필요(WYNLAB.SM.csproj 등 모듈 dll과
+# 같은 이유) - 모듈 폴더에 이미 있어도, CoreAssembly 쪽에서 Popup.dll을 먼저 로드하는 상황을
+# 대비해 여기도 챙겨둔다.
+Copy-Item "$popupProj\bin\Release\net48\System.Resources.Extensions.dll" "$deploy\CoreAssembly\" -Force -ErrorAction SilentlyContinue
 
 # 서버 Assets 폴더(관리자가 아이콘 이미지를 직접 올리는 곳)는 이 스크립트가 다루지 않으므로,
 # 그쪽 manifest.json을 만들 수 있도록 생성 스크립트를 같이 넣어둔다.
@@ -82,7 +96,13 @@ Write-Host "=== 3) 화면 모듈 (99.SOURCE\{모듈코드}\, 예: SM/BA) ===" -F
 # 명시적으로 제외한다. VS에서 그 폴더를 열면 WYNLAB.TEMPLATE.sln이 자동 생성되는데, 그러면 이 스캔이
 # 그걸 진짜 모듈로 오인해서 같이 빌드·배포해버린다(실제로 겪음, 2026-09-03) - 어떤 메뉴도 이 화면을
 # 가리키지 않으니 기능상 문제는 없지만, "TEMPLATE은 설계전용, 배포 안 함"이라는 설계 의도와 어긋난다.
-$moduleDirs = Get-ChildItem "$legacySourceRoot\99.SOURCE" -Directory | Where-Object { $_.Name -ne "TEMPLATE" }
+#
+# 99.SOURCE\POPUP(WYNLAB.Popup, 2026-09-12에 00.DEV\01.Client에서 여기로 이동)도 같은 이유로
+# 제외한다 - 위 CoreAssembly 단계에서 이미 빌드+CoreAssembly\로 배포했다. 여기서 또 스캔되면
+# Modules\POPUP\에 중복 배포되는데, ModuleLoader는 이 dll을 메뉴 화면처럼 런타임에 찾지 않고
+# 모든 모듈이 컴파일타임에 직접 참조하므로(HintPath) Modules\ 쪽 사본은 그냥 죽은 파일이 된다.
+$moduleDirs = Get-ChildItem "$legacySourceRoot\99.SOURCE" -Directory |
+    Where-Object { $_.Name -ne "TEMPLATE" -and $_.Name -ne "POPUP" }
 
 foreach ($moduleDir in $moduleDirs) {
     $moduleCd = $moduleDir.Name # 예: SM, BA
@@ -117,6 +137,18 @@ foreach ($moduleDir in $moduleDirs) {
         $resExt = Join-Path $srcDir "System.Resources.Extensions.dll"
         if (Test-Path $resExt) {
             Copy-Item $resExt "$deploy\Modules\" -Force
+        }
+
+        # 출력물(XtraReports) 참조를 쓰는 화면이 있으면(현재 GW) 같은 이유로 Modules\ 바로 밑에
+        # 한 벌만 둔다 - ModuleLoader.OnAssemblyResolve가 재귀 탐색으로 찾아준다. frmItemMulti의
+        # 엑셀 업로드(SpreadsheetControl)가 쓰는 3개도 같은 이유로 추가함(2026-09-16). frmSchedule의
+        # 캘린더(SchedulerControl)가 쓰는 3개도 동일(2026-09-17) - 처음 배포 때 이 목록에 못 넣어서
+        # Modules\ 루트에 안 올라갔던 걸 실제로 겪고 나서 추가함.
+        foreach ($reportDll in @("DevExpress.Printing.v21.2.Core.dll", "DevExpress.XtraPrinting.v21.2.dll", "DevExpress.XtraReports.v21.2.dll", "DevExpress.XtraReports.v21.2.Extensions.dll", "DevExpress.Spreadsheet.v21.2.Core.dll", "DevExpress.XtraSpreadsheet.v21.2.dll", "DevExpress.Office.v21.2.Core.dll", "DevExpress.XtraScheduler.v21.2.dll", "DevExpress.XtraScheduler.v21.2.Core.dll", "DevExpress.XtraScheduler.v21.2.Core.Desktop.dll")) {
+            $src = Join-Path $srcDir $reportDll
+            if (Test-Path $src) {
+                Copy-Item $src "$deploy\Modules\" -Force
+            }
         }
     }
 }
@@ -193,6 +225,13 @@ if ($IncludeShell) {
         # 코드로 물려주기 때문에, 이걸 안 지우면 배포가 멀쩡히 끝났는데도 "종료 코드 1 = 실패"로
         # 보인다(실제로 겪음). 여기까지 왔다는 건 이미 성공이므로 0으로 되돌린다.
         $global:LASTEXITCODE = 0
+
+        # WYNLAB.application로 직접 안 들어가도 되게, 설치 링크가 있는 안내 페이지를 같이 넣는다
+        # (MSBuild ClickOnce 게시 대상이 아니라서 위 robocopy /MIR가 안 건드림 - 그래서 매번
+        # 이 시점에 따로 복사해야 다음 배포에서도 안 사라진다). IIS 기본 문서로 등록해두면
+        # 사이트 루트 주소만으로 이 페이지가 뜬다(SERVER_SETUP.md 참고).
+        Copy-Item "$shellDir\index.html" "$deploy\ClickOnce\" -Force
+
         Write-Host "  게시 버전: $version (필수 업데이트 - 클라이언트가 건너뛸 수 없음)"
     }
     finally {
@@ -210,6 +249,7 @@ if ($IncludeShell) {
     Copy-Item "$shellDir\bin\Release\net48\WYNLAB.BaseForm.dll" "$deploy\CoreAssembly\" -Force
     Copy-Item "$shellDir\bin\Release\net48\WYNLAB.Controls.dll" "$deploy\CoreAssembly\" -Force
     Copy-Item "$shellDir\bin\Release\net48\WYNLAB.Shared.dll" "$deploy\CoreAssembly\" -Force
+    Copy-Item "$shellDir\bin\Release\net48\WYNLAB.Popup.dll" "$deploy\CoreAssembly\" -Force
     Copy-Item "$shellDir\bin\Release\net48\WYNLAB.BaseForm.pdb" "$deploy\CoreAssembly\" -Force -ErrorAction SilentlyContinue
 }
 

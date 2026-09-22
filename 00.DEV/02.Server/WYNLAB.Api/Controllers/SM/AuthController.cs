@@ -17,8 +17,13 @@ namespace WYNLAB.Api.Controllers.SM;
 public class AuthController : ControllerBase
 {
     private readonly IAuthService _authService;
+    private readonly IMenuPermissionService _menuPermissionService;
 
-    public AuthController(IAuthService authService) => _authService = authService;
+    public AuthController(IAuthService authService, IMenuPermissionService menuPermissionService)
+    {
+        _authService = authService;
+        _menuPermissionService = menuPermissionService;
+    }
 
     /// <summary>
     /// WinForms Shell의 LoginForm이 호출하는 로그인 엔드포인트.
@@ -80,5 +85,21 @@ public class AuthController : ControllerBase
 
         var result = await _authService.ChangePasswordAsync(userId, request.CurrentPassword, request.NewPassword);
         return Ok(result);
+    }
+
+    /// <summary>
+    /// 로그인 상태 그대로 메뉴권한만 다시 받아온다(ShellForm의 "메뉴 새로고침") - 로그인할 때
+    /// 쓰는 것과 같은 계산 로직(IMenuPermissionService)을 그대로 재사용한다. 새로 등록된 메뉴를
+    /// 보려고 재로그인(아이디/비번 재입력)할 필요 없이, 세션 메뉴 캐시만 바꿔치기할 때 쓴다.
+    /// </summary>
+    [HttpGet("menus")]
+    [Authorize]
+    public async Task<ActionResult<List<MenuDto>>> GetMyMenus()
+    {
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (string.IsNullOrEmpty(userId)) return Unauthorized();
+
+        var menus = await _menuPermissionService.GetEffectivePermissionsAsync(userId);
+        return Ok(menus);
     }
 }

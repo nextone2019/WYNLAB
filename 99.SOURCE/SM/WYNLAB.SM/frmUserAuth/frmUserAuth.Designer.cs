@@ -80,8 +80,13 @@ public partial class frmUserAuth
             this.gridColumn1 = new DevExpress.XtraGrid.Columns.GridColumn();
             this.gridColumn2 = new DevExpress.XtraGrid.Columns.GridColumn();
             this.gridColumn11 = new DevExpress.XtraGrid.Columns.GridColumn();
-            this.lookUpColumnEdit1 = new WYNLAB.Base.Controls.LookUpColumnEdit();
+            this.lookUpColumnEdit3 = new WYNLAB.Base.Controls.LookUpColumnEdit();
             this.gridColumn12 = new DevExpress.XtraGrid.Columns.GridColumn();
+            this.lookUpColumnEdit4 = new WYNLAB.Base.Controls.LookUpColumnEdit();
+            this.gridColumn14 = new DevExpress.XtraGrid.Columns.GridColumn();
+            this.gridColumn15 = new DevExpress.XtraGrid.Columns.GridColumn();
+            this.gridColumn16 = new DevExpress.XtraGrid.Columns.GridColumn();
+            this.lookUpColumnEdit1 = new WYNLAB.Base.Controls.LookUpColumnEdit();
             this.lookUpColumnEdit2 = new WYNLAB.Base.Controls.LookUpColumnEdit();
             this.panelWyn19 = new WYNLAB.Base.Controls.PanelWyn();
             this.sectionHeaderWyn7 = new WYNLAB.Base.Controls.SectionHeaderWyn();
@@ -90,6 +95,8 @@ public partial class frmUserAuth
             this.panelWyn16 = new WYNLAB.Base.Controls.PanelWyn();
             this.labelControl10 = new DevExpress.XtraEditors.LabelControl();
             this.cboUserType = new WYNLAB.Base.Controls.LookUpEditWyn();
+            this.labelControlAcc = new DevExpress.XtraEditors.LabelControl();
+            this.cboAccCd = new WYNLAB.Base.Controls.LookUpEditWyn();
             this.cboUseYn = new WYNLAB.Base.Controls.LookUpEditWyn();
             this.txtEmpNm = new WYNLAB.Base.Controls.PopupLookupEditWyn();
             this.chkDeveloperYn = new WYNLAB.Base.Controls.CheckBoxWyn();
@@ -98,7 +105,6 @@ public partial class frmUserAuth
             this.labelControl7 = new DevExpress.XtraEditors.LabelControl();
             this.labelControl2 = new DevExpress.XtraEditors.LabelControl();
             this.labelControl4 = new DevExpress.XtraEditors.LabelControl();
-            this.txtDeptCd = new WYNLAB.Base.Controls.TextEditWyn();
             this.txtDeptNm = new WYNLAB.Base.Controls.TextEditWyn();
             this.txtEmpNo = new WYNLAB.Base.Controls.TextEditWyn();
             this.txtuser_nm = new WYNLAB.Base.Controls.TextEditWyn();
@@ -169,17 +175,6 @@ public partial class frmUserAuth
             this.labelControl1 = new DevExpress.XtraEditors.LabelControl();
             this.paTitle = new WYNLAB.Base.Controls.PanelWyn();
             this.sectionHeaderWyn1 = new WYNLAB.Base.Controls.SectionHeaderWyn();
-            this.colAuth01 = new DevExpress.XtraTreeList.Columns.TreeListColumn();
-            this.colAuth02 = new DevExpress.XtraTreeList.Columns.TreeListColumn();
-            this.colAuth03 = new DevExpress.XtraTreeList.Columns.TreeListColumn();
-            this.colAuth04 = new DevExpress.XtraTreeList.Columns.TreeListColumn();
-            this.colAuth05 = new DevExpress.XtraTreeList.Columns.TreeListColumn();
-            this.colAuth06 = new DevExpress.XtraTreeList.Columns.TreeListColumn();
-            this.colAuth07 = new DevExpress.XtraTreeList.Columns.TreeListColumn();
-            this.colAuth08 = new DevExpress.XtraTreeList.Columns.TreeListColumn();
-            this.colAuth09 = new DevExpress.XtraTreeList.Columns.TreeListColumn();
-            this.colAuth10 = new DevExpress.XtraTreeList.Columns.TreeListColumn();
-            this.repositoryItemCheckEdit11 = new DevExpress.XtraEditors.Repository.RepositoryItemCheckEdit();
             ((System.ComponentModel.ISupportInitialize)(this.panBase)).BeginInit();
             this.panBase.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.tabControlWyn1)).BeginInit();
@@ -217,6 +212,8 @@ public partial class frmUserAuth
             this.panelWyn18.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.grd1)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.gvw1)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.lookUpColumnEdit3)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.lookUpColumnEdit4)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.lookUpColumnEdit1)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.lookUpColumnEdit2)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.panelWyn19)).BeginInit();
@@ -226,10 +223,10 @@ public partial class frmUserAuth
             ((System.ComponentModel.ISupportInitialize)(this.panelWyn16)).BeginInit();
             this.panelWyn16.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.cboUserType.Properties)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.cboAccCd.Properties)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.cboUseYn.Properties)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.txtEmpNm.Properties)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.chkDeveloperYn.Properties)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.txtDeptCd.Properties)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.txtDeptNm.Properties)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.txtEmpNo.Properties)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.txtuser_nm.Properties)).BeginInit();
@@ -287,7 +284,6 @@ public partial class frmUserAuth
             ((System.ComponentModel.ISupportInitialize)(this.txtUserGrpCdQ.Properties)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.paTitle)).BeginInit();
             this.paTitle.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.repositoryItemCheckEdit11)).BeginInit();
             this.SuspendLayout();
             // 
             // panBase
@@ -365,10 +361,10 @@ public partial class frmUserAuth
             this.panelWyn12.Controls.Add(this.panelWyn26);
             this.panelWyn12.Dock = System.Windows.Forms.DockStyle.Fill;
             this.panelWyn12.EdgeLineColor = System.Drawing.Color.FromArgb(((int)(((byte)(228)))), ((int)(((byte)(229)))), ((int)(((byte)(232)))));
-            this.panelWyn12.Location = new System.Drawing.Point(0, 213);
+            this.panelWyn12.Location = new System.Drawing.Point(0, 297);
             this.panelWyn12.Name = "panelWyn12";
             this.panelWyn12.Padding = new System.Windows.Forms.Padding(3, 0, 0, 0);
-            this.panelWyn12.Size = new System.Drawing.Size(1610, 327);
+            this.panelWyn12.Size = new System.Drawing.Size(1610, 243);
             this.panelWyn12.TabIndex = 7;
             // 
             // panelWyn25
@@ -379,7 +375,7 @@ public partial class frmUserAuth
             this.panelWyn25.EdgeLineColor = System.Drawing.Color.FromArgb(((int)(((byte)(228)))), ((int)(((byte)(229)))), ((int)(((byte)(232)))));
             this.panelWyn25.Location = new System.Drawing.Point(313, 0);
             this.panelWyn25.Name = "panelWyn25";
-            this.panelWyn25.Size = new System.Drawing.Size(1297, 327);
+            this.panelWyn25.Size = new System.Drawing.Size(1297, 243);
             this.panelWyn25.TabIndex = 10;
             // 
             // tree1
@@ -394,17 +390,7 @@ public partial class frmUserAuth
             this.colViewYn,
             this.colInsertYn,
             this.colUpdateYn,
-            this.colDeleteYn,
-            this.colAuth01,
-            this.colAuth02,
-            this.colAuth03,
-            this.colAuth04,
-            this.colAuth05,
-            this.colAuth06,
-            this.colAuth07,
-            this.colAuth08,
-            this.colAuth09,
-            this.colAuth10});
+            this.colDeleteYn});
             this.tree1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tree1.Location = new System.Drawing.Point(0, 27);
             this.tree1.Name = "tree1";
@@ -416,10 +402,9 @@ public partial class frmUserAuth
             this.repositoryItemCheckEdit3,
             this.repositoryItemCheckEdit4,
             this.repositoryItemCheckEdit5,
-            this.repositoryItemCheckEdit10,
-            this.repositoryItemCheckEdit11});
+            this.repositoryItemCheckEdit10});
             this.tree1.RowHeight = 26;
-            this.tree1.Size = new System.Drawing.Size(1297, 300);
+            this.tree1.Size = new System.Drawing.Size(1297, 216);
             this.tree1.TabIndex = 9;
             // 
             // colMenuCd
@@ -427,9 +412,9 @@ public partial class frmUserAuth
             this.colMenuCd.Caption = "메뉴ID";
             this.colMenuCd.FieldName = "MenuId";
             this.colMenuCd.Name = "colMenuCd";
-            //
+            // 
             // treeListColumn2
-            //
+            // 
             this.treeListColumn2.Caption = "상위메뉴ID";
             this.treeListColumn2.FieldName = "UpperMenuId";
             this.treeListColumn2.Name = "treeListColumn2";
@@ -441,7 +426,7 @@ public partial class frmUserAuth
             this.treeListColumn3.Name = "treeListColumn3";
             this.treeListColumn3.Visible = true;
             this.treeListColumn3.VisibleIndex = 0;
-            this.treeListColumn3.Width = 174;
+            this.treeListColumn3.Width = 217;
             // 
             // colMenuType
             // 
@@ -457,7 +442,7 @@ public partial class frmUserAuth
             this.colViewYn.Name = "colViewYn";
             this.colViewYn.Visible = true;
             this.colViewYn.VisibleIndex = 1;
-            this.colViewYn.Width = 40;
+            this.colViewYn.Width = 45;
             // 
             // repositoryItemCheckEdit10
             // 
@@ -472,7 +457,7 @@ public partial class frmUserAuth
             this.colInsertYn.Name = "colInsertYn";
             this.colInsertYn.Visible = true;
             this.colInsertYn.VisibleIndex = 2;
-            this.colInsertYn.Width = 40;
+            this.colInsertYn.Width = 45;
             // 
             // repositoryItemCheckEdit3
             // 
@@ -487,7 +472,7 @@ public partial class frmUserAuth
             this.colUpdateYn.Name = "colUpdateYn";
             this.colUpdateYn.Visible = true;
             this.colUpdateYn.VisibleIndex = 3;
-            this.colUpdateYn.Width = 40;
+            this.colUpdateYn.Width = 45;
             // 
             // repositoryItemCheckEdit4
             // 
@@ -502,7 +487,7 @@ public partial class frmUserAuth
             this.colDeleteYn.Name = "colDeleteYn";
             this.colDeleteYn.Visible = true;
             this.colDeleteYn.VisibleIndex = 4;
-            this.colDeleteYn.Width = 40;
+            this.colDeleteYn.Width = 45;
             // 
             // repositoryItemCheckEdit5
             // 
@@ -536,11 +521,12 @@ public partial class frmUserAuth
             // simpleButton5
             // 
             this.simpleButton5.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.simpleButton5.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(245)))), ((int)(((byte)(198)))), ((int)(((byte)(193)))));
+            this.simpleButton5.BackColor = System.Drawing.Color.Transparent;
+            this.simpleButton5.BorderColor = System.Drawing.Color.Transparent;
             this.simpleButton5.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.simpleButton5.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(253)))), ((int)(((byte)(236)))), ((int)(((byte)(234)))));
-            this.simpleButton5.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(28)))), ((int)(((byte)(84)))), ((int)(((byte)(187)))));
-            this.simpleButton5.HoverColor = System.Drawing.Color.FromArgb(((int)(((byte)(216)))), ((int)(((byte)(231)))), ((int)(((byte)(253)))));
+            this.simpleButton5.FillColor = System.Drawing.Color.Transparent;
+            this.simpleButton5.ForeColor = System.Drawing.Color.Transparent;
+            this.simpleButton5.HoverColor = System.Drawing.Color.Transparent;
             this.simpleButton5.Image = ((System.Drawing.Image)(resources.GetObject("simpleButton5.Image")));
             this.simpleButton5.Location = new System.Drawing.Point(42, 2);
             this.simpleButton5.Name = "simpleButton5";
@@ -554,9 +540,10 @@ public partial class frmUserAuth
             // simpleButton6
             // 
             this.simpleButton6.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.simpleButton6.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(198)))), ((int)(((byte)(231)))), ((int)(((byte)(203)))));
+            this.simpleButton6.BackColor = System.Drawing.Color.Transparent;
+            this.simpleButton6.BorderColor = System.Drawing.Color.Transparent;
             this.simpleButton6.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.simpleButton6.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(228)))), ((int)(((byte)(245)))), ((int)(((byte)(231)))));
+            this.simpleButton6.FillColor = System.Drawing.Color.Transparent;
             this.simpleButton6.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(28)))), ((int)(((byte)(84)))), ((int)(((byte)(187)))));
             this.simpleButton6.HoverColor = System.Drawing.Color.FromArgb(((int)(((byte)(216)))), ((int)(((byte)(231)))), ((int)(((byte)(253)))));
             this.simpleButton6.Image = ((System.Drawing.Image)(resources.GetObject("simpleButton6.Image")));
@@ -587,7 +574,7 @@ public partial class frmUserAuth
             this.splitterWyn3.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(255)))), ((int)(((byte)(255)))));
             this.splitterWyn3.Location = new System.Drawing.Point(303, 0);
             this.splitterWyn3.Name = "splitterWyn3";
-            this.splitterWyn3.Size = new System.Drawing.Size(10, 327);
+            this.splitterWyn3.Size = new System.Drawing.Size(10, 243);
             this.splitterWyn3.TabIndex = 11;
             this.splitterWyn3.TabStop = false;
             // 
@@ -599,7 +586,7 @@ public partial class frmUserAuth
             this.panelWyn26.EdgeLineColor = System.Drawing.Color.FromArgb(((int)(((byte)(228)))), ((int)(((byte)(229)))), ((int)(((byte)(232)))));
             this.panelWyn26.Location = new System.Drawing.Point(3, 0);
             this.panelWyn26.Name = "panelWyn26";
-            this.panelWyn26.Size = new System.Drawing.Size(300, 327);
+            this.panelWyn26.Size = new System.Drawing.Size(300, 243);
             this.panelWyn26.TabIndex = 10;
             // 
             // grd3
@@ -610,7 +597,7 @@ public partial class frmUserAuth
             this.grd3.Name = "grd3";
             this.grd3.RepositoryItems.AddRange(new DevExpress.XtraEditors.Repository.RepositoryItem[] {
             this.repositoryItemCheckEdit1});
-            this.grd3.Size = new System.Drawing.Size(300, 300);
+            this.grd3.Size = new System.Drawing.Size(300, 216);
             this.grd3.TabIndex = 9;
             this.grd3.ViewCollection.AddRange(new DevExpress.XtraGrid.Views.Base.BaseView[] {
             this.gvw3});
@@ -646,6 +633,7 @@ public partial class frmUserAuth
             this.gridColumn4.Caption = "사용자그룹ID";
             this.gridColumn4.FieldName = "UserGrpCd";
             this.gridColumn4.Name = "gridColumn4";
+            this.gridColumn4.OptionsColumn.AllowEdit = false;
             this.gridColumn4.Visible = true;
             this.gridColumn4.VisibleIndex = 1;
             this.gridColumn4.Width = 80;
@@ -687,6 +675,7 @@ public partial class frmUserAuth
             // simpleButton1
             // 
             this.simpleButton1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.simpleButton1.BackColor = System.Drawing.Color.Transparent;
             this.simpleButton1.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(245)))), ((int)(((byte)(198)))), ((int)(((byte)(193)))));
             this.simpleButton1.Cursor = System.Windows.Forms.Cursors.Hand;
             this.simpleButton1.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(253)))), ((int)(((byte)(236)))), ((int)(((byte)(234)))));
@@ -705,6 +694,7 @@ public partial class frmUserAuth
             // simpleButton2
             // 
             this.simpleButton2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.simpleButton2.BackColor = System.Drawing.Color.Transparent;
             this.simpleButton2.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(198)))), ((int)(((byte)(231)))), ((int)(((byte)(203)))));
             this.simpleButton2.Cursor = System.Windows.Forms.Cursors.Hand;
             this.simpleButton2.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(228)))), ((int)(((byte)(245)))), ((int)(((byte)(231)))));
@@ -737,7 +727,7 @@ public partial class frmUserAuth
             // 
             this.splitterWyn5.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(255)))), ((int)(((byte)(255)))));
             this.splitterWyn5.Dock = System.Windows.Forms.DockStyle.Top;
-            this.splitterWyn5.Location = new System.Drawing.Point(0, 203);
+            this.splitterWyn5.Location = new System.Drawing.Point(0, 287);
             this.splitterWyn5.Name = "splitterWyn5";
             this.splitterWyn5.Size = new System.Drawing.Size(1610, 10);
             this.splitterWyn5.TabIndex = 14;
@@ -752,7 +742,7 @@ public partial class frmUserAuth
             this.panelWyn29.EdgeLineColor = System.Drawing.Color.FromArgb(((int)(((byte)(228)))), ((int)(((byte)(229)))), ((int)(((byte)(232)))));
             this.panelWyn29.Location = new System.Drawing.Point(0, 0);
             this.panelWyn29.Name = "panelWyn29";
-            this.panelWyn29.Size = new System.Drawing.Size(1610, 203);
+            this.panelWyn29.Size = new System.Drawing.Size(1610, 287);
             this.panelWyn29.TabIndex = 13;
             // 
             // panelWyn18
@@ -763,7 +753,7 @@ public partial class frmUserAuth
             this.panelWyn18.EdgeLineColor = System.Drawing.Color.FromArgb(((int)(((byte)(228)))), ((int)(((byte)(229)))), ((int)(((byte)(232)))));
             this.panelWyn18.Location = new System.Drawing.Point(0, 0);
             this.panelWyn18.Name = "panelWyn18";
-            this.panelWyn18.Size = new System.Drawing.Size(1138, 203);
+            this.panelWyn18.Size = new System.Drawing.Size(1138, 287);
             this.panelWyn18.TabIndex = 12;
             // 
             // grd1
@@ -779,8 +769,10 @@ public partial class frmUserAuth
             this.grd1.Name = "grd1";
             this.grd1.RepositoryItems.AddRange(new DevExpress.XtraEditors.Repository.RepositoryItem[] {
             this.lookUpColumnEdit1,
-            this.lookUpColumnEdit2});
-            this.grd1.Size = new System.Drawing.Size(1138, 176);
+            this.lookUpColumnEdit2,
+            this.lookUpColumnEdit3,
+            this.lookUpColumnEdit4});
+            this.grd1.Size = new System.Drawing.Size(1138, 260);
             this.grd1.TabIndex = 12;
             this.grd1.ViewCollection.AddRange(new DevExpress.XtraGrid.Views.Base.BaseView[] {
             this.gvw1});
@@ -792,10 +784,14 @@ public partial class frmUserAuth
             this.gridColumn1,
             this.gridColumn2,
             this.gridColumn11,
-            this.gridColumn12});
+            this.gridColumn12,
+            this.gridColumn14,
+            this.gridColumn15,
+            this.gridColumn16});
             this.gvw1.GridControl = this.grd1;
             this.gvw1.Name = "gvw1";
             this.gvw1.OptionsBehavior.Editable = false;
+            this.gvw1.OptionsClipboard.PasteMode = DevExpress.Export.PasteMode.None;
             this.gvw1.OptionsView.ColumnAutoWidth = false;
             this.gvw1.OptionsView.ShowGroupPanel = false;
             // 
@@ -806,7 +802,6 @@ public partial class frmUserAuth
             this.gridColumn1.Name = "gridColumn1";
             this.gridColumn1.Visible = true;
             this.gridColumn1.VisibleIndex = 0;
-            this.gridColumn1.Width = 98;
             // 
             // gridColumn2
             // 
@@ -815,18 +810,71 @@ public partial class frmUserAuth
             this.gridColumn2.Name = "gridColumn2";
             this.gridColumn2.Visible = true;
             this.gridColumn2.VisibleIndex = 1;
-            this.gridColumn2.Width = 136;
+            this.gridColumn2.Width = 105;
             // 
             // gridColumn11
             // 
-            this.gridColumn11.Caption = "사용";
-            this.gridColumn11.ColumnEdit = this.lookUpColumnEdit1;
+            this.gridColumn11.Caption = "사용여부";
+            this.gridColumn11.ColumnEdit = this.lookUpColumnEdit3;
             this.gridColumn11.FieldName = "UseYnCd";
             this.gridColumn11.Name = "gridColumn11";
-            this.gridColumn11.OptionsColumn.AllowEdit = false;
             this.gridColumn11.Visible = true;
             this.gridColumn11.VisibleIndex = 2;
-            this.gridColumn11.Width = 90;
+            // 
+            // lookUpColumnEdit3
+            // 
+            this.lookUpColumnEdit3.AutoHeight = false;
+            this.lookUpColumnEdit3.Buttons.AddRange(new DevExpress.XtraEditors.Controls.EditorButton[] {
+            new DevExpress.XtraEditors.Controls.EditorButton(DevExpress.XtraEditors.Controls.ButtonPredefines.Combo)});
+            this.lookUpColumnEdit3.LookupKey = "L_CM0100";
+            this.lookUpColumnEdit3.Name = "lookUpColumnEdit3";
+            this.lookUpColumnEdit3.NullText = "";
+            // 
+            // gridColumn12
+            // 
+            this.gridColumn12.Caption = "사용자구분";
+            this.gridColumn12.ColumnEdit = this.lookUpColumnEdit4;
+            this.gridColumn12.FieldName = "UserType";
+            this.gridColumn12.Name = "gridColumn12";
+            this.gridColumn12.Visible = true;
+            this.gridColumn12.VisibleIndex = 3;
+            this.gridColumn12.Width = 122;
+            // 
+            // lookUpColumnEdit4
+            // 
+            this.lookUpColumnEdit4.AutoHeight = false;
+            this.lookUpColumnEdit4.Buttons.AddRange(new DevExpress.XtraEditors.Controls.EditorButton[] {
+            new DevExpress.XtraEditors.Controls.EditorButton(DevExpress.XtraEditors.Controls.ButtonPredefines.Combo)});
+            this.lookUpColumnEdit4.LookupKey = "L_SM0002";
+            this.lookUpColumnEdit4.Name = "lookUpColumnEdit4";
+            this.lookUpColumnEdit4.NullText = "";
+            // 
+            // gridColumn14
+            // 
+            this.gridColumn14.Caption = "부서";
+            this.gridColumn14.FieldName = "DeptNm";
+            this.gridColumn14.Name = "gridColumn14";
+            this.gridColumn14.Visible = true;
+            this.gridColumn14.VisibleIndex = 4;
+            this.gridColumn14.Width = 115;
+            // 
+            // gridColumn15
+            // 
+            this.gridColumn15.Caption = "사번";
+            this.gridColumn15.FieldName = "EmpNo";
+            this.gridColumn15.Name = "gridColumn15";
+            this.gridColumn15.Visible = true;
+            this.gridColumn15.VisibleIndex = 5;
+            this.gridColumn15.Width = 87;
+            // 
+            // gridColumn16
+            // 
+            this.gridColumn16.Caption = "사원명";
+            this.gridColumn16.FieldName = "EmpNm";
+            this.gridColumn16.Name = "gridColumn16";
+            this.gridColumn16.Visible = true;
+            this.gridColumn16.VisibleIndex = 6;
+            this.gridColumn16.Width = 101;
             // 
             // lookUpColumnEdit1
             // 
@@ -836,14 +884,6 @@ public partial class frmUserAuth
             this.lookUpColumnEdit1.LookupKey = "L_CM0100";
             this.lookUpColumnEdit1.Name = "lookUpColumnEdit1";
             this.lookUpColumnEdit1.NullText = "";
-            // 
-            // gridColumn12
-            // 
-            this.gridColumn12.Caption = "사용자구분";
-            this.gridColumn12.ColumnEdit = this.lookUpColumnEdit2;
-            this.gridColumn12.Name = "gridColumn12";
-            this.gridColumn12.Visible = true;
-            this.gridColumn12.VisibleIndex = 3;
             // 
             // lookUpColumnEdit2
             // 
@@ -884,7 +924,7 @@ public partial class frmUserAuth
             this.splitterWyn2.Dock = System.Windows.Forms.DockStyle.Right;
             this.splitterWyn2.Location = new System.Drawing.Point(1138, 0);
             this.splitterWyn2.Name = "splitterWyn2";
-            this.splitterWyn2.Size = new System.Drawing.Size(10, 203);
+            this.splitterWyn2.Size = new System.Drawing.Size(10, 287);
             this.splitterWyn2.TabIndex = 13;
             this.splitterWyn2.TabStop = false;
             // 
@@ -896,7 +936,7 @@ public partial class frmUserAuth
             this.panelWyn15.EdgeLineColor = System.Drawing.Color.FromArgb(((int)(((byte)(228)))), ((int)(((byte)(229)))), ((int)(((byte)(232)))));
             this.panelWyn15.Location = new System.Drawing.Point(1148, 0);
             this.panelWyn15.Name = "panelWyn15";
-            this.panelWyn15.Size = new System.Drawing.Size(462, 203);
+            this.panelWyn15.Size = new System.Drawing.Size(462, 287);
             this.panelWyn15.TabIndex = 6;
             // 
             // panelWyn16
@@ -904,6 +944,8 @@ public partial class frmUserAuth
             this.panelWyn16.BorderStyle = DevExpress.XtraEditors.Controls.BorderStyles.Default;
             this.panelWyn16.Controls.Add(this.labelControl10);
             this.panelWyn16.Controls.Add(this.cboUserType);
+            this.panelWyn16.Controls.Add(this.labelControlAcc);
+            this.panelWyn16.Controls.Add(this.cboAccCd);
             this.panelWyn16.Controls.Add(this.cboUseYn);
             this.panelWyn16.Controls.Add(this.txtEmpNm);
             this.panelWyn16.Controls.Add(this.chkDeveloperYn);
@@ -912,7 +954,6 @@ public partial class frmUserAuth
             this.panelWyn16.Controls.Add(this.labelControl7);
             this.panelWyn16.Controls.Add(this.labelControl2);
             this.panelWyn16.Controls.Add(this.labelControl4);
-            this.panelWyn16.Controls.Add(this.txtDeptCd);
             this.panelWyn16.Controls.Add(this.txtDeptNm);
             this.panelWyn16.Controls.Add(this.txtEmpNo);
             this.panelWyn16.Controls.Add(this.txtuser_nm);
@@ -923,14 +964,14 @@ public partial class frmUserAuth
             this.panelWyn16.EdgeLineColor = System.Drawing.Color.FromArgb(((int)(((byte)(228)))), ((int)(((byte)(229)))), ((int)(((byte)(232)))));
             this.panelWyn16.Location = new System.Drawing.Point(0, 27);
             this.panelWyn16.Name = "panelWyn16";
-            this.panelWyn16.Size = new System.Drawing.Size(462, 176);
+            this.panelWyn16.Size = new System.Drawing.Size(462, 260);
             this.panelWyn16.TabIndex = 8;
             // 
             // labelControl10
             // 
             this.labelControl10.Appearance.Font = new System.Drawing.Font("맑은 고딕", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
             this.labelControl10.Appearance.Options.UseFont = true;
-            this.labelControl10.Location = new System.Drawing.Point(194, 47);
+            this.labelControl10.Location = new System.Drawing.Point(10, 77);
             this.labelControl10.Name = "labelControl10";
             this.labelControl10.Size = new System.Drawing.Size(60, 15);
             this.labelControl10.TabIndex = 14;
@@ -939,43 +980,65 @@ public partial class frmUserAuth
             // cboUserType
             // 
             this.cboUserType.EditValue = "";
-            this.cboUserType.Location = new System.Drawing.Point(258, 44);
+            this.cboUserType.Location = new System.Drawing.Point(74, 74);
             this.cboUserType.LookupKey = "L_SM0002";
             this.cboUserType.Name = "cboUserType";
             this.cboUserType.Properties.Buttons.AddRange(new DevExpress.XtraEditors.Controls.EditorButton[] {
             new DevExpress.XtraEditors.Controls.EditorButton(DevExpress.XtraEditors.Controls.ButtonPredefines.Combo)});
             this.cboUserType.Properties.NullText = "";
-            this.cboUserType.Size = new System.Drawing.Size(190, 20);
+            this.cboUserType.Size = new System.Drawing.Size(126, 20);
             this.cboUserType.TabIndex = 13;
+            // 
+            // labelControlAcc
+            // 
+            this.labelControlAcc.Appearance.Font = new System.Drawing.Font("맑은 고딕", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
+            this.labelControlAcc.Appearance.Options.UseFont = true;
+            this.labelControlAcc.Location = new System.Drawing.Point(34, 24);
+            this.labelControlAcc.Name = "labelControlAcc";
+            this.labelControlAcc.Size = new System.Drawing.Size(36, 15);
+            this.labelControlAcc.TabIndex = 4;
+            this.labelControlAcc.Text = "사업장";
+            // 
+            // cboAccCd
+            // 
+            this.cboAccCd.EditValue = "";
+            this.cboAccCd.Location = new System.Drawing.Point(74, 21);
+            this.cboAccCd.LookupKey = "L_ACC";
+            this.cboAccCd.Name = "cboAccCd";
+            this.cboAccCd.Properties.Buttons.AddRange(new DevExpress.XtraEditors.Controls.EditorButton[] {
+            new DevExpress.XtraEditors.Controls.EditorButton(DevExpress.XtraEditors.Controls.ButtonPredefines.Combo)});
+            this.cboAccCd.Properties.NullText = "";
+            this.cboAccCd.Size = new System.Drawing.Size(126, 20);
+            this.cboAccCd.TabIndex = 15;
             // 
             // cboUseYn
             // 
             this.cboUseYn.EditValue = "";
-            this.cboUseYn.Location = new System.Drawing.Point(258, 15);
+            this.cboUseYn.Location = new System.Drawing.Point(270, 19);
             this.cboUseYn.LookupKey = "L_CM0100";
             this.cboUseYn.Name = "cboUseYn";
             this.cboUseYn.Properties.Buttons.AddRange(new DevExpress.XtraEditors.Controls.EditorButton[] {
             new DevExpress.XtraEditors.Controls.EditorButton(DevExpress.XtraEditors.Controls.ButtonPredefines.Combo)});
             this.cboUseYn.Properties.NullText = "";
-            this.cboUseYn.Size = new System.Drawing.Size(89, 20);
+            this.cboUseYn.Size = new System.Drawing.Size(126, 20);
             this.cboUseYn.TabIndex = 12;
             // 
             // txtEmpNm
             // 
-            this.txtEmpNm.Location = new System.Drawing.Point(89, 72);
+            this.txtEmpNm.Location = new System.Drawing.Point(74, 101);
             this.txtEmpNm.LookupKey = "P_EMP";
             this.txtEmpNm.MatchField = "emp_nm";
             this.txtEmpNm.Name = "txtEmpNm";
             this.txtEmpNm.Properties.Buttons.AddRange(new DevExpress.XtraEditors.Controls.EditorButton[] {
             new DevExpress.XtraEditors.Controls.EditorButton(DevExpress.XtraEditors.Controls.ButtonPredefines.Ellipsis, "", 24, true, true, false, editorButtonImageOptions1, new DevExpress.Utils.KeyShortcut(System.Windows.Forms.Keys.None), serializableAppearanceObject1, serializableAppearanceObject2, serializableAppearanceObject3, serializableAppearanceObject4, "", null, null, DevExpress.Utils.ToolTipAnchor.Default)});
-            this.txtEmpNm.Size = new System.Drawing.Size(97, 20);
+            this.txtEmpNm.Size = new System.Drawing.Size(126, 20);
             this.txtEmpNm.TabIndex = 10;
             this.txtEmpNm.ToolTip = null;
             // 
             // chkDeveloperYn
             // 
             this.chkDeveloperYn.Enabled = false;
-            this.chkDeveloperYn.Location = new System.Drawing.Point(353, 16);
+            this.chkDeveloperYn.Location = new System.Drawing.Point(270, 74);
             this.chkDeveloperYn.Name = "chkDeveloperYn";
             this.chkDeveloperYn.Properties.Caption = "시스템개발자";
             this.chkDeveloperYn.Size = new System.Drawing.Size(95, 20);
@@ -985,7 +1048,7 @@ public partial class frmUserAuth
             // 
             this.labelControl9.Appearance.Font = new System.Drawing.Font("맑은 고딕", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
             this.labelControl9.Appearance.Options.UseFont = true;
-            this.labelControl9.Location = new System.Drawing.Point(206, 18);
+            this.labelControl9.Location = new System.Drawing.Point(218, 22);
             this.labelControl9.Name = "labelControl9";
             this.labelControl9.Size = new System.Drawing.Size(48, 15);
             this.labelControl9.TabIndex = 4;
@@ -995,7 +1058,7 @@ public partial class frmUserAuth
             // 
             this.labelControl8.Appearance.Font = new System.Drawing.Font("맑은 고딕", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
             this.labelControl8.Appearance.Options.UseFont = true;
-            this.labelControl8.Location = new System.Drawing.Point(230, 75);
+            this.labelControl8.Location = new System.Drawing.Point(242, 104);
             this.labelControl8.Name = "labelControl8";
             this.labelControl8.Size = new System.Drawing.Size(24, 15);
             this.labelControl8.TabIndex = 4;
@@ -1005,7 +1068,7 @@ public partial class frmUserAuth
             // 
             this.labelControl7.Appearance.Font = new System.Drawing.Font("맑은 고딕", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
             this.labelControl7.Appearance.Options.UseFont = true;
-            this.labelControl7.Location = new System.Drawing.Point(35, 75);
+            this.labelControl7.Location = new System.Drawing.Point(34, 104);
             this.labelControl7.Name = "labelControl7";
             this.labelControl7.Size = new System.Drawing.Size(36, 15);
             this.labelControl7.TabIndex = 4;
@@ -1015,7 +1078,7 @@ public partial class frmUserAuth
             // 
             this.labelControl2.Appearance.Font = new System.Drawing.Font("맑은 고딕", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
             this.labelControl2.Appearance.Options.UseFont = true;
-            this.labelControl2.Location = new System.Drawing.Point(35, 47);
+            this.labelControl2.Location = new System.Drawing.Point(218, 49);
             this.labelControl2.Name = "labelControl2";
             this.labelControl2.Size = new System.Drawing.Size(48, 15);
             this.labelControl2.TabIndex = 4;
@@ -1025,25 +1088,17 @@ public partial class frmUserAuth
             // 
             this.labelControl4.Appearance.Font = new System.Drawing.Font("맑은 고딕", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
             this.labelControl4.Appearance.Options.UseFont = true;
-            this.labelControl4.Location = new System.Drawing.Point(35, 18);
+            this.labelControl4.Location = new System.Drawing.Point(22, 49);
             this.labelControl4.Name = "labelControl4";
             this.labelControl4.Size = new System.Drawing.Size(48, 15);
             this.labelControl4.TabIndex = 4;
             this.labelControl4.Text = "사용자ID";
             // 
-            // txtDeptCd
-            // 
-            this.txtDeptCd.Location = new System.Drawing.Point(599, 209);
-            this.txtDeptCd.Name = "txtDeptCd";
-            this.txtDeptCd.Size = new System.Drawing.Size(97, 20);
-            this.txtDeptCd.TabIndex = 6;
-            this.txtDeptCd.Visible = false;
-            // 
             // txtDeptNm
             // 
-            this.txtDeptNm.Location = new System.Drawing.Point(258, 72);
+            this.txtDeptNm.Location = new System.Drawing.Point(270, 101);
             this.txtDeptNm.Name = "txtDeptNm";
-            this.txtDeptNm.Size = new System.Drawing.Size(190, 20);
+            this.txtDeptNm.Size = new System.Drawing.Size(126, 20);
             this.txtDeptNm.TabIndex = 6;
             // 
             // txtEmpNo
@@ -1056,30 +1111,30 @@ public partial class frmUserAuth
             // 
             // txtuser_nm
             // 
-            this.txtuser_nm.Location = new System.Drawing.Point(89, 44);
+            this.txtuser_nm.Location = new System.Drawing.Point(270, 46);
             this.txtuser_nm.Name = "txtuser_nm";
-            this.txtuser_nm.Size = new System.Drawing.Size(97, 20);
+            this.txtuser_nm.Size = new System.Drawing.Size(126, 20);
             this.txtuser_nm.TabIndex = 6;
             // 
             // txtuser_id
             // 
-            this.txtuser_id.Location = new System.Drawing.Point(89, 16);
+            this.txtuser_id.Location = new System.Drawing.Point(74, 47);
             this.txtuser_id.Name = "txtuser_id";
-            this.txtuser_id.Size = new System.Drawing.Size(97, 20);
+            this.txtuser_id.Size = new System.Drawing.Size(126, 20);
             this.txtuser_id.TabIndex = 5;
             // 
             // txtEmail
             // 
-            this.txtEmail.Location = new System.Drawing.Point(89, 100);
+            this.txtEmail.Location = new System.Drawing.Point(74, 129);
             this.txtEmail.Name = "txtEmail";
-            this.txtEmail.Size = new System.Drawing.Size(359, 20);
+            this.txtEmail.Size = new System.Drawing.Size(322, 20);
             this.txtEmail.TabIndex = 11;
             // 
             // labelControlEmail
             // 
             this.labelControlEmail.Appearance.Font = new System.Drawing.Font("맑은 고딕", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
             this.labelControlEmail.Appearance.Options.UseFont = true;
-            this.labelControlEmail.Location = new System.Drawing.Point(35, 105);
+            this.labelControlEmail.Location = new System.Drawing.Point(34, 132);
             this.labelControlEmail.Name = "labelControlEmail";
             this.labelControlEmail.Size = new System.Drawing.Size(36, 15);
             this.labelControlEmail.TabIndex = 4;
@@ -1342,6 +1397,7 @@ public partial class frmUserAuth
             // btnDeletRow2
             // 
             this.btnDeletRow2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnDeletRow2.BackColor = System.Drawing.Color.Transparent;
             this.btnDeletRow2.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(245)))), ((int)(((byte)(198)))), ((int)(((byte)(193)))));
             this.btnDeletRow2.Cursor = System.Windows.Forms.Cursors.Hand;
             this.btnDeletRow2.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(253)))), ((int)(((byte)(236)))), ((int)(((byte)(234)))));
@@ -1360,6 +1416,7 @@ public partial class frmUserAuth
             // btnAddRow2
             // 
             this.btnAddRow2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnAddRow2.BackColor = System.Drawing.Color.Transparent;
             this.btnAddRow2.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(198)))), ((int)(((byte)(231)))), ((int)(((byte)(203)))));
             this.btnAddRow2.Cursor = System.Windows.Forms.Cursors.Hand;
             this.btnAddRow2.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(228)))), ((int)(((byte)(245)))), ((int)(((byte)(231)))));
@@ -1492,6 +1549,7 @@ public partial class frmUserAuth
             // simpleButton3
             // 
             this.simpleButton3.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.simpleButton3.BackColor = System.Drawing.Color.Transparent;
             this.simpleButton3.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(245)))), ((int)(((byte)(198)))), ((int)(((byte)(193)))));
             this.simpleButton3.Cursor = System.Windows.Forms.Cursors.Hand;
             this.simpleButton3.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(253)))), ((int)(((byte)(236)))), ((int)(((byte)(234)))));
@@ -1510,6 +1568,7 @@ public partial class frmUserAuth
             // simpleButton4
             // 
             this.simpleButton4.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.simpleButton4.BackColor = System.Drawing.Color.Transparent;
             this.simpleButton4.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(198)))), ((int)(((byte)(231)))), ((int)(((byte)(203)))));
             this.simpleButton4.Cursor = System.Windows.Forms.Cursors.Hand;
             this.simpleButton4.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(228)))), ((int)(((byte)(245)))), ((int)(((byte)(231)))));
@@ -1687,6 +1746,7 @@ public partial class frmUserAuth
             this.gvw2.GridControl = this.grd2;
             this.gvw2.Name = "gvw2";
             this.gvw2.OptionsBehavior.Editable = false;
+            this.gvw2.OptionsClipboard.PasteMode = DevExpress.Export.PasteMode.None;
             this.gvw2.OptionsView.ColumnAutoWidth = false;
             this.gvw2.OptionsView.ShowGroupPanel = false;
             // 
@@ -1789,102 +1849,6 @@ public partial class frmUserAuth
             this.sectionHeaderWyn1.TabIndex = 8;
             this.sectionHeaderWyn1.Text = "사용자권한관리 [frmUserAuth]";
             // 
-            // colAuth01
-            // 
-            this.colAuth01.Caption = "권한1";
-            this.colAuth01.ColumnEdit = this.repositoryItemCheckEdit11;
-            this.colAuth01.FieldName = "권한1";
-            this.colAuth01.Name = "colAuth01";
-            this.colAuth01.Visible = true;
-            this.colAuth01.VisibleIndex = 5;
-            this.colAuth01.Width = 45;
-            // 
-            // colAuth02
-            // 
-            this.colAuth02.Caption = "권한2";
-            this.colAuth02.FieldName = "권한2";
-            this.colAuth02.Name = "colAuth02";
-            this.colAuth02.Visible = true;
-            this.colAuth02.VisibleIndex = 6;
-            this.colAuth02.Width = 45;
-            // 
-            // colAuth03
-            // 
-            this.colAuth03.Caption = "권한3";
-            this.colAuth03.FieldName = "권한3";
-            this.colAuth03.Name = "colAuth03";
-            this.colAuth03.Visible = true;
-            this.colAuth03.VisibleIndex = 7;
-            this.colAuth03.Width = 45;
-            // 
-            // colAuth04
-            // 
-            this.colAuth04.Caption = "권한4";
-            this.colAuth04.FieldName = "권한4";
-            this.colAuth04.Name = "colAuth04";
-            this.colAuth04.Visible = true;
-            this.colAuth04.VisibleIndex = 8;
-            this.colAuth04.Width = 45;
-            // 
-            // colAuth05
-            // 
-            this.colAuth05.Caption = "권한5";
-            this.colAuth05.FieldName = "권한5";
-            this.colAuth05.Name = "colAuth05";
-            this.colAuth05.Visible = true;
-            this.colAuth05.VisibleIndex = 9;
-            this.colAuth05.Width = 45;
-            // 
-            // colAuth06
-            // 
-            this.colAuth06.Caption = "권한6";
-            this.colAuth06.FieldName = "권한6";
-            this.colAuth06.Name = "colAuth06";
-            this.colAuth06.Visible = true;
-            this.colAuth06.VisibleIndex = 10;
-            this.colAuth06.Width = 45;
-            // 
-            // colAuth07
-            // 
-            this.colAuth07.Caption = "권한7";
-            this.colAuth07.FieldName = "권한7";
-            this.colAuth07.Name = "colAuth07";
-            this.colAuth07.Visible = true;
-            this.colAuth07.VisibleIndex = 11;
-            this.colAuth07.Width = 45;
-            // 
-            // colAuth08
-            // 
-            this.colAuth08.Caption = "권한8";
-            this.colAuth08.FieldName = "권한8";
-            this.colAuth08.Name = "colAuth08";
-            this.colAuth08.Visible = true;
-            this.colAuth08.VisibleIndex = 12;
-            this.colAuth08.Width = 45;
-            // 
-            // colAuth09
-            // 
-            this.colAuth09.Caption = "권한9";
-            this.colAuth09.FieldName = "권한9";
-            this.colAuth09.Name = "colAuth09";
-            this.colAuth09.Visible = true;
-            this.colAuth09.VisibleIndex = 13;
-            this.colAuth09.Width = 45;
-            // 
-            // colAuth10
-            // 
-            this.colAuth10.Caption = "권한10";
-            this.colAuth10.FieldName = "권한10";
-            this.colAuth10.Name = "colAuth10";
-            this.colAuth10.Visible = true;
-            this.colAuth10.VisibleIndex = 14;
-            this.colAuth10.Width = 45;
-            // 
-            // repositoryItemCheckEdit11
-            // 
-            this.repositoryItemCheckEdit11.AutoHeight = false;
-            this.repositoryItemCheckEdit11.Name = "repositoryItemCheckEdit11";
-            // 
             // frmUserAuth
             // 
             this.Appearance.Options.UseFont = true;
@@ -1928,6 +1892,8 @@ public partial class frmUserAuth
             this.panelWyn18.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.grd1)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.gvw1)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.lookUpColumnEdit3)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.lookUpColumnEdit4)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.lookUpColumnEdit1)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.lookUpColumnEdit2)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.panelWyn19)).EndInit();
@@ -1938,10 +1904,10 @@ public partial class frmUserAuth
             this.panelWyn16.ResumeLayout(false);
             this.panelWyn16.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.cboUserType.Properties)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.cboAccCd.Properties)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.cboUseYn.Properties)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.txtEmpNm.Properties)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.chkDeveloperYn.Properties)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.txtDeptCd.Properties)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.txtDeptNm.Properties)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.txtEmpNo.Properties)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.txtuser_nm.Properties)).EndInit();
@@ -2002,7 +1968,6 @@ public partial class frmUserAuth
             ((System.ComponentModel.ISupportInitialize)(this.txtUserGrpCdQ.Properties)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.paTitle)).EndInit();
             this.paTitle.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.repositoryItemCheckEdit11)).EndInit();
             this.ResumeLayout(false);
 
     }
@@ -2059,8 +2024,6 @@ public partial class frmUserAuth
     private TextEditWyn txtEmail;
     private DevExpress.XtraEditors.LabelControl labelControlEmail;
     private TextEditWyn txtuser_id;
-    private DevExpress.XtraGrid.Columns.GridColumn gridColumn1;
-    private DevExpress.XtraGrid.Columns.GridColumn gridColumn2;
     private DevExpress.XtraGrid.Columns.GridColumn gridColumn6;
     private DevExpress.XtraGrid.Columns.GridColumn gridColumn7;
     private DevExpress.XtraEditors.LabelControl labelControl6;
@@ -2126,7 +2089,6 @@ public partial class frmUserAuth
     private DevExpress.XtraEditors.Repository.RepositoryItemCheckEdit repositoryItemCheckEdit10;
     private PopupLookupEditWyn txtEmpNm;
     private DevExpress.XtraEditors.LabelControl labelControl7;
-    private TextEditWyn txtDeptCd;
     private TextEditWyn txtDeptNm;
     private TextEditWyn txtEmpNo;
     private DevExpress.XtraEditors.LabelControl labelControl8;
@@ -2134,22 +2096,20 @@ public partial class frmUserAuth
     private DevExpress.XtraEditors.LabelControl labelControl9;
     private DevExpress.XtraEditors.LabelControl labelControl10;
     private LookUpEditWyn cboUserType;
-    private DevExpress.XtraGrid.Columns.GridColumn gridColumn11;
+    private DevExpress.XtraEditors.LabelControl labelControlAcc;
+    private LookUpEditWyn cboAccCd;
     private LookUpColumnEdit lookUpColumnEdit1;
-    private DevExpress.XtraGrid.Columns.GridColumn gridColumn12;
     private LookUpColumnEdit lookUpColumnEdit2;
     private SplitterWyn splitterWyn5;
     private PanelWyn panelWyn29;
     private SplitterWyn splitterWyn2;
-    private DevExpress.XtraTreeList.Columns.TreeListColumn colAuth01;
-    private DevExpress.XtraEditors.Repository.RepositoryItemCheckEdit repositoryItemCheckEdit11;
-    private DevExpress.XtraTreeList.Columns.TreeListColumn colAuth02;
-    private DevExpress.XtraTreeList.Columns.TreeListColumn colAuth03;
-    private DevExpress.XtraTreeList.Columns.TreeListColumn colAuth04;
-    private DevExpress.XtraTreeList.Columns.TreeListColumn colAuth05;
-    private DevExpress.XtraTreeList.Columns.TreeListColumn colAuth06;
-    private DevExpress.XtraTreeList.Columns.TreeListColumn colAuth07;
-    private DevExpress.XtraTreeList.Columns.TreeListColumn colAuth08;
-    private DevExpress.XtraTreeList.Columns.TreeListColumn colAuth09;
-    private DevExpress.XtraTreeList.Columns.TreeListColumn colAuth10;
+    private DevExpress.XtraGrid.Columns.GridColumn gridColumn1;
+    private DevExpress.XtraGrid.Columns.GridColumn gridColumn2;
+    private DevExpress.XtraGrid.Columns.GridColumn gridColumn11;
+    private LookUpColumnEdit lookUpColumnEdit3;
+    private DevExpress.XtraGrid.Columns.GridColumn gridColumn12;
+    private LookUpColumnEdit lookUpColumnEdit4;
+    private DevExpress.XtraGrid.Columns.GridColumn gridColumn14;
+    private DevExpress.XtraGrid.Columns.GridColumn gridColumn15;
+    private DevExpress.XtraGrid.Columns.GridColumn gridColumn16;
 }

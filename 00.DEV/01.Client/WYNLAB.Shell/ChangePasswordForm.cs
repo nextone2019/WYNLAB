@@ -29,7 +29,7 @@ public partial class ChangePasswordForm : XtraForm
         MaximizeBox = false;
         MinimizeBox = false;
         StartPosition = FormStartPosition.CenterParent;
-        ClientSize = new Size(360, 240);
+        ClientSize = new Size(360, 290);
 
         txtCurrent.Text = currentPasswordPrefill; // 방금 로그인 화면에서 입력한 값 그대로 - 다시 안 치게
 

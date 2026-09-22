@@ -1,6 +1,7 @@
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using WYNLAB.Api.Controllers;
 using WYNLAB.Api.Authorization;
 using WYNLAB.Api.Repositories.SM;
 using WYNLAB.Shared.Dtos;
@@ -34,7 +35,7 @@ public class MenusController : ControllerBase
     {
         var result = await _repo.CreateAsync(request.MenuNm, request.UpperMenuId, request.MenuLevel,
             request.MenuType, request.Module, request.ScreenClassNm, request.IconNm, request.ProcPrefix, request.SortOrder, request.AuthNm,
-            CurrentUserId, ClientIp);
+            CurrentUserId, ClientPc);
 
         if (!result.IsSuccess)
             return Ok(new ApiResult { Success = false, Message = result.FailMessage });
@@ -51,7 +52,7 @@ public class MenusController : ControllerBase
 
         var result = await _repo.UpdateAsync(menuId, request.MenuNm, request.UpperMenuId, request.MenuLevel,
             request.MenuType, request.Module, request.ScreenClassNm, request.IconNm, request.ProcPrefix, request.SortOrder, request.UseYn, request.AuthNm,
-            CurrentUserId, ClientIp);
+            CurrentUserId, ClientPc);
 
         if (!result.IsSuccess)
             return Ok(new ApiResult { Success = false, Message = result.FailMessage });
@@ -63,7 +64,7 @@ public class MenusController : ControllerBase
     [RequireMenuPermission("SM", "MENU.frmMenu", MenuAction.Delete)]
     public async Task<ActionResult<ApiResult>> Delete(long menuId)
     {
-        var result = await _repo.SetUseYnAsync(menuId, useYn: false);
+        var result = await _repo.SetUseYnAsync(menuId, useYn: false, CurrentUserId, ClientPc);
         if (!result.IsSuccess)
             return Ok(new ApiResult { Success = false, Message = result.FailMessage });
 
@@ -91,5 +92,5 @@ public class MenusController : ControllerBase
     };
 
     private string CurrentUserId => User.FindFirstValue(ClaimTypes.NameIdentifier) ?? string.Empty;
-    private string? ClientIp => HttpContext.Connection.RemoteIpAddress?.ToString();
+    private string? ClientPc => ClientPcInfo.Build(HttpContext);
 }

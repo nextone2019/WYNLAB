@@ -56,7 +56,7 @@ public class DataController : ControllerBase
         var denied = await ValidateAsync(request, action);
         if (denied != null) return denied;
 
-        var result = await _repo.SaveAsync(request.ProcName, request.Params, CurrentUserId, ClientIp);
+        var result = await _repo.SaveAsync(request.ProcName, request.Params, CurrentUserId, ClientPc);
 
         if (!result.IsSuccess)
             return Ok(new ApiResult { Success = false, Message = result.FailMessage, ErrorCode = result.ErrorCode });
@@ -126,5 +126,5 @@ public class DataController : ControllerBase
         new(body) { StatusCode = StatusCodes.Status403Forbidden };
 
     private string CurrentUserId => User.FindFirstValue(ClaimTypes.NameIdentifier) ?? string.Empty;
-    private string? ClientIp => HttpContext.Connection.RemoteIpAddress?.ToString();
+    private string? ClientPc => ClientPcInfo.Build(HttpContext);
 }

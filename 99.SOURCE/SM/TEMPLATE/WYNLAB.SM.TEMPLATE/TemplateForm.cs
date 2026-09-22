@@ -91,7 +91,7 @@ public partial class TemplateForm : BaseForm
         var editingCd = preserveSelection ? _editingCd : null;
 
         gvw1.FocusedRowObjectChanged -= Gvw1_FocusedRowObjectChanged;
-        try
+        SuppressMasterRowSwitchConfirm(gvw1, () =>
         {
             grd1.DataSource = _list;
 
@@ -100,11 +100,8 @@ public partial class TemplateForm : BaseForm
                 var handle = FindRowHandle(editingCd);
                 if (handle != null) gvw1.FocusedRowHandle = handle.Value;
             }
-        }
-        finally
-        {
-            gvw1.FocusedRowObjectChanged += Gvw1_FocusedRowObjectChanged;
-        }
+        });
+        gvw1.FocusedRowObjectChanged += Gvw1_FocusedRowObjectChanged;
 
         var row = editingCd == null ? null : FindRow(editingCd);
         if (row != null) EnterEditMode(row);
@@ -182,32 +179,30 @@ public partial class TemplateForm : BaseForm
         Toast.Show(wasNew ? "등록되었습니다." : "수정되었습니다.");
     }
 
-    private void Gvw1_FocusedRowObjectChanged(object? sender, DevExpress.XtraGrid.Views.Base.FocusedRowObjectChangedEventArgs e)
-    {
-        if (e.Row is DataRowView view) EnterEditMode(view.Row);
-    }
+    /// <summary>다른 행을 고를 때 panData에 저장 안 된 변경이 있으면 먼저 확인한다
+    /// (BaseForm.ConfirmMasterRowSwitch 참고, 2026-09-06 - 모든 화면 공통 적용 - 새 화면을 이
+    /// 템플릿에서 복제하면 기본으로 따라온다. 지우지 말 것).</summary>
+    private void Gvw1_FocusedRowObjectChanged(object? sender, DevExpress.XtraGrid.Views.Base.FocusedRowObjectChangedEventArgs e) =>
+        ConfirmMasterRowSwitch(gvw1, e, row => EnterEditMode(row.Row));
 
     /// <summary>조회된 목록에서 키로 행을 찾는다. 없으면 null.</summary>
     private DataRow? FindRow(string cd) =>
         _list.Rows.Cast<DataRow>()
             .FirstOrDefault(r => string.Equals(Convert.ToString(r["cd"]), cd, StringComparison.OrdinalIgnoreCase));
 
-    /// <summary>cd로 grd1의 행 핸들을 찾는다. 없으면 null.
-    ///
-    /// GridView.LocateByValue를 안 쓰는 이유: DataTable 컬럼이 실제로는 JsonElement를 담고
-    /// 있어서(ProcData.ToDataTable 참고) 순수 string과 절대 같다고 판정되지 않는다 -
-    /// Convert.ToString으로 비교하는 이 방식이 frmMinorCode에서 검증된 방법이다.</summary>
+    /// <summary>cd로 grd1의 행 핸들을 찾는다. 없으면 null. 컬럼 셀 값으로 찾는 방식(GridView.
+    /// Columns[fieldName] + GetRowCellValue, 예전에 이 자리에 있었던 방식)은 그 키 컬럼이
+    /// 화면에 안 보이는 숨김 컬럼일 때 안 먹힌다(2026-09-11 실제 발견, frmEMP에서 재현) - FindRow로
+    /// 찾은 DataRow의 DataTable상 인덱스를 GridView.GetRowHandle로 표시 행 핸들로 변환하면 키
+    /// 컬럼이 보이든 안 보이든 항상 동작한다. 이 템플릿에서 복제되는 새 화면에도 그대로 적용된다.</summary>
     private int? FindRowHandle(string cd)
     {
-        var column = gvw1.Columns["cd"];
-        if (column == null) return null;
+        var row = FindRow(cd);
+        if (row == null) return null;
 
-        for (var handle = 0; handle < gvw1.RowCount; handle++)
-        {
-            if (string.Equals(Convert.ToString(gvw1.GetRowCellValue(handle, column)), cd, StringComparison.OrdinalIgnoreCase))
-                return handle;
-        }
-        return null;
+        var rowIndex = _list.Rows.IndexOf(row);
+        var handle = gvw1.GetRowHandle(rowIndex);
+        return handle >= 0 ? handle : null;
     }
 
     /// <summary>panData를 채우는 부분은 반드시 SuppressDirtyTracking으로 감쌀 것 - 코드가

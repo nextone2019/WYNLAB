@@ -1,0 +1,93 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- 어떤 모듈에도 속하지 않는(doc_type/doc_id 같은 범용 파라미터로 동작) 공용 팝업 화면 모음
+       - 파일첨부(popFileUpload), 전자결재(popApp), 팝업조회(popPopUp). BaseForm과
+       분리한 이유(2026-09-12): BaseForm은 "어떤 모듈에도 한정되지 않는 기반 프레임워크"(BaseForm
+       클래스/Session/ApiClient 등)라는 개념이고, 실제로 열리는 화면(폼)은 여기에 두지 않는다는
+       원칙 - 00.DEV/MODULE_ARCHITECTURE.md 참고. 모든 업무모듈(AP/BA/MA/PR/SA/SM/SYS)이
+       WYNLAB.BaseForm/Controls/Shared처럼 이 프로젝트도 DLL로 직접 참조해서
+       `await popFileUpload.ShowAsync(...)`/`await popApp.ShowAsync(...)`처럼 바로 부른다
+       (모듈 경계 판단 기준은 위 문서의 "소유권/결합도" 두 질문 참고). -->
+  <PropertyGroup>
+    <TargetFramework>net48</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <UseWindowsForms>true</UseWindowsForms>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <RootNamespace>WYNLAB.Popup</RootNamespace>
+
+    <!-- frmFileUpload.resx가 SvgIcon(문자열이 아닌 바이너리) 리소스를 담고 있다 - SDK 스타일
+         프로젝트는 이 옵션 + System.Resources.Extensions 패키지가 있어야 그런 리소스를 담을 수
+         있다(WYNLAB.SM.csproj와 같은 이유). -->
+    <GenerateResourceUsePreserializedResources>true</GenerateResourceUsePreserializedResources>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="System.Resources.Extensions" Version="8.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- DevExpress 21.2 로컬 설치 기반 참조 -->
+    <Reference Include="DevExpress.Data.v21.2">
+      <HintPath>C:\Program Files (x86)\DevExpress 21.2\Components\Bin\Framework\DevExpress.Data.v21.2.dll</HintPath>
+    </Reference>
+    <!-- frmFileUpload의 grd1(GridControlWyn)을 ISupportInitialize로 캐스트하려면 필요
+         (Data.v21.2만으로는 타입 계층을 다 못 찾는다). -->
+    <Reference Include="DevExpress.Data.Desktop.v21.2">
+      <HintPath>C:\Program Files (x86)\DevExpress 21.2\Components\Bin\Framework\DevExpress.Data.Desktop.v21.2.dll</HintPath>
+    </Reference>
+    <Reference Include="DevExpress.Utils.v21.2">
+      <HintPath>C:\Program Files (x86)\DevExpress 21.2\Components\Bin\Framework\DevExpress.Utils.v21.2.dll</HintPath>
+    </Reference>
+    <Reference Include="DevExpress.XtraBars.v21.2">
+      <HintPath>C:\Program Files (x86)\DevExpress 21.2\Components\Bin\Framework\DevExpress.XtraBars.v21.2.dll</HintPath>
+    </Reference>
+    <Reference Include="DevExpress.XtraEditors.v21.2">
+      <HintPath>C:\Program Files (x86)\DevExpress 21.2\Components\Bin\Framework\DevExpress.XtraEditors.v21.2.dll</HintPath>
+    </Reference>
+    <Reference Include="DevExpress.XtraGrid.v21.2">
+      <HintPath>C:\Program Files (x86)\DevExpress 21.2\Components\Bin\Framework\DevExpress.XtraGrid.v21.2.dll</HintPath>
+    </Reference>
+    <!-- PopupLookupForm이 hierarchical_yn='Y' 팝업(부서 등)을 트리로 그리는 데 필요 -->
+    <Reference Include="DevExpress.XtraTreeList.v21.2">
+      <HintPath>C:\Program Files (x86)\DevExpress 21.2\Components\Bin\Framework\DevExpress.XtraTreeList.v21.2.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+  <!-- 2026-09-12: 99.SOURCE/POPUP/WYNLAB.Popup으로 이동(사장님이 직접 옮김) - 다른 화면
+       모듈(99.SOURCE/{모듈}/WYNLAB.{모듈})과 같은 깊이라 WYNLAB.TEMPLATE.csproj와 동일한
+       상대경로 규칙(../../../00.DEV/...)을 쓴다. 여전히 ProjectReference인 이유: 이 프로젝트는
+       Modules\가 아니라 CoreAssembly\로 배포되는 BaseForm/Controls/Shared와 한 묶음이라
+       (Deploy-Package.ps1이 이 넷을 순서대로 Build-Release한다), 화면 모듈들처럼 이미 빌드된
+       DLL만 참조(Private=false)하는 방식으로 바꿀 필요가 없다. -->
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\00.DEV\03.Shared\WYNLAB.Shared\WYNLAB.Shared.csproj" />
+    <ProjectReference Include="..\..\..\00.DEV\01.Client\WYNLAB.Controls\WYNLAB.Controls.csproj" />
+    <ProjectReference Include="..\..\..\00.DEV\01.Client\WYNLAB.BaseForm\WYNLAB.BaseForm.csproj" />
+  </ItemGroup>
+
+  <!-- popFileUpload/popApp은 VS 디자이너로 컨트롤 배치를 다듬을 수 있게 화면 모듈
+       프로젝트들과 같은 이유로 SubType=Form/DependentUpon을 명시한다. -->
+  <ItemGroup>
+    <Compile Update="FileUpload\popFileUpload.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="FileUpload\popFileUpload.Designer.cs">
+      <DependentUpon>popFileUpload.cs</DependentUpon>
+    </Compile>
+    <EmbeddedResource Update="FileUpload\popFileUpload.resx">
+      <DependentUpon>popFileUpload.cs</DependentUpon>
+    </EmbeddedResource>
+
+    <Compile Update="Approval\popApp.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="Approval\popApp.Designer.cs">
+      <DependentUpon>popApp.cs</DependentUpon>
+    </Compile>
+    <EmbeddedResource Update="Approval\popApp.resx">
+      <DependentUpon>popApp.cs</DependentUpon>
+    </EmbeddedResource>
+  </ItemGroup>
+
+</Project>

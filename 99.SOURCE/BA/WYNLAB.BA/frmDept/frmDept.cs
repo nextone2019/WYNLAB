@@ -1,23 +1,21 @@
+// AI Builder가 트리마스터-서브그리드 템플릿을 복제해서 자동 생성 - 2026-09-09.
+// 디자인(제목영역/여백/색상)을 바꾸려면 이 파일이 아니라 원본 템플릿(99.SOURCE/TEMPLATE/WYNLAB.TEMPLATE)을 고치세요.
 using System.Data;
+using DevExpress.XtraTreeList;
+using DevExpress.XtraTreeList.Nodes;
 using WYNLAB.Base;
 using WYNLAB.Base.Controls;
-using WYNLAB.Shared.Dtos;
 
 namespace WYNLAB.BA;
 
-/// <summary>
-/// 부서등록 화면 - 왼쪽은 부서 계층을 보여주는 tree1(dept_cd/par_dept_cd), 오른쪽 위는 상세
-/// 입력(panData), 오른쪽 아래 grd2는 tree1에서 고른 부서의 소속 사원 목록(조회 전용)이다.
-///
-/// USP_BA_DEPT_Q 하나를 work_type으로 나눠 쓴다 - 'Q'는 부서 목록(트리), 'Q1'은 그 중 한
-/// 부서의 소속 사원 목록. @p_dept_cd 의미가 work_type마다 다르다(Q=검색어, Q1=정확히 일치하는
-/// 부서코드) - USP_SM_MINORCODE_Q의 Q/Q1 분리와 같은 방식.
-/// </summary>
 public partial class frmDept : BaseForm
 {
-    private DataTable _depts = new();
-    private DataTable _employees = new();
-    private string? _editingDeptCd; // null이면 신규모드
+    private DataTable _list = new();
+    private DataTable _detail1 = new();
+    private DataTable _detail2 = new();
+    private DataTable _detail3 = new();
+    private DataTable _detail4 = new();
+    private string? _editingKey; // null이면 신규모드
 
     public frmDept()
     {
@@ -25,99 +23,246 @@ public partial class frmDept : BaseForm
 
         Text = "부서등록";
 
-        tree1.KeyFieldName = "dept_cd";
-        tree1.ParentFieldName = "par_dept_cd";
+        Controls.Add(BuildScreenHeader());
+
+        // tree1은 자기참조 계층 데이터를 그린다 - KeyFieldName은 grd1의 dept_id과
+        // 같은 역할(행 식별), ParentFieldName은 이 템플릿에만 있는 값으로 "이 행의 상위 행"을
+        // 가리키는 컬럼이다(예: 부서 테이블의 UPPER_DEPT_ID). 둘 다 QuerySources에서 고른 grd1
+        // 컬럼 목록에 실제로 있는 이름이어야 한다.
+        tree1.KeyFieldName = "dept_id";
+        tree1.ParentFieldName = "par_dept_id";
+        // 다른 마스터 노드를 고를 때 panData/grd2/grd3에 저장 안 된 변경이 있으면 먼저 확인한다
+        // (BaseForm.ConfirmMasterRowSwitch의 TreeList 오버로드 - GridView 버전과 완전히 같은 원리,
+        // 2026-09-08. 새 화면을 이 템플릿에서 복제하면 기본으로 따라온다. 지우지 말 것). 이름 있는
+        // 메서드로 등록해야 QueryCore가 tree1을 다시 그리는 동안 잠깐 구독을 끊을 수 있다(바로 아래
+        // Tree1_FocusedNodeChanged 설명 참고) - 람다로 등록하면 나중에 뗄 방법이 없다.
         tree1.FocusedNodeChanged += Tree1_FocusedNodeChanged;
 
-        // grd2(소속 사원)는 조회 전용이다 - 사원 등록/수정은 frmEmp에서 한다. Role=Query가 셀
-        // 편집과 네비게이터 추가/삭제/편집 버튼까지 전부 막아준다. 헤더의 +/x 버튼(panelWyn7)은
-        // 그리드 네비게이터와 별개 UI라 여기서도 따로 숨겨야 한다.
-        gvw2.Role = GridRoleWyn.Query;
-        panelWyn7.Visible = false;
+        // grd2/grd3는 MasterFormSubGrid와 마찬가지로 편집 가능하다 - 각자 자기 저장프로시저
+        // (/)로 저장되기 때문. Role=Edit이면 그리드 자신의
+        // EmbeddedNavigator에도 추가/삭제 버튼이 뜬다(탭당 하나씩, 독립 동작).
+        gvw2.Role = GridRoleWyn.Edit;
+        gvw2.HighlightFocusedRow = true;
+        gvw2.RowAdd += (s, e) => gvw2.AddNewRow();
+        gvw2.RowDelete += (s, e) =>
+        {
+            try { if (gvw2.GetFocusedRow() is DataRowView view) view.Row.Delete(); }
+            catch (Exception ex) { AppMessageBox.Show(ex.Message, "삭제 실패"); }
+        };
 
-        // 화면종료 시 저장 확인(BaseForm.ConfirmCloseAsync) - grd2는 조회 전용이라 DataTable은
-        // 추적할 필요 없이 panData만 걸면 된다.
+        //gvw3.Role = GridRoleWyn.Edit;
+        //gvw3.HighlightFocusedRow = true;
+        //gvw3.RowAdd += (s, e) => gvw3.AddNewRow();
+        //gvw3.RowDelete += (s, e) =>
+        //{
+        //    try { if (gvw3.GetFocusedRow() is DataRowView view) view.Row.Delete(); }
+        //    catch (Exception ex) { AppMessageBox.Show(ex.Message, "삭제 실패"); }
+        //};
+
+        //gvw4.Role = GridRoleWyn.Edit;
+        //gvw4.HighlightFocusedRow = true;
+        //gvw4.RowAdd += (s, e) => gvw4.AddNewRow();
+        //gvw4.RowDelete += (s, e) =>
+        //{
+        //    try { if (gvw4.GetFocusedRow() is DataRowView view) view.Row.Delete(); }
+        //    catch (Exception ex) { AppMessageBox.Show(ex.Message, "삭제 실패"); }
+        //};
+
+        //gvw5.Role = GridRoleWyn.Edit;
+        //gvw5.HighlightFocusedRow = true;
+        //gvw5.RowAdd += (s, e) => gvw5.AddNewRow();
+        //gvw5.RowDelete += (s, e) =>
+        //{
+        //    try { if (gvw5.GetFocusedRow() is DataRowView view) view.Row.Delete(); }
+        //    catch (Exception ex) { AppMessageBox.Show(ex.Message, "삭제 실패"); }
+        //};
+
+        // panelWyn1의 공용 추가/삭제 버튼 - 현재 활성 탭의 그리드에 적용(각 그리드 자체
+        // EmbeddedNavigator와 별개로, 탭을 안 넘나들어도 되는 지름길).
+        btnAddRow2.Click += (s, e) => ActiveDetailView().AddNewRow();
+        btnDeletRow2.Click += (s, e) =>
+        {
+            try { if (ActiveDetailView().GetFocusedRow() is DataRowView view) view.Row.Delete(); }
+            catch (Exception ex) { AppMessageBox.Show(ex.Message, "삭제 실패"); }
+        };
+
+        // 개발자용 마우스오버 툴팁(BindingField) - 실제 적용은 BaseForm.ApplyBindingFieldTooltips가
+        // 공통으로 처리한다(Session.IsDeveloper일 때만). 그리드/트리 컬럼은 FieldName이 이미
+        // DB 컬럼명이라 자동 적용되지만, panData 개별 컨트롤은 Tag에 미리 넣어둬야 잡힌다
+        // (2026-09-12 감사 - 이 화면엔 원래 빠져있었음, frmAcc/frmUserAuth/frmMenu만 있었다).
+        cboDetailAccId.Tag = new BindingFieldTag("acc_id");
+        numDetailDeptId.Tag = new BindingFieldTag("dept_id");
+        txtDetailDeptNm.Tag = new BindingFieldTag("dept_nm");
+        numDetailParDeptId.Tag = new BindingFieldTag("par_dept_id");
+        popDetailParDeptNm.Tag = new BindingFieldTag("par_dept_nm");
+        cboDetailDeptType.Tag = new BindingFieldTag("dept_type");
+        txtDetailRemark.Tag = new BindingFieldTag("remark");
+
+        // 화면종료 시 저장 확인(BaseForm.ConfirmCloseAsync)과 다른 마스터 노드로 옮길 때 확인
+        // (ConfirmMasterRowSwitch) 둘 다 이 추적에 기댄다 - grd2/grd3/grd4/grd5(편집 가능한 하위
+        // 그리드)는 EnterNewMode/LoadDetailAsync에서 새 DataTable로 바뀔 때마다 그때그때
+        // TrackDirty(_detail1..4)를 다시 걸어야 한다.
         TrackDirty(panData);
 
-        ConfigureBindingFieldTags();
-
         EnterNewMode();
+        Load += async (s, e) => await QueryClick();
     }
 
-    /// <summary>개발자용 마우스오버 툴팁이 읽어갈 BindingField를 컨트롤마다 심어둔다 - 실제
-    /// 툴팁 적용은 BaseForm.ApplyBindingFieldTooltips가 모든 화면에 공통으로 처리한다(원래는
-    /// 이 화면(frmDept)에만 시험 적용했던 EnableBindingTooltips()가 직접 .ToolTip을 채웠는데,
-    /// "모든 화면에 공통기능으로 적용해달라"는 지시로 base로 옮기면서 여기는 Tag만 세팅하는
-    /// 역할로 바뀌었다, 2026-08-31). WYNLAB 화면은 실제 WinForms 데이터바인딩을 안 쓰고
-    /// 코드로 직접 값을 채우는 방식이라(txtDeptCd.Text = row["dept_cd"]) 이 매핑 정보가
-    /// 컨트롤 자체엔 원래 안 남는다 - 그래서 컨트롤 선언 시(또는 여기처럼 생성자에서) Tag에
-    /// BindingFieldTag로 한 번 심어둬야 한다.
-    ///
-    /// 그리드/트리 컬럼(colTreeDeptCd, colEmpNo 등)은 여기서 손댈 게 없다 - FieldName이 이미
-    /// 실제 DB 컬럼명이라 BaseForm이 전부 자동으로 잡는다.</summary>
-    private void ConfigureBindingFieldTags()
+    private GridViewWyn ActiveDetailView() => tabDetailGrids.SelectedTabPage switch
     {
-        txtDeptCd.Tag = new BindingFieldTag("dept_cd");
-        txtDeptNm.Tag = new BindingFieldTag("dept_nm");
-        txtParDeptCd.Tag = new BindingFieldTag("par_dept_cd");
-        txtParDeptNm.Tag = new BindingFieldTag("dept_nm"); // 부모 부서명(popup MapField로 채워짐)
-        txtDeptType.Tag = new BindingFieldTag("dept_type");
-        txtRemark.Tag = new BindingFieldTag("remark");
-    }
+        //var t when ReferenceEquals(t, tabDetail2) => gvw3,
+        //var t when ReferenceEquals(t, tabDetail3) => gvw4,
+        //var t when ReferenceEquals(t, tabDetail4) => gvw5,
+        _ => gvw2
+    };
 
-    /// <summary>부서 트리 조회. 검색조건을 늘리려면 USP_BA_DEPT_Q의 Q 분기에 파라미터를
-    /// 추가하면 된다.
-    ///
-    /// 저장 후 재조회(SaveClick -> QueryClick)에서도 방금 편집하던 부서가 그대로 선택돼 있어야
-    /// 한다 - 무조건 EnterNewMode로 비우면 저장 직후 우측 패널이 빈 채로 보인다(frmMinorCode에서
-    /// 실제로 겪은 문제와 같은 패턴). tree1.DataSource를 다시 세팅하면 DevExpress가 자동으로
-    /// 첫 노드에 포커스를 주면서 FocusedNodeChanged가 발생하는데, 그게 복원하려는 노드가
-    /// 아니면 잠깐 엉뚱한 부서로 EnterEditMode가 실행되므로, 포커스 복원이 끝날 때까지
-    /// 이벤트를 끊어두고 마지막에 한 번만 명시적으로 처리한다.</summary>
-    // 사용자 조회(preserveSelection: false, 항상 0번 노드부터)와 저장/삭제 뒤 내부 재조회
-    // (preserveSelection: true, 방금 편집하던 노드 유지)는 다른 동작이어야 한다(2026-09-02,
-    // [[feedback_query_refocus_after_save]] - 지금까지 _editingDeptCd를 무조건 복원해서 목록
-    // 중간 부서를 보다가 조회를 눌러도 그 노드가 계속 선택된 채로 남아있었다).
     public override async Task QueryClick() => await QueryCore(preserveSelection: false);
 
+    /// <summary>사용자가 직접 누른 조회(preserveSelection: false)는 새 검색이므로 첫 노드부터,
+    /// 저장/삭제 뒤의 내부 재조회(preserveSelection: true)는 방금 편집하던 노드에 포커스를 되돌려
+    /// panData/grd2/grd3까지 그 값 그대로 다시 채운다(TplMasterFormSubGrid.QueryCore와 같은 원칙).
+    ///
+    /// GridView와 달리 TreeList는 DataSource를 바꿔도 스스로 첫 노드에 포커스를 주지 않는다(직접
+    /// 확인 필요 없이 안전하게 가정할 수 없어서 명시적으로 처리) - editingKey가 없을 때도
+    /// tree1.Nodes[0]로 명시적으로 포커스를 줘야 panData가 첫 조회에서부터 채워진다(그리드
+    /// 템플릿들이 겪었던 "최초 조회 시 panData 안 채워짐" 버그와 같은 함정을 여기서는 애초에
+    /// 피한다).</summary>
     private async Task QueryCore(bool preserveSelection)
     {
-        var detpCd = txtDeptCd_Q.Text.Trim();
-
-        _depts = await QueryAsync("USP_BA_DEPT_Q", new
+        var p = new Dictionary<string, string?>
         {
-            p_work_type = "Q",
-            p_dept_cd = detpCd
-        });
+            ["p_work_type"] = "Q",
+            ["p_dept_id"] = txtDeptId.Text,
+            ["p_dept_nm"] = txtDeptNm.Text,
+        };
+        _list = await QueryAsync("USP_BA_DEPT_Q", p);
 
-        var editingDeptCd = preserveSelection ? _editingDeptCd : null;
+        var editingKey = preserveSelection ? _editingKey : null;
 
+        // 구독을 잠깐 끊는 이유는 GridView 버전(TplMasterFormSubGrid.QueryCore 주석 참고)과 동일 -
+        // SuppressMasterRowSwitchConfirm은 "확인창"만 막지, 안에서 tree1.FocusedNode를 바꾸면
+        // FocusedNodeChanged 자체는 그대로 발생해서 중복 호출이 겹칠 수 있다.
         tree1.FocusedNodeChanged -= Tree1_FocusedNodeChanged;
-        try
+        SuppressMasterRowSwitchConfirm(tree1, () =>
         {
-            tree1.DataSource = _depts;
-
-            if (editingDeptCd != null)
+            tree1.DataSource = _list;
+            tree1.ExpandAll();
+            if (editingKey != null)
             {
-                var node = tree1.FindNodeByFieldValue("dept_cd", editingDeptCd);
+                var node = FindTreeNode(tree1.Nodes, editingKey);
                 if (node != null) tree1.FocusedNode = node;
             }
-        }
-        finally
-        {
-            tree1.FocusedNodeChanged += Tree1_FocusedNodeChanged;
-        }
+            else if (tree1.Nodes.Count > 0)
+            {
+                tree1.FocusedNode = tree1.Nodes[0];
+            }
+        });
+        tree1.FocusedNodeChanged += Tree1_FocusedNodeChanged;
 
-        // DevExpress가 DataSource 세팅 시(위에서 복원 시도한 노드가 없으면 특히) 자동으로 어떤
-        // 노드엔가 포커스를 준다(보통 첫 번째) - 이벤트를 끊어놨으므로 EnterEditMode가 안 불려서
-        // panData는 안 채워졌는데 트리는 그 노드가 하이라이트된 채로 남는다(2026-09-04 실제
-        // 발견 - 조회하면 최상단 부서가 선택된 것처럼 보이는데 우측 상세는 빈 화면). 지금
-        // 실제로 포커스된 노드 기준으로 채운다 - 복원 시도 성공/실패, 최초 조회 전부 이
-        // 한 줄로 통일된다(editingDeptCd로 다시 찾을 필요 없음).
-        var focusedDeptCd = tree1.FocusedNode?.GetValue("dept_cd") as string;
-        var row = string.IsNullOrEmpty(focusedDeptCd) ? null : FindDeptRow(focusedDeptCd);
-        if (row != null) EnterEditMode(row);
+        var row = editingKey == null ? null : FindRow(editingKey);
+        if (row != null) await OnMasterSelectedAsync(row);
+        else if (tree1.FocusedNode != null && tree1.GetDataRecordByNode(tree1.FocusedNode) is DataRowView focusedView) await OnMasterSelectedAsync(focusedView.Row);
         else EnterNewMode();
+    }
+
+    private void Tree1_FocusedNodeChanged(object? sender, DevExpress.XtraTreeList.FocusedNodeChangedEventArgs e) =>
+        ConfirmMasterRowSwitch(tree1, e, row => _ = OnMasterSelectedAsync(row.Row));
+
+    /// <summary>조회된 목록에서 키(dept_id)로 행을 찾는다. 없으면 null.</summary>
+    private DataRow? FindRow(string key) =>
+        _list.Rows.Cast<DataRow>()
+            .FirstOrDefault(r => string.Equals(Convert.ToString(r["dept_id"]), key, StringComparison.OrdinalIgnoreCase));
+
+    /// <summary>키로 tree1의 노드를 찾는다(계층 전체를 재귀 탐색) - GridView 버전의 FindRowHandle과
+    /// 같은 역할. FindNodeByKeyID 대신 직접 재귀 탐색하는 이유: 그 메서드가 키 값을 어떤 타입으로
+    /// 비교하는지(예: 문자열 "123"과 실제 컬럼의 bigint 123을 같다고 볼지) 확인된 바가 없어서, 이미
+    /// 검증된 방식(FindRow와 동일하게 Convert.ToString 비교)만 쓴다.</summary>
+    private static TreeListNode? FindTreeNode(TreeListNodes nodes, string key)
+    {
+        foreach (TreeListNode node in nodes)
+        {
+            if (string.Equals(Convert.ToString(node.GetValue("dept_id")), key, StringComparison.OrdinalIgnoreCase))
+                return node;
+
+            var found = FindTreeNode(node.Nodes, key);
+            if (found != null) return found;
+        }
+        return null;
+    }
+
+    private async Task OnMasterSelectedAsync(DataRow row)
+    {
+        // 코드가 값을 채우는 것뿐인데 TrackDirty(panData)가 "사용자가 고쳤다"로 오인하지 않게 감싼다.
+        SuppressDirtyTracking(() =>
+        {
+            _editingKey = row["dept_id"]?.ToString();
+        cboDetailAccId.EditValue = row["acc_id"]?.ToString() ?? string.Empty;
+        numDetailDeptId.EditValue = decimal.TryParse(row["dept_id"]?.ToString(), out var numDeptId) ? numDeptId : (decimal?)null;
+        txtDetailDeptNm.Text = row["dept_nm"]?.ToString() ?? string.Empty;
+        numDetailParDeptId.EditValue = decimal.TryParse(row["par_dept_id"]?.ToString(), out var numParDeptId) ? numParDeptId : (decimal?)null;
+        popDetailParDeptNm.Text = row["par_dept_nm"]?.ToString() ?? string.Empty;
+        cboDetailDeptType.EditValue = row["dept_type"]?.ToString() ?? string.Empty;
+        txtDetailRemark.Text = row["remark"]?.ToString() ?? string.Empty;
+        });
+
+        await LoadDetailAsync();
+    }
+
+    private void EnterNewMode()
+    {
+        SuppressDirtyTracking(() =>
+        {
+            _editingKey = null;
+        // 신규입력 시 사업장을 매번 고르게 하지 않고 로그인 세션의 사업장을 기본값으로 채운다
+        // (2026-09-11 - 모든 입력화면 공통 표준, frmEmp에서 먼저 적용됐던 것과 동일) - 필요하면
+        // 사용자가 직접 다른 사업장으로 바꿀 수 있다.
+        cboDetailAccId.EditValue = Session.AccId?.ToString() ?? string.Empty;
+        numDetailDeptId.EditValue = null;
+        txtDetailDeptNm.Text = string.Empty;
+        numDetailParDeptId.EditValue = null;
+        popDetailParDeptNm.Text = string.Empty;
+        cboDetailDeptType.EditValue = string.Empty;
+        txtDetailRemark.Text = string.Empty;
+            _detail1 = _detail1.Clone();
+            _detail2 = _detail2.Clone();
+            _detail3 = _detail3.Clone();
+            _detail4 = _detail4.Clone();
+            TrackDirty(_detail1);
+            TrackDirty(_detail2);
+            TrackDirty(_detail3);
+            TrackDirty(_detail4);
+            grd2.DataSource = _detail1;
+            //grd3.DataSource = _detail2;
+            //grd4.DataSource = _detail3;
+            //grd5.DataSource = _detail4;
+        });
+    }
+
+    /// <summary>선택된 마스터 노드의 하위 목록 최대 4개(grd2/grd3/grd4/grd5)를 한 번의 호출로 같이
+    /// 조회한다 - USP_BA_DEPT_Q가 work_type='Q1'일 때 레코드셋을
+    /// 순서대로(grd2용, grd3용, grd4용, grd5용) 반환하기 때문에 QueryMultiAsync를 쓴다(QueryAsync는
+    /// 첫 레코드셋만 받음). grd3/grd4/grd5는 전부 선택사항이라 프로시저가 그만큼 레코드셋을 안
+    /// 돌려줘도(Count가 모자라도) 빈 DataTable로 채워질 뿐 에러가 안 난다.</summary>
+    private async Task LoadDetailAsync()
+    {
+        var p = new Dictionary<string, string?>
+        {
+            ["p_work_type"] = "Q1",
+            ["p_dept_id"] = _editingKey,
+        };
+        var tables = await QueryMultiAsync("USP_BA_DEPT_Q", p);
+        _detail1 = tables.Count > 0 ? tables[0] : new DataTable();
+        _detail2 = tables.Count > 1 ? tables[1] : new DataTable();
+        _detail3 = tables.Count > 2 ? tables[2] : new DataTable();
+        _detail4 = tables.Count > 3 ? tables[3] : new DataTable();
+        TrackDirty(_detail1);
+        TrackDirty(_detail2);
+        TrackDirty(_detail3);
+        TrackDirty(_detail4);
+        grd2.DataSource = _detail1;
+        //grd3.DataSource = _detail2;
+        //grd4.DataSource = _detail3;
+        //grd5.DataSource = _detail4;
     }
 
     public override Task NewClick()
@@ -126,164 +271,133 @@ public partial class frmDept : BaseForm
         return Task.CompletedTask;
     }
 
-    public override async Task DeleteClick()
-    {
-        if (_editingDeptCd == null)
-        {
-            AppMessageBox.Show("삭제할 부서를 먼저 선택해주세요.", "안내");
-            return;
-        }
-
-        var confirm = AppMessageBox.Show(
-            $"선택하신 부서를 삭제 하시겠습니까?\n\n[{_editingDeptCd}] {txtDeptNm.Text}",
-            "삭제 확인", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
-        if (confirm != DialogResult.Yes) return;
-
-        var result = await SaveAsync("USP_BA_DEPT_S", new
-        {
-            p_work_type = "D",
-            p_dept_cd = _editingDeptCd
-        });
-
-        if (!result.Success)
-        {
-            AppMessageBox.Show(FormatSaveFailMessage(result), "삭제 실패");
-            return;
-        }
-
-        await QueryClick();
-        Toast.Show("삭제되었습니다.");
-    }
-
-    // grd2는 조회 전용이라 여기 두 개는 쓸 일이 없다(생성자에서 버튼도 숨김).
-    public override Task NewRowClick() => Task.CompletedTask;
-    public override Task DeleteRowClick() => Task.CompletedTask;
-
     public override async Task SaveClick()
     {
-        if (string.IsNullOrWhiteSpace(txtDeptCd.Text) || string.IsNullOrWhiteSpace(txtDeptNm.Text))
+        // 저장프로시저가 지정 안 된 조회전용 화면이면 여기서 막는다(TplSingleGrid.cs와 같은 가드) -
+        // grd2/grd3 저장도 헤더가 돌려주는 키(headerKey)가 있어야 동작하므로, 헤더가 없으면
+        // 저장 전체를 여기서 끊는다.
+        if (string.IsNullOrEmpty("USP_BA_DEPT_S"))
         {
-            AppMessageBox.Show("부서코드와 부서명은 필수입니다.", "확인");
+            AppMessageBox.Show("이 화면은 조회전용으로 생성됐습니다 - 저장프로시저가 지정되지 않았습니다.", "저장 불가");
             return;
         }
 
-        var wasNew = _editingDeptCd == null;
-
-        var result = await SaveAsync("USP_BA_DEPT_S", new
+        // ---- 1) 헤더(panData -> USP_BA_DEPT_S) ----
+        var headerParams = new Dictionary<string, string?>
         {
-            p_work_type = wasNew ? "N" : "U",
-            p_dept_cd = txtDeptCd.Text.ToUpper(),
-            p_dept_nm = txtDeptNm.Text,
-            p_par_dept_cd = string.IsNullOrWhiteSpace(txtParDeptCd.Text) ? null : txtParDeptCd.Text,
-            p_dept_type = txtDeptType.Text,
-            p_remark = txtRemark.Text
-        });
+            ["p_work_type"] = _editingKey == null ? "N" : "U",
+            ["p_acc_id"] = cboDetailAccId.EditValue?.ToString() ?? string.Empty,
+            ["p_dept_id"] = numDetailDeptId.EditValue?.ToString(),
+            ["p_dept_nm"] = txtDetailDeptNm.Text,
+            ["p_par_dept_id"] = numDetailParDeptId.EditValue?.ToString(),
+            ["p_dept_type"] = cboDetailDeptType.EditValue?.ToString() ?? string.Empty,
+            ["p_remark"] = txtDetailRemark.Text,
+        };
 
-        if (!result.Success)
+        var headerResult = await SaveAsync("USP_BA_DEPT_S", headerParams);
+        if (headerResult == null || !headerResult.Success)
         {
-            AppMessageBox.Show(FormatSaveFailMessage(result), "저장 실패");
+            AppMessageBox.Show(headerResult?.Message ?? "저장에 실패했습니다.", "저장 실패");
             return;
         }
 
-        _editingDeptCd = txtDeptCd.Text.ToUpper();
-        await QueryCore(preserveSelection: true); // 방금 저장한 행 유지 - QueryClick(사용자 조회)과 다른 경로
-        Toast.Show(wasNew ? "등록되었습니다." : "수정되었습니다.");
-    }
+        var headerKey = _editingKey ?? headerResult.GeneratedCode;
 
-    private void Tree1_FocusedNodeChanged(object? sender, DevExpress.XtraTreeList.FocusedNodeChangedEventArgs e)
-    {
-        if (e.Node == null) return;
-        var deptCd = e.Node.GetValue("dept_cd") as string;
-        if (string.IsNullOrEmpty(deptCd)) return;
-
-        var row = FindDeptRow(deptCd!);
-        if (row != null) EnterEditMode(row);
-    }
-
-    /// <summary>조회된 부서 목록에서 코드로 행을 찾는다. 없으면 null.</summary>
-    private DataRow? FindDeptRow(string deptCd) =>
-        _depts.Rows.Cast<DataRow>()
-            .FirstOrDefault(r => string.Equals(Convert.ToString(r["dept_cd"]), deptCd, StringComparison.OrdinalIgnoreCase));
-
-    /// <summary>panData를 채우는 부분은 SuppressDirtyTracking으로 감싼다 - 안 그러면 코드가
-    /// 값을 채우는 것뿐인데 TrackDirty(panData)가 "사용자가 고쳤다"로 오인해서, 조회/트리
-    /// 클릭 직후부터 화면을 닫을 때 저장 확인이 뜨는 오작동이 생긴다.</summary>
-    private void EnterNewMode()
-    {
-        SuppressDirtyTracking(() =>
+        // ---- 2) 명세1(grd2 -> ) - grd3과 마찬가지로 선택사항이다(TplMasterFormSubGrid
+        // 와 같은 원칙 - 저장프로시저가 없으면 이 단계를 건너뛴다). ----
+        if (!string.IsNullOrEmpty(""))
         {
-            _editingDeptCd = null;
-            txtDeptCd.Text = string.Empty;
-            txtDeptCd.ReadOnly = false;
-            txtDeptNm.Text = string.Empty;
-            txtParDeptCd.Text = string.Empty;
-            txtParDeptNm.Text = string.Empty;
-            txtDeptType.Text = string.Empty;
-            txtRemark.Text = string.Empty;
+            var detail1Ok = await SaveDetailRowsAsync(gvw2, _detail1, "", headerKey, (row, version) => new Dictionary<string, string?>
+            {
+            });
+            if (!detail1Ok) return;
+        }
 
-            _employees = _employees.Clone();
-            grd2.DataSource = _employees;
-        });
-        txtDeptCd.Focus();
+        //// ---- 3) 명세2(grd3 -> ) - 선택사항. ----
+        //if (!string.IsNullOrEmpty(""))
+        //{
+        //    var detail2Ok = await SaveDetailRowsAsync(gvw3, _detail2, "", headerKey, (row, version) => new Dictionary<string, string?>
+        //    {
+        //    });
+        //    if (!detail2Ok) return;
+        //}
+
+        //// ---- 4) 명세3(grd4 -> ) - 선택사항. ----
+        //if (!string.IsNullOrEmpty(""))
+        //{
+        //    var detail3Ok = await SaveDetailRowsAsync(gvw4, _detail3, "", headerKey, (row, version) => new Dictionary<string, string?>
+        //    {
+        //    });
+        //    if (!detail3Ok) return;
+        //}
+
+        //// ---- 5) 명세4(grd5 -> ) - 선택사항. ----
+        //if (!string.IsNullOrEmpty(""))
+        //{
+        //    var detail4Ok = await SaveDetailRowsAsync(gvw5, _detail4, "", headerKey, (row, version) => new Dictionary<string, string?>
+        //    {
+        //    });
+        //    if (!detail4Ok) return;
+        //}
+
+        _editingKey ??= headerResult.GeneratedCode;
+        Toast.Show("저장되었습니다.");
+        await QueryCore(preserveSelection: true); // 방금 저장한 노드 유지 - QueryClick(사용자 조회)과 다른 경로
     }
 
-    private void EnterEditMode(DataRow dept)
+    /// <summary>grd2/grd3 공통 저장 루프 - 변경된 행마다 N/U/D로 나눠 저장한다(SingleGrid.SaveClick과
+    /// 같은 RowState 판정 방식). extraParams는 화면마다 다른 컬럼->파라미터 매핑을 행 하나 기준으로
+    /// 만들어주는 콜백(생성기가 컬럼 목록으로 채워넣음).</summary>
+    private async Task<bool> SaveDetailRowsAsync(GridViewWyn gvw, DataTable table, string saveProc, string? masterKey,
+        Func<DataRow, DataRowVersion, Dictionary<string, string?>> extraParams)
     {
-        var deptCd = Str(dept, "dept_cd");
-        var isSameDept = _editingDeptCd == deptCd;
+        gvw.CloseEditor();
+        gvw.UpdateCurrentRow();
 
-        SuppressDirtyTracking(() =>
+        foreach (DataRow row in table.Rows.Cast<DataRow>().ToList())
         {
-            _editingDeptCd = deptCd;
-            txtDeptCd.Text = deptCd;
-            txtDeptCd.ReadOnly = true; // 부서코드는 키라 수정 불가
-            txtDeptNm.Text = Str(dept, "dept_nm");
-            var parDeptCd = Str(dept, "par_dept_cd");
-            txtParDeptCd.Text = parDeptCd;
-            // par_dept_cd는 있지만 그 이름은 이 행에 안 담겨 있다 - 이미 받아둔 부서 목록(_depts,
-            // 트리 전체)에서 같은 코드를 찾아 채운다(추가 조회 없이 즉시 가능).
-            var parDeptRow = parDeptCd.Length == 0 ? null : FindDeptRow(parDeptCd);
-            txtParDeptNm.Text = parDeptRow == null ? string.Empty : Str(parDeptRow, "dept_nm");
-            txtDeptType.Text = Str(dept, "dept_type");
-            txtRemark.Text = Str(dept, "remark");
-        });
+            if (row.RowState == DataRowState.Unchanged) continue;
 
-        if (!isSameDept) _ = LoadEmployeesAsync(deptCd);
+            var workType = row.RowState == DataRowState.Deleted ? "D" : row.RowState == DataRowState.Added ? "N" : "U";
+            // Deleted 행에서 DataRowVersion.Current를 읽으면 DeletedRowInaccessibleException이 난다
+            // (ProcData.Str 주석 참고) - 그래서 컬럼 매핑에도 이 버전을 그대로 넘겨준다.
+            var version = row.RowState == DataRowState.Deleted ? DataRowVersion.Original : DataRowVersion.Current;
+
+            var p = new Dictionary<string, string?>
+            {
+                ["p_work_type"] = workType,
+                ["p_dept_id"] = masterKey,
+            };
+            foreach (var kv in extraParams(row, version)) p[kv.Key] = kv.Value;
+
+            var result = await SaveAsync(saveProc, p);
+            if (result == null || !result.Success)
+            {
+                AppMessageBox.Show(result?.Message ?? "저장에 실패했습니다.", "저장 실패");
+                return false;
+            }
+        }
+        return true;
     }
 
-    private async Task LoadEmployeesAsync(string deptCd)
+    public override async Task DeleteClick()
     {
-        _employees = await QueryAsync("USP_BA_DEPT_Q", new
+        if (_editingKey == null) return;
+
+        var p = new Dictionary<string, string?>
         {
-            p_work_type = "Q1",
-            p_dept_cd = deptCd
-        });
+            ["p_work_type"] = "D",
+            ["p_dept_id"] = _editingKey,
+        };
+        var result = await SaveAsync("USP_BA_DEPT_S", p);
+        if (result == null || !result.Success)
+        {
+            AppMessageBox.Show(result?.Message ?? "삭제에 실패했습니다.", "삭제 실패");
+            return;
+        }
 
-        grd2.DataSource = _employees;
-    }
-
-    private static string Str(DataRow row, string columnName) =>
-        row.Table.Columns.Contains(columnName) && row[columnName] != DBNull.Value
-            ? Convert.ToString(row[columnName]) ?? string.Empty
-            : string.Empty;
-
-    /// <summary>ApiResult.ErrorCode는 SQL 예외(ERROR_NUMBER())일 때만 채워진다(0이면 업무로직
-    /// 판단만으로 실패 - 예: 필수값 누락) - 그럴 때만 메시지에 오류번호를 같이 보여준다.</summary>
-    private static string FormatSaveFailMessage(ApiResult? result)
-    {
-        var message = result?.Message ?? "저장에 실패했습니다.";
-        return result is { ErrorCode: not 0 } ? $"{message} (오류코드: {result.ErrorCode})" : message;
-    }
-
-    // grd2는 조회 전용이라 아래 두 핸들러는 실질적으로 안 불린다(panelWyn7 숨김) - Designer.cs가
-    // 이 이름으로 이벤트를 연결해두고 있어서 시그니처만 유지한다.
-    private async void btnAddRow2_Click(object sender, EventArgs e)
-    {
-        await NewRowClick();
-    }
-
-    private async void btnDeletRow2_Click(object sender, EventArgs e)
-    {
-        await DeleteRowClick();
+        _editingKey = null;
+        Toast.Show("삭제되었습니다.");
+        await QueryClick();
     }
 }

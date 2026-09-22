@@ -1,4 +1,5 @@
 using System.Runtime.CompilerServices;
+using System.Threading;
 using System.Windows.Forms;
 using WYNLAB.Base;
 
@@ -11,19 +12,37 @@ internal static class Program
     /// 타입을 "실행"하지 않는 것만으로는 부족하고, 이 메서드 본문에 "언급"조차 하면 안 된다 -
     /// .NET은 메서드의 첫 줄을 실행하기 전에 그 메서드 전체를 JIT 컴파일하면서 본문에 등장하는
     /// 모든 타입을 해석하고, 그 과정에서 해당 어셈블리를 프로세스에 로드해버리기 때문이다.
+    /// (System.Threading.Mutex/MessageBox는 BCL이라 이 제약과 무관 - WYNLAB 어셈블리가 아니다.)
     ///
     /// 예전엔 Run()의 내용이 전부 이 Main() 안에 들어있었는데, 그래서 EnsureUpToDate()가
     /// 호출되기도 전에 (Main을 JIT하는 시점에) WYNLAB.BaseForm.dll이 이미 메모리에 매핑됐고,
     /// 매핑된 파일은 File.Delete가 UnauthorizedAccessException으로 실패한다(사용 중을 뜻하는
-    /// IOException이 아니라서 CoreAssemblyUpdater의 IsFileLocked 사전 체크로도 안 걸러졌다).
-    /// 결과적으로 BaseForm.dll이 며칠 동안 한 번도 갱신되지 못했다(2026-08-24~25 실제로 겪음).
-    /// 그래서 실제 기동 로직을 별도 메서드로 분리하고, JIT이 그걸 Main으로 인라인해서 같은
-    /// 문제를 되살리지 못하도록 NoInlining을 명시한다.
+    /// IOException이 아니라서 CoreAssemblyUpdater가 그런 경우를 rename으로 우회하는 것과는
+    /// 별개 문제). 결과적으로 BaseForm.dll이 며칠 동안 한 번도 갱신되지 못했다(2026-08-24~25
+    /// 실제로 겪음). 그래서 실제 기동 로직을 별도 메서드로 분리하고, JIT이 그걸 Main으로
+    /// 인라인해서 같은 문제를 되살리지 못하도록 NoInlining을 명시한다.
     /// </summary>
     [STAThread]
     private static void Main()
     {
-        WYNLAB.Bootstrap.CoreAssemblyUpdater.EnsureUpToDate();
+        // "두 인스턴스가 동시에 CoreAssembly 갱신 로직을 타면서 서로의 dll을 잠그는" 문제만
+        // 직렬화한다(2026-09-06 발견). 예전엔 이 Mutex를 프로세스 종료까지 계속 들고 있어서
+        // WYNLAB.exe 자체가 중복 실행이 아예 안 됐는데, 업무 특성상 여러 개를 동시에 띄워놓고
+        // 쓰는 게 필수라는 요청에 따라(2026-09-10) 업데이트가 끝나는 즉시 놓도록 바꿨다 -
+        // using 블록을 EnsureUpToDate() 호출만 감싸게 좁혀서, 그 이후(Run())부터는 다른
+        // 인스턴스가 몇 개든 자유롭게 실행될 수 있다. 이름에 "Global\"을 안 붙였으므로 같은
+        // 로그인 세션 안에서만 유효 - 이 앱은 단일 사용자 데스크톱용이라 그걸로 충분하고,
+        // "Global\"은 별도 권한이 필요해질 수 있어 피한다.
+        using (var updateMutex = new Mutex(initiallyOwned: true, "WYNLAB_CoreAssemblyUpdate", out var acquiredImmediately))
+        {
+            // 못 얻었어도(다른 인스턴스가 지금 막 갱신 중) 업데이트 자체를 건너뛰지 않는다 -
+            // 잠깐(최대 30초) 순서만 양보하고, 그래도 안 풀리면 그냥 진행한다. 드물게 경합이
+            // 나더라도 CoreAssemblyUpdater가 이미 잠긴 파일을 조용히 건너뛰도록 되어 있어
+            // (2026-09-06 안정성 수정 참고) 앱이 죽지는 않는다.
+            if (!acquiredImmediately) updateMutex.WaitOne(TimeSpan.FromSeconds(30));
+            WYNLAB.Bootstrap.CoreAssemblyUpdater.EnsureUpToDate();
+        }
+
         Run();
     }
 
@@ -78,6 +97,10 @@ internal static class Program
         // LookUpEditWyn.MajorCd 같은 WYNLAB.Controls의 데이터 조회 훅에 실제 구현(ApiClient)을
         // 연결 - 화면 모듈이 로드되어 컨트롤이 생성되기 전에 반드시 먼저 해둬야 한다.
         ControlDataSources.Initialize();
+        // PopupLookupEditWyn("..." 버튼)의 팝업 훅 연결 - popPopUp이 WYNLAB.Popup
+        // 프로젝트에 있어서 ControlDataSources.Initialize()(BaseForm 소속)가 대신 못 한다
+        // (순환참조 방지, WYNLAB.Popup/PopupWiring.cs 설명 참고).
+        WYNLAB.Popup.PopupWiring.Initialize();
 
         // 로그인 성공 시에만 ShellForm(MDI 메인) 기동. 로그인창이 닫히면서 띄운 스플래시는
         // ShellForm이 실제로 화면에 그려진 직후(Shown)에 닫아서, 그 사이 빈 화면이 보이지 않게 한다.
@@ -88,6 +111,10 @@ internal static class Program
             // 로그인 창이 늦게 뜨는 일이 없도록 로그인 성공 후(ShellForm의 툴바/로고를
             // 그리기 직전)에 동기화한다.
             AssetSyncer.SyncFromServer();
+
+            // 사이트환경설정(frmSiteConfig) 색상값도 같은 자리에서 - ShellForm/화면들이 UiTheme를
+            // 읽어 그리기 시작하기 전에 반드시 끝나 있어야 한다(SiteThemeSync 설명 참고).
+            SiteThemeSync.ApplyFromServer();
 
             var shell = new ShellForm();
             shell.Shown += (s, e) => loginForm.Splash?.Close();

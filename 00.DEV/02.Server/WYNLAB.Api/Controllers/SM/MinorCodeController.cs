@@ -1,6 +1,7 @@
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using WYNLAB.Api.Controllers;
 using WYNLAB.Api.Authorization;
 using WYNLAB.Api.Repositories.SM;
 using WYNLAB.Shared.Dtos;
@@ -58,7 +59,7 @@ public class MinorCodeController : ControllerBase
     [RequireMenuPermission("SM", "frmMinorCode", MenuAction.Insert)]
     public async Task<ActionResult<ApiResult>> Create([FromBody] MajorSaveRequest request)
     {
-        var result = await _repo.SaveMajorAsync("N", request, CurrentUserId, ClientIp);
+        var result = await _repo.SaveMajorAsync("N", request, CurrentUserId, ClientPc);
         if (!result.IsSuccess)
             return Ok(new ApiResult { Success = false, Message = result.FailMessage, ErrorCode = result.ErrorCode });
 
@@ -70,7 +71,7 @@ public class MinorCodeController : ControllerBase
     public async Task<ActionResult<ApiResult>> Update(string majorCd, [FromBody] MajorSaveRequest request)
     {
         request.major_cd = majorCd;
-        var result = await _repo.SaveMajorAsync("U", request, CurrentUserId, ClientIp);
+        var result = await _repo.SaveMajorAsync("U", request, CurrentUserId, ClientPc);
         if (!result.IsSuccess)
             return Ok(new ApiResult { Success = false, Message = result.FailMessage, ErrorCode = result.ErrorCode });
 
@@ -84,7 +85,7 @@ public class MinorCodeController : ControllerBase
     [RequireMenuPermission("SM", "frmMinorCode", MenuAction.Delete)]
     public async Task<ActionResult<ApiResult>> Delete(string majorCd)
     {
-        var result = await _repo.SaveMajorAsync("D", new MajorSaveRequest { major_cd = majorCd }, CurrentUserId, ClientIp);
+        var result = await _repo.SaveMajorAsync("D", new MajorSaveRequest { major_cd = majorCd }, CurrentUserId, ClientPc);
         if (!result.IsSuccess)
             return Ok(new ApiResult { Success = false, Message = result.FailMessage, ErrorCode = result.ErrorCode });
 
@@ -96,7 +97,7 @@ public class MinorCodeController : ControllerBase
     [RequireMenuPermission("SM", "frmMinorCode", MenuAction.Update)]
     public async Task<ActionResult<ApiResult>> SaveMinors(string majorCd, [FromBody] SaveMinorsRequest request)
     {
-        var result = await _repo.SaveMinorsAsync(majorCd, request.Items, CurrentUserId, ClientIp);
+        var result = await _repo.SaveMinorsAsync(majorCd, request.Items, CurrentUserId, ClientPc);
         if (!result.IsSuccess)
             return Ok(new ApiResult { Success = false, Message = result.FailMessage, ErrorCode = result.ErrorCode });
 
@@ -104,5 +105,5 @@ public class MinorCodeController : ControllerBase
     }
 
     private string CurrentUserId => User.FindFirstValue(ClaimTypes.NameIdentifier) ?? string.Empty;
-    private string? ClientIp => HttpContext.Connection.RemoteIpAddress?.ToString();
+    private string? ClientPc => ClientPcInfo.Build(HttpContext);
 }

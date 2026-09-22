@@ -1,0 +1,13 @@
+﻿cust_cd varchar 20 NULL NULL NO
+serl int NULL 10 0 NO
+bank_cd varchar 20 NULL NULL NO
+acnt_no varchar 50 NULL NULL NO
+remark nvarchar 200 NULL NULL YES
+reg_user_id varchar 50 NULL NULL NO
+reg_dt datetime NULL NULL NULL YES
+reg_pc nvarchar 200 NULL NULL YES
+upt_user_id varchar 50 NULL NULL YES
+upt_dt datetime NULL NULL NULL YES
+upt_pc nvarchar 200 NULL NULL YES
+
+(11개 행 적용됨)

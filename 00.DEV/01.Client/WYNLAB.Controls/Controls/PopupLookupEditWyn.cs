@@ -54,14 +54,51 @@ public class PopupLookupEditWyn : ButtonEdit
     private Control? _nameControl;
     private bool _syncingPair;
     private readonly Dictionary<string, Control> _fieldMap = new();
+    private string? _valueOnEnter;
 
     public PopupLookupEditWyn()
     {
         EnsureButton();
         Properties.NullText = string.Empty;
         ButtonClick += (s, e) => _ = OpenPopupAsync(null);
+        // 포커스를 얻은 시점의 값을 기억해뒀다가 Leave에서 실제로 바뀌었는지 비교한다(아래
+        // OnLeaveAsync 설명 참고) - 사용자가 아무것도 안 고쳤는데도(이미 이름이 겹치는 부서라
+        // 원래부터 모호했던 값 등) 그냥 포커스만 지나가도 매번 팝업이 뜨고, 그걸 닫으면 값이
+        // 지워지는 오작동을 막기 위함(2026-09-12 실제 발견).
+        Enter += (s, e) => _valueOnEnter = Text;
         Leave += async (s, e) => await OnLeaveAsync();
         EditValueChanged += (s, e) => { if (Text.Length == 0) ClearMappedFields(); };
+    }
+
+    private bool _required;
+
+    /// <summary>TextEditWyn/MemoEditWyn 등과 같은 목적 - "필수입력" 표시를 속성창 체크박스
+    /// 하나로 켤 수 있게 한다. ButtonEdit도 DevExpress BaseEdit 계열이라
+    /// RequiredFieldExtensions.MarkRequired&lt;T&gt;()를 그대로 재사용할 수 있다.</summary>
+    [Category("WYNLAB")]
+    [Description("필수 입력 항목이면 배경색으로 강조 표시합니다.")]
+    [DefaultValue(false)]
+    public bool Required
+    {
+        get => _required;
+        set
+        {
+            _required = value;
+            ApplyRequiredStyle();
+        }
+    }
+
+    private void ApplyRequiredStyle()
+    {
+        if (_required)
+        {
+            this.MarkRequired();
+        }
+        else
+        {
+            Properties.Appearance.Options.UseBackColor = false;
+            Properties.Appearance.Options.UseForeColor = false;
+        }
     }
 
     private string? _toolTipText;
@@ -116,11 +153,22 @@ public class PopupLookupEditWyn : ButtonEdit
         EnsureButton();
     }
 
-    /// <summary>어느 팝업을 열지(sysPopUpM.popup_key), 예: "DEPT".</summary>
+    private string? _lookupKey;
+
+    /// <summary>어느 팝업을 열지(sysPopUpM.popup_key), 예: "DEPT". 그리드 컬럼 편집기로 쓰일 때는
+    /// (PopupLookupColumnEdit.LookupKey, 그 클래스 설명 참고) 이 컨트롤 자신에 값을 직접 지정한
+    /// 적이 없으면 Properties(그리드가 공유해주는 리포지토리 아이템)의 LookupKey로 폴백한다 -
+    /// PopupLookupColumnEdit은 이 프로퍼티처럼 살아있는 컨트롤 상태가 아니라 RepositoryItem
+    /// 하나에 값을 들고 있어서, 셀 편집이 시작될 때마다 새로 만들어지는 이 컨트롤 인스턴스가
+    /// 자동으로 물려받지 못하기 때문(2026-09-07).</summary>
     [Category("WYNLAB")]
     [Description("어느 팝업을 열지 지정합니다(sysPopUpM.popup_key). 예: DEPT")]
     [DefaultValue(null)]
-    public string? LookupKey { get; set; }
+    public string? LookupKey
+    {
+        get => _lookupKey ?? (Properties as PopupLookupColumnEdit)?.LookupKey;
+        set => _lookupKey = value;
+    }
 
     /// <summary>같은 화면의 "명칭" 컨트롤 - 팝업에서 선택하면 여기에도 자동으로 채워진다.
     /// 이 컨트롤의 값을 사용자가 지우면(선택 해제 의도) 코드값(이 컨트롤 자신)도 같이 비운다.
@@ -157,7 +205,7 @@ public class PopupLookupEditWyn : ButtonEdit
 
         // .Text가 아니라 EditValue로 "진짜 비었는지" 확인한다 - NameControl에 NullText(플레이스홀더)가
         // 설정되어 있으면 .Text가 빈 문자열 대신 그 플레이스홀더 문구를 돌려줄 수 있다(같은 함정을
-        // PopupLookupForm 검색창에서도 겪었다 - PopupLookupForm.SearchAsync 주석 참고).
+        // popPopUp 검색창에서도 겪었다 - popPopUp.SearchAsync 주석 참고).
         var nameIsEmpty = _nameControl is BaseEdit nameEdit
             ? string.IsNullOrEmpty(nameEdit.EditValue as string)
             : _nameControl.Text.Length == 0;
@@ -173,12 +221,19 @@ public class PopupLookupEditWyn : ButtonEdit
     /// <summary>멀티필드 모드에서 포커스가 벗어날 때: 지금 타이핑된 값으로 조용히 조회해서
     /// 정확히 하나만 일치하면 그대로 채우고, 아니면(0개거나 여러 개) 그 값을 미리 채운 상태의
     /// 팝업을 띄워 고르게 한다. 모드①(NameControl만 쓰는 화면)에서는 MatchField가 없으니
-    /// 아무 일도 안 한다 - 기존 화면 동작에 영향 없음.</summary>
+    /// 아무 일도 안 한다 - 기존 화면 동작에 영향 없음.
+    ///
+    /// 포커스를 얻었을 때의 값(_valueOnEnter)과 지금 값이 같으면(=사용자가 실제로 아무것도
+    /// 안 고침) 아예 검색도 팝업도 건너뛴다 - 이름이 겹치는 부서처럼 원래부터 모호한 값이
+    /// 이미 들어있는 필드를 그냥 탭으로 지나가기만 해도 매번 팝업이 뜨고, 그걸 닫으면 멀쩡한
+    /// 값이 지워지는 오작동을 막기 위함(2026-09-12 실제 발견 - "부서명에 생산이라고 치면...
+    /// 팝업에서 선택 안 하고 닫으면... 부서정보가 없어져버려").</summary>
     private async Task OnLeaveAsync()
     {
         if (string.IsNullOrEmpty(MatchField) || _fieldMap.Count == 0) return;
 
         var typed = Text?.Trim();
+        if (string.Equals(typed, _valueOnEnter?.Trim(), StringComparison.OrdinalIgnoreCase)) return;
         if (string.IsNullOrEmpty(typed) || string.IsNullOrEmpty(LookupKey) || PopupLookupProvider.SearchExact == null) return;
 
         List<PopupLookupResult> candidates;
@@ -208,7 +263,16 @@ public class PopupLookupEditWyn : ButtonEdit
         if (string.IsNullOrEmpty(LookupKey) || PopupLookupProvider.OpenPopup == null) return;
 
         var result = await PopupLookupProvider.OpenPopup(LookupKey!, this, initialKeyword);
-        if (result == null) return; // 취소
+        if (result == null)
+        {
+            // initialKeyword가 있다 = OnLeaveAsync가 방금 타이핑된(실제로 바뀐) 값을 못 좁혀서
+            // 자동으로 띄운 팝업이라는 뜻 - 그 값은 어느 행과도 확정되지 않았으므로 취소 시
+            // 비워서 "선택 안 됨"을 명확히 한다(매핑된 필드도 EditValueChanged->ClearMappedFields로
+            // 같이 비워짐). initialKeyword가 없다 = "..." 버튼으로 사용자가 직접 연 것이라 그냥
+            // 둘러보다 취소했을 수 있으니 기존 값을 그대로 둔다.
+            if (initialKeyword != null) Text = string.Empty;
+            return;
+        }
 
         ApplyResult(result);
     }

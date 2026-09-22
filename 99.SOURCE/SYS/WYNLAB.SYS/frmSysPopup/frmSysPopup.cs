@@ -7,7 +7,7 @@ namespace WYNLAB.SYS;
 
 /// <summary>
 /// 팝업관리 화면 - sysPopUpM(팝업 정의)/sysPopUpD(컬럼 설정)을 관리한다. 여기서 등록한 내용을
-/// PopupLookupForm이 런타임에 그대로 읽어서 팝업을 그린다(WYNLAB.BaseForm.PopupLookupForm 참고) -
+/// popPopUp이 런타임에 그대로 읽어서 팝업을 그린다(WYNLAB.BaseForm.popPopUp 참고) -
 /// 이 화면은 화면 클래스를 새로 만드는 게 아니라 "설정값"만 만든다.
 ///
 /// "컬럼생성" 버튼은 프로시저를 실행하지 않고 (1) 결과셋 컬럼 구조, (2) 입력 파라미터(조회조건)
@@ -42,6 +42,22 @@ public partial class frmSysPopup : BaseForm
         gvw2.Role = GridRoleWyn.Edit;
         gvw3.Role = GridRoleWyn.Edit;
 
+        // 개발자용 마우스오버 툴팁(BindingField) - 실제 적용은 BaseForm.ApplyBindingFieldTooltips가
+        // 공통으로 처리한다(Session.IsDeveloper일 때만). 그리드 컬럼은 FieldName이 이미 DB
+        // 컬럼명이라 자동 적용되지만, panData 개별 컨트롤은 Tag에 미리 넣어둬야 잡힌다
+        // (2026-09-12 감사 - 이 화면엔 원래 빠져있었음).
+        txtPopupKey.Tag = new BindingFieldTag("popup_key");
+        txtPopupNm.Tag = new BindingFieldTag("popup_nm");
+        txtProcNm.Tag = new BindingFieldTag("proc_nm");
+        chkHierarchical.Tag = new BindingFieldTag("hierarchical_yn");
+        txtKeyField.Tag = new BindingFieldTag("key_field");
+        txtParentField.Tag = new BindingFieldTag("parent_field");
+        txtDisplayField.Tag = new BindingFieldTag("display_field");
+        chkUseYn.Tag = new BindingFieldTag("use_yn");
+        txtPopupWidth.Tag = new BindingFieldTag("popup_width");
+        txtPopupHeight.Tag = new BindingFieldTag("popup_height");
+        txtRemark.Tag = new BindingFieldTag("remark");
+
         TrackDirty(panData);
 
         EnterNewMode();
@@ -56,7 +72,7 @@ public partial class frmSysPopup : BaseForm
     {
         var keyword = txtSearchQ.Text.Trim();
 
-        _popups = await QueryAsync("USP_SYS_POPUP_Q", new
+        _popups = await QueryAsync("SSP_SYS_POPUP_Q", new
         {
             p_work_type = "Q",
             p_popup_key = keyword,
@@ -66,7 +82,7 @@ public partial class frmSysPopup : BaseForm
         var editingPopupKey = preserveSelection ? _editingPopupKey : null;
 
         gvw1.FocusedRowObjectChanged -= Gvw1_FocusedRowObjectChanged;
-        try
+        SuppressMasterRowSwitchConfirm(gvw1, () =>
         {
             grd1.DataSource = _popups;
 
@@ -75,11 +91,8 @@ public partial class frmSysPopup : BaseForm
                 var handle = FindRowHandle(editingPopupKey);
                 if (handle != null) gvw1.FocusedRowHandle = handle.Value;
             }
-        }
-        finally
-        {
-            gvw1.FocusedRowObjectChanged += Gvw1_FocusedRowObjectChanged;
-        }
+        });
+        gvw1.FocusedRowObjectChanged += Gvw1_FocusedRowObjectChanged;
 
         var row = editingPopupKey == null ? null : FindRow(editingPopupKey);
         if (row != null) EnterEditMode(row);
@@ -106,7 +119,7 @@ public partial class frmSysPopup : BaseForm
             "삭제 확인", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
         if (confirm != DialogResult.Yes) return;
 
-        var result = await SaveAsync("USP_SYS_POPUP_S", new
+        var result = await SaveAsync("SSP_SYS_POPUP_S", new
         {
             p_work_type = "D",
             p_popup_key = _editingPopupKey
@@ -173,7 +186,7 @@ public partial class frmSysPopup : BaseForm
 
         var wasNew = _editingPopupKey == null;
 
-        var result = await SaveAsync("USP_SYS_POPUP_S", new
+        var result = await SaveAsync("SSP_SYS_POPUP_S", new
         {
             p_work_type = wasNew ? "N" : "U",
             p_popup_key = txtPopupKey.Text.ToUpper(),
@@ -224,7 +237,7 @@ public partial class frmSysPopup : BaseForm
         Toast.Show(wasNew ? "등록되었습니다." : "수정되었습니다.");
     }
 
-    /// <summary>grd2(컬럼 설정)에서 바뀐 행마다 USP_SYS_POPUP_S_1을 한 번씩 호출한다
+    /// <summary>grd2(컬럼 설정)에서 바뀐 행마다 SSP_SYS_POPUP_S_1을 한 번씩 호출한다
     /// (USP_SM_MINORCODE_S_1/frmItem.SaveUnitRowsAsync와 같은 구조). column_nm이 키라 그 값
     /// 자체를 고친 행은 "원래 키 삭제 + 새 키 등록"으로 표현한다(이 프로시저의 'U' 분기도
     /// 키는 WHERE에서만 쓰고 안 바꾼다).</summary>
@@ -247,9 +260,9 @@ public partial class frmSysPopup : BaseForm
     private async Task<string?> SaveNewColumnAsync(string popupKey, DataRow row)
     {
         var columnNm = ProcData.Str(row, "column_nm", DataRowVersion.Current);
-        if (columnNm.Length == 0) return null; // 컬럼명 없이 행만 추가된 빈 행은 건너뜀
+        if (string.IsNullOrEmpty(columnNm)) return null; // 컬럼명 없이 행만 추가된 빈 행은 건너뜀
 
-        var result = await SaveAsync("USP_SYS_POPUP_S_1", ColumnParams("N", popupKey, row, DataRowVersion.Current));
+        var result = await SaveAsync("SSP_SYS_POPUP_S_1", ColumnParams("N", popupKey, row, DataRowVersion.Current));
         return result.Success ? null : $"[{columnNm}] {FormatSaveFailMessage(result)}";
     }
 
@@ -260,22 +273,22 @@ public partial class frmSysPopup : BaseForm
 
         if (columnNm != origColumnNm)
         {
-            var delResult = await SaveAsync("USP_SYS_POPUP_S_1",
+            var delResult = await SaveAsync("SSP_SYS_POPUP_S_1",
                 new { p_work_type = "D", p_popup_key = popupKey, p_column_nm = origColumnNm });
             if (!delResult.Success) return $"[{origColumnNm}] {FormatSaveFailMessage(delResult)}";
 
-            var addResult = await SaveAsync("USP_SYS_POPUP_S_1", ColumnParams("N", popupKey, row, DataRowVersion.Current));
+            var addResult = await SaveAsync("SSP_SYS_POPUP_S_1", ColumnParams("N", popupKey, row, DataRowVersion.Current));
             return addResult.Success ? null : $"[{columnNm}] {FormatSaveFailMessage(addResult)}";
         }
 
-        var result = await SaveAsync("USP_SYS_POPUP_S_1", ColumnParams("U", popupKey, row, DataRowVersion.Current));
+        var result = await SaveAsync("SSP_SYS_POPUP_S_1", ColumnParams("U", popupKey, row, DataRowVersion.Current));
         return result.Success ? null : $"[{columnNm}] {FormatSaveFailMessage(result)}";
     }
 
     private async Task<string?> SaveDeletedColumnAsync(string popupKey, DataRow row)
     {
         var columnNm = ProcData.Str(row, "column_nm", DataRowVersion.Original);
-        var result = await SaveAsync("USP_SYS_POPUP_S_1",
+        var result = await SaveAsync("SSP_SYS_POPUP_S_1",
             new { p_work_type = "D", p_popup_key = popupKey, p_column_nm = columnNm });
         return result.Success ? null : $"[{columnNm}] {FormatSaveFailMessage(result)}";
     }
@@ -293,7 +306,7 @@ public partial class frmSysPopup : BaseForm
         ["p_visible_yn"] = ProcData.Str(row, "visible_yn", version) is { Length: > 0 } v ? v : "Y"
     };
 
-    /// <summary>grd3(조회조건)에서 바뀐 행마다 USP_SYS_POPUP_S_2를 한 번씩 호출한다 -
+    /// <summary>grd3(조회조건)에서 바뀐 행마다 SSP_SYS_POPUP_S_2를 한 번씩 호출한다 -
     /// SaveColumnRowsAsync와 완전히 같은 구조(param_nm이 키라 키 자체를 고친 행은 삭제+재등록).</summary>
     private async Task<string?> SaveSearchFieldRowsAsync(string popupKey)
     {
@@ -314,9 +327,9 @@ public partial class frmSysPopup : BaseForm
     private async Task<string?> SaveNewSearchFieldAsync(string popupKey, DataRow row)
     {
         var paramNm = ProcData.Str(row, "param_nm", DataRowVersion.Current);
-        if (paramNm.Length == 0) return null; // 파라미터명 없이 행만 추가된 빈 행은 건너뜀
+        if (string.IsNullOrEmpty(paramNm)) return null; // 파라미터명 없이 행만 추가된 빈 행은 건너뜀
 
-        var result = await SaveAsync("USP_SYS_POPUP_S_2", SearchFieldParams("N", popupKey, row, DataRowVersion.Current));
+        var result = await SaveAsync("SSP_SYS_POPUP_S_2", SearchFieldParams("N", popupKey, row, DataRowVersion.Current));
         return result.Success ? null : $"[{paramNm}] {FormatSaveFailMessage(result)}";
     }
 
@@ -327,22 +340,22 @@ public partial class frmSysPopup : BaseForm
 
         if (paramNm != origParamNm)
         {
-            var delResult = await SaveAsync("USP_SYS_POPUP_S_2",
+            var delResult = await SaveAsync("SSP_SYS_POPUP_S_2",
                 new { p_work_type = "D", p_popup_key = popupKey, p_param_nm = origParamNm });
             if (!delResult.Success) return $"[{origParamNm}] {FormatSaveFailMessage(delResult)}";
 
-            var addResult = await SaveAsync("USP_SYS_POPUP_S_2", SearchFieldParams("N", popupKey, row, DataRowVersion.Current));
+            var addResult = await SaveAsync("SSP_SYS_POPUP_S_2", SearchFieldParams("N", popupKey, row, DataRowVersion.Current));
             return addResult.Success ? null : $"[{paramNm}] {FormatSaveFailMessage(addResult)}";
         }
 
-        var result = await SaveAsync("USP_SYS_POPUP_S_2", SearchFieldParams("U", popupKey, row, DataRowVersion.Current));
+        var result = await SaveAsync("SSP_SYS_POPUP_S_2", SearchFieldParams("U", popupKey, row, DataRowVersion.Current));
         return result.Success ? null : $"[{paramNm}] {FormatSaveFailMessage(result)}";
     }
 
     private async Task<string?> SaveDeletedSearchFieldAsync(string popupKey, DataRow row)
     {
         var paramNm = ProcData.Str(row, "param_nm", DataRowVersion.Original);
-        var result = await SaveAsync("USP_SYS_POPUP_S_2",
+        var result = await SaveAsync("SSP_SYS_POPUP_S_2",
             new { p_work_type = "D", p_popup_key = popupKey, p_param_nm = paramNm });
         return result.Success ? null : $"[{paramNm}] {FormatSaveFailMessage(result)}";
     }
@@ -464,26 +477,27 @@ public partial class frmSysPopup : BaseForm
         return added;
     }
 
-    private void Gvw1_FocusedRowObjectChanged(object? sender, DevExpress.XtraGrid.Views.Base.FocusedRowObjectChangedEventArgs e)
-    {
-        if (e.Row is DataRowView view) EnterEditMode(view.Row);
-    }
+    /// <summary>다른 행을 고를 때 panData/grd2(컬럼)/grd3(검색조건)에 저장 안 된 변경이 있으면
+    /// 먼저 확인한다(BaseForm.ConfirmMasterRowSwitch 참고, 2026-09-06 - 모든 화면 공통 적용).</summary>
+    private void Gvw1_FocusedRowObjectChanged(object? sender, DevExpress.XtraGrid.Views.Base.FocusedRowObjectChangedEventArgs e) =>
+        ConfirmMasterRowSwitch(gvw1, e, row => EnterEditMode(row.Row));
 
     private DataRow? FindRow(string popupKey) =>
         _popups.Rows.Cast<DataRow>()
             .FirstOrDefault(r => string.Equals(Convert.ToString(r["popup_key"]), popupKey, StringComparison.OrdinalIgnoreCase));
 
+    /// <summary>popup_key로 grd1의 행 핸들을 찾는다. 없으면 null. 컬럼 셀 값으로 찾는 방식은
+    /// 그 키 컬럼이 화면에 안 보이는 숨김 컬럼일 때 안 먹힌다(2026-09-11 실제 발견, frmEMP에서
+    /// 재현) - FindRow로 찾은 DataRow의 DataTable상 인덱스를 GridView.GetRowHandle로 표시 행
+    /// 핸들로 변환하면 키 컬럼이 보이든 안 보이든 항상 동작한다.</summary>
     private int? FindRowHandle(string popupKey)
     {
-        var column = gvw1.Columns["popup_key"];
-        if (column == null) return null;
+        var row = FindRow(popupKey);
+        if (row == null) return null;
 
-        for (var handle = 0; handle < gvw1.RowCount; handle++)
-        {
-            if (string.Equals(Convert.ToString(gvw1.GetRowCellValue(handle, column)), popupKey, StringComparison.OrdinalIgnoreCase))
-                return handle;
-        }
-        return null;
+        var rowIndex = _popups.Rows.IndexOf(row);
+        var handle = gvw1.GetRowHandle(rowIndex);
+        return handle >= 0 ? handle : null;
     }
 
     /// <summary>panData/그리드를 채우는 부분은 SuppressDirtyTracking으로 감싼다 - 안 그러면
@@ -549,7 +563,7 @@ public partial class frmSysPopup : BaseForm
 
     private async Task LoadColumnsAsync(string popupKey)
     {
-        _columns = await QueryAsync("USP_SYS_POPUP_Q", new
+        _columns = await QueryAsync("SSP_SYS_POPUP_Q", new
         {
             p_work_type = "Q1",
             p_popup_key = popupKey
@@ -561,7 +575,7 @@ public partial class frmSysPopup : BaseForm
 
     private async Task LoadSearchFieldsAsync(string popupKey)
     {
-        _searchFields = await QueryAsync("USP_SYS_POPUP_Q", new
+        _searchFields = await QueryAsync("SSP_SYS_POPUP_Q", new
         {
             p_work_type = "Q2",
             p_popup_key = popupKey

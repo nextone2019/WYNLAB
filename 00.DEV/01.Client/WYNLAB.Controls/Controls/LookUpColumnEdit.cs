@@ -49,6 +49,8 @@ public class LookUpColumnEdit : RepositoryItemLookUpEdit
     public LookUpColumnEdit()
     {
         NullText = string.Empty;
+        // LookUpEditWyn과 같은 이유(그 생성자 주석 참고) - 타이핑한 글자가 포함된 항목만 남긴다.
+        PopupFilterMode = DevExpress.XtraEditors.PopupFilterMode.Contains;
     }
 
     /// <summary>LookUpEdit 계열은 생성자에서 기본 콤보 버튼(드롭다운 삼각형)이 Buttons에 있지만,
@@ -69,6 +71,7 @@ public class LookUpColumnEdit : RepositoryItemLookUpEdit
     public override string EditorTypeName => CustomEditName;
 
     private string? _lookupKey;
+    private readonly Dictionary<string, string?> _lookupParams = new();
 
     /// <summary>sysLookupM에 등록해둔 LookUp 이름. LookUpEditWyn.LookupKey와 완전히 같은 방식 -
     /// 이 값만 지정하면(Designer 속성창 또는 코드) 조회가 실행되고 코드/명 2열 팝업이 채워진다.</summary>
@@ -81,6 +84,21 @@ public class LookUpColumnEdit : RepositoryItemLookUpEdit
         set { _lookupKey = value; _ = LoadFromLookupKeyAsync(); }
     }
 
+    /// <summary>LookupKey가 가리키는 LookUp이 받는 파라미터 값을 채운다(LookUpEditWyn.SetParam과
+    /// 완전히 같은 방식 - key는 proc의 @p_xxx 파라미터 이름과 정확히 같아야 함, p_ 접두사 없는
+    /// key는 서버가 조용히 무시한다). 그리드 컬럼은 RepositoryItem 하나를 모든 행이 공유하므로,
+    /// 행마다 다른 파라미터가 필요하면(예: 이 행의 대분류 값에 따라 소분류 목록이 달라짐) 미리
+    /// 한 번만 호출해두는 게 아니라 GridView.ShowingEditor에서 그 행의 값을 읽어 매번 다시
+    /// 호출해야 한다(2026-09-09 - 지금까지 이 클래스엔 파라미터 전달 방법 자체가 없어서 항상
+    /// 빈 파라미터로 조회되던 문제를 고침). LookUpEditWyn과 마찬가지로 조회는 비동기라 호출
+    /// 직후 곧바로 드롭다운을 열면 목록이 아직 비어 있을 수 있다 - 응답이 오면 같은
+    /// RepositoryItem의 DataSource가 갱신되어 열려 있는 팝업에도 반영된다.</summary>
+    public void SetParam(string paramNm, string? value)
+    {
+        _lookupParams[paramNm] = value;
+        _ = LoadFromLookupKeyAsync();
+    }
+
     private async Task LoadFromLookupKeyAsync()
     {
         var lookupKey = _lookupKey;
@@ -88,7 +106,8 @@ public class LookUpColumnEdit : RepositoryItemLookUpEdit
 
         try
         {
-            var result = await ComboLookupProvider.Fetch(lookupKey!, new Dictionary<string, string?>());
+            var paramsSnapshot = new Dictionary<string, string?>(_lookupParams);
+            var result = await ComboLookupProvider.Fetch(lookupKey!, paramsSnapshot);
             if (lookupKey != _lookupKey) return; // 응답 오는 사이 LookupKey가 또 바뀌었으면 버림
 
             var items = result.Items;

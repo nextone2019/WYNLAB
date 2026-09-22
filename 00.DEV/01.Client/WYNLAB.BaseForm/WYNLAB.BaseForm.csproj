@@ -36,18 +36,30 @@
     <Reference Include="DevExpress.XtraGrid.v21.2">
       <HintPath>C:\Program Files (x86)\DevExpress 21.2\Components\Bin\Framework\DevExpress.XtraGrid.v21.2.dll</HintPath>
     </Reference>
-    <!-- PopupLookupForm이 hierarchical_yn='Y' 팝업(부서 등)을 트리로 그리는 데 필요 -->
+    <!-- BaseForm.ConfirmMasterRowSwitch의 TreeList 오버로드(마스터가 트리인 화면용)가 필요 -->
     <Reference Include="DevExpress.XtraTreeList.v21.2">
       <HintPath>C:\Program Files (x86)\DevExpress 21.2\Components\Bin\Framework\DevExpress.XtraTreeList.v21.2.dll</HintPath>
     </Reference>
     <Reference Include="DevExpress.XtraLayout.v21.2">
       <HintPath>C:\Program Files (x86)\DevExpress 21.2\Components\Bin\Framework\DevExpress.XtraLayout.v21.2.dll</HintPath>
     </Reference>
+    <!-- BaseForm.ScreenIcon(화면 타이틀바 기본 아이콘)이 DevExpress.Images.ImageResourceCache로
+         내장 SVG 갤러리("datapanel" 등)를 직접 불러오는 데 필요(2026-09-09). -->
+    <Reference Include="DevExpress.Images.v21.2">
+      <HintPath>C:\Program Files (x86)\DevExpress 21.2\Components\Bin\Framework\DevExpress.Images.v21.2.dll</HintPath>
+    </Reference>
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\..\03.Shared\WYNLAB.Shared\WYNLAB.Shared.csproj" />
     <ProjectReference Include="..\WYNLAB.Controls\WYNLAB.Controls.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- ProcData.ToDataTable 등 internal 멤버를 WYNLAB.Popup(frmFileUpload/PopupLookupForm/
+         frmElecApproval, 2026-09-12 분리)이 그대로 쓸 수 있게 연다 - 저 멤버들을 public으로
+         올리면 모든 모듈에 노출되므로, 딱 이 프로젝트에만 internal 접근을 열어주는 쪽이 낫다. -->
+    <InternalsVisibleTo Include="WYNLAB.Popup" />
   </ItemGroup>
 
 </Project>

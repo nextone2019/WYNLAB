@@ -11,7 +11,7 @@ namespace WYNLAB.Api.Controllers.Framework;
 /// 결과셋 컬럼, 둘 다). 이건 조회권한이 있는 사람만 써야 하는 관리 기능이라(sysPopUpM/D/S 자체
 /// CRUD와 달리 임의의 프로시저 이름을 넣어 구조를 캐볼 수 있음) 다른 lookups 엔드포인트와 달리
 /// 메뉴권한을 건다. sysPopUpM/D/S 자체의 조회/저장은 새 컨트롤러 없이 기존 범용 데이터 통로
-/// (api/data/*)를 그대로 쓴다 - USP_SYS_POPUP_Q/_S가 다른 화면들과 똑같은 방식으로 동작하기 때문.
+/// (api/data/*)를 그대로 쓴다 - SSP_SYS_POPUP_Q/_S가 다른 화면들과 똑같은 방식으로 동작하기 때문.
 /// </summary>
 [ApiController]
 [Route("api/popup-admin")]

@@ -107,9 +107,9 @@ public partial class frmUserAuth : BaseForm
         cboUseYn.Tag = new BindingFieldTag("UseYn");
         chkDeveloperYn.Tag = new BindingFieldTag("DeveloperYn");
         txtEmpNm.Tag = new BindingFieldTag("EmpNm");
-        txtEmpNo.Tag = new BindingFieldTag("EmpNo");
-        txtDeptCd.Tag = new BindingFieldTag("DeptCd");
+        txtEmpNo.Tag = new BindingFieldTag("EmpId");
         txtDeptNm.Tag = new BindingFieldTag("DeptNm");
+        cboAccCd.Tag = new BindingFieldTag("AccId");
         txtEmail.Tag = new BindingFieldTag("Email");
         txtuser_grp_cd.Tag = new BindingFieldTag("UserGrpCd");
         txtuser_grp_nm.Tag = new BindingFieldTag("UserGrpNm");
@@ -159,8 +159,12 @@ public partial class frmUserAuth : BaseForm
     /// <summary>컬럼 대부분(메뉴명/조회/입력/저장/삭제)은 디자이너(tree1/tree2 각각의 Columns)가
     /// 정의한다 - 여기서는 그 컬럼들을 그대로 쓰기 위한 최소한의 데이터 바인딩(트리 구조), GROUP
     /// (상위분류) 행은 조회 체크만 의미가 있어 나머지 컬럼은 편집을 막는 규칙(BACK_frmUserManage.
-    /// BuildAuthTab과 같은 규칙), 그리고 AUTH01~10 체크 컬럼 10개를 코드로 추가한다 - 캡션이
-    /// 메뉴마다 달라서(메뉴등록/frmMenu에서 정의) 디자이너에 고정 텍스트로 박아둘 수 없기 때문.</summary>
+    /// BuildAuthTab과 같은 규칙), 그리고 AUTH01~10 체크 컬럼 10개를 준비한다 - 캡션이 메뉴마다
+    /// 달라서(메뉴등록/frmMenu에서 정의) 디자이너에 고정 텍스트로 박아둘 수 없어 SyncAuthColumns가
+    /// 매번 갈아끼운다.
+    /// FieldName(Auth01~10)으로 디자이너에 이미 그 컬럼이 있으면(2026-09-06부터 tree1은 직접
+    /// 그려서 관리) 그 컬럼을 그대로 쓰고, 없으면(아직 안 그린 tree2 등) 예전처럼 코드가 만들어
+    /// 채운다 - 디자이너에 그려둔 걸 코드가 또 만들어 중복시키는 사고를 막는다(실제로 겪음).</summary>
     private void ConfigureAuthTree(TreeListWyn tree, TreeListColumn[] authCols)
     {
         tree.KeyFieldName = "MenuId";
@@ -174,19 +178,24 @@ public partial class frmUserAuth : BaseForm
             .Where(c => c.Visible).Select(c => c.VisibleIndex).DefaultIfEmpty(-1).Max() + 1;
         for (var i = 0; i < 10; i++)
         {
-            var editor = new RepositoryItemCheckEdit { AutoHeight = false };
-            tree.RepositoryItems.Add(editor);
-            var col = new TreeListColumn
+            var fieldName = $"Auth{i + 1:00}";
+            var col = tree.Columns[fieldName];
+            if (col == null)
             {
-                FieldName = $"Auth{i + 1:00}",
-                Caption = $"Auth{i + 1:00}",
-                Name = $"colAuth{i + 1:00}_{tree.Name}",
-                ColumnEdit = editor,
-                Visible = true,
-                VisibleIndex = nextVisibleIndex + i,
-                Width = 55
-            };
-            tree.Columns.Add(col);
+                var editor = new RepositoryItemCheckEdit { AutoHeight = false };
+                tree.RepositoryItems.Add(editor);
+                col = new TreeListColumn
+                {
+                    FieldName = fieldName,
+                    Caption = fieldName,
+                    Name = $"colAuth{i + 1:00}_{tree.Name}",
+                    ColumnEdit = editor,
+                    Visible = true,
+                    VisibleIndex = nextVisibleIndex + i,
+                    Width = 55
+                };
+                tree.Columns.Add(col);
+            }
             authCols[i] = col;
         }
 
@@ -221,10 +230,10 @@ public partial class frmUserAuth : BaseForm
     /// 동작 원리(PopupLookupEditWyn):
     ///  1) LookupKey = "P_EMP"  -> 어느 팝업(sysPopUpM.popup_key)을 열지 지정. 실제 조회는
     ///     이 팝업에 등록된 프로시저 SSP_POP_EMP_Q가 담당하며, 그 프로시저는
-    ///     emp_no/emp_nm/emp_nm_eng/dept_cd/dept_nm/... 컬럼을 그대로(별칭 없이, 소문자) 반환한다.
-    ///     PopupLookupForm이 그 결과를 팝업 그리드에 그대로 보여주고, 사용자가 한 행을 고르면
+    ///     EMP_ID/emp_no/emp_nm/emp_nm_eng/dept_nm/... 컬럼을 그대로(별칭 없이) 반환한다.
+    ///     popPopUp이 그 결과를 팝업 그리드에 그대로 보여주고, 사용자가 한 행을 고르면
     ///     그 행의 "모든" 컬럼값이 PopupLookupResult.Row(Dictionary&lt;string,string?&gt;)에 담겨
-    ///     이 컨트롤로 넘어온다 - 키는 SQL이 실제로 반환한 컬럼명 그대로(emp_no, dept_cd 등).
+    ///     이 컨트롤로 넘어온다 - 키는 SQL이 실제로 반환한 컬럼명 그대로(EMP_ID, emp_no 등).
     ///  2) MatchField = "emp_nm" (Designer.cs에 이미 지정됨) -> txtEmpNm 자기 자신이 Row의
     ///     어느 컬럼을 대표하는지 지정. 이게 있어야 Leave(포커스 아웃) 시 방금 타이핑한 텍스트로
     ///     자동 검색(정확히 1건이면 조용히 채움, 아니면 그 값을 미리 채운 팝업을 띄움)이 동작한다.
@@ -235,15 +244,13 @@ public partial class frmUserAuth : BaseForm
     ///  4) txtEmpNm을 지우면(EditValueChanged, 빈 값) 여기 매핑된 컨트롤도 전부 같이 지워진다
     ///     (ClearMappedFields) - 별도 처리 불필요.
     ///
-    /// txtEmpNo/txtDeptCd는 화면에는 안 보이는 숨김 필드(Designer.cs에 Visible=false로 배치됨,
-    /// txtDeptCd는 원래 자동생성 이름 textEditWyn2였던 걸 이번에 의미가 드러나게 리네임함) -
-    /// 사원번호/부서코드 "값 자체"는 필요하지만(TSMUSER.EMP_NO/DEPT_CD 저장용) 화면에 굳이
-    /// 노출할 필요는 없다는 뜻으로 보여 그대로 둔다.
+    /// txtEmpNo는 화면에는 안 보이는 숨김 필드(Designer.cs에 Visible=false로 배치됨) - 이름은
+    /// 예전 그대로지만 이제 EMP_ID를 담는다(TSMUSER.EMP_ID 저장용, 2026-09-06 emp_no -> EMP_ID
+    /// 전환). 화면에 굳이 노출할 필요는 없다는 뜻으로 숨김은 그대로 둔다.
     /// </summary>
     private void ConfigureEmpPopup()
     {
-        txtEmpNm.MapField("emp_no", txtEmpNo);
-        txtEmpNm.MapField("dept_cd", txtDeptCd);
+        txtEmpNm.MapField("EMP_ID", txtEmpNo);
         txtEmpNm.MapField("dept_nm", txtDeptNm);
     }
 
@@ -310,10 +317,12 @@ public partial class frmUserAuth : BaseForm
     // 탭1: 사용자별 권한관리
     // ================================================================================
 
-    private void Gvw1_FocusedRowObjectChanged(object? sender, FocusedRowObjectChangedEventArgs e)
-    {
-        if (e.Row is UserListItemDto user) _pendingLoadTask = EnterEditModeAsync(user);
-    }
+    /// <summary>다른 사용자를 고를 때 panData/panelWyn16에 저장 안 된 변경이 있으면 먼저 확인한다
+    /// (BaseForm.ConfirmMasterRowSwitch 제네릭 버전 - 이 그리드는 DataTable이 아니라
+    /// List&lt;UserListItemDto&gt;에 바인딩돼서 e.Row가 DataRowView가 아니라 DTO 자신이다.
+    /// 2026-09-06 - 모든 화면 공통 적용).</summary>
+    private void Gvw1_FocusedRowObjectChanged(object? sender, FocusedRowObjectChangedEventArgs e) =>
+        ConfirmMasterRowSwitch(gvw1, e, (UserListItemDto user) => _pendingLoadTask = EnterEditModeAsync(user));
 
     private async Task QueryUsersAsync(bool preserveSelection)
     {
@@ -329,18 +338,25 @@ public partial class frmUserAuth : BaseForm
         try
         {
             _pendingLoadTask = null;
-            grd1.DataSource = _users;
 
-            // 저장 직후 재조회(preserveSelection: true)에서만 방금 편집하던 사용자에게 포커스를
-            // 되돌린다 - 안 그러면 DevExpress가 조용히 0번 행에 포커스를 줘서(FocusedRowObjectChanged
-            // 없이) 방금 저장한 사용자와 다른 사람의 상세가 뜨거나 패널이 엉뚱한 값으로 남는다
-            // (feedback_query_refocus_after_save 메모리 참고). 사용자가 직접 누른 조회
-            // (preserveSelection: false)는 새 검색이므로 이전 선택을 무시하고 1행부터 보여준다.
-            if (preserveSelection && _editingUserId != null)
+            // 저장 직후엔 아직 IsDirty가 true로 남아있을 수 있어서(AcceptChanges류가 RowChanged를
+            // 안 냄) 이 재바인딩이 ConfirmMasterRowSwitch의 확인을 또 띄우면 안 된다 - 그래서
+            // grd1 재바인딩/재포커스 구간 전체를 SuppressMasterRowSwitchConfirm으로 감싼다.
+            SuppressMasterRowSwitchConfirm(gvw1, () =>
             {
-                var handle = FindUserRowHandle(_editingUserId);
-                if (handle != null) gvw1.FocusedRowHandle = handle.Value;
-            }
+                grd1.DataSource = _users;
+
+                // 저장 직후 재조회(preserveSelection: true)에서만 방금 편집하던 사용자에게 포커스를
+                // 되돌린다 - 안 그러면 DevExpress가 조용히 0번 행에 포커스를 줘서(FocusedRowObjectChanged
+                // 없이) 방금 저장한 사용자와 다른 사람의 상세가 뜨거나 패널이 엉뚱한 값으로 남는다
+                // (feedback_query_refocus_after_save 메모리 참고). 사용자가 직접 누른 조회
+                // (preserveSelection: false)는 새 검색이므로 이전 선택을 무시하고 1행부터 보여준다.
+                if (preserveSelection && _editingUserId != null)
+                {
+                    var handle = FindUserRowHandle(_editingUserId);
+                    if (handle != null) gvw1.FocusedRowHandle = handle.Value;
+                }
+            });
 
             if (_pendingLoadTask != null) await _pendingLoadTask;
             HideBusy();
@@ -349,17 +365,35 @@ public partial class frmUserAuth : BaseForm
         {
             DrawingSuspension.Resume(this);
         }
+
+        // QueryGroupsAsync와 같은 이유(그 쪽 주석 참고, 2026-09-11) - DevExpress가 grd1.DataSource
+        // 재할당 직후 위에서 맞춰둔 FocusedRowHandle을 자기 내부 "첫 행 자동포커스" 로직으로
+        // 이벤트 없이 조용히 덮어쓸 수 있어서, BeginInvoke로 한 틱 미뤄 다시 한번 확정한다.
+        if (preserveSelection && _editingUserId != null)
+        {
+            var targetUserId = _editingUserId;
+            BeginInvoke(new Action(() =>
+            {
+                var handle = FindUserRowHandle(targetUserId);
+                if (handle != null) gvw1.FocusedRowHandle = handle.Value;
+            }));
+        }
     }
 
-    /// <summary>userId로 grd1의 행 핸들을 찾는다. 없으면 null.</summary>
+    /// <summary>userId로 grd1의 행 핸들을 찾는다. 없으면 null.
+    ///
+    /// handle을 0부터 RowCount까지 돌며 GetRow(handle)로 값을 비교하는 방식(예전에 이 자리에
+    /// 있었던 방식)은 List&lt;T&gt; 바인딩에서도 재조회 직후 handle과 실제 리스트 인덱스가
+    /// 아직 안 맞아떨어지는 경우가 있어 못 찾을 때가 있었다(2026-09-11 실제 발견 - 사용자그룹
+    /// 탭에서 저장 후 포커스가 늘 1번째 행으로 감). FindRowHandle 컨벤션(DataTable 화면들의
+    /// _majors.Rows.IndexOf + GetRowHandle과 동일한 원리)대로, 데이터소스(List&lt;T&gt;) 안에서
+    /// 먼저 인덱스를 찾고 그 인덱스를 GridView.GetRowHandle로 변환하면 항상 정확하다.</summary>
     private int? FindUserRowHandle(string userId)
     {
-        for (var handle = 0; handle < gvw1.RowCount; handle++)
-        {
-            if (gvw1.GetRow(handle) is UserListItemDto u && string.Equals(u.UserId, userId, StringComparison.OrdinalIgnoreCase))
-                return handle;
-        }
-        return null;
+        var index = _users.FindIndex(u => string.Equals(u.UserId, userId, StringComparison.OrdinalIgnoreCase));
+        if (index < 0) return null;
+        var handle = gvw1.GetRowHandle(index);
+        return handle >= 0 ? handle : null;
     }
 
     private async Task DeleteUserAsync()
@@ -393,12 +427,13 @@ public partial class frmUserAuth : BaseForm
             txtuser_id.ReadOnly = false;
             txtuser_nm.Text = string.Empty;
             cboUseYn.EditValue = "Y";
+            cboUserType.EditValue = "U"; // 신규는 일반 사용자로 시작 - 관리자로 바꾸려면 저장 후 수정
             //checkBoxWyn1.Enabled = false; // 신규는 서버에서 항상 'Y'로 생성됨(BACK_frmUserManage와 같은 규칙)
             chkDeveloperYn.Checked = false; // 신규는 서버에서 항상 'N'으로 생성됨 - 이 화면으로는 못 바꿈
             txtEmpNm.Text = string.Empty;
             txtEmpNo.Text = string.Empty;
-            txtDeptCd.Text = string.Empty;
             txtDeptNm.Text = string.Empty;
+            cboAccCd.EditValue = string.Empty;
             txtEmail.Text = string.Empty;
         });
 
@@ -423,12 +458,17 @@ public partial class frmUserAuth : BaseForm
             txtuser_id.ReadOnly = true; // 아이디는 PK라 수정 불가
             txtuser_nm.Text = user.UserNm;
             cboUseYn.EditValue = user.UseYn ? "Y" : "N"; // user.UseYn은 bool, cboUseYn(L_CM0100) 값필드는 "Y"/"N" 문자열
+            // cboUserType은 예전엔 여기서 안 채워서(2026-09-10 실제 발견) 목록에서 다른 사용자를
+            // 클릭해도 값이 안 바뀌고 마지막에 고른 값이 그대로 남아있었다 - "저장하면 전체
+            // 사용자가 다 바뀌는 것 같다"는 착시의 원인(실제로는 SaveUserAsync가 이 필드를 저장
+            // 요청에 담지도 않아서 진짜로 바뀐 적은 없었음, 그것도 같이 고침).
+            cboUserType.EditValue = user.UserType ?? "U";
             //checkBoxWyn1.Enabled = true;
             chkDeveloperYn.Checked = user.DeveloperYn; // 조회 전용 표시 - Enabled=false라 여기서 못 바꿈
             txtEmpNm.Text = user.EmpNm ?? string.Empty;
-            txtEmpNo.Text = user.EmpNo ?? string.Empty;
-            txtDeptCd.Text = user.DeptCd ?? string.Empty;
+            txtEmpNo.Text = user.EmpId?.ToString() ?? string.Empty;
             txtDeptNm.Text = user.DeptNm ?? string.Empty;
+            cboAccCd.EditValue = user.AccId?.ToString() ?? string.Empty;
             txtEmail.Text = user.Email ?? string.Empty;
         });
 
@@ -450,8 +490,8 @@ public partial class frmUserAuth : BaseForm
     /// 로드 시점 스냅샷을 같이 남긴다.</summary>
     private async Task LoadAuthAsync(string userId)
     {
-        var ownItems = await ApiClient.GetAsync<List<MenuAuthItemDto>>(
-            $"api/menu-auth?targetType=USER&targetCd={Uri.EscapeDataString(userId)}") ?? new();
+        var ownItems = FilterOutDeveloperTool(await ApiClient.GetAsync<List<MenuAuthItemDto>>(
+            $"api/menu-auth?targetType=USER&targetCd={Uri.EscapeDataString(userId)}") ?? new());
         var effective = await ApiClient.GetAsync<List<MenuDto>>(
             $"api/menu-auth/effective?userId={Uri.EscapeDataString(userId)}") ?? new();
         var effectiveByMenuId = effective.ToDictionary(m => m.MenuId);
@@ -494,6 +534,32 @@ public partial class frmUserAuth : BaseForm
             tree1.EndUpdate();
         }
         SyncAuthColumns(tree1, _authItems, _authCols1);
+    }
+
+    /// <summary>"Developer Tool" 최상위 그룹과 그 하위 전체(AI Builder/Component관리 등)를
+    /// tree1(사용자별 권한관리)/tree2(사용자그룹별 권한관리)에서 뺀다 - ShellForm의 사이드바
+    /// 숨김(GetDeveloperOnlyMenuIds)과 같은 이유(2026-09-06 요청, "사용자별권한등록에서도
+    /// 마찬가지로"). 이 화면을 쓰는 관리자 자신이 개발자 계정이면 그대로 다 보여준다.</summary>
+    private static List<MenuAuthItemDto> FilterOutDeveloperTool(List<MenuAuthItemDto> items)
+    {
+        if (Session.IsDeveloper) return items;
+
+        var root = items.FirstOrDefault(m => m.UpperMenuId == null && m.MenuNm == "Developer Tool");
+        if (root == null) return items;
+
+        var hidden = new HashSet<long> { root.MenuId };
+        var queue = new Queue<long>();
+        queue.Enqueue(root.MenuId);
+        while (queue.Count > 0)
+        {
+            var id = queue.Dequeue();
+            foreach (var child in items.Where(m => m.UpperMenuId == id))
+            {
+                if (hidden.Add(child.MenuId)) queue.Enqueue(child.MenuId);
+            }
+        }
+
+        return items.Where(m => !hidden.Contains(m.MenuId)).ToList();
     }
 
     private static MenuAuthItemDto CloneAuthValues(MenuAuthItemDto src) => new()
@@ -548,24 +614,32 @@ public partial class frmUserAuth : BaseForm
         }
 
         var wasNew = _editingUserId == null;
-        var empNo = string.IsNullOrWhiteSpace(txtEmpNo.Text) ? null : txtEmpNo.Text;
+        var empId = long.TryParse(txtEmpNo.Text, out var eid) ? eid : (long?)null;
+        var accId = long.TryParse(cboAccCd.EditValue?.ToString(), out var aid) ? aid : (long?)null;
         var email = string.IsNullOrWhiteSpace(txtEmail.Text) ? null : txtEmail.Text;
         ApiResult? result;
 
         if (wasNew)
         {
-            // 이 화면엔 비밀번호 입력 UI가 없다(의도적으로 뺌) - 초기 비밀번호는 일단 아이디와
-            // 같은 값으로 채워서 계정만 먼저 만들고, 실제 비밀번호 초기화는 별도 기능이 생기면
-            // 그쪽으로 옮기면 된다. 지금은 임시 처리라는 점을 알아둘 것.
+            // 이 화면엔 비밀번호 입력 UI가 없다 - 초기 비밀번호는 서버가 TSMSITECONFIG.
+            // init_pwd_policy(사이트환경설정 > 비밀번호정책)를 보고 정한다(아이디와 동일 또는
+            // 랜덤). 랜덤 정책일 때는 저장 성공 후 결과 메시지로 알려줘야 관리자가 실제로
+            // 그 계정을 전달할 수 있다(2026-09-06 연동).
             var req = new UserCreateRequest
             {
                 UserId = txtuser_id.Text,
                 UserNm = txtuser_nm.Text,
-                Password = txtuser_id.Text,
-                EmpNo = empNo,
+                EmpId = empId,
+                AccId = accId,
+                UserType = cboUserType.EditValue?.ToString(),
                 Email = email
             };
             result = await ApiClient.PostAsync<UserCreateRequest, ApiResult>("api/users", req);
+
+            if (result?.Success == true && !string.IsNullOrEmpty(result.InitialPassword))
+            {
+                AppMessageBox.Show($"계정이 생성되었습니다.\n초기 비밀번호: {result.InitialPassword}", "안내");
+            }
         }
         else
         {
@@ -574,7 +648,9 @@ public partial class frmUserAuth : BaseForm
                 UserNm = txtuser_nm.Text,
                 UseYn = cboUseYn.EditValue?.ToString() == "Y", // cboUseYn(L_CM0100)은 값필드가 "Y"/"N" 문자열이고
                                                                 // DTO.UseYn은 bool이라 여기서 변환한다.
-                EmpNo = empNo,
+                EmpId = empId,
+                AccId = accId,
+                UserType = cboUserType.EditValue?.ToString(),
                 Email = email
             };
             result = await ApiClient.PutAsync<UserUpdateRequest, ApiResult>($"api/users/{_editingUserId}", req);
@@ -622,10 +698,10 @@ public partial class frmUserAuth : BaseForm
     // 탭2: 사용자그룹별 권한관리
     // ================================================================================
 
-    private void Gvw2_FocusedRowObjectChanged(object? sender, FocusedRowObjectChangedEventArgs e)
-    {
-        if (e.Row is UserGroupListItemDto group) _pendingLoadTask = EnterEditGroupModeAsync(group);
-    }
+    /// <summary>다른 그룹을 고를 때 저장 안 된 변경이 있으면 먼저 확인한다(BaseForm.
+    /// ConfirmMasterRowSwitch 제네릭 버전 - List&lt;UserGroupListItemDto&gt; 바인딩, 2026-09-06).</summary>
+    private void Gvw2_FocusedRowObjectChanged(object? sender, FocusedRowObjectChangedEventArgs e) =>
+        ConfirmMasterRowSwitch(gvw2, e, (UserGroupListItemDto group) => _pendingLoadTask = EnterEditGroupModeAsync(group));
 
     private async Task QueryGroupsAsync(bool preserveSelection)
     {
@@ -640,18 +716,24 @@ public partial class frmUserAuth : BaseForm
         try
         {
             _pendingLoadTask = null;
-            grd2.DataSource = _groupsList;
 
-            if (_editingUserGrpCd != null && _groupsList.All(g => g.UserGrpCd != _editingUserGrpCd))
-                EnterNewGroupMode();
-
-            // 저장 직후 재조회(preserveSelection: true)에서만 방금 편집하던 그룹에게 포커스를
-            // 되돌린다 - grd1(QueryUsersAsync)과 같은 이유(feedback_query_refocus_after_save).
-            if (preserveSelection && _editingUserGrpCd != null)
+            // 저장 직후엔 아직 IsDirty가 true로 남아있을 수 있어서 이 재바인딩이
+            // ConfirmMasterRowSwitch의 확인을 또 띄우면 안 된다(gvw1/QueryUsersAsync와 같은 이유).
+            SuppressMasterRowSwitchConfirm(gvw2, () =>
             {
-                var handle = FindGroupRowHandle(_editingUserGrpCd);
-                if (handle != null) gvw2.FocusedRowHandle = handle.Value;
-            }
+                grd2.DataSource = _groupsList;
+
+                if (_editingUserGrpCd != null && _groupsList.All(g => g.UserGrpCd != _editingUserGrpCd))
+                    EnterNewGroupMode();
+
+                // 저장 직후 재조회(preserveSelection: true)에서만 방금 편집하던 그룹에게 포커스를
+                // 되돌린다 - grd1(QueryUsersAsync)과 같은 이유(feedback_query_refocus_after_save).
+                if (preserveSelection && _editingUserGrpCd != null)
+                {
+                    var handle = FindGroupRowHandle(_editingUserGrpCd);
+                    if (handle != null) gvw2.FocusedRowHandle = handle.Value;
+                }
+            });
 
             if (_pendingLoadTask != null) await _pendingLoadTask;
             HideBusy();
@@ -660,17 +742,32 @@ public partial class frmUserAuth : BaseForm
         {
             DrawingSuspension.Resume(this);
         }
+
+        // DevExpress가 grd2.DataSource 재할당 직후 위에서 맞춰둔 FocusedRowHandle을 자기
+        // 내부의 "첫 행 자동포커스" 로직으로 이벤트 없이 조용히 덮어쓰는 경우가 있다(바로 위
+        // 동기 코드에서 handle을 정확히 찾아 설정해도 2026-09-11 재현: 인덱스 기반
+        // GetRowHandle로 바꿔도 여전히 저장 후 포커스가 1번째 행으로 감). 그 내부 리셋이 이
+        // 메서드가 반환되고 메시지 루프로 한 번 돌아간 뒤에 일어나는 것으로 보여, BeginInvoke로
+        // 한 틱 미뤄 그 리셋이 끝난 다음에 다시 한번 확정한다.
+        if (preserveSelection && _editingUserGrpCd != null)
+        {
+            var targetGrpCd = _editingUserGrpCd;
+            BeginInvoke(new Action(() =>
+            {
+                var handle = FindGroupRowHandle(targetGrpCd);
+                if (handle != null) gvw2.FocusedRowHandle = handle.Value;
+            }));
+        }
     }
 
-    /// <summary>userGrpCd로 grd2의 행 핸들을 찾는다. 없으면 null.</summary>
+    /// <summary>userGrpCd로 grd2의 행 핸들을 찾는다. 없으면 null. FindUserRowHandle과 같은 이유로
+    /// GetRow(handle) 비교 대신 리스트 인덱스 -> GetRowHandle 변환 방식을 쓴다.</summary>
     private int? FindGroupRowHandle(string userGrpCd)
     {
-        for (var handle = 0; handle < gvw2.RowCount; handle++)
-        {
-            if (gvw2.GetRow(handle) is UserGroupListItemDto g && string.Equals(g.UserGrpCd, userGrpCd, StringComparison.OrdinalIgnoreCase))
-                return handle;
-        }
-        return null;
+        var index = _groupsList.FindIndex(g => string.Equals(g.UserGrpCd, userGrpCd, StringComparison.OrdinalIgnoreCase));
+        if (index < 0) return null;
+        var handle = gvw2.GetRowHandle(index);
+        return handle >= 0 ? handle : null;
     }
 
     private async Task DeleteGroupAsync()
@@ -738,8 +835,8 @@ public partial class frmUserAuth : BaseForm
 
     private async Task LoadGroupAuthAsync(string userGrpCd)
     {
-        _groupAuthItems = await ApiClient.GetAsync<List<MenuAuthItemDto>>(
-            $"api/menu-auth?targetType=GRP&targetCd={Uri.EscapeDataString(userGrpCd)}") ?? new();
+        _groupAuthItems = FilterOutDeveloperTool(await ApiClient.GetAsync<List<MenuAuthItemDto>>(
+            $"api/menu-auth?targetType=GRP&targetCd={Uri.EscapeDataString(userGrpCd)}") ?? new());
 
         tree2.BeginUpdate();
         try

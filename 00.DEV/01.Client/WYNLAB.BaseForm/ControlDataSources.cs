@@ -23,14 +23,17 @@ public static class ControlDataSources
             return items.Select(i => new CodeLookupItem { Value = i.minor_cd, Display = i.minor_nm ?? string.Empty });
         };
 
-        // PopupLookupEditWyn("..." 버튼)이 실제로 팝업을 여는 방법 - PopupLookupForm이
-        // sysPopUpM/sysPopUpD 정의를 읽어서 스스로 그린다(엔티티별 폼 클래스 없음).
-        PopupLookupProvider.OpenPopup = PopupLookupForm.ShowAsync;
+        // PopupLookupEditWyn("..." 버튼)이 실제로 팝업을 여는 방법(popPopUp.ShowAsync)은
+        // 여기서 등록하지 않는다 - popPopUp은 WYNLAB.Popup 프로젝트로 옮겨졌고(2026-09-12,
+        // "BaseForm은 순수 프레임워크, 화면은 공용 계층이라도 별도 프로젝트" 원칙), WYNLAB.Popup은
+        // BaseForm을 참조해야 해서(ApiClient/Session 등 사용) 그 반대 방향 참조는 순환참조가 된다.
+        // 그래서 이 등록은 WYNLAB.Popup.PopupWiring.Initialize()가 대신 하고, Program.cs가
+        // ControlDataSources.Initialize() 바로 다음 줄에서 그것도 같이 호출한다.
 
         // PopupLookupEditWyn의 멀티필드 모드가 Leave 시 부르는 "조용한" 검색 - 팝업 UI 없이
         // 결과 행들만 돌려준다. 그 popup_key에 정의된 조회조건(sysPopUpS) 전부에 keyword를
         // 그대로 넣어 검색한다 - 어느 조건이 몇 개인지는 컨트롤이 몰라도 되게, 여기서 정의를
-        // 먼저 읽어서 처리한다(같은 원칙: PopupLookupForm.BuildSearchPanel의 initialKeyword 전파).
+        // 먼저 읽어서 처리한다(같은 원칙: popPopUp.BuildSearchPanel의 initialKeyword 전파).
         PopupLookupProvider.SearchExact = async (popupKey, keyword) =>
         {
             var def = await ApiClient.GetAsync<PopupDefinitionDto>($"api/lookups/{Uri.EscapeDataString(popupKey)}/definition");

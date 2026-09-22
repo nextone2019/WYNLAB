@@ -1,0 +1,17 @@
+{
+  "permissions": {
+    "allow": [
+      "PowerShell(Select-String *)",
+      "Bash(tasklist *)",
+      "PowerShell(Get-Process *)",
+      "PowerShell(Get-Content *)",
+      "Bash(dotnet build *)",
+      "PowerShell(Get-ChildItem *)",
+      "PowerShell(Get-Item *)",
+      "PowerShell(Test-Path *)",
+      "PowerShell(Get-CimInstance *)",
+      "PowerShell(Get-WinEvent *)",
+      "PowerShell(Get-ItemProperty *)"
+    ]
+  }
+}

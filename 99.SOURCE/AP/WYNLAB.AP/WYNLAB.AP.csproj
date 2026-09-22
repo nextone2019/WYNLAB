@@ -1,0 +1,115 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- 결재승인 프로세스 1차 테스트 모듈 - 명함신청서(frmNameCardReq)와 결재함(frmApprInbox) 2개
+       화면. WYNLAB.SA/WYNLAB.PR과 같은 모듈 단위 구조(화면은 폴더로만 구분, 프로젝트/DLL은
+       모듈당 하나). -->
+  <PropertyGroup>
+    <TargetFramework>net48</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <UseWindowsForms>true</UseWindowsForms>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <RootNamespace>WYNLAB.AP</RootNamespace>
+    <AssemblyName>WYNLAB.AP</AssemblyName>
+    <GenerateResourceUsePreserializedResources>true</GenerateResourceUsePreserializedResources>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="System.Resources.Extensions" Version="8.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- DevExpress 21.2 로컬 설치 기반 참조 -->
+    <Reference Include="DevExpress.Data.v21.2">
+      <HintPath>C:\Program Files (x86)\DevExpress 21.2\Components\Bin\Framework\DevExpress.Data.v21.2.dll</HintPath>
+    </Reference>
+    <Reference Include="DevExpress.Data.Desktop.v21.2">
+      <HintPath>C:\Program Files (x86)\DevExpress 21.2\Components\Bin\Framework\DevExpress.Data.Desktop.v21.2.dll</HintPath>
+    </Reference>
+    <Reference Include="DevExpress.Utils.v21.2">
+      <HintPath>C:\Program Files (x86)\DevExpress 21.2\Components\Bin\Framework\DevExpress.Utils.v21.2.dll</HintPath>
+    </Reference>
+    <Reference Include="DevExpress.XtraBars.v21.2">
+      <HintPath>C:\Program Files (x86)\DevExpress 21.2\Components\Bin\Framework\DevExpress.XtraBars.v21.2.dll</HintPath>
+    </Reference>
+    <Reference Include="DevExpress.XtraEditors.v21.2">
+      <HintPath>C:\Program Files (x86)\DevExpress 21.2\Components\Bin\Framework\DevExpress.XtraEditors.v21.2.dll</HintPath>
+    </Reference>
+    <Reference Include="DevExpress.XtraGrid.v21.2">
+      <HintPath>C:\Program Files (x86)\DevExpress 21.2\Components\Bin\Framework\DevExpress.XtraGrid.v21.2.dll</HintPath>
+    </Reference>
+    <Reference Include="DevExpress.XtraLayout.v21.2">
+      <HintPath>C:\Program Files (x86)\DevExpress 21.2\Components\Bin\Framework\DevExpress.XtraLayout.v21.2.dll</HintPath>
+    </Reference>
+    <!-- BaseForm.ConfirmMasterRowSwitch의 오버로드가 TreeList를 참조해서 필요(WYNLAB.BA와 동일). -->
+    <Reference Include="DevExpress.XtraTreeList.v21.2">
+      <HintPath>C:\Program Files (x86)\DevExpress 21.2\Components\Bin\Framework\DevExpress.XtraTreeList.v21.2.dll</HintPath>
+    </Reference>
+    <!-- 출력물(명함신청서 미리보기/인쇄/PDF export) - rptNameCardReq + ReportPrintTool.ShowPreviewDialog()용.
+         IReport/IDocumentSource 등 리포트 기반 인터페이스는 XtraPrinting이 아니라 Printing.Core에 있다. -->
+    <Reference Include="DevExpress.Printing.v21.2.Core">
+      <HintPath>C:\Program Files (x86)\DevExpress 21.2\Components\Bin\Framework\DevExpress.Printing.v21.2.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="DevExpress.XtraPrinting.v21.2">
+      <HintPath>C:\Program Files (x86)\DevExpress 21.2\Components\Bin\Framework\DevExpress.XtraPrinting.v21.2.dll</HintPath>
+    </Reference>
+    <Reference Include="DevExpress.XtraReports.v21.2">
+      <HintPath>C:\Program Files (x86)\DevExpress 21.2\Components\Bin\Framework\DevExpress.XtraReports.v21.2.dll</HintPath>
+    </Reference>
+    <Reference Include="DevExpress.XtraReports.v21.2.Extensions">
+      <HintPath>C:\Program Files (x86)\DevExpress 21.2\Components\Bin\Framework\DevExpress.XtraReports.v21.2.Extensions.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+  <!-- WYNLAB.BaseForm/WYNLAB.Controls/WYNLAB.Shared는 이미 빌드된 DLL을 참조만 한다(Private=false) -
+       WYNLAB.SA.csproj와 같은 이유(화면 모듈이 프레임워크를 매번 같이 리빌드하지 않게). -->
+  <ItemGroup>
+    <Reference Include="WYNLAB.BaseForm">
+      <HintPath>..\..\..\00.DEV\01.Client\WYNLAB.BaseForm\bin\Debug\net48\WYNLAB.BaseForm.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="WYNLAB.Controls">
+      <HintPath>..\..\..\00.DEV\01.Client\WYNLAB.Controls\bin\Debug\net48\WYNLAB.Controls.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="WYNLAB.Shared">
+      <HintPath>..\..\..\00.DEV\03.Shared\WYNLAB.Shared\bin\Debug\netstandard2.0\WYNLAB.Shared.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <!-- 파일첨부/전자결재 등 공용 팝업(어떤 모듈에도 속하지 않는 화면) - 00.DEV/MODULE_ARCHITECTURE.md -->
+    <Reference Include="WYNLAB.Popup">
+      <HintPath>..\..\POPUP\WYNLAB.Popup\bin\Debug\net48\WYNLAB.Popup.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="Properties\Resources.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
+    <EmbeddedResource Update="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+  </ItemGroup>
+
+  <!-- 빌드 결과를 Shell의 Modules 폴더로 복사해서 F5 개발 중 바로 최신 화면이 뜨게 한다 -
+       WYNLAB.SA.csproj와 동일. -->
+  <Target Name="CopyToModulesFolder" AfterTargets="Build">
+    <ItemGroup>
+      <ModuleOutputFiles Include="$(TargetDir)$(TargetName).dll" />
+      <ModuleOutputFiles Include="$(TargetDir)$(TargetName).pdb" Condition="Exists('$(TargetDir)$(TargetName).pdb')" />
+      <ModuleOutputFiles Include="$(TargetDir)System.Resources.Extensions.dll" Condition="Exists('$(TargetDir)System.Resources.Extensions.dll')" />
+      <!-- 출력물(XtraReports) 참조는 이 모듈만 쓰므로 CoreAssembly가 아니라 여기서 같이 배포한다 -
+           ModuleLoader.OnAssemblyResolve가 Modules\ 하위를 재귀 탐색해서 자동으로 찾아준다. -->
+      <ModuleOutputFiles Include="$(TargetDir)DevExpress.Printing.v21.2.Core.dll" Condition="Exists('$(TargetDir)DevExpress.Printing.v21.2.Core.dll')" />
+      <ModuleOutputFiles Include="$(TargetDir)DevExpress.XtraPrinting.v21.2.dll" Condition="Exists('$(TargetDir)DevExpress.XtraPrinting.v21.2.dll')" />
+      <ModuleOutputFiles Include="$(TargetDir)DevExpress.XtraReports.v21.2.dll" Condition="Exists('$(TargetDir)DevExpress.XtraReports.v21.2.dll')" />
+      <ModuleOutputFiles Include="$(TargetDir)DevExpress.XtraReports.v21.2.Extensions.dll" Condition="Exists('$(TargetDir)DevExpress.XtraReports.v21.2.Extensions.dll')" />
+    </ItemGroup>
+    <Copy SourceFiles="@(ModuleOutputFiles)" DestinationFolder="$(SolutionDir)..\..\00.DEV\01.Client\WYNLAB.Shell\bin\$(Configuration)\net48\Modules\" SkipUnchangedFiles="true" />
+  </Target>
+
+</Project>

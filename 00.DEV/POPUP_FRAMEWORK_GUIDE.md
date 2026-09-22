@@ -23,8 +23,11 @@
         │  api/lookups/{key}/definition (GET)
         │  api/lookups/{key}/search     (POST, 조회조건 딕셔너리)
         ▼
-[클라이언트] WYNLAB.BaseForm/PopupLookupForm.cs   - 정의를 읽어 팝업창을 스스로 그리는 공용 폼
-             WYNLAB.BaseForm/ControlDataSources.cs - PopupLookupProvider에 실제 구현 연결(앱 시작 시 1회)
+[클라이언트] WYNLAB.Popup/popPopUp.cs - 정의를 읽어 팝업창을 스스로 그리는 공용 폼(2026-09-12,
+             어떤 모듈에도 속하지 않아 WYNLAB.BaseForm에서 WYNLAB.Popup으로 이동 -
+             00.DEV/MODULE_ARCHITECTURE.md 참고)
+             WYNLAB.Popup/PopupWiring.cs - PopupLookupProvider에 실제 구현 연결(앱 시작 시 1회,
+             Program.cs가 ControlDataSources.Initialize() 다음 줄에서 호출)
              WYNLAB.Controls/Controls/PopupLookupEditWyn.cs - 화면에 놓는 컨트롤(버튼+텍스트)
         │
         ▼
@@ -32,7 +35,7 @@
 ```
 
 **엔티티별로 새로 만드는 것은 DB 3줄(팝업 정의 + 조회조건)과 프로시저 하나(`SSP_POP_*_Q`)뿐이다.**
-서버 컨트롤러/리포지토리, `PopupLookupForm`(팝업창 자체), `PopupLookupEditWyn`(컨트롤)은 전부
+서버 컨트롤러/리포지토리, `popPopUp`(팝업창 자체), `PopupLookupEditWyn`(컨트롤)은 전부
 공용이라 손댈 필요가 없다.
 
 ---
@@ -276,8 +279,8 @@ txtDeptNm.MapField("par_dept_nm", txtParDeptNm);
 |---|---|
 | DB 테이블/프로시저 | `00.DEV/04.Database/033_Popup_Framework_Tables_And_DeptProc.sql`, `035_Sys_Popup_Manage_Procs.sql`, `037_Popup_Search_Conditions.sql` |
 | 팝업관리 화면 | `99.SOURCE/SYS/WYNLAB.SYS/frmSysPopup/` |
-| 런타임 팝업창 | `00.DEV/01.Client/WYNLAB.BaseForm/PopupLookupForm.cs` |
+| 런타임 팝업창 | `99.SOURCE/POPUP/WYNLAB.Popup/popPopUp.cs` |
 | 컨트롤 | `00.DEV/01.Client/WYNLAB.Controls/Controls/PopupLookupEditWyn.cs` |
-| 프로바이더 등록 | `00.DEV/01.Client/WYNLAB.BaseForm/ControlDataSources.cs` |
+| 프로바이더 등록 | `99.SOURCE/POPUP/WYNLAB.Popup/PopupWiring.cs` |
 | 서버 컨트롤러/리포지토리 | `00.DEV/02.Server/WYNLAB.Api/Controllers/Framework/`, `Repositories/Framework/PopupLookupRepository.cs` |
 | 사용 예 | `99.SOURCE/BA/WYNLAB.BA/frmDept/` |

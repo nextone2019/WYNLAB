@@ -8,8 +8,8 @@ public interface IUserManageRepository
 {
     Task<List<UserManageRow>> GetAllAsync(string? userId = null, string? userNm = null);
     Task<bool> ExistsAsync(string userId);
-    Task<ProcResult> CreateAsync(string userId, string userNm, string passwordHash, string? empNo, string? email);
-    Task<ProcResult> UpdateAsync(string userId, string userNm, string? empNo, string? email, bool useYn);
+    Task<ProcResult> CreateAsync(string userId, string userNm, string passwordHash, long? empId, long? accId, string? userType, string? email, bool mustChangePwd = false);
+    Task<ProcResult> UpdateAsync(string userId, string userNm, long? empId, long? accId, string? userType, string? email, bool useYn);
     Task<ProcResult> SetUseYnAsync(string userId, bool useYn);
     Task<List<UserGroupAssignRow>> GetUserGroupsAsync(string userId);
     Task<ProcResult> ReplaceUserGroupsAsync(string userId, List<string> userGrpCds);
@@ -23,10 +23,12 @@ public class UserManageRow
 {
     public string UserId { get; set; } = string.Empty;
     public string UserNm { get; set; } = string.Empty;
+    public long? EmpId { get; set; }
     public string? EmpNo { get; set; }
     public string? EmpNm { get; set; }
-    public string? DeptCd { get; set; }
     public string? DeptNm { get; set; }
+    public long? AccId { get; set; }
+    public string? AccNm { get; set; }
     public string? Email { get; set; }
     public string UseYn { get; set; } = "Y";
     /// <summary>TSMUSER.DEVELOPER_YN - 조회 전용(표시용). CreateAsync/UpdateAsync엔 이 값을
@@ -77,7 +79,7 @@ public class UserManageRepository : IUserManageRepository
         return count > 0;
     }
 
-    public async Task<ProcResult> CreateAsync(string userId, string userNm, string passwordHash, string? empNo, string? email)
+    public async Task<ProcResult> CreateAsync(string userId, string userNm, string passwordHash, long? empId, long? accId, string? userType, string? email, bool mustChangePwd = false)
     {
         using var conn = _context.CreateConnection();
         var p = new DynamicParameters();
@@ -85,22 +87,27 @@ public class UserManageRepository : IUserManageRepository
         p.Add("p_user_id", userId);
         p.Add("p_user_nm", userNm);
         p.Add("p_password_hash", passwordHash);
-        p.Add("p_emp_no", empNo);
+        p.Add("p_emp_id", empId);
+        p.Add("p_acc_id", accId);
+        p.Add("p_user_type", string.IsNullOrWhiteSpace(userType) ? "U" : userType);
         p.Add("p_email", email);
+        p.Add("p_must_change_pwd_yn", mustChangePwd ? "Y" : "N");
         p.AddStandardOutputs(withGeneratedCode: true, pascalCase: true);
 
         await conn.ExecuteAsync("USP_SM_USERAUTH_S", p, commandType: CommandType.StoredProcedure);
         return p.ReadStandardOutputs(withGeneratedCode: true, pascalCase: true);
     }
 
-    public async Task<ProcResult> UpdateAsync(string userId, string userNm, string? empNo, string? email, bool useYn)
+    public async Task<ProcResult> UpdateAsync(string userId, string userNm, long? empId, long? accId, string? userType, string? email, bool useYn)
     {
         using var conn = _context.CreateConnection();
         var p = new DynamicParameters();
         p.Add("p_work_type", "U");
         p.Add("p_user_id", userId);
         p.Add("p_user_nm", userNm);
-        p.Add("p_emp_no", empNo);
+        p.Add("p_emp_id", empId);
+        p.Add("p_acc_id", accId);
+        p.Add("p_user_type", string.IsNullOrWhiteSpace(userType) ? "U" : userType);
         p.Add("p_email", email);
         p.Add("p_use_yn", useYn ? "Y" : "N");
         p.AddStandardOutputs(withGeneratedCode: true, pascalCase: true);

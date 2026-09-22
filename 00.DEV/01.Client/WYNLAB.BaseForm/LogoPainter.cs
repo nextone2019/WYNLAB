@@ -37,6 +37,18 @@ public static class LogoPainter
             g.TranslateTransform(rect.X, rect.Y);
             g.ScaleTransform(scale, scale);
 
+            // 원래 좌표(TopFace 등)는 30x30 캔버스 안에서 가로 5~25(66.7%), 세로 3~28.7(85.7%)만
+            // 채워서, 정사각형 아이콘(특히 작업표시줄/바로가기 .ico)에서 옆에 놓인 다른 앱
+            // 아이콘들보다 눈에 띄게 작아 보인다는 지적(2026-09-06)이 있었다. 좌표 배열을 전부
+            // 다시 재는 대신, 그리기 직전에 도형 중심(대략 15, 15.85) 기준으로 살짝 더 확대하는
+            // 변환을 하나 더 끼워 넣는 방식으로 여백만 줄인다 - 세로는 이미 꽤 채워져 있어
+            // 살짝만(1.05배), 가로는 부족한 만큼 더(1.16배) 키워서 전체적으로 고르게 채운다.
+            const float pivotX = 15f, pivotY = 15.85f;
+            const float fillScaleX = 1.16f, fillScaleY = 1.05f;
+            g.TranslateTransform(pivotX, pivotY);
+            g.ScaleTransform(fillScaleX, fillScaleY);
+            g.TranslateTransform(-pivotX, -pivotY);
+
             var shadowColor = darkBackground ? Color.Black : ColorHelper.FromHex("1B2A3D");
             using (var shadowBrush = new SolidBrush(Color.FromArgb(darkBackground ? 56 : 31, shadowColor)))
                 g.FillEllipse(shadowBrush, 7f, 25.9f, 16f, 2.8f);

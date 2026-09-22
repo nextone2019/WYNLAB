@@ -57,6 +57,23 @@
     <Reference Include="DevExpress.XtraTreeList.v21.2">
       <HintPath>C:\Program Files (x86)\DevExpress 21.2\Components\Bin\Framework\DevExpress.XtraTreeList.v21.2.dll</HintPath>
     </Reference>
+    <!-- 메뉴관리(frmMenu)의 아이콘명 선택 콤보(cboIconNm)가 DevExpress 내장 SVG를 미리보기로
+         그리는 데 필요(ImageResourceCache) - WYNLAB.Shell/SvgIcons.cs와 같은 API. -->
+    <Reference Include="DevExpress.Images.v21.2">
+      <HintPath>C:\Program Files (x86)\DevExpress 21.2\Components\Bin\Framework\DevExpress.Images.v21.2.dll</HintPath>
+    </Reference>
+    <!-- 일정관리(frmSchedule) 캘린더 뷰(SchedulerControl) - 2026-09-17. 셋 다 필요(리플렉션으로
+         확인) - SchedulerControl/SchedulerStorage는 본체 dll, Appointment/AppointmentMappingInfo는
+         Core dll, SchedulerViewType/AppointmentOperationEventHandler는 Core.Desktop dll에 있다. -->
+    <Reference Include="DevExpress.XtraScheduler.v21.2">
+      <HintPath>C:\Program Files (x86)\DevExpress 21.2\Components\Bin\Framework\DevExpress.XtraScheduler.v21.2.dll</HintPath>
+    </Reference>
+    <Reference Include="DevExpress.XtraScheduler.v21.2.Core">
+      <HintPath>C:\Program Files (x86)\DevExpress 21.2\Components\Bin\Framework\DevExpress.XtraScheduler.v21.2.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="DevExpress.XtraScheduler.v21.2.Core.Desktop">
+      <HintPath>C:\Program Files (x86)\DevExpress 21.2\Components\Bin\Framework\DevExpress.XtraScheduler.v21.2.Core.Desktop.dll</HintPath>
+    </Reference>
   </ItemGroup>
 
   <!-- WYNLAB.BaseForm/WYNLAB.Controls/WYNLAB.Shared�?ProjectReference(?�스 참조, 매번 같이
@@ -77,6 +94,11 @@
     </Reference>
     <Reference Include="WYNLAB.Shared">
       <HintPath>..\..\..\00.DEV\03.Shared\WYNLAB.Shared\bin\Debug\netstandard2.0\WYNLAB.Shared.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <!-- 파일첨부/전자결재 등 공용 팝업(어떤 모듈에도 속하지 않는 화면) - 00.DEV/MODULE_ARCHITECTURE.md -->
+    <Reference Include="WYNLAB.Popup">
+      <HintPath>..\..\POPUP\WYNLAB.Popup\bin\Debug\net48\WYNLAB.Popup.dll</HintPath>
       <Private>false</Private>
     </Reference>
   </ItemGroup>
@@ -133,5 +155,65 @@
     </ItemGroup>
     <Copy SourceFiles="@(ModuleOutputFiles)" DestinationFolder="$(SolutionDir)..\..\00.DEV\01.Client\WYNLAB.Shell\bin\$(Configuration)\net48\Modules\" SkipUnchangedFiles="true" />
   </Target>
+
+  <ItemGroup>
+    <Compile Update="frmAutoKey\frmAutoKey.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="frmAutoKey\frmAutoKey.Designer.cs">
+      <DependentUpon>frmAutoKey.cs</DependentUpon>
+    </Compile>
+    <EmbeddedResource Update="frmAutoKey\frmAutoKey.resx">
+      <DependentUpon>frmAutoKey.cs</DependentUpon>
+    </EmbeddedResource>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="frmMenu\frmMenu.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="frmMenu\frmMenu.Designer.cs">
+      <DependentUpon>frmMenu.cs</DependentUpon>
+    </Compile>
+    <EmbeddedResource Update="frmMenu\frmMenu.resx">
+      <DependentUpon>frmMenu.cs</DependentUpon>
+    </EmbeddedResource>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="frmBoard\frmBoard.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="frmBoard\frmBoard.Designer.cs">
+      <DependentUpon>frmBoard.cs</DependentUpon>
+    </Compile>
+    <EmbeddedResource Update="frmBoard\frmBoard.resx">
+      <DependentUpon>frmBoard.cs</DependentUpon>
+    </EmbeddedResource>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="frmSchedule\frmSchedule.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="frmSchedule\frmSchedule.Designer.cs">
+      <DependentUpon>frmSchedule.cs</DependentUpon>
+    </Compile>
+    <EmbeddedResource Update="frmSchedule\frmSchedule.resx">
+      <DependentUpon>frmSchedule.cs</DependentUpon>
+    </EmbeddedResource>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="frmMessage\frmMessage.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="frmMessage\frmMessage.Designer.cs">
+      <DependentUpon>frmMessage.cs</DependentUpon>
+    </Compile>
+    <EmbeddedResource Update="frmMessage\frmMessage.resx">
+      <DependentUpon>frmMessage.cs</DependentUpon>
+    </EmbeddedResource>
+  </ItemGroup>
 
 </Project>

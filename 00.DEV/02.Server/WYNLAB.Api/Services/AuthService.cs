@@ -24,8 +24,8 @@ public interface IAuthService
 
 public class AuthService : IAuthService
 {
-    private const int MaxPwdFailCount = 5; // 5회 실패시 잠금 처리 (안내 메시지만, 실제 잠금해제는 관리자 화면에서)
-    private const int ResetCodeExpireMinutes = 15;
+    private const int DefaultMaxPwdFailCount = 5; // TSMSITECONFIG.pwd_lock_threshold가 NULL일 때 폴백
+    private const int DefaultResetCodeExpireMinutes = 15; // TSMSITECONFIG.pwd_reset_code_valid_min이 NULL일 때 폴백
 
     private readonly IUserRepository _userRepo;
     private readonly IUserManageRepository _userManageRepo;
@@ -34,6 +34,7 @@ public class AuthService : IAuthService
     private readonly IMenuPermissionService _menuPermissionService;
     private readonly IShortcutRepository _shortcutRepo;
     private readonly IJwtTokenService _jwtTokenService;
+    private readonly ISiteConfigRepository _siteConfig;
 
     public AuthService(
         IUserRepository userRepo,
@@ -42,7 +43,8 @@ public class AuthService : IAuthService
         IEmailService emailService,
         IMenuPermissionService menuPermissionService,
         IShortcutRepository shortcutRepo,
-        IJwtTokenService jwtTokenService)
+        IJwtTokenService jwtTokenService,
+        ISiteConfigRepository siteConfig)
     {
         _userRepo = userRepo;
         _userManageRepo = userManageRepo;
@@ -51,6 +53,7 @@ public class AuthService : IAuthService
         _menuPermissionService = menuPermissionService;
         _shortcutRepo = shortcutRepo;
         _jwtTokenService = jwtTokenService;
+        _siteConfig = siteConfig;
     }
 
     public async Task<LoginResponse> LoginAsync(LoginRequest request, string clientIp)
@@ -70,7 +73,9 @@ public class AuthService : IAuthService
             return Fail("사용이 정지된 계정입니다. 관리자에게 문의해주세요.");
         }
 
-        if (user.PwdFailCnt >= MaxPwdFailCount)
+        var config = await _siteConfig.GetAsync();
+        var maxPwdFailCount = config?.PwdLockThreshold ?? DefaultMaxPwdFailCount;
+        if (user.PwdFailCnt >= maxPwdFailCount)
         {
             await _userRepo.InsertLoginHistAsync(user.UserId, clientIp, request.ClientVersion, "FAIL_LOCK");
             return Fail("비밀번호 실패 횟수 초과로 잠긴 계정입니다. 관리자에게 문의해주세요.");
@@ -95,10 +100,11 @@ public class AuthService : IAuthService
             UserId = user.UserId,
             UserNm = user.UserNm,
             EmpNo = user.EmpNo,
-            DeptCd = user.DeptCd,
             DeptNm = user.DeptNm,
             DeveloperYn = user.DeveloperYn == "Y",
-            UserType = user.UserType
+            UserType = user.UserType,
+            AccId = user.AccId,
+            AccNm = user.AccNm
         };
 
         // 비밀번호를 먼저 바꿔야 하는 계정은 메뉴권한/바로가기를 조회할 필요가 없다 - 어차피
@@ -139,29 +145,33 @@ public class AuthService : IAuthService
     /// </summary>
     public async Task<ApiResult> RequestPasswordResetAsync(string userId)
     {
-        const string failMessage = "요청이 실패했습니다. 아이디, 등록된 이메일정보 등을 확인 하십시오.";
-
         var session = await _userRepo.GetSessionAsync(userId);
         var user = session.User;
 
         if (user == null || string.IsNullOrWhiteSpace(user.Email))
-            return new ApiResult { Success = false, Message = failMessage };
+            return new ApiResult { Success = false, Message = "아이디를 찾을 수 없거나 등록된 이메일이 없습니다. 아이디를 확인하거나 관리자에게 문의하세요." };
 
+        var config = await _siteConfig.GetAsync();
+        var expireMinutes = config?.PwdResetCodeValidMin ?? DefaultResetCodeExpireMinutes;
         var code = GenerateCode();
-        var expireAt = DateTime.Now.AddMinutes(ResetCodeExpireMinutes); // GETDATE()와 같은 기준(서버 로컬시간)으로 비교되므로 UtcNow를 쓰면 안 됨
+        var expireAt = DateTime.Now.AddMinutes(expireMinutes); // GETDATE()와 같은 기준(서버 로컬시간)으로 비교되므로 UtcNow를 쓰면 안 됨
         await _pwdResetRepo.IssueCodeAsync(user.UserId, code, expireAt);
 
         try
         {
             await _emailService.SendAsync(user.Email!, "[WYNLAB] 비밀번호 재설정 인증코드",
-                $"인증코드: {code}\n\n{ResetCodeExpireMinutes}분 안에 로그인 화면에서 입력해주세요.\n본인이 요청하지 않았다면 이 메일을 무시하셔도 됩니다.");
+                $"인증코드: {code}\n\n{expireMinutes}분 안에 로그인 화면에서 입력해주세요.\n본인이 요청하지 않았다면 이 메일을 무시하셔도 됩니다.");
         }
-        catch
+        catch (Exception ex)
         {
-            // SMTP 설정이 잘못됐거나 서버가 일시적으로 안 될 때도 실패로 알려준다 - 원인이
-            // "이 사용자의 아이디/이메일"이 아니라 서버 설정일 수도 있지만, 지금 이 메시지
-            // 하나로는 그 구분까지는 못 한다(필요해지면 서버 로그를 별도로 봐야 함).
-            return new ApiResult { Success = false, Message = failMessage };
+            // "아이디/이메일이 틀렸다"는 메시지와 분명히 구분한다 - 여기 온 시점엔 계정은 이미
+            // 정상 확인됐고 메일 발송(SMTP 연결/인증/전송)만 실패한 것이므로, 사용자가 자기 아이디를
+            // 의심하며 헤매지 않게 한다(2026-09-10 - "인증코드받기 누르고 죽어버렸어"로 시작된 조사,
+            // 원인은 EmailService에 타임아웃이 없어 최대 100초간 멈춘 것처럼 보였던 것). 예외
+            // 상세는 사용자에게 노출하지 않는다(이 엔드포인트는 [AllowAnonymous] - SMTP 서버/설정
+            // 정보가 새어나가면 안 됨) - 서버 콘솔에만 남긴다(구조화 로거 도입 전까지의 임시 방편).
+            Console.Error.WriteLine($"[RequestPasswordResetAsync] 메일 발송 실패 (userId={userId}): {ex}");
+            return new ApiResult { Success = false, Message = "메일 발송에 실패했습니다. 잠시 후 다시 시도하시거나 관리자에게 문의하세요." };
         }
 
         return new ApiResult { Success = true, Message = "정상적으로 요청이 접수되었습니다." };
@@ -169,6 +179,9 @@ public class AuthService : IAuthService
 
     public async Task<LoginResponse> ConfirmPasswordResetAsync(string userId, string code, string newPassword, string clientIp)
     {
+        var policyError = await ValidatePasswordPolicyAsync(newPassword);
+        if (policyError != null) return Fail(policyError);
+
         var newHash = BCrypt.Net.BCrypt.HashPassword(newPassword);
         var result = await _pwdResetRepo.ConsumeCodeAsync(userId, code, newHash);
 
@@ -188,12 +201,39 @@ public class AuthService : IAuthService
         if (!BCrypt.Net.BCrypt.Verify(currentPassword, user.PasswordHash))
             return new ApiResult { Success = false, Message = "현재 비밀번호가 올바르지 않습니다." };
 
+        var policyError = await ValidatePasswordPolicyAsync(newPassword);
+        if (policyError != null) return new ApiResult { Success = false, Message = policyError };
+
         var newHash = BCrypt.Net.BCrypt.HashPassword(newPassword);
         var result = await _userManageRepo.ChangePasswordAsync(userId, newHash);
 
         return result.IsSuccess
             ? new ApiResult { Success = true }
             : new ApiResult { Success = false, Message = result.FailMessage };
+    }
+
+    /// <summary>TSMSITECONFIG.pwd_min_length/pwd_require_* (frmSiteConfig 비밀번호정책 탭) 기준
+    /// 새 비밀번호를 검증한다 - 값이 전부 NULL(미설정)이면 통과시킨다(정책을 안 정한 설치는
+    /// 예전처럼 아무 제약도 없음). ChangePasswordAsync/ConfirmPasswordResetAsync 둘 다 새
+    /// 비밀번호를 실제로 반영하기 "전"에 호출해야 한다.</summary>
+    private async Task<string?> ValidatePasswordPolicyAsync(string newPassword)
+    {
+        var config = await _siteConfig.GetAsync();
+        if (config == null) return null;
+
+        if (config.PwdMinLength is int minLength && newPassword.Length < minLength)
+            return $"비밀번호는 최소 {minLength}자 이상이어야 합니다.";
+
+        if (config.PwdRequireUpperLower && !(newPassword.Any(char.IsUpper) && newPassword.Any(char.IsLower)))
+            return "비밀번호는 영문 대/소문자를 모두 포함해야 합니다.";
+
+        if (config.PwdRequireDigit && !newPassword.Any(char.IsDigit))
+            return "비밀번호는 숫자를 포함해야 합니다.";
+
+        if (config.PwdRequireSpecial && !newPassword.Any(c => !char.IsLetterOrDigit(c)))
+            return "비밀번호는 특수문자를 포함해야 합니다.";
+
+        return null;
     }
 
     /// <summary>암호학적으로 안전한 난수로 6자리 코드를 만든다(System.Random 아님 - 이건 보안에

@@ -7,6 +7,9 @@ using WYNLAB.Shared.Dtos;
 using WYNLAB.Base;
 using WYNLAB.Base.Controls;
 using System.Drawing;
+using System.Drawing.Drawing2D;
+using System.Linq;
+using System.Runtime.InteropServices;
 
 namespace WYNLAB.Shell;
 
@@ -20,39 +23,35 @@ namespace WYNLAB.Shell;
 ///
 /// 헤더와 사이드바는 둘 다 appsettings.json의 ToolbarColor(회사별 브랜드색)에서 파생된 같은 색
 /// 계열이지만, 헤더는 흰색 쪽으로 살짝 섞은 밝은 톤, 사이드바는 검정 쪽으로 많이 섞은 짙은 톤을
-/// 써서 "같은 브랜드지만 서로 다른 면"임이 구분되도록 한다(ColorHelper.Mix). 툴바 버튼은 카드로
-/// 묶지 않고 전부 개별 흰 배지 버튼으로 나열한다. 아이콘은 전부 SvgIcons 벡터셋(ToolbarIconColor
-/// 한 색)으로 통일해서 그린다 - 예전엔 정적 PNG마다 색이 제각각(삭제=빨강 등)이었는데, 버튼을
-/// 키우면서 그 불일치가 오히려 더 산만해 보인다는 피드백으로 예외 없이 한 색으로 맞췄다.
-/// "성격" 구분은 이제 그룹 여백/구분선으로만 표현한다.
+/// 써서 "같은 브랜드지만 서로 다른 면"임이 구분되도록 한다(ColorHelper.Mix). 툴바 버튼은
+/// 아이콘+라벨+단축키를 한 줄에 표시하는 IconChipButton으로 나열한다(2026-09-17 리디자인) -
+/// 저장만 Primary(꽉 찬 파란 배경), 삭제/로그아웃은 Danger(빨간 글자/아이콘), 나머지는 Default
+/// (평소엔 배경 없이 호버할 때만 옅게 채워짐)로 구분한다(IconChipVariant).
 /// </summary>
+// 2026-09-17: ToolbarForm(DevExpress 공식 "제목줄에 merge" 클래스)을 시도했으나, 제목줄
+// 배경색이 활성 스킨(WXI)에 눌려 BackColor/Controller.PaintStyleName/BarManager.BarBackColor
+// 셋 다 효과가 없었다(전부 실제 배포로 확인) - DevExpress 공식 문서도 "스킨 요소 재염색은
+// Skin Editor 영역"이라 코드로는 못 하는 게 맞았다. 그래서 스킨 시스템 자체를 안 쓰는 방식으로
+// 바꿨다 - FormBorderStyle.None + 직접 그린 제목줄 Panel(titleBarPanel, BuildTitleBar 참고).
+// 예전에 실패했던 "커스텀 캡션" 시도(RefreshTitle 위 주석)는 FormBorderStyle을 그대로 둔 채
+// XtraForm 위에 WM_NCHITTEST를 얹어서 XtraForm 자신의 비클라이언트 처리와 충돌했던 것 -
+// 이번엔 None으로 아예 꺼버려서 그 충돌 자체가 성립하지 않는다. 드래그 이동은 WM_NCHITTEST
+// 가로채기 대신 훨씬 단순한 표준 트릭(ReleaseCapture+WM_NCLBUTTONDOWN, BuildTitleBar 참고)을
+// 쓴다 - 많은 상용 WinForms 셸이 실제로 쓰는 방식.
 public class ShellForm : XtraForm
 {
     private readonly Color _accentColor = ColorHelper.FromHex(AppConfig.ToolbarColor);
 
-    // 모던 리프레시(2026-08-27): 예전엔 헤더 전체를 브랜드색으로 짙게 물들였는데(Mix 0.35),
-    // "브랜드색 배경 + 색색의 배지 버튼"이 화면 전체를 시끄럽게 만든다는 피드백으로 헤더를
-    // 거의 흰색에 가까운 중립 면으로 바꿨다 - 브랜드색은 이제 로고 배지 하나에만 진하게 쓰고
-    // (아래 BuildLogo), 나머지는 전부 중립 회색조로 눌러서 "어디에 힘을 줄지"를 명확히 했다.
-    // 0.94 정도로 아주 살짝만 브랜드색을 섞어두는 이유는 완전한 회백색보다 이 앱만의 톤이라는
-    // 인상을 은은하게 남기기 위함 - 육안으로는 거의 안 보이지만 다른 브랜드색으로 바꾸면
-    // 헤더 톤도 같이 미세하게 따라간다.
-    private Color HeaderBg => ColorHelper.Mix(_accentColor, Color.White, 0.94f);
+    // 2026-09-17엔 제목줄(titleBarPanel)만 짙은 남색이고 그 아래 헤더(툴바)는 순백색이었는데,
+    // "툴바 아이콘 있는 패널의 배경색을 그 위쪽(제목줄) 배경색과 같은 색으로" 요청(2026-09-22)으로
+    // 다시 NavDarkBg를 그대로 쓰도록 되돌렸다 - 제목줄과 툴바가 이제 한 덩어리처럼 이어져 보인다.
+    private Color HeaderBg => NavDarkBg;
     private Color HeaderDividerColor => ColorHelper.Adjust(HeaderBg, -22);
-    // 툴바 칩(IconChipButton) 채움색 - 헤더 배경(HeaderBg, 거의 흰색)에서 살짝만 어둡게 눌렀던
-    // 예전 IconBadgeBg(-8 고정폭 조정)는 흰 배경 위에서 거의 안 보였다(실제로 겪음 - "칩처럼
-    // 안 보인다"는 피드백). 브랜드색을 눈에 띄는 비율로 섞어서(0.90/0.82/0.74) 상태별로 확실히
-    // 구분되게 하고, 다른 헤더 색들과 같은 계산 패턴(ColorHelper.Mix 기준 accentColor 파생)을
-    // 유지해서 브랜드색이 바뀌면 툴바 칩도 같이 따라가게 한다.
-    private Color ChipBg => ColorHelper.Mix(_accentColor, Color.White, 0.90f);
-    private Color ChipHoverBg => ColorHelper.Mix(_accentColor, Color.White, 0.82f);
-    private Color ChipPressedBg => ColorHelper.Mix(_accentColor, Color.White, 0.74f);
-    private static readonly Color SidebarBg = Color.FromArgb(245, 246, 248);
+    private static readonly Color SqlLogToolbarBg = Color.FromArgb(245, 246, 248);
     private static readonly Color DividerColor = Color.FromArgb(225, 225, 225);
-    // 헤더 위 일반 텍스트/아이콘 색 - 예전엔 헤더가 짙어서 흰 글자를 썼는데, 이제 헤더가
-    // 밝아졌으니 짙은 중립색으로 뒤집는다.
+    // cboMenuSearch(검색창) 자신은 항상 흰 입력창(BuildMenuSearchCombo에서 명시적으로
+    // Color.White)이라 헤더 배경과 무관하게 이 짙은 색 그대로 쓴다.
     private static readonly Color HeaderText = Color.FromArgb(28, 30, 34);
-    private static readonly Color HeaderTextMuted = Color.FromArgb(120, 123, 130);
     // 툴바 아이콘과 활성 MDI 탭 표시줄이 공유하는 "인터랙션" 강조색(브랜드색과는 별개로 고정).
     private static readonly Color ActionAccent = Color.FromArgb(41, 121, 255);
 
@@ -71,34 +70,39 @@ public class ShellForm : XtraForm
     // 안 읽힌다는 피드백 - 채도 있는 파랑(NavAccentBlue) 쪽으로 섞어야 눈에 띄게 파래진다.
     private static readonly Color NavAccentBlue = Color.FromArgb(43, 130, 255);
 
-    /// <summary>사이드바 맨 위 사용자정보 띠의 배경. 위(타이틀바)도 아래(메뉴트리)도 짙은 색이라
-    /// 여기만 옅게 둬서 구분되게 한다.
-    ///
-    /// _accentColor(appsettings ToolbarColor, 기본 #1B2A3D)는 채도가 거의 없는 남색에 가까운
-    /// 색이라, 이전처럼 흰색을 많이 섞으면(0.93) NavHoverBg/NavPressedBg와 똑같은 문제(바로 위
-    /// 주석 참고 - "회색을 끼얹은 것처럼 보여 파랑으로 안 읽힘")가 나서 카드가 그냥 회색으로
-    /// 보였다(실제로 지적받음, 2026-09-03 - "메뉴트리와 어울릴 코발트블루로"). 그래서 같은
-    /// 해법을 재사용한다 - 흰색으로 바로 섞지 않고, 먼저 채도 있는 NavAccentBlue 쪽으로 60%
-    /// 끌어당겨 코발트블루에 가까운 색(약 37,95,177)을 만든 다음에 그 색을 흰색으로 밝힌다.
-    /// 고정색이 아니라 브랜드색에서 파생되므로, 회사별로 ToolbarColor가 바뀌면 이 띠도 같은
-    /// 계열(그리고 항상 파랗게 보정된 채로)로 따라간다.</summary>
-    private Color SidebarUserBg => ColorHelper.Mix(ColorHelper.Mix(_accentColor, NavAccentBlue, 0.6f), Color.White, 0.85f);
-    private Color NavHoverBg => ColorHelper.Mix(NavDarkBg, NavAccentBlue, 0.55f);
-    private Color NavPressedBg => ColorHelper.Mix(NavDarkBg, NavAccentBlue, 0.8f);
-    private static readonly Color NavText = Color.FromArgb(222, 224, 228);
-    private static readonly Color NavTextMuted = Color.FromArgb(158, 161, 168);
-    private Color NavDivider => ColorHelper.Adjust(NavDarkBg, 20);
+    /// <summary>사이드바(메뉴트리)+상태바 전용 배경 - 제목줄(titleBarPanel)은 계속 NavDarkBg를
+    /// 그대로 쓰고, 그 옆/아래 영역만 같은 계열에서 살짝 밝혀서 구분되게 한다. 완전히 다른 색이
+    /// 아니라 NavDarkBg에서 파생시켜서, 회사별 ToolbarColor가 바뀌어도 항상 "제목줄보다 한 톤
+    /// 밝은 같은 계열"을 유지한다("제목줄과 메뉴트리가 같은 색이라 이상하다"는 지적, 2026-09-17).</summary>
+    private Color SidebarBg => ColorHelper.Adjust(NavDarkBg, 10);
+
+    /// <summary>메뉴트리(accordionMenu) 자체의 배경 - 참고 목업(2026-09-21, "탐색 창
+    /// (Navigation)")이 다크가 아니라 밝은 오프화이트(#F8FAFC) 사이드바였다는 요청으로,
+    /// 기존 다크 그레이 톤에서 라이트 테마로 전환했다. 상태바/제목줄(NavDarkBg/SidebarBg)은
+    /// 계속 남색 계열 그대로 - 트리 영역만 밝은 톤이라 그 위·아래와 대비된다.</summary>
+    private static readonly Color SidebarTreeBg = Color.FromArgb(248, 250, 252);
+
+    private Color NavHoverBg => ColorHelper.Mix(SidebarTreeBg, NavAccentBlue, 0.12f);
+    private static readonly Color NavText = Color.FromArgb(51, 65, 85);
+    private static readonly Color NavTextMuted = Color.FromArgb(100, 116, 139);
+    private Color NavDivider => Color.FromArgb(226, 232, 240);
+    /// <summary>호버된 그룹/화면 항목의 글자색 - 라이트 테마 전환 전엔 다크 배경 위라 항상
+    /// 흰색이었지만, 이제 배경(NavHoverBg)이 옅은 하늘색이라 흰 글자는 거의 안 보인다.</summary>
+    private static readonly Color NavHoverFg = Color.FromArgb(15, 23, 42);
 
     private const int MenuTopIconSize = 15;
+    // AccordionControlElement는 별도 Height 속성이 없고 행 높이가 아이콘/폰트 크기로 자동
+    // 계산된다 - "마이메뉴/전체메뉴 높이를 조금 더 키워달라" 요청(2026-09-22)에 맞춰 이 둘의
+    // 헤더 아이콘만 키운다(모듈 그룹/화면들은 MenuTopIconSize 그대로라 영향 없음).
+    private const int MenuRootHeaderIconSize = 20;
     private const int MenuLeafDotSize = 9;
     private const int MenuSubGroupIconSize = 14;
     private const int RailIconSize = 13;
 
-    // 사이드바 접힘/펼침 폭. 예전엔 로고 클릭시 사이드바 자체가 Visible=false로 완전히
-    // 사라졌는데(폭 0), 접혀도 최상위 메뉴 아이콘만 남는 "아이콘 레일"로 바꿔서 접힌 상태에서도
-    // 길을 잃지 않고 계속 다른 모듈로 이동할 수 있게 한다(요즘 관리자 UI들의 표준 패턴).
+    // 사이드바(고정) 폭. 접기/펼치기는 폭을 줄이는 대신 sidebarPanel 자체를 통째로
+    // 숨긴다(ToggleSidebarCollapsed 참고, 2026-09-21 요청 - "메뉴트리 숨기기 하면 트리 자체를
+    // 숨기고 열린 폼이 전체 화면을 채우게").
     private const int SidebarExpandedWidth = 212;
-    private const int SidebarCollapsedWidth = 60;
     private bool _sidebarCollapsed;
 
     private readonly Panel headerPanel;
@@ -109,12 +113,14 @@ public class ShellForm : XtraForm
     /// 열거형이라는 걸 리플렉션으로 확인함), ShellForm 위에 절대좌표로 별도 패널을 얹어
     /// 시각적으로만 같은 줄처럼 보이게 하는 방식이다.
     ///
-    /// 배경은 흰색이다 - 원래는 탭 줄과 같은 TabInactiveBg(회색)로 맞췄었는데, IconBadgeButton이
-    /// 자기 배경을 항상 Parent.BackColor로 지우기 때문에(OnPaint의 g.Clear 참고) 아이콘 자체의
-    /// BadgeColor를 투명으로 바꿔도 이 패널 배경이 회색이면 버튼 전체가 여전히 회색으로 보였다
-    /// (실제로 지적받음, 2026-09-03). 흰색으로 바꾸고 나니 탭 줄 본문(TabInactiveBg)과 살짝
-    /// 이질감이 있을 수 있지만, 요청대로 아이콘 배경을 흰색/투명으로 우선한다.</summary>
+    /// 배경은 흰색 -> 2026-09-21엔 "창 테두리(WindowBorderColor)와 같은 배경색으로" 요청으로
+    /// 회색(Gainsboro)으로 바꿨었는데, 그 결과 탭이 없을 때(MDI 영역이 그냥 흰 배경) 이
+    /// 스트립만 회색 박스처럼 도드라져 보였다("세 아이콘 뒤 배경을 나머지와 동일하게" 지적,
+    /// 2026-09-22) - 다시 흰색으로 되돌린다. IconBadgeButton이 알아서 Parent.BackColor를
+    /// 따라가므로 여기 색만 바꾸면 된다.</summary>
     private readonly Panel tabStripButtons = new() { BackColor = Color.White, Height = 30 };
+    // 2026-09-17 요청 - "탭닫기 버튼 있는쪽에 홈버튼만 추가해줘"(탭목록/탭전체닫기 기능은 그대로).
+    private readonly IconBadgeButton btnHomeStrip = new() { Size = new Size(28, 28), IconInset = 5 };
     private readonly IconBadgeButton btnTabListStrip = new() { Size = new Size(28, 28), IconInset = 5 };
     private readonly IconBadgeButton btnCloseAllStrip = new() { Size = new Size(28, 28), IconInset = 5 };
 
@@ -124,33 +130,13 @@ public class ShellForm : XtraForm
     /// 한다"는 요청(2026-09-03)으로 다시 헤더로 옮겼다(BuildHeaderRightCombos 참고) - 이번엔
     /// Dock=Right라 창을 좁혀도 항상 오른쪽 끝에 붙어있다.</summary>
     private readonly LookUpEdit cboMenuSearch = new();
+    // 제목줄 SERVICE 알약처럼 둥근 필드로 보이게 하려고(2026-09-18 요청) 뒤에 까는 배경 -
+    // DevExpress 에디터 자체는 각진 사각 배경만 그릴 수 있어서, 에디터 쪽 테두리는 없애고
+    // (NoBorder) 이 패널이 그리는 둥근 배경 위에 얹는 방식으로 흉내 낸다. 검색창은 이제
+    // headerPanel(툴바) 안, 조회 버튼 왼쪽에 있다(BuildHeaderSearchZone 참고).
+    private Panel _cboMenuSearchPill = null!;
     private readonly Panel sidebarPanel;
     private readonly Panel statusBar;
-    // 접힌 상태에서 accordionMenu 대신 보여주는 아이콘 전용 레일 - 최상위 메뉴당 아이콘 버튼 1개.
-    // 클릭하면 사이드바를 다시 펼친다(하위 메뉴까지 좁은 폭에 다 담기는 어려워, 펼침으로 위임).
-    private readonly Panel sidebarIconRail = new() { Dock = DockStyle.Fill, Visible = false };
-    /// <summary>사이드바를 접었을 때 같이 숨기는 사용자정보 영역(사용자명 + 접속시각 두 줄).
-    /// 라벨 하나가 아니라 둘을 담은 그릇을 들고 있어야 두 줄이 함께 사라진다.</summary>
-    private Control? _lblUserInline;
-
-    /// <summary>홈 버튼을 담은 영역 - 사이드바가 접히면 Dock을 Right에서 Fill로 바꿔
-    /// 좁아진 폭 한가운데로 보낸다(ToggleSidebarCollapsed 참고).</summary>
-    private Panel? _homeArea;
-    // 사이드바 맨 위 여백 - 오른쪽 MDI 탭 줄과 높이를 맞춰서, 그 아래(사용자정보)와
-    // 탭 줄 아래(문서 내용)가 같은 Y좌표에서 시작하도록 CustomDrawTabHeader에서 실측해 맞춘다.
-    /// <summary>사이드바 맨 위, 로그인 사용자/접속시각을 두 줄로 보여주는 띠.
-    /// 배경색과 위/아래 흰 경계선은 ConfigureSidebarTopGap에서 입힌다.</summary>
-    private readonly Panel sidebarTopGap = new() { Dock = DockStyle.Top, Height = SidebarTopGapMinHeight };
-
-    /// <summary>사용자명/접속시각 두 줄 + 위아래 경계선 1px씩이 눌리지 않고 들어가는 최소 높이.
-    /// 이 띠는 원래 오른쪽 탭 줄 높이를 그대로 따라가지만(양쪽 시작 Y를 맞추려고), 한 줄이던
-    /// 시절 기준이라 두 줄에는 모자란다 - 그래서 이 값보다는 작아지지 않게 한다.</summary>
-    // 46은 카드 안쪽 내용(이름 19 + 접속시각 16 = 35px)이 눌리지 않는 최소 높이였는데, 그 46을
-    // 실제로 확보하려면 sidebarTopGap의 위아래 Padding(8+8=16, ConfigureSidebarTopGap 참고)과
-    // card 자신의 위아래 Padding(3+3=6, 라운드 모서리가 자식 패널에 덮이는 걸 막기 위한 여백 -
-    // 같은 메서드의 card 생성부 주석 참고)을 합친 만큼을 더 얹어야 한다(46+16+6=68). 이 값보다
-    // 작아지면 "시스템관리자" 등 텍스트가 다시 눌려 잘린다(실제로 겪은 문제, 여러 번 반복됨).
-    private const int SidebarTopGapMinHeight = 68;
     private readonly LabelControl lblStatusMessage = new();
     private readonly LabelControl lblStatusRight = new();
     private readonly ComboBoxEdit cboEnvironment = new();
@@ -162,6 +148,10 @@ public class ShellForm : XtraForm
 
     // SQL/API 활동 로그 뷰어(관리자 전용) - null이면 관리자가 아니라서 아예 안 만들어진 상태.
     private Panel? _sqlLogPanel;
+    /// <summary>상태바 우측(lblStatusRight 옆)의 프로필러 토글 아이콘 - null이면 관리자가
+    /// 아니라서 애초에 안 만들어졌다. PositionStatusBar가 리사이즈마다 lblStatusRight 기준
+    /// 위치를 다시 계산한다.</summary>
+    private IconChipButton? _sqlLogChip;
     private SimpleButton _btnSqlLogStartStop = null!;
     private LabelControl _lblSqlLogCount = null!;
     private MemoEdit _memoSqlLogDetail = null!;
@@ -189,7 +179,55 @@ public class ShellForm : XtraForm
     // 탭 우클릭 시 닫기/다른 탭 모두 닫기/모두 닫기 메뉴 - PermissionAssignForm의 copyMenu와
     // 같은 방식으로 클릭할 때마다 Items를 비우고 다시 채운다(대상이 매번 다른 탭이라서).
     private readonly ContextMenuStrip tabContextMenu = new();
+    // 사이드바 메뉴트리 우클릭 - "메뉴 새로고침"(재로그인 없이 새로 등록된 메뉴를 바로 반영,
+    // 2026-09-16 요청) 하나뿐이라 tabContextMenu처럼 클릭마다 다시 채울 필요 없이 한 번만 구성한다.
+    private readonly ContextMenuStrip sidebarContextMenu = new();
     private HomeForm? _homeForm;
+
+    /// <summary>즐겨찾기 1건의 로컬 표현 - 서버 FavoriteMenuDto와 1:1. Folder는 사용자가
+    /// "폴더 지정..."으로 붙인 임의 이름표(2026-09-21, "핵심 업무"/"자재 출납" 같은 것) - null/빈
+    /// 문자열이면 마이 메뉴 바로 아래 평평하게 보인다.</summary>
+    private sealed class FavoriteMenuEntry
+    {
+        public long MenuId;
+        public string? Folder;
+    }
+
+    /// <summary>사이드바 "마이 메뉴" 즐겨찾기 - 로그인 사용자가 별표한 목록(2026-09-21).
+    /// 표시 순서 그대로라 List(순서 있음)다 - HashSet이었다면 상위/하위로 이동(순서변경)을
+    /// 표현할 수 없다. ReloadFavoriteMenusAsync가 서버(TSMUSERFAVORITEMENU, SORT_ORDER 순)와
+    /// 동기화한다.</summary>
+    private readonly List<FavoriteMenuEntry> _favorites = new();
+
+    /// <summary>방금 만든 "마이 메뉴" 그룹 엘리먼트 - "마이 메뉴" 헤더 자신을 클릭했는지
+    /// (ToggleMyMenuMode) 판단하는 데 쓴다.</summary>
+    private AccordionControlElement? _favoritesGroupElement;
+
+    /// <summary>BuildFavoriteMenuGroup이 만든 리프(화면) 엘리먼트 전체 - 우클릭한 항목이
+    /// 마이메뉴 소속인지(그래서 "상위로/하위로 이동"/"폴더 지정..."을 보여줄지) 판단하는 데
+    /// 쓴다. 폴더로 묶이면 리프가 "마이 메뉴" 그룹의 직계 자식이 아니라 폴더 그룹의 자식이
+    /// 되므로(2단계 중첩), _favoritesGroupElement.Elements.Contains만으로는 더 이상 못
+    /// 판별한다 - AccordionControlElement엔 Parent 프로퍼티가 없어서, 만들 때 직접 이 집합에
+    /// 넣어두고 나중에 멤버십만 확인한다.</summary>
+    private readonly HashSet<AccordionControlElement> _favoriteLeafElements = new();
+
+    /// <summary>"마이 메뉴"와 "전체 메뉴"는 상호배타 - 하나가 열리면 다른 하나는 통째로
+    /// 숨는다(2026-09-21 목업 요청). 기본값 false = 처음엔 전체 메뉴만 보이고 마이 메뉴는
+    /// 닫힌 채(헤더만 보임) 시작한다. 마이 메뉴 헤더를 클릭(ToggleMyMenuMode)하면 뒤집힌다.</summary>
+    private bool _myMenuExpanded;
+
+    /// <summary>사이드바 메뉴검색(cboMenuSearch)에 타이핑 중인 실시간 필터 키워드 - 비어있으면
+    /// 평소와 동일하게 전체가 보인다. RebuildAccordionTree가 매 키 입력마다 이 값 기준으로
+    /// 마이메뉴/전체메뉴 양쪽을 다시 그린다(2026-09-21 요청 - "마이메뉴와 전체메뉴를 동시에
+    /// 필터링하여 실시간 검색").</summary>
+    private string _menuFilterText = string.Empty;
+
+    // 자리비움 잠금화면(2026-09-09 요청) - 20초마다 OS 전체 유휴시간(GetLastInputInfo, 이 앱에
+    // 포커스가 없어도 감지됨)을 확인해서 AppConfig.IdleTimeoutMinutes(frmSiteConfig에서 관리자가
+    // 지정, 0/null이면 비활성)를 넘기면 LockScreenForm을 모달로 띄운다. _lockScreenShowing은
+    // 잠금화면이 이미 떠 있는 동안 타이머가 중복으로 또 띄우지 못하게 막는 가드.
+    private readonly System.Windows.Forms.Timer _idleCheckTimer = new() { Interval = 20_000 };
+    private bool _lockScreenShowing;
 
     // "메뉴 접기/펼치기"와 "홈" 두 버튼의 자리를 서로 바꿨다(2026-09-03) - 이 필드는 원래
     // "홈" 버튼이었고, 헤더 툴바 맨 앞의 버튼은 원래 "메뉴 접기/펼치기"였다. 여기(사이드바
@@ -201,8 +239,11 @@ public class ShellForm : XtraForm
     private readonly IconBadgeButton sidebarToggleButton = new()
     {
         Text = "메뉴 접기/펼치기",
-        Size = new Size(34, 34),
-        IconInset = 6
+        // 34 -> 28 -> 24: 검색창과 나란히 놓으면서 딱 맞춰(28) 줄였더니 여백이 0이라 흰
+        // 배경에서 아래쪽이 살짝 잘려 보였다("잘렸어" 지적, 2026-09-17) - 24로 한 번 더
+        // 줄여서 ConfigureSidebarTopGap의 내용 높이(28) 안에 위아래 2px씩 여백이 남게 했다.
+        Size = new Size(24, 24),
+        IconInset = 4
     };
 
     private readonly Dictionary<string, string> _envLabels = new()
@@ -213,12 +254,39 @@ public class ShellForm : XtraForm
 
     private bool _suppressEnvChange;
 
+    // 직접 그린 제목줄(BuildTitleBar) 구성요소 - RefreshTitleBarStatus가 다시 그릴 때 필요해서
+    // 필드로 들고 있는다.
+    private readonly Panel titleBarPanel = new() { Dock = DockStyle.Top, Height = 36 };
+    // SERVICE 선택을 메뉴검색(cboMenuSearch)처럼 "제목 없는 룩업" 모양으로 그리기 위한 껍데기
+    // (2026-09-17 요청) - LabelControl 하나로는 알약 배경+드롭다운 세모를 같이 못 그려서, 얇은
+    // Panel(_titleBarEnvPill)에 배경/세모를 직접 그리고 그 안에 텍스트 라벨만 Dock=Fill로 얹는다.
+    private Panel _titleBarEnvPill = null!;
+    private readonly LabelControl _titleBarEnvLabel = new();
+    private readonly LabelControl _titleBarUserLabel = new();
+    private readonly ContextMenuStrip _envSwitchMenu = new();
+
     public ShellForm()
     {
         IsMdiContainer = true;
         RefreshTitle();
+        // 제목줄을 직접 그리므로(BuildTitleBar) OS 기본 캡션은 꺼둔다 - 리사이즈 테두리는
+        // 당장은 생략(회귀 위험 최소화, 클래스 선언부 주석 참고) - 앱이 항상 최대화로 뜨고
+        // (WindowState=Maximized) 최대화 버튼으로도 복원 가능해서 실사용 영향은 적다.
+        // ponytail: 가장자리 드래그 리사이즈 없음 - 필요해지면 WM_NCHITTEST 가장자리 판정 추가.
+        FormBorderStyle = FormBorderStyle.None;
         WindowState = FormWindowState.Maximized;
         BackColor = Color.White;
+
+        // FormBorderStyle.None이라 OS가 그려주던 얇은 창 테두리가 없다 - 복원(Normal) 상태로
+        // 리사이즈하면 바탕화면과 경계가 전혀 안 보였다("MDI 배경이 바탕화면과 구분이 안
+        // 된다" 지적, 2026-09-21). Form.Padding(1px)으로 만드는데, 절대좌표로 배치된
+        // tabStripButtons가 이 Padding을 모른 채 ClientSize 기준으로 계산돼 있어서 처음엔
+        // MDI 자식폼이 열렸을 때 탭 스트립 쪽에 테두리색이 비쳐 보이는 회귀가 있었다 -
+        // RepositionTabStripButtons에서 Padding.Right를 반영해서 고쳤다.
+        RefreshWindowBorder();
+        Resize += (s, e) => RefreshWindowBorder();
+
+        BuildTitleBar();
 
         toolbarToolTip.Appearance.Font = AppFonts.Caption;
         toolbarToolTip.Appearance.Options.UseFont = true;
@@ -244,7 +312,9 @@ public class ShellForm : XtraForm
         tabbedMdiManager.ClosePageButtonShowMode = ClosePageButtonShowMode.InAllTabPagesAndTabControlHeader;
         ConfigureTabAppearance();
 
-        headerPanel = new Panel { Dock = DockStyle.Top, Height = 60, BackColor = HeaderBg };
+        // 60 -> 52: "툴바 높이를 조금만 낮춰줘"(2026-09-17). ToolbarButtonY/SidebarTopGapMinHeight도
+        // 같이 맞춰야 한다(각 상수 주석 참고).
+        headerPanel = new Panel { Dock = DockStyle.Top, Height = 52, BackColor = HeaderBg };
         // 관리자가 IconAssetProvider.AssetsFolder에 toolbar_background.png를 넣어두면 그 위에
         // 그려서 배경을 이미지로 바꿀 수 있게 한다 - 없으면(기본 상태) 그냥 BackColor(HeaderBg)
         // 그대로 보인다. Dock=Fill처럼 헤더 전체 크기에 맞춰 늘려 그린다.
@@ -253,14 +323,24 @@ public class ShellForm : XtraForm
             var bg = IconAssetProvider.GetImage("toolbar_background");
             if (bg != null) e.Graphics.DrawImage(bg, headerPanel.ClientRectangle);
         };
-        sidebarPanel = new Panel { Dock = DockStyle.Left, Width = 212, BackColor = NavDarkBg };
-        statusBar = new Panel { Dock = DockStyle.Bottom, Height = 26, BackColor = SidebarBg };
+        sidebarPanel = new Panel { Dock = DockStyle.Left, Width = 212, BackColor = SidebarTreeBg };
+        // 48 -> 42 -> 30까지 줄였더니 상태바가 너무 얇아져서 사이드바(메뉴트리)가 화면 아래
+        // 끝까지 꽉 찬 것처럼 보였다("메뉴트리가 아래쪽까지 전체를 차지하고 있다"는 지적,
+        // 2026-09-17) - "아래쪽 툴바를 전체 사이즈로 넓히고 그 위에 메뉴트리가 오도록"
+        // 요청대로 이전에 "넓힌" 값이었던 48로 되돌렸다. 상태바가 Dock=Bottom(폼 전체
+        // 너비)이라, 이 위에 얹힌 sidebarPanel(Dock=Left)의 실제 높이는 자동으로 그만큼
+        // 줄어든다(Dock 레이아웃이 알아서 계산 - 별도 코드 불필요).
+        // 높이는 30으로 되돌렸다("높이는 원래대로 줄여줘", 2026-09-17) - 문제는 높이가 아니라
+        // 폭이었다(위 Controls.Add 순서 주석 참고), 폭만 고치고 높이는 이전(70%) 값 그대로 둔다.
+        statusBar = new Panel { Dock = DockStyle.Bottom, Height = 30, BackColor = SidebarBg };
 
         BuildToolbar();
         BuildHeaderRightCombos();
         BuildSidebar();
         BuildAccordionMenu();
         BuildStatusBar();
+        RefreshTitleBarStatus(); // 여기서 처음 불러야 한다 - SERVICE 알약이 이제 상태바 소속이라 그 전엔 없다.
+        AppConfig.EnvironmentChanged += RefreshTitleBarStatus;
         BuildTabStripButtons();
 
         var headerBottomBorder = new Panel { Dock = DockStyle.Bottom, Height = 1, BackColor = HeaderDividerColor };
@@ -270,11 +350,19 @@ public class ShellForm : XtraForm
         // 먼저 Controls에 들어가야(BuildSqlLogPanel 내부에서 처리) 패널이 상태바 위쪽에 온다.
         if (Session.UserType == "A") BuildSqlLogPanel();
 
-        // 순서 중요: 상단바를 먼저 추가해야 전체 폭을 차지하고, 그 아래에 좌측 메뉴가 배치됨
-        // statusBar는 Bottom이라 순서 무관하게 항상 최하단에 고정됨.
-        Controls.Add(statusBar);
+        // 순서 중요 - Dock은 "나중에 추가한 쪽이 바깥쪽(먼저 차지)"이므로(이 파일 전체 규칙),
+        // 원하는 최종 모양(제목줄이 맨 위 전체 폭 -> 그 아래 툴바도 전체 폭 -> 상태바가 맨
+        // 아래 전체 폭 -> 그 사이에서 사이드바가 왼쪽만)을 만들려면 바깥쪽부터 titleBarPanel ->
+        // statusBar -> headerPanel -> sidebarPanel 순으로 "차지"해야 한다 - 즉 추가는 그 역순
+        // (sidebarPanel 먼저 ... titleBarPanel 마지막). 예전엔 headerPanel(툴바)이 sidebarPanel
+        // 보다 먼저 차지해서 사이드바 오른쪽 영역에서만 그려졌는데(메뉴검색/트리닫기 버튼이
+        // 사이드바 쪽에만 있던 시절) - "탐색창 없애고 툴바를 메뉴트리 영역까지 전체 폭으로
+        // 확장해서 검색/닫기버튼도 그 안에 포함해달라"는 요청(2026-09-21)으로 순서를 뒤집어
+        // headerPanel이 sidebarPanel보다 먼저(=바깥쪽에서) 전체 폭을 차지하게 했다.
         Controls.Add(sidebarPanel);
         Controls.Add(headerPanel);
+        Controls.Add(statusBar);
+        Controls.Add(titleBarPanel);
         // MDI 클라이언트 영역(탭 줄 포함) 위에 겹쳐 보이도록 맨 마지막에 추가 + BringToFront -
         // Z-order상 나중에 추가된 컨트롤이 위에 그려지는 WinForms 규칙을 그대로 이용한다.
         Controls.Add(tabStripButtons);
@@ -290,7 +378,17 @@ public class ShellForm : XtraForm
         // 활성/비활성을 그 화면의 권한으로 다시 계산한다.
         MdiChildActivate += (s, e) => UpdateToolbarPermissions();
 
+        // 홈 탭으로 돌아올 때마다 대시보드(공지사항/전자결재)를 다시 불러온다 - 최초 로드 한
+        // 번뿐이면 다른 화면(공지사항등록 등)에서 뭔가 바꾸고 홈으로 돌아와도 화면이 그대로였다
+        // (2026-09-17 지적 - "공지사항등록(게시체크) 후 홈화면에서 새로고침이 없네").
+        MdiChildActivate += (s, e) => { if (ActiveMdiChild is HomeForm home) _ = home.RefreshDashboardAsync(); };
+
         OpenHomeForm();
+
+        _ = ReloadFavoriteMenusAsync();
+
+        _idleCheckTimer.Tick += (s, e) => CheckIdleLock();
+        _idleCheckTimer.Start();
     }
 
     /// <summary>
@@ -425,26 +523,19 @@ public class ShellForm : XtraForm
 
     /// <summary>
     /// 탭 배경을 직접 그리고(위쪽 모서리만 살짝 둥글게, 탭 사이는 간격을 둬서 서로 안 맞닿게),
-    /// 텍스트/아이콘/닫기 버튼은 DevExpress 기본 로직(DefaultDraw*)에 그대로 맡긴다.
+    /// 텍스트/닫기 버튼은 DevExpress 기본 로직(DefaultDraw*)에 그대로 맡긴다. 아이콘은 그리지
+    /// 않는다 - Form.Icon을 지정한 화면이 하나도 없어서 DevExpress 기본 아이콘(의미 없는
+    /// 기본 폼 아이콘)만 나오던 걸 2026-09-07에 없앴다(탭 둥글게 만들 때 DefaultDrawImage를
+    /// 같이 넣은 게 원인 - 8185c32).
     /// 활성 탭 강조는 배경색 차이 하나로만 표현한다(처음엔 상단 강조색 바를 더했었는데,
     /// 과하다는 피드백을 받아 배경색만 남기고 단순화했다).
     /// </summary>
     private void TabbedMdiManager_CustomDrawTabHeader(object? sender, TabHeaderCustomDrawEventArgs e)
     {
-        // 탭 줄의 실제 높이를 매번 측정해서 사이드바 상단 여백에 반영 - 폰트/스킨이 바뀌어도
-        // 왼쪽(사용자정보)과 오른쪽(문서 내용) 시작 Y좌표가 계속 맞도록 자동으로 따라간다.
-        // 사용자/접속시각을 두 줄로 넣으면서부터는 탭 줄 높이만으로는 모자랄 수 있어서,
-        // 최소 높이를 보장한다(SidebarTopGapMinHeight 설명 참고).
-        var rowHeight = Math.Max(e.TabHeaderRowInfo.Bounds.Height, SidebarTopGapMinHeight);
-        if (sidebarTopGap.Height != rowHeight)
-        {
-            sidebarTopGap.Height = rowHeight;
-        }
-
-        // tabStripButtons(탭 줄 오른쪽 끝 아이콘 스트립)는 sidebarTopGap과 달리 실제 탭 줄
-        // 높이(패딩 없는 원본값)를 그대로 따라간다 - 시각적으로 진짜 탭 줄과 같은 자리에
-        // 겹쳐야 하므로, 사이드바 카드용으로 부풀린 rowHeight(최소 62px)를 쓰면 탭 줄보다
-        // 훨씬 두꺼운 블록으로 튀어나와 보인다.
+        // tabStripButtons(탭 줄 오른쪽 끝 아이콘 스트립)는 탭 줄의 실제 높이(패딩 없는
+        // 원본값)를 그대로 따라간다 - 시각적으로 진짜 탭 줄과 같은 자리에 겹쳐야 하기 때문.
+        // (예전엔 여기서 사이드바 상단 여백 높이도 같이 동기화했었는데, headerPanel이 사이드바
+        // 위까지 전체 폭을 차지하는 구조로 바뀌면서 그 동기화 자체가 필요 없어졌다 - BuildSidebar 참고.)
         var tabRowHeight = e.TabHeaderRowInfo.Bounds.Height;
         if (tabRowHeight > 0 && tabStripButtons.Height != tabRowHeight)
         {
@@ -482,7 +573,6 @@ public class ShellForm : XtraForm
 
         g.SmoothingMode = oldMode;
 
-        e.DefaultDrawImage();
         e.DefaultDrawText();
         e.DefaultDrawButtons();
         e.Handled = true;
@@ -530,9 +620,24 @@ public class ShellForm : XtraForm
     /// 여기서 먼저 await로 확인받고 나서 Close()를 부르면, 그 Close()가 다시 FormClosing을
     /// 태워도 이미 확인된 상태라 재질문 없이 바로 닫힌다. 확인 메시지박스 자체가 동기적으로
     /// 화면을 막고 서 있어서(첫 await 지점 이전) 다음 화면으로 넘어가기 전에 사용자가 반드시
-    /// 답해야 하므로, 여러 화면이 한꺼번에 물어보는 대신 탭 순서대로 하나씩 순차적으로 묻는다.</summary>
+    /// 답해야 하므로, 여러 화면이 한꺼번에 물어보는 대신 탭 순서대로 하나씩 순차적으로 묻는다.
+    ///
+    /// "전체 닫기"(except==null - 탭 줄의 [탭 전체 닫기] 아이콘, 우클릭 메뉴의 "모두 닫기")는
+    /// 실행 전에 한 번 더 확인한다(2026-09-16 요청) - 실수로 눌러서 여러 화면이 한꺼번에 닫히는
+    /// 걸 막기 위함. "다른 탭 모두 닫기"(except!=null, 지금 보는 화면은 남기는 동작)는 대상이
+    /// 다르므로 이 확인 대상이 아니다. 닫을 탭이 애초에 없으면(홈만 열려있음) 물을 필요도 없다.</summary>
     private async void CloseAllMdiChildren(Form? except)
     {
+        if (except == null)
+        {
+            if (!MdiChildren.Any(c => c is not HomeForm)) return;
+
+            var confirm = AppMessageBox.Show(
+                "현재 열려있는 모든 탭을 닫으시겠습니까?",
+                "확인", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+            if (confirm != DialogResult.Yes) return;
+        }
+
         foreach (var child in MdiChildren)
         {
             if (child is HomeForm) continue;
@@ -672,19 +777,60 @@ public class ShellForm : XtraForm
     /// </summary>
     private void BuildStatusBar()
     {
-        var topBorder = new Panel { Dock = DockStyle.Top, Height = 1, BackColor = DividerColor };
+        var topBorder = new Panel { Dock = DockStyle.Top, Height = 1, BackColor = NavDivider };
         statusBar.Controls.Add(topBorder);
 
-        lblStatusMessage.Location = new Point(14, 5);
+        const int contentHeight = 22;
+        var statusBarContentTop = topBorder.Height + (statusBar.Height - topBorder.Height - contentHeight) / 2;
+
+        // SERVICE 선택 알약 - 제목줄 우측에 있던 걸 상태바 좌측(예전 SQL 로그 아이콘 자리)으로
+        // 옮겼다(2026-09-21 요청 - "서비스선택 룩업을 현재 프로필러위치로 이동"). 실제 배경/
+        // 폭 계산 로직은 ConfigureTitleBarEnvPill/ResizeTitleBarEnvPill 그대로 재사용한다.
+        ConfigureTitleBarEnvPill();
+        _titleBarEnvPill.Location = new Point(14, statusBarContentTop);
+        _titleBarEnvPill.Height = contentHeight;
+        statusBar.Controls.Add(_titleBarEnvPill);
+        foreach (var envKey in AppConfig.AvailableEnvironments)
+        {
+            var label = GetEnvLabel(envKey);
+            _envSwitchMenu.Items.Add(label, null, (s, e) => cboEnvironment.SelectedItem = label);
+        }
+
+        var messageX = _titleBarEnvPill.Right + 14;
+
+        // SQL 로그(프로필러) 토글 칩(관리자 전용) - SERVICE 알약이 좌측 자리를 넘겨받으면서
+        // 우측(lblStatusRight 옆)으로 옮겼다. 보더 없이 아이콘 자체만 보이도록
+        // BorderColor를 투명으로 뺐다("버튼 보더 없애고 아이콘 자체만 클릭하도록" 요청,
+        // 2026-09-21) - 클릭 가능 영역 자체는 그대로(칩 전체)라 동작은 이전과 같다.
+        if (Session.UserType == "A")
+        {
+            _sqlLogChip = new IconChipButton
+            {
+                IconImage = SvgIcons.Load(SvgIcons.ToolbarSqlLog, 16, NavText),
+                Height = contentHeight,
+                DefaultTextColor = NavText,
+                BorderColor = Color.Transparent,
+                DefaultHoverBg = Color.FromArgb(28, 255, 255, 255),
+                DefaultPressedBg = Color.FromArgb(45, 255, 255, 255)
+            };
+            _sqlLogChip.Click += (s, e) => { if (_sqlLogPanel != null) _sqlLogPanel.Visible = !_sqlLogPanel.Visible; };
+            toolbarToolTip.SetToolTip(_sqlLogChip, "SQL 로그");
+            statusBar.Controls.Add(_sqlLogChip);
+        }
+
+        lblStatusMessage.Location = new Point(messageX, statusBarContentTop + (contentHeight - 18) / 2);
         lblStatusMessage.AutoSizeMode = LabelAutoSizeMode.None;
         lblStatusMessage.Size = new Size(500, 18);
-        lblStatusMessage.Appearance.ForeColor = Color.FromArgb(90, 90, 90);
+        lblStatusMessage.Appearance.ForeColor = NavText;
         lblStatusMessage.Appearance.Font = AppFonts.Caption;
 
         lblStatusRight.AutoSizeMode = LabelAutoSizeMode.None;
         lblStatusRight.Size = new Size(320, 18);
         lblStatusRight.Appearance.TextOptions.HAlignment = DevExpress.Utils.HorzAlignment.Far;
-        lblStatusRight.Appearance.ForeColor = Color.FromArgb(120, 120, 120);
+        // NavTextMuted -> NavText -> 245,246,248(2026-09-21, "폰트가 더 안보여" - NavText로는
+        // 여전히 부족했다): _titleBarUserLabel과 같은 거의-흰색 톤으로 확실히 밝게. SERVICE
+        // 룩업 텍스트(_titleBarEnvLabel)도 같은 값을 쓰므로 이제 둘이 같은 톤이다.
+        lblStatusRight.Appearance.ForeColor = Color.FromArgb(245, 246, 248);
         lblStatusRight.Appearance.Font = AppFonts.Caption;
         RefreshStatusRight();
 
@@ -699,13 +845,388 @@ public class ShellForm : XtraForm
 
     private void PositionStatusBar()
     {
-        lblStatusRight.Location = new Point(statusBar.Width - lblStatusRight.Width - 14, 5);
+        lblStatusRight.Location = new Point(statusBar.Width - lblStatusRight.Width - 14, lblStatusMessage.Top);
+        if (_sqlLogChip != null)
+            _sqlLogChip.Location = new Point(lblStatusRight.Left - _sqlLogChip.Width - 10, lblStatusMessage.Top);
     }
 
     private void RefreshStatusRight()
     {
         var envLabel = GetEnvLabel(AppConfig.CurrentEnvironment);
         lblStatusRight.Text = $"[Service : WYN LAB]  [{envLabel}]  v{DateTime.Now:yyyy.MM.dd}";
+    }
+
+    /// <summary>직접 그린 제목줄(titleBarPanel) - 흰 배경에 브랜드 마크, 사이드바 폭에 맞춘
+    /// 위치에 접속정보(아이콘+라벨), 우측에 SERVICE 알약 + 최소화/최대화/닫기를 올린다. 드래그
+    /// 이동은 WM_NCHITTEST를 가로채는 대신 표준 트릭(ReleaseCapture+WM_NCLBUTTONDOWN)을 쓴다 -
+    /// Windows에게 "지금부터 진짜 캡션을 드래그하는 것처럼 처리해라"라고 위임하는 것이라 Aero
+    /// Snap도 그대로 따라오고, XtraForm의 비클라이언트 처리와 충돌할 여지도 없다(클래스 선언부
+    /// 주석 참고).</summary>
+    private void BuildTitleBar()
+    {
+        // 흰 배경으로 바꿨다가(2026-09-17) "로고/사용자정보 있는 곳을 원래 색깔대로 돌려줘"
+        // 요청으로 같은 날 다시 원래의 짙은 남색(NavDarkBg)으로 되돌렸다 - 그에 맞춰 아래
+        // 색 관련 값들(브랜드 라벨, 사용자정보 라벨, 사용자 아이콘, 버튼 글리프, 호버색)도
+        // 전부 밝은 톤으로 같이 되돌렸다.
+        titleBarPanel.BackColor = NavDarkBg;
+
+        var logo = new Panel { Location = new Point(14, 8), Size = new Size(20, 20) };
+        logo.Paint += (s, e) => LogoPainter.Draw(e.Graphics, logo.ClientRectangle, darkBackground: true);
+
+        var brandLabel = new LabelControl
+        {
+            Text = "WYN LAB",
+            Location = new Point(42, 6),
+            AutoSizeMode = LabelAutoSizeMode.None,
+            Size = new Size(140, 24)
+        };
+        brandLabel.Appearance.ForeColor = Color.White;
+        brandLabel.Appearance.Font = AppFonts.SubHeading;
+        brandLabel.Appearance.TextOptions.VAlignment = DevExpress.Utils.VertAlignment.Center;
+
+        var btnClose = BuildTitleBarButton(DrawCloseGlyph, isClose: true);
+        btnClose.Click += (s, e) => Close();
+
+        _btnMaxRestore = BuildTitleBarButton(DrawMaxRestoreGlyph, isClose: false);
+        _btnMaxRestore.Click += (s, e) => ToggleMaximizeRestore();
+
+        var btnMin = BuildTitleBarButton(DrawMinimizeGlyph, isClose: false);
+        btnMin.Click += (s, e) => WindowState = FormWindowState.Minimized;
+
+        // 접속정보(아이콘+라벨) - 예전엔 우측 버튼 무리 안에서 Dock=Right로 오른쪽 끝에 붙어
+        // 있었는데, "메뉴트리 끝선과 맞춰서 저 위치로"라는 요청(2026-09-17)으로 고정 좌표
+        // (사이드바 폭=SidebarExpandedWidth과 같은 X)에 왼쪽 정렬로 옮겼다 - 사이드바 폭이
+        // 고정값이라 이쪽도 창 크기와 무관하게 고정 좌표로 둔다(Dock 대신 Location).
+        var loginIcon = new Panel { Location = new Point(SidebarExpandedWidth, 8), Size = new Size(20, 20) };
+        loginIcon.Paint += (s, e) => DrawUserGlyph(e.Graphics, loginIcon.ClientRectangle);
+
+        _titleBarUserLabel.Location = new Point(SidebarExpandedWidth + 26, 0);
+        _titleBarUserLabel.Size = new Size(320, titleBarPanel.Height);
+        _titleBarUserLabel.AutoSizeMode = LabelAutoSizeMode.None;
+        _titleBarUserLabel.Appearance.ForeColor = Color.FromArgb(245, 246, 248);
+        _titleBarUserLabel.Appearance.Font = AppFonts.Caption;
+        _titleBarUserLabel.Appearance.TextOptions.HAlignment = DevExpress.Utils.HorzAlignment.Near;
+        _titleBarUserLabel.Appearance.TextOptions.VAlignment = DevExpress.Utils.VertAlignment.Center;
+
+        titleBarPanel.Controls.Add(logo);
+        titleBarPanel.Controls.Add(brandLabel);
+        titleBarPanel.Controls.Add(loginIcon);
+        titleBarPanel.Controls.Add(_titleBarUserLabel);
+        // Dock=Right는 "먼저 추가한 쪽이 안쪽"이다(실제로 확인 - 처음엔 반대로 알고 있었다).
+        // SERVICE 알약은 2026-09-21에 상태바로 옮겨서(ConfigureTitleBarEnvPill 설명 참고) 여기
+        // 순서에서 빠졌다 - 최종 좌->우 순서는 이제 [최소화][최대화][닫기].
+        titleBarPanel.Controls.Add(btnMin);
+        titleBarPanel.Controls.Add(_btnMaxRestore);
+        titleBarPanel.Controls.Add(btnClose);
+
+        // ReleaseCapture+WM_NCLBUTTONDOWN(아래 MouseDown)은 Windows의 비클라이언트 드래그
+        // 루프로 넘어가버려서 WinForms 자체의 더블클릭 타이머가 끝까지 못 돈다(실제로 겪음 -
+        // MouseDoubleClick이 하나도 안 잡힘) - 그래서 더블클릭 판정은 직접 시간/위치를 재서
+        // 드래그를 넘기기 "전"에 가로챈다(표준 회피책).
+        titleBarPanel.MouseDown += (s, e) =>
+        {
+            if (e.Button != MouseButtons.Left) return;
+
+            var now = DateTime.UtcNow;
+            var isDoubleClick = (now - _titleBarLastClick) <= TimeSpan.FromMilliseconds(SystemInformation.DoubleClickTime)
+                                 && (Math.Abs(e.X - _titleBarLastClickPos.X) <= SystemInformation.DoubleClickSize.Width)
+                                 && (Math.Abs(e.Y - _titleBarLastClickPos.Y) <= SystemInformation.DoubleClickSize.Height);
+            _titleBarLastClick = isDoubleClick ? DateTime.MinValue : now; // 세 번째 클릭이 또 더블클릭으로 안 잡히게 리셋
+            _titleBarLastClickPos = e.Location;
+
+            if (isDoubleClick)
+            {
+                ToggleMaximizeRestore();
+                return;
+            }
+
+            ReleaseCapture();
+            SendMessage(Handle, WM_NCLBUTTONDOWN, HTCAPTION, 0);
+        };
+        Resize += (s, e) => _btnMaxRestore.Invalidate();
+
+        // RefreshTitleBarStatus 호출은 BuildStatusBar 이후로 미뤘다 - 그 메서드가 이제
+        // SERVICE 알약(_titleBarEnvPill, 2026-09-21부터 상태바 소속)도 같이 갱신하는데,
+        // 여기(BuildTitleBar) 시점엔 statusBar/그 알약이 아직 만들어지기 전이다.
+    }
+
+    private DateTime _titleBarLastClick = DateTime.MinValue;
+    private Point _titleBarLastClickPos;
+
+    // SERVICE 알약 안쪽 텍스트 좌/우 여백 - 오른쪽은 드롭다운 세모(EnvPillTriangleArea)가
+    // 들어갈 자리라 왼쪽보다 넓게 둔다.
+    private const int EnvPillPaddingLeft = 10;
+    private const int EnvPillPaddingRight = 20;
+
+    /// <summary>SERVICE 선택을 메뉴검색(cboMenuSearch)과 같은 "제목 없는 룩업" 모양으로
+    /// 그린다(2026-09-17 요청 - "SERVICE라는 제목 없이 룩업처럼, 왼쪽 아이콘 없이 오른쪽
+    /// 세모만"). 알약 배경+세모는 _titleBarEnvPill(Panel)의 Paint에서 직접 그리고, 그 안에
+    /// _titleBarEnvLabel을 Dock=Fill로 얹어 텍스트만 담당하게 한다.</summary>
+    private void ConfigureTitleBarEnvPill()
+    {
+        // 2026-09-21: 제목줄 우측에서 상태바 좌측(예전 SQL 로그 아이콘 자리)으로 옮겼다
+        // ("서비스선택 룩업을 현재 프로필러위치로 이동" 요청) - Dock=Right 대신 호출부
+        // (BuildStatusBar)가 Location/Height를 직접 정해준다. 배경 대비도 "글자 안보임,
+        // 룩업 형태 보이도록 조금 연하게" 요청대로 이전(제목줄 배경+17, 거의 안 보이는
+        // 수준)보다 훨씬 밝게 statusBar 배경과 섞는다.
+        _titleBarEnvPill = new Panel { Cursor = Cursors.Hand };
+        _titleBarEnvPill.Paint += (s, e) =>
+        {
+            e.Graphics.SmoothingMode = SmoothingMode.AntiAlias;
+            var pillRect = new Rectangle(0, 0, _titleBarEnvPill.Width, _titleBarEnvPill.Height);
+            using (var path = RoundedRect(pillRect, 6))
+            using (var fillBrush = new SolidBrush(ColorHelper.Mix(statusBar.BackColor, Color.White, 0.22f)))
+                e.Graphics.FillPath(fillBrush, path);
+
+            var cx = _titleBarEnvPill.Width - EnvPillPaddingRight / 2f;
+            var cy = _titleBarEnvPill.Height / 2f;
+            using var triangleBrush = new SolidBrush(NavTextMuted);
+            e.Graphics.FillPolygon(triangleBrush, new[]
+            {
+                new PointF(cx - 4, cy - 2.5f), new PointF(cx + 4, cy - 2.5f), new PointF(cx, cy + 3.5f)
+            });
+        };
+        _titleBarEnvPill.Click += (s, e) => _envSwitchMenu.Show(_titleBarEnvPill, new Point(0, _titleBarEnvPill.Height));
+
+        _titleBarEnvLabel.Dock = DockStyle.Fill;
+        _titleBarEnvLabel.AutoSizeMode = LabelAutoSizeMode.None;
+        _titleBarEnvLabel.Padding = new Padding(EnvPillPaddingLeft, 0, EnvPillPaddingRight, 0);
+        _titleBarEnvLabel.Appearance.ForeColor = Color.FromArgb(245, 246, 248);
+        _titleBarEnvLabel.Appearance.Font = AppFonts.Caption;
+        _titleBarEnvLabel.Appearance.TextOptions.HAlignment = DevExpress.Utils.HorzAlignment.Near;
+        _titleBarEnvLabel.Appearance.TextOptions.VAlignment = DevExpress.Utils.VertAlignment.Center;
+        _titleBarEnvLabel.Cursor = Cursors.Hand;
+        _titleBarEnvLabel.Click += (s, e) => _envSwitchMenu.Show(_titleBarEnvPill, new Point(0, _titleBarEnvPill.Height));
+        _titleBarEnvPill.Controls.Add(_titleBarEnvLabel);
+    }
+
+    /// <summary>고정폭 대신 실제 텍스트 길이에 맞춰 알약 폭을 다시 계산한다 - 고정폭이면 짧은
+    /// 텍스트일 때 빈 공간이 남고, 긴 텍스트일 때 잘리는 문제가 둘 다 있었다(2026-09-17
+    /// 지적: "날짜 시간이 잘렸어. 아이콘은 너무 떨어져 있고" - 같은 문제를 알약에도 그대로
+    /// 적용해 예방한다).</summary>
+    private void ResizeTitleBarEnvPill()
+    {
+        var textWidth = TextRenderer.MeasureText(_titleBarEnvLabel.Text, AppFonts.Caption).Width;
+        // *1.5: "서비스 선택 부분을 width를 지금의 1.5배로 키워줘"(2026-09-17) - 늘어난 폭은
+        // 텍스트와 오른쪽 세모 사이 빈 공간으로 흡수된다(세모는 항상 오른쪽 끝에 고정).
+        _titleBarEnvPill.Width = (int)((textWidth + EnvPillPaddingLeft + EnvPillPaddingRight) * 1.5);
+    }
+
+    private Panel _btnMaxRestore = null!;
+    private static readonly Color TitleBarGlyphColor = Color.FromArgb(220, 222, 226);
+
+    private void ToggleMaximizeRestore()
+    {
+        WindowState = WindowState == FormWindowState.Maximized ? FormWindowState.Normal : FormWindowState.Maximized;
+        _btnMaxRestore.Invalidate();
+    }
+
+    // 복원(Normal) 상태에서만 보이는 창 테두리색 - 짙은 회색 -> Silver -> Gainsboro(2026-09-21,
+    // "실버보다 더 밝은 색으로"). tabStripButtons(홈/탭목록/전체닫기 배경)도 같은 색을 쓴다.
+    private static readonly Color WindowBorderColor = Color.Gainsboro;
+
+    /// <summary>FormBorderStyle.None에는 OS가 그려주던 1px 창 테두리가 없다 - 최대화 상태에선
+    /// 화면 가장자리와 맞닿아 안 보이지만, 복원(Normal) 상태로 리사이즈하면 바탕화면과 경계가
+    /// 전혀 안 보였다. Form.Padding을 1px 주면 도킹된 자식들이 자동으로 그만큼 안쪽으로
+    /// 밀려나고, 그 바깥쪽 1px 테두리 자리에 Form 자신의 BackColor(테두리색)가 비쳐 보인다 -
+    /// 최대화일 땐 이 여백 자체가 필요 없어서 꺼둔다. 절대좌표로 배치된 tabStripButtons는
+    /// 이 Padding을 스스로 반영해야 한다(RepositionTabStripButtons 참고) - 안 그러면 MDI
+    /// 자식폼이 열렸을 때 탭 스트립 쪽에 테두리색이 비쳐 보인다.</summary>
+    private void RefreshWindowBorder()
+    {
+        // 주의: 생성자 초반(headerPanel 등이 아직 안 만들어졌을 때)에도 불리므로, 여기서
+        // RepositionTabStripButtons()를 직접 부르면 안 된다(NullReferenceException) - Resize
+        // 이벤트가 이미 따로 그 메서드를 부르고 있고(같은 Resize 시점에 이 메서드도 불림),
+        // 생성자 맨 마지막에도 한 번 더 명시적으로 부른다.
+        var bordered = WindowState == FormWindowState.Normal;
+        Padding = bordered ? new Padding(1) : new Padding(0);
+        BackColor = bordered ? WindowBorderColor : Color.White;
+    }
+
+
+    /// <summary>최소화/최대화/닫기 아이콘을 폰트 글리프(✕, ❐ 등) 대신 직접 그린다 - 유니코드
+    /// 기호는 폰트마다 지원 여부가 달라 깨지거나 흐리게 보일 수 있다(실제로 겪음, 2026-09-17) -
+    /// 벡터로 직접 그리면 항상 또렷하다.</summary>
+    private Panel BuildTitleBarButton(Action<Graphics, Rectangle> drawGlyph, bool isClose)
+    {
+        var btn = new Panel { Dock = DockStyle.Right, Width = 46, Cursor = Cursors.Hand, BackColor = titleBarPanel.BackColor };
+        btn.Paint += (s, e) =>
+        {
+            e.Graphics.SmoothingMode = SmoothingMode.AntiAlias;
+            drawGlyph(e.Graphics, btn.ClientRectangle);
+        };
+
+        var hoverColor = isClose ? Color.FromArgb(220, 38, 38) : ColorHelper.Adjust(titleBarPanel.BackColor, 25);
+        btn.MouseEnter += (s, e) => btn.BackColor = hoverColor;
+        btn.MouseLeave += (s, e) => btn.BackColor = titleBarPanel.BackColor;
+        return btn;
+    }
+
+    /// <summary>사용자정보 앞에 붙는 작은 사람 아이콘 - 머리(원) + 어깨(반타원)만으로 표현한
+    /// 최소한의 실루엣(다른 제목줄 아이콘들과 같은 벡터 직접 그리기 방식). 원형 테두리를 둘러
+    /// 아바타 배지처럼 도드라지게 한다("눈에 띄게 해달라" 요청, 2026-09-21).</summary>
+    private static void DrawUserGlyph(Graphics g, Rectangle bounds)
+    {
+        g.SmoothingMode = SmoothingMode.AntiAlias;
+
+        var circleRect = Rectangle.Inflate(bounds, -1, -1);
+        using (var borderPen = new Pen(NavTextMuted, 1.2f))
+            g.DrawEllipse(borderPen, circleRect);
+
+        using var brush = new SolidBrush(NavText);
+        var cx = bounds.Width / 2f;
+        const float headR = 4f;
+        var headCenterY = bounds.Height / 2f - 4f;
+        g.FillEllipse(brush, cx - headR, headCenterY - headR, headR * 2, headR * 2);
+
+        var shoulders = new RectangleF(cx - 7f, headCenterY + headR - 1f, 14f, 11f);
+        using var path = new GraphicsPath();
+        path.AddArc(shoulders, 180, 180);
+        path.CloseFigure();
+        g.FillPath(brush, path);
+    }
+
+    private static void DrawCloseGlyph(Graphics g, Rectangle bounds)
+    {
+        using var pen = new Pen(TitleBarGlyphColor, 1.4f);
+        var cx = bounds.Width / 2;
+        var cy = bounds.Height / 2;
+        const int half = 5;
+        g.DrawLine(pen, cx - half, cy - half, cx + half, cy + half);
+        g.DrawLine(pen, cx - half, cy + half, cx + half, cy - half);
+    }
+
+    private static void DrawMinimizeGlyph(Graphics g, Rectangle bounds)
+    {
+        using var pen = new Pen(TitleBarGlyphColor, 1.4f);
+        var cx = bounds.Width / 2;
+        var cy = bounds.Height / 2;
+        g.DrawLine(pen, cx - 5, cy, cx + 5, cy);
+    }
+
+    private void DrawMaxRestoreGlyph(Graphics g, Rectangle bounds)
+    {
+        using var pen = new Pen(TitleBarGlyphColor, 1.2f);
+        var cx = bounds.Width / 2;
+        var cy = bounds.Height / 2;
+        if (WindowState == FormWindowState.Maximized)
+        {
+            const int size = 9;
+            g.DrawRectangle(pen, cx - size / 2 + 2, cy - size / 2 - 2, size, size);
+            g.DrawRectangle(pen, cx - size / 2 - 2, cy - size / 2 + 2, size, size);
+        }
+        else
+        {
+            const int size = 10;
+            g.DrawRectangle(pen, cx - size / 2, cy - size / 2, size, size);
+        }
+    }
+
+    /// <summary>제목줄 우측의 SERVICE/서버 상태 + 사용자명/접속시각. 로그인/로그아웃/서버 전환
+    /// 시점마다(AppConfig.EnvironmentChanged 구독 + 로그인 직후 명시적 재호출, 2026-09-06 -
+    /// 이벤트가 로그인보다 먼저 지나가버려 값이 최신이 아니었던 문제) 다시 불러야 한다.</summary>
+    private void RefreshTitleBarStatus()
+    {
+        // "SERVICE" 제목 없이 값만 - 메뉴검색과 같은 룩업 모양이라 라벨 없이도 이게 서버
+        // 선택 필드라는 게 드러난다(2026-09-17 요청).
+        _titleBarEnvLabel.Text = GetEnvLabel(AppConfig.CurrentEnvironment);
+        ResizeTitleBarEnvPill();
+
+        var user = SessionManager.Current.UserInfo;
+        // 형식 변경: "이름 접속 : yyyy-MM-dd"(~2026-09-16) -> "이름  LOGIN : yyyy-MM-dd HH:mm"
+        // (2026-09-17) -> "이름[LOGIN : yyyy-MM-dd  HH:mm]"(2026-09-21, 대괄호로 묶어달라는 요청).
+        _titleBarUserLabel.Text = user == null
+            ? string.Empty
+            : SessionManager.Current.SignInTime is { } t
+                ? $"{user.UserNm}[LOGIN : {t:yyyy-MM-dd}  {t:HH:mm}]"
+                : user.UserNm;
+        // 고정폭(320)으로 두면 실제 글자보다 훨씬 넓은 자리를 차지해서, 텍스트가 끝난 뒤의
+        // 빈 공간을 더블클릭해도 이 라벨(자식 컨트롤)이 클릭을 가로채 제목줄 자체의
+        // 더블클릭-최대화가 씹혔다("저 부분만 더블클릭해도 최대화가 안 된다" 지적,
+        // 2026-09-18) - 실제 글자 길이만큼만 폭을 줘서 빈 공간을 없앤다.
+        _titleBarUserLabel.Width = TextRenderer.MeasureText(_titleBarUserLabel.Text, AppFonts.Caption).Width + 4;
+    }
+
+    [DllImport("user32.dll")] private static extern bool ReleaseCapture();
+    [DllImport("user32.dll")] private static extern int SendMessage(IntPtr hWnd, int msg, int wParam, int lParam);
+    private const int WM_NCLBUTTONDOWN = 0xA1;
+    private const int HTCAPTION = 2;
+    private const int WM_GETMINMAXINFO = 0x0024;
+
+    // FormBorderStyle.None으로 바꾸면서 OS가 기본으로 주던 "가장자리 드래그로 리사이즈"가
+    // 같이 없어졌다 - 항상 최대화로 띄우고 최대화 버튼도 있어서 처음엔 미뤄뒀는데("가장자리
+    // 드래그 리사이즈 없음", 기존 메모), 창을 복원(Normal) 상태로 쓸 때 리사이즈가 안 된다는
+    // 요청(2026-09-18)으로 추가한다. WM_NCHITTEST에 직접 응답해서 "커서가 이 근처에 있으면
+    // 이건 왼쪽/오른쪽/위/아래 가장자리다"라고 알려주면, 그 다음 드래그는 OS가 일반 창과
+    // 똑같이 처리한다(제목줄 드래그 때 쓴 ReleaseCapture 트릭과 같은 원리 - 우리가 손대는 건
+    // "이게 무슨 영역인지" 뿐, 실제 리사이즈 루프는 OS가 그대로 돈다).
+    private const int WM_NCHITTEST = 0x0084;
+    private const int HTLEFT = 10;
+    private const int HTRIGHT = 11;
+    private const int HTTOP = 12;
+    private const int HTTOPLEFT = 13;
+    private const int HTTOPRIGHT = 14;
+    private const int HTBOTTOM = 15;
+    private const int HTBOTTOMLEFT = 16;
+    private const int HTBOTTOMRIGHT = 17;
+    private const int ResizeBorderThickness = 6;
+
+    [StructLayout(LayoutKind.Sequential)]
+    private struct POINT { public int X; public int Y; }
+
+    [StructLayout(LayoutKind.Sequential)]
+    private struct MINMAXINFO
+    {
+        public POINT Reserved;
+        public POINT MaxSize;
+        public POINT MaxPosition;
+        public POINT MinTrackSize;
+        public POINT MaxTrackSize;
+    }
+
+    /// <summary>FormBorderStyle.None + WindowState.Maximized 조합의 흔한 버그(작업표시줄을
+    /// 가리며 화면 밖으로 넘침) 방지 - 최대화 시 실제 작업영역(Screen.WorkingArea)만큼만 커지게
+    /// WM_GETMINMAXINFO에 직접 값을 채워준다(테두리가 있는 일반 창은 OS가 알아서 해주지만,
+    /// None은 그 처리가 빠져서 직접 해줘야 한다 - 이 조합에서 거의 표준으로 쓰이는 대응).</summary>
+    protected override void WndProc(ref Message m)
+    {
+        if (m.Msg == WM_GETMINMAXINFO)
+        {
+            var mmi = Marshal.PtrToStructure<MINMAXINFO>(m.LParam);
+            var screen = Screen.FromHandle(Handle);
+            mmi.MaxPosition.X = screen.WorkingArea.Left - screen.Bounds.Left;
+            mmi.MaxPosition.Y = screen.WorkingArea.Top - screen.Bounds.Top;
+            mmi.MaxSize.X = screen.WorkingArea.Width;
+            mmi.MaxSize.Y = screen.WorkingArea.Height;
+            Marshal.StructureToPtr(mmi, m.LParam, true);
+        }
+        else if (m.Msg == WM_NCHITTEST && WindowState == FormWindowState.Normal)
+        {
+            base.WndProc(ref m);
+            if ((int)m.Result != 1 /* HTCLIENT */) return; // 다른 컨트롤(예: 제목줄)이 이미 답을 정했으면 그대로 둔다.
+
+            // LParam은 화면 좌표를 (x,y) 각각 16비트로 눌러 담은 값 - 음수 좌표(다중 모니터)도
+            // 있을 수 있어 short로 캐스팅해서 부호를 살린다.
+            var lp = m.LParam.ToInt32();
+            var screenPoint = new Point(unchecked((short)(lp & 0xFFFF)), unchecked((short)((lp >> 16) & 0xFFFF)));
+            var p = PointToClient(screenPoint);
+
+            var onLeft = p.X <= ResizeBorderThickness;
+            var onRight = p.X >= ClientSize.Width - ResizeBorderThickness;
+            var onTop = p.Y <= ResizeBorderThickness;
+            var onBottom = p.Y >= ClientSize.Height - ResizeBorderThickness;
+
+            if (onTop && onLeft) m.Result = (IntPtr)HTTOPLEFT;
+            else if (onTop && onRight) m.Result = (IntPtr)HTTOPRIGHT;
+            else if (onBottom && onLeft) m.Result = (IntPtr)HTBOTTOMLEFT;
+            else if (onBottom && onRight) m.Result = (IntPtr)HTBOTTOMRIGHT;
+            else if (onLeft) m.Result = (IntPtr)HTLEFT;
+            else if (onRight) m.Result = (IntPtr)HTRIGHT;
+            else if (onTop) m.Result = (IntPtr)HTTOP;
+            else if (onBottom) m.Result = (IntPtr)HTBOTTOM;
+            return;
+        }
+        base.WndProc(ref m);
     }
 
     /// <summary>
@@ -733,7 +1254,7 @@ public class ShellForm : XtraForm
         _sqlLogPanel = new Panel { Dock = DockStyle.Bottom, Height = 240, Visible = false, BackColor = Color.White };
         var splitter = new Splitter { Dock = DockStyle.Bottom, Height = 4, BackColor = DividerColor };
 
-        var toolbar = new Panel { Dock = DockStyle.Top, Height = 34, BackColor = SidebarBg };
+        var toolbar = new Panel { Dock = DockStyle.Top, Height = 34, BackColor = SqlLogToolbarBg };
         var flow = new FlowLayoutPanel
         {
             Dock = DockStyle.Left, AutoSize = true, FlowDirection = FlowDirection.LeftToRight,
@@ -829,15 +1350,25 @@ public class ShellForm : XtraForm
 
     private void RefreshSqlLogCount() => _lblSqlLogCount.Text = $"{ApiCallLog.Entries.Count}건";
 
-    /// <summary>좌측 사이드바 - 다크 테마. 우측 구분선으로 MDI(흰색) 영역과 시각적으로 분리.
-    /// 맨 위 흰 여백(sidebarTopGap)엔 로그인 사용자/시간, 가운데는 메뉴 아코디언. 화면검색/
-    /// 서비스선택 콤보는 헤더 오른쪽으로 옮겨갔다(BuildHeaderRightCombos 참고, 2026-09-03).</summary>
+    /// <summary>좌측 사이드바 - 메뉴 아코디언(accordionMenu) 하나만 담는다. 우측 구분선으로
+    /// MDI(흰색) 영역과 시각적으로 분리. 검색창/트리닫기 버튼은 이제 헤더 툴바 쪽에 있다
+    /// (BuildHeaderSearchZone, 2026-09-21).</summary>
     private void BuildSidebar()
     {
-        accordionMenu.BackColor = NavDarkBg;
+        accordionMenu.BackColor = SidebarTreeBg;
         // 내용이 사이드바 높이보다 짧을 때도 스크롤바 트랙이 항상 보이던 것을 숨김.
         // (메뉴가 많아져서 실제로 넘치면 마우스 휠 스크롤 자체는 그대로 동작함)
         accordionMenu.ScrollBarMode = DevExpress.XtraBars.Navigation.ScrollBarMode.Hidden;
+        // DevExpress 기본값(최상위 그룹 사이 여백)이 "마이 메뉴"(접힌 헤더 한 줄)와 "전체
+        // 메뉴" 사이를 부자연스럽게 벌려놓았다("간격 없애줘" 지적, 2026-09-21) - 이제 이 둘이
+        // 유일한 최상위 그룹이라 간격을 0으로 없애도 다른 곳엔 영향이 없다.
+        accordionMenu.DistanceBetweenRootGroups = 0;
+        // 기본 슬라이드 애니메이션이 "마이 메뉴"/"전체 메뉴"를 서로 바꿔 보여줄 때(둘 다
+        // Elements.Clear() 후 완전히 다시 그리는데, 애니메이션은 옛 상태에서 새 상태로 부드럽게
+        // "미끄러지는" 것처럼 보이려다 오히려 배경/테두리가 다시 그려지며 움직이는 것처럼
+        // 보였다("클릭할 때마다 부자연스럽게 움직인다" 반복 지적, 2026-09-21 - BeginUpdate/
+        // EndUpdate로 묶어도 애니메이션 자체는 그대로라 효과가 없었다) - 아예 꺼서 즉시 전환되게 한다.
+        accordionMenu.AnimationType = DevExpress.XtraBars.Navigation.AnimationType.None;
 
         // 그룹(Style=Group)은 DevExpress 기본 동작 그대로 한 번 클릭하면 펼침/접힘이 되고,
         // 화면(Style=Item)은 AddChildMenus에서 Click을 안 걸어뒀으므로 한 번 클릭으론 아무 일도
@@ -847,236 +1378,144 @@ public class ShellForm : XtraForm
         // 찾아낸다.
         accordionMenu.MouseDoubleClick += AccordionMenu_MouseDoubleClick;
 
+        // 우클릭 - 화면(Item) 위에서는 "즐겨찾기 추가/해제" + "메뉴 새로고침", 그 외에는
+        // "메뉴 새로고침"만(ShowSidebarContextMenu 참고). "메뉴 새로고침"은 재로그인(아이디/비번
+        // 재입력) 없이 방금 새로 등록한 메뉴를 그 자리에서 바로 보고 싶다는 요청(2026-09-16) -
+        // api/auth/menus(로그인과 같은 권한 계산 로직)를 다시 불러와 세션 캐시만 바꿔치기하고
+        // 트리를 다시 그린다.
+        // 좌클릭 - "마이 메뉴"/"전체 메뉴" 헤더 자신을 클릭했을 때만 상호배타 토글
+        // (ToggleMyMenuMode)을 반응시킨다(2026-09-21, 둘 다 이제 대칭인 Group이라 양쪽 다
+        // 같은 토글을 켠다). 그 안의 하위 그룹(시스템운영관리 등)은 손대지 않는다 - DevExpress
+        // 기본 동작이 이미 그 그룹들의 펼침/접힘을 알아서 처리하므로, 여기서 또 건드리면
+        // 두 번 토글되는 꼴이 된다.
+        accordionMenu.MouseUp += (s, e) =>
+        {
+            if (e.Button == MouseButtons.Right) { ShowSidebarContextMenu(e.Location); return; }
+            if (e.Button != MouseButtons.Left) return;
+
+            var hit = accordionMenu.CalcHitInfo(e.Location);
+            if (hit.HitTest != AccordionControlHitTest.Item) return;
+            if (hit.ItemInfo?.Element == _favoritesGroupElement || hit.ItemInfo?.Element == _systemMenuGroupElement)
+                ToggleMyMenuMode();
+        };
+
         // 하위 항목엔 세로 가이드라인을, 선택된 화면(leaf)엔 좌측 강조 바를 덧그린다 -
         // Appearance(BackColor/ForeColor)만으로는 표현할 수 없는 장식이라 커스텀 드로잉이 필요.
         accordionMenu.CustomDrawElement += AccordionMenu_CustomDrawElement;
 
-        sidebarIconRail.BackColor = NavDarkBg;
-
         var divider = new Panel { Dock = DockStyle.Right, Width = 1, BackColor = NavDivider };
-        // 사용자정보 카드(sidebarTopGap) 바로 아래, 메뉴트리가 시작되기 직전에 얇은 선을 하나 둬서
-        // "카드 영역"과 "트리 영역"이 같은 짙은 배경이어도 서로 다른 구획이라는 게 분명히
-        // 보이게 한다 - 카드 자체의 둥근 모서리 + 여백만으로는 트리와 맞닿아 붙어 보인다는
-        // 피드백이 있었다.
-        var topGapBottomDivider = new Panel { Dock = DockStyle.Top, Height = 1, BackColor = NavDivider };
-        ConfigureSidebarTopGap();
 
-        // Dock 추가 순서: Fill(accordionMenu/sidebarIconRail) 먼저, Top/Bottom은 나중에 추가해야
-        // 각자 가장자리를 정상적으로 차지한다 (PermissionAssignForm에서 겪은 것과 같은 문제 방지).
-        // 같은 Dock=Top끼리는 나중에 추가한 쪽이 더 바깥(위)로 온다 - topGapBottomDivider를
-        // sidebarTopGap보다 먼저 추가해야 카드 아래쪽, 트리 바로 위에 자리잡는다.
+        // 2026-09-21: 검색창/트리닫기 버튼을 담던 sidebarTopGap+sidebarNavTitleRow를 통째로
+        // 없앴다("탐색창 없애고 툴바로 옮기고, 메뉴검색/트리닫기 버튼도 툴바에 포함해달라"는
+        // 요청) - 둘 다 이제 headerPanel(툴바) 안에 있다(BuildHeaderSearchZone 참고). 그
+        // 결과 사이드바 자신은 이제 트리(accordionMenu) 하나만 담는 훨씬 단순한 구조가 됐고,
+        // headerPanel이 사이드바 위까지 전체 폭을 차지하므로 트리 상단이 자동으로 MDI 탭 줄과
+        // 같은 Y에서 시작한다(예전엔 이 정렬을 맞추려고 높이를 실측해서 동기화하는 코드가
+        // 따로 필요했다 - TabbedMdiManager_CustomDrawTabHeader 참고, 이제 필요 없어졌다).
+        // (여기 있던 sidebarBottomMargin(하단 1px 줄) - HeaderBg가 흰색이던 시절엔 안 보이는
+        // 경계선이었는데, HeaderBg가 남색으로 바뀌면서(2026-09-22) 상태바 SERVICE 알약 위에
+        // 도드라지는 남색 줄로 보여 지적받았다("메뉴트리 하단 라인 삭제해달라") - 제거.)
+
+        // Dock 추가 순서: Fill(accordionMenu) 먼저, Right는 나중에 추가해야 가장자리를
+        // 정상적으로 차지한다 (PermissionAssignForm에서 겪은 것과 같은 문제 방지).
         sidebarPanel.Controls.Add(accordionMenu);
-        sidebarPanel.Controls.Add(sidebarIconRail);
         sidebarPanel.Controls.Add(divider);
-        sidebarPanel.Controls.Add(topGapBottomDivider);
-        sidebarPanel.Controls.Add(sidebarTopGap);
     }
 
-    /// <summary>
-    /// 사이드바 맨 위 흰 여백(오른쪽 탭 줄과 높이를 맞춘 sidebarTopGap) 안에 로그인 사용자명 +
-    /// 시각을 넣는다. 원래는 사이드바 안쪽에 별도의 어두운 패널로 표시했는데, 탭 줄과 높이를
-    /// 맞추려고 추가한 위쪽 흰 여백이 비어있느니 차라리 그 자리에 넣는 게 낫다는 피드백으로 이동.
-    /// 홈 버튼도 여기(오른쪽 끝, 메뉴트리 바로 위)에 작게 배치한다 - 예전엔 헤더 툴바 맨 앞에
-    /// 있었는데, 다른 업무 액션들과 성격이 달라서 메뉴트리와 더 가까운 자리로 옮겼다.
-    /// </summary>
-    private void ConfigureSidebarTopGap()
+    /// <summary>사이드바 우클릭 메뉴의 "전체 메뉴 모두 펼치기/접기" 핸들러 - "전체 메뉴" 그룹
+    /// 안의 모듈/서브모듈들을 재귀적으로 펼치거나 접는다(2026-09-21, 예전엔 accordionHeaderRow의
+    /// "Expand" 체크박스였는데, 그 장식 바 자체를 없애고 "전체 메뉴"를 진짜 아코디언 그룹으로
+    /// 바꾸면서 우클릭 메뉴로 옮겼다). "마이 메뉴" 그룹은 건너뛴다 - 그건 이 항목이 아니라
+    /// ToggleMyMenuMode(자기 헤더 클릭)로만 열고 닫는 별도 상태라서, 여기서 같이 건드리면
+    /// "전체 메뉴만 펼치려던" 사용자 의도와 달리 마이메뉴까지 열려버린다.</summary>
+    private void SetAccordionMenuExpanded(bool expanded)
     {
-        // 이 띠 자체는 사이드바와 같은 짙은 배경을 그대로 쓰고, 그 위에 옅은 톤의 둥근 카드
-        // (아래 card)를 여백을 두고 띄운다 - 예전엔 띠 전체를 옅은 색으로 칠하고 위아래에 1px
-        // 흰 선으로 경계를 그었는데, "사용자정보 영역"이라는 게 카드처럼 구획되어 보이길
-        // 원한다는 방향으로 바뀌어서 흰 선 대신 여백+둥근 모서리로 구획한다.
-        sidebarTopGap.BackColor = NavDarkBg;
-        // 카드가 사이드바 좌우 끝에 딱 붙어있으면 이미 준 CornerRadius가 잘 안 보인다는
-        // 지적(2026-09-02)으로 가로 여백을 아주 조금(4px씩) 준다 - 예전에 10px씩 줬다가
-        // "2026-09-01 14:45 접속"이 "접"에서 잘린 적이 있어(사이드바 폭 212px 안에서 이름/
-        // 접속시각 두 줄 공간이 원래도 빠듯함) 그때보다 훨씬 작게 잡았고, 그래도 줄어드는 폭은
-        // 아래 두 라벨의 오른쪽 여백(8px->4px)을 같이 줄여서 상쇄한다.
-        sidebarTopGap.Padding = new Padding(4, 8, 4, 8);
-
-        // 두 줄의 위계를 뚜렷하게 - 이름은 한 단계 큰 굵은 글씨(SubHeading)로 먼저 읽히게 하고,
-        // 접속시각은 작고 흐린 보조정보(Caption)로 낮춘다. 같은 크기·같은 색으로 두면 어느 쪽이
-        // 중요한지 알 수 없어 덩어리로만 보인다. 왼쪽 여백은 이니셜 배지(avatarHost)가 대신 맡는다.
-
-        var lblUserName = new LabelControl
+        void Recurse(AccordionControlElement element)
         {
-            Dock = DockStyle.Top,
-            Height = 19,
-            AutoSizeMode = LabelAutoSizeMode.None,
-            Padding = new Padding(0, 0, 4, 0)
-        };
-        lblUserName.Appearance.ForeColor = Color.FromArgb(38, 41, 46);
-        // 메뉴트리 모듈 항목과 같은 크기로 맞춘다(2026-09-02 지적) - 예전엔 SubHeading(10pt)
-        // 이라 메뉴트리(현재 BodyBold, 9pt)보다 한 단계 커 보였다.
-        lblUserName.Appearance.Font = AppFonts.BodyBold;
-        lblUserName.Appearance.TextOptions.VAlignment = DevExpress.Utils.VertAlignment.Bottom;
-
-        var lblSignInTime = new LabelControl
-        {
-            Dock = DockStyle.Top,
-            Height = 16,
-            AutoSizeMode = LabelAutoSizeMode.None,
-            Padding = new Padding(0, 0, 4, 0)
-        };
-        // 옅은 카드 배경(SidebarUserBg) 위에서 너무 흐릿하다는 지적(2026-09-04)으로 한 톤
-        // 더 진하게(138,143,150 -> 108,112,119) - 이름(진한 회색)보다는 여전히 옅어서
-        // "보조정보"라는 위계는 유지하면서, 눈에 띄게는 보이도록 대비를 올렸다.
-        lblSignInTime.Appearance.ForeColor = Color.FromArgb(108, 112, 119);
-        lblSignInTime.Appearance.Font = AppFonts.Caption;
-        lblSignInTime.Appearance.TextOptions.VAlignment = DevExpress.Utils.VertAlignment.Top;
-
-        // 이름 한 글자를 담은 원형 배지 대신, 얇은 세로선 하나만 둔다 - 동그라미+글자 조합은
-        // "아바타"처럼 보여 과했다는 피드백. 세로선은 폭이 좁아 왼쪽 정렬된 느낌을 주면서도
-        // "여기부터 사용자 정보 영역"이라는 경계 역할은 그대로 한다.
-        // 2026-09-04 정정: 라운드/그레이 요청은 이 세로바가 아니라 옆의 sidebarToggleButton
-        // 얘기였다 - 이 바는 원래 색(브랜드색 기반 네이비)으로 되돌리고, 더 가늘게(6->3px) 줄인다.
-        // RoundedPanel.RoundedRect의 clamp(그 파일 참고)로 지름이 도형보다 커지는 문제는
-        // 이제 막아뒀으니, 얇아져도 찌그러지지 않는다.
-        const int barWidth = 3;
-        var avatarBadge = new RoundedPanel
-        {
-            CornerRadius = barWidth / 2,
-            BackColor = ColorHelper.Mix(_accentColor, Color.Black, 0.08f),
-            Size = new Size(barWidth, lblUserName.Height + lblSignInTime.Height)
-        };
-
-        void Refresh()
-        {
-            var user = SessionManager.Current.UserInfo;
-            if (user == null)
-            {
-                lblUserName.Text = string.Empty;
-                lblSignInTime.Text = string.Empty;
-                return;
-            }
-            lblUserName.Text = user.UserNm;
-            // "접속"을 앞에 두면 매번 같은 글자가 먼저 읽혀 시각이 늦게 눈에 들어온다 -
-            // 실제로 보는 값(시각)을 앞세우고 라벨은 뒤에 작게 붙인다.
-            lblSignInTime.Text = SessionManager.Current.SignInTime is { } t ? $"{t:yyyy-MM-dd HH:mm} 접속" : string.Empty;
+            if (element == _favoritesGroupElement) return;
+            if (element.Style == ElementStyle.Group) element.Expanded = expanded;
+            foreach (AccordionControlElement child in element.Elements) Recurse(child);
         }
-        Refresh();
-        AppConfig.EnvironmentChanged += Refresh;
 
-        // 35%까지 낮췄더니 이번엔 "블루가 너무 심하다"는 반대 피드백(2026-09-04) - 원래(65%)와
-        // 방금 낮춘 값(35%) 중간인 50%로.
-        sidebarToggleButton.BadgeColor = ColorHelper.Mix(ColorHelper.Mix(_accentColor, NavAccentBlue, 0.6f), Color.White, 0.5f);
-        // "라운드가 아직도 안 보인다"는 지적이 반복돼서(2026-09-04, CornerRadius 10->14로
-        // 키웠는데도) 아예 반지름을 배지 크기의 절반(30/2=15)으로 줘서 완전한 원으로 만든다 -
-        // 이러면 "둥근 정도"에 대한 의문 자체가 없어진다.
-        sidebarToggleButton.CornerRadius = 15;
+        foreach (AccordionControlElement element in accordionMenu.Elements) Recurse(element);
+    }
+
+    /// <summary>메뉴검색 콤보 + 사이드바 접기/펼치기 토글 버튼 - 원래 사이드바 맨 위에
+    /// 있었는데 "탐색창 없애고 툴바로 옮겨달라"는 요청(2026-09-21)으로 헤더로 옮겨오는 중
+    /// 이 둘을 실제로 담던 패널이 어디에도 Add되지 않은 채 방치돼 화면에서 통째로 사라졌었다
+    /// ("검색창/토글 버튼이 사라졌다" 리포트, 2026-09-22). 다시 만들면서 "조회 버튼 왼쪽에
+    /// 배치해달라"는 요청 그대로 BuildToolbar의 x축 레이아웃 흐름(AddToolbarButton과 같은
+    /// 절대좌표 방식)에 자연스럽게 끼워 넣는다. 필드/색상 튜닝(둥근 필드 반경 5, 배경 톤 등)은
+    /// 예전 사이드바 버전에서 이미 여러 차례 다듬어진 값을 그대로 재사용했다.
+    /// container.Height 기준으로 세로 중앙 정렬하므로 헤더 높이가 바뀌어도 따로 손댈 게 없다.
+    /// 반환값은 이 zone이 차지한 다음 x좌표 - BuildToolbar가 이어서 조회 버튼부터 배치한다.</summary>
+    private int BuildHeaderSearchZone(Control container, int x)
+    {
+        BuildMenuSearchCombo();
+
+        const int searchWidth = 180;
+        const int searchHeight = 26;
+        var pillLocation = new Point(x, (container.Height - searchHeight) / 2);
+        var pillSize = new Size(searchWidth, searchHeight);
+
+        _cboMenuSearchPill = new Panel { Location = pillLocation, Size = pillSize, BackColor = HeaderBg };
+        _cboMenuSearchPill.Paint += (s, e) =>
+        {
+            e.Graphics.SmoothingMode = SmoothingMode.AntiAlias;
+            using var path = RoundedRect(_cboMenuSearchPill.ClientRectangle, 5);
+            // 헤더가 남색(HeaderBg=NavDarkBg)이라 Adjust(어둡게)로는 안 보인다 - 상태바
+            // SERVICE 알약(ConfigureTitleBarEnvPill)과 같은 방식으로 흰색을 섞어 밝힌다.
+            using (var brush = new SolidBrush(ColorHelper.Mix(HeaderBg, Color.White, 0.12f)))
+                e.Graphics.FillPath(brush, path);
+            using var pen = new Pen(ColorHelper.Mix(HeaderBg, Color.White, 0.3f));
+            e.Graphics.DrawPath(pen, path);
+        };
+
+        // cboMenuSearch를 알약과 똑같은 크기로 겹쳐두면 에디터 자신이 그리는 사각 배경이
+        // 알약 가장자리의 둥근 테두리 선을 덮어버린다 - 사방 2px씩 작게 둬서 테두리가 그
+        // 바깥으로 드러나 보이게 한다.
+        cboMenuSearch.Dock = DockStyle.None;
+        cboMenuSearch.Location = new Point(pillLocation.X + 2, pillLocation.Y + 2);
+        cboMenuSearch.Size = new Size(pillSize.Width - 4, pillSize.Height - 4);
+
+        container.Controls.Add(_cboMenuSearchPill);
+        container.Controls.Add(cboMenuSearch);
+        cboMenuSearch.BringToFront(); // 실제 입력/클릭은 항상 이 컨트롤이 받아야 하므로 배경 패널보다 앞에 둔다.
+        x += searchWidth + 8;
+
+        sidebarToggleButton.BadgeColor = NavAccentBlue;
+        sidebarToggleButton.CornerRadius = 12;
         RefreshSidebarToggleIcon();
-        toolbarToolTip.SetToolTip(sidebarToggleButton, "메뉴 접기/펼치기");
+        toolbarToolTip.SetToolTip(sidebarToggleButton, "메뉴트리 숨기기/펼치기");
         sidebarToggleButton.Click += (s, e) => ToggleSidebarCollapsed();
+        sidebarToggleButton.Location = new Point(x, (container.Height - sidebarToggleButton.Height) / 2);
+        container.Controls.Add(sidebarToggleButton);
+        x += sidebarToggleButton.Width;
 
-        // 버튼/배지를 직접 Dock=Right·Left로 붙이면 안 된다 - Dock은 세로를 띠 높이만큼
-        // 늘려버려서 정사각형 배지가 세로로 길쭉해진다. 대신 TableLayoutPanel 안에
-        // Anchor=None으로 넣어두면, 셀 크기가 바뀔 때마다(=sidebarTopGap 높이가 바뀔 때마다)
-        // 레이아웃 엔진이 알아서 다시 정가운데로 맞춰준다 - Resize 이벤트를 직접 구독해서
-        // 수동으로 좌표를 계산하던 예전 방식은 첫 측정값이 우연히 초기값과 같으면 재정렬이
-        // 평생 한 번도 안 불리는 문제가 있었다(실제로 겪음 - 사용자명/접속시각이 계속 위쪽에
-        // 붙어있었다). TableLayoutPanel은 그 클래스의 버그를 구조적으로 없앤다.
-        var homeArea = new TableLayoutPanel
-        {
-            Dock = DockStyle.Right,
-            Width = sidebarToggleButton.Width + 16,
-            ColumnCount = 1,
-            RowCount = 1,
-            BackColor = SidebarUserBg
-        };
-        _homeArea = homeArea; // 사이드바를 접으면 Dock=Fill로 바꿔 좁은 폭 한가운데로 보낸다
-        homeArea.Controls.Add(sidebarToggleButton);
-        sidebarToggleButton.Anchor = AnchorStyles.None;
-
-        // Width=30일 땐 6px 바가 가운데 정렬돼 있어서 왼쪽에 여백이 많이 남았다 - "왼쪽으로
-        // 더 붙여달라"는 지적(2026-09-04)에 맞춰 폭 자체를 줄였다. avatarBadge는 계속
-        // Anchor=None(가운데 정렬)이라, 이 컨테이너가 좁아진 만큼 자연히 왼쪽으로 붙는다.
-        // 덤으로 줄어든 만큼(30->18)이 오른쪽 textArea(Dock=Fill)로 그대로 넘어가서 이름/
-        // 접속시각이 쓸 수 있는 폭도 넓어진다.
-        var avatarHost = new TableLayoutPanel
-        {
-            Dock = DockStyle.Left,
-            Width = 18,
-            ColumnCount = 1,
-            RowCount = 1,
-            BackColor = SidebarUserBg
-        };
-        avatarHost.Controls.Add(avatarBadge);
-        avatarBadge.Anchor = AnchorStyles.None;
-
-        // 텍스트 두 줄을 세로 가운데로 모으는 그릇 - Percent(50)/AutoSize/Percent(50) 3행으로
-        // 나누면, 가운데 행(고정 높이의 두 줄 묶음)이 항상 위아래 여백을 똑같이 나눠 갖는다.
-        // 이 역시 TableLayoutPanel 자체의 레이아웃 계산이라 Resize 이벤트가 필요 없다.
-        var textArea = new TableLayoutPanel { Dock = DockStyle.Fill, ColumnCount = 1, RowCount = 3, BackColor = SidebarUserBg };
-        textArea.RowStyles.Add(new RowStyle(SizeType.Percent, 50f));
-        textArea.RowStyles.Add(new RowStyle(SizeType.AutoSize));
-        textArea.RowStyles.Add(new RowStyle(SizeType.Percent, 50f));
-        textArea.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100f));
-
-        var textStack = new Panel
-        {
-            Dock = DockStyle.Fill,
-            // 두 라벨을 각각 위/아래로 붙여둔 덕에(VAlignment Bottom/Top) 합친 높이가 곧
-            // 두 줄이 자연스럽게 붙은 높이가 된다 - AutoSize 행이 이 고정 Height를 그대로
-            // 측정해서 쓴다.
-            Height = lblUserName.Height + lblSignInTime.Height,
-            BackColor = SidebarUserBg
-        };
-        textStack.Controls.Add(lblSignInTime);
-        textStack.Controls.Add(lblUserName); // Dock=Top은 나중에 추가한 쪽이 위로 온다
-        textArea.Controls.Add(textStack, 0, 1);
-
-        // 사이드바를 접을 때 이니셜 배지와 텍스트 두 줄이 함께 사라지도록 한 그릇에 담는다.
-        var identityWrap = new Panel { Dock = DockStyle.Fill, BackColor = SidebarUserBg };
-        _lblUserInline = identityWrap;
-        identityWrap.Controls.Add(textArea);
-        identityWrap.Controls.Add(avatarHost);
-
-        // 사용자정보 + 홈 버튼을 하나의 둥근 카드로 묶어서, 짙은 사이드바 배경(sidebarTopGap)
-        // 위에 여백을 두고 떠 있는 것처럼 보이게 한다. RoundedPanel은 자신의 모서리 바깥을
-        // Parent.BackColor(NavDarkBg)로 지우기 때문에, 카드 배경(SidebarUserBg)과 자연스럽게
-        // 대비된다(RoundedPanel 클래스 설명 참고).
-        //
-        // 진짜 원인을 찾은 라운드 버그(2026-09-04): CornerRadius를 10->16까지 올려도 모서리가
-        // 계속 각져 보였던 이유는 반지름 문제가 아니라, identityWrap/homeArea(둘 다 평범한
-        // 사각 Panel/TableLayoutPanel)를 Padding 없이 card에 꽉 채워 넣었기 때문이었다 - 이
-        // 자식 패널들이 card의 클라이언트 영역 전체(모서리 포함)를 자기 배경색으로 다시
-        // 사각형으로 덮어 그려서, RoundedPanel이 파낸 둥근 모서리 자체가 안 보이게 가려지고
-        // 있었다. card에 자식이 모서리를 침범하지 않을 만큼 Padding을 줘서 실제로 라운드가
-        // 드러나게 한다.
-        // 10 -> 6: 라운드가 이제는 잘 보이는데 너무 동그랗다는 지적(2026-09-04)으로 더 각지게.
-        var card = new RoundedPanel
-        {
-            Dock = DockStyle.Fill,
-            BackColor = SidebarUserBg,
-            CornerRadius = 6,
-            Padding = new Padding(3)
-        };
-        card.Controls.Add(identityWrap);
-        card.Controls.Add(homeArea);
-
-        sidebarTopGap.Controls.Add(card);
+        x += GroupGap;
+        AddDivider(ref x);
+        x += GroupGap - 12;
+        return x;
     }
 
     /// <summary>
-    /// 헤더 맨 오른쪽 콤보 두 줄(화면검색/서비스) - 원래도 헤더 우측에 있었는데, 창을 좁히면
-    /// 헤더의 다른 요소(로고/툴바 아이콘)와 부딪혀 밀려 보인다는 이유로 한 번 사이드바 맨
-    /// 아래로 옮겼었다. 그런데 "리사이즈해도 항상 오른쪽 끝에 있어야 한다"는 요청(2026-09-03)
-    /// 으로 다시 헤더로 옮겼다 - 이번엔 Dock=Right 패널에 담아서, 창 너비와 무관하게 항상
-    /// 오른쪽 끝에 고정되고(툴바 아이콘 쪽이 좁아지는 대신 이 콤보들이 밀리지 않는다) 헤더
-    /// 폭이 부족해 밀리는 일 자체가 없다(MinimumSize에 이 패널 폭만큼 반영해둠).
+    /// 헤더 맨 오른쪽 자리 - 원래는 서비스 선택 콤보(cboEnvironment, "SERVICE" 라벨)가 있었는데,
+    /// 같은 기능이 제목줄 알약(_titleBarEnvPill)으로 다시 올라가면서 중복이 됐다 - "위쪽에
+    /// 다시 만들었으니까 필요없어. 삭제해줘"(2026-09-17) 요청으로 화면에서는 뺐다. 다만
+    /// cboEnvironment 컨트롤 자체(BuildEnvironmentCombo)는 계속 셋업해야 한다 - 제목줄 알약의
+    /// 클릭 메뉴(_envSwitchMenu)가 실제 서버 전환 로직(OnEnvironmentComboChanged)을 이 콤보의
+    /// SelectedIndexChanged에 위임하기 때문이다. 부모 없이도 SelectedIndexChanged는 정상
+    /// 동작한다.
+    ///
+    /// 그 자리엔 대신 로그아웃 버튼을 옮겨왔다("로그아웃버튼을 프레임 오른쪽으로 이동시켜줘",
+    /// 2026-09-17) - 원래 헤더 왼쪽 아이콘 줄 맨 끝에 있던 걸 여기로 옮겼다(BuildToolbar에서
+    /// 뺐다).
     ///
     /// 테마선택 콤보(cboSkin)는 기능은 계속 살려두되(제품 기본 스킨 기준으로 화면별 색을
-    /// 맞춰가는 중이라 아직 노출은 안 함 - cboSkin.Enabled=false) 이 자리엔 넣지 않는다.
-    /// 나중에 다시 보여주려면 BuildHeaderComboRow("테마", cboSkin)로 줄을 하나 더 만들어
-    /// rightPanel.Controls.Add하면 된다.
+    /// 맞춰가는 중이라 아직 노출은 안 함 - cboSkin.Enabled=false) 화면엔 안 올린다.
     /// </summary>
     private void BuildHeaderRightCombos()
     {
-        // MENU + SERVICE, 두 줄(각 24px) - 헤더 높이(60px) 안에 들어가야 해서 사이드바에 있던
-        // 시절(각 46px)보다 훨씬 촘촘하다. 위/아래 패딩을 10/2로 둬서 두 줄(48px)을 정중앙(6/6)
-        // 보다 살짝 아래로 내렸다(위쪽으로 치우쳐 보인다는 지적, 2026-09-03) - 합은 여전히
-        // 60(10+48+2)이라 헤더 높이를 벗어나지 않는다.
-        var rightPanel = new Panel { Dock = DockStyle.Right, Width = HeaderRightCombosWidth, Padding = new Padding(10, 10, 14, 2) };
-
         // 테마 선택 - 고르는 즉시 UserLookAndFeel이 전역으로 바뀌면서 이미 열려있는 화면들까지
         // 포함해 앱 전체(메시지박스, 버튼, 탭, 그리드...)에 실시간으로 반영된다. 자리는 안
         // 만들지만 기능은 그대로 셋업해둔다(위 요약 참고).
@@ -1088,84 +1527,55 @@ public class ShellForm : XtraForm
         cboSkin.Enabled = false;
 
         BuildEnvironmentCombo();
-        var envRow = BuildHeaderComboRow("SERVICE", cboEnvironment);
 
-        BuildMenuSearchCombo();
-        var searchRow = BuildHeaderComboRow("MENU", cboMenuSearch);
+        var logoutChip = NewChipButton("로그아웃", SvgIcons.ToolbarLogout, IconChipVariant.Danger, 0);
+        logoutChip.Click += (s, e) => OnLogoutClick();
 
-        // Dock=Top 쌓기 순서(이 파일 전체 규칙): 나중에 추가한 게 위로 온다 - MENU를
-        // 맨 위, SERVICE를 그 아래에 둔다.
-        rightPanel.Controls.Add(envRow);
-        rightPanel.Controls.Add(searchRow);
+        // sidebarToggleButton과 같은 이유로 TableLayoutPanel+Anchor=None을 쓴다 - Dock=Right를
+        // 칩에 직접 주면 세로로 헤더 높이만큼 늘어난다.
+        var logoutArea = new TableLayoutPanel
+        {
+            Dock = DockStyle.Right,
+            Width = logoutChip.Width + 28,
+            ColumnCount = 1,
+            RowCount = 1,
+            // 명시 안 하면 TableLayoutPanel 기본값(SystemColors.Control, 밝은 회색)이 그대로
+            // 남아 헤더가 흰색이던 때는 안 티났는데, 헤더가 남색(HeaderBg)으로 바뀌면서
+            // 로그아웃 버튼 뒤에 네모난 회색 얼룩처럼 보이게 됐다 - 헤더와 맞춘다.
+            BackColor = HeaderBg
+        };
+        logoutArea.Controls.Add(logoutChip);
+        logoutChip.Anchor = AnchorStyles.None;
 
-        headerPanel.Controls.Add(rightPanel);
+        headerPanel.Controls.Add(logoutArea);
     }
 
     private const int HeaderRightCombosWidth = 230;
 
-    /// <summary>밝은 헤더 위 "라벨 + 콤보"를 한 줄에 가로로 나란히 놓는다(화면검색/서비스) -
-    /// 처음엔 사이드바에 있던 시절처럼 라벨을 콤보 위에 쌓았는데, "제목과 룩업을 한 줄로"라는
-    /// 요청(2026-09-03)으로 라벨을 왼쪽에 고정폭으로 두고 콤보가 나머지를 채우는 가로 배치로
-    /// 바꿨다. 다크 헤더가 아니라 다크테마 색 오버라이드는 필요 없다(기본 스킨 그대로 흰 콤보 +
-    /// 옅은 회색 라벨). combo.Height는 Dock=Fill이 알아서 행 높이(24)만큼 채우게 두는데 -
-    /// 이전에 18로 줄였을 때 드롭다운 화살표(▼)가 그릴 공간이 부족해서 아예 안 그려지는
-    /// 문제가 있었다(실제로 지적받음) - 24 정도는 돼야 화살표까지 정상적으로 나온다.</summary>
-    private Panel BuildHeaderComboRow(string label, BaseEdit combo)
-    {
-        var row = new Panel { Dock = DockStyle.Top, Height = 24 };
-
-        var lbl = new LabelControl { Text = label, Dock = DockStyle.Left, Width = 56, AutoSizeMode = LabelAutoSizeMode.None };
-        lbl.Appearance.ForeColor = HeaderTextMuted;
-        lbl.Appearance.Font = AppFonts.Caption;
-        lbl.Appearance.Options.UseFont = true;
-        lbl.Appearance.TextOptions.VAlignment = DevExpress.Utils.VertAlignment.Center;
-
-        combo.Dock = DockStyle.Fill;
-        combo.Font = AppFonts.Body;
-
-        // Dock 순서: Fill(콤보) 먼저, Left(라벨)는 나중에 추가해야(이 파일 전체 규칙) 라벨이
-        // 왼쪽 고정폭을 정상적으로 차지하고 콤보가 나머지를 채운다.
-        row.Controls.Add(combo);
-        row.Controls.Add(lbl);
-
-        return row;
-    }
-
     /// <summary>
-    /// 사이드바 접힘/펼침 전환. 접힌 상태에선 폭만 줄이는 게 아니라 accordionMenu(트리) 대신
-    /// sidebarIconRail(최상위 아이콘만)을 보여준다 - 하위 메뉴는 좁은 폭에 담기 어려워서 함께
-    /// 숨기고, 사용자명 텍스트도 잘려 보이므로 같이 숨긴다. 화면검색/서비스선택은 이제 헤더
-    /// 오른쪽에 있어서(BuildHeaderRightCombos) 사이드바 접힘과 무관하게 항상 그대로 보인다.
+    /// 사이드바 접힘/펼침 전환 - "메뉴트리 숨기기 하면 트리 자체를 숨기고 열린 폼이 전체
+    /// 화면을 채우게" 요청(2026-09-21)에 맞춰, 폭을 줄이는 대신 sidebarPanel을 통째로
+    /// Visible=false 한다. 검색창/토글 버튼은 이제 sidebarPanel이 아니라 headerPanel(툴바)
+    /// 안에 있어서 사이드바를 숨겨도 그대로 남아있다 - 다시 펼 방법이 항상 눈에 보인다.
     /// </summary>
     private void ToggleSidebarCollapsed()
     {
         _sidebarCollapsed = !_sidebarCollapsed;
-
-        sidebarPanel.Width = _sidebarCollapsed ? SidebarCollapsedWidth : SidebarExpandedWidth;
-        accordionMenu.Visible = !_sidebarCollapsed;
-        sidebarIconRail.Visible = _sidebarCollapsed;
-        if (_lblUserInline != null)
-            _lblUserInline.Visible = !_sidebarCollapsed;
-
-        // 접히면 사용자정보 두 줄이 사라져 띠 전체가 홈 버튼 차지가 된다. 이때도 Dock=Right로
-        // 두면 버튼이 오른쪽에 치우쳐 좁은 폭에서 눈에 띄게 삐뚤어 보이므로, Fill로 바꿔서
-        // 남은 폭 한가운데에 오게 한다(가운데 정렬 계산은 homeArea의 Resize 핸들러가 이미 한다).
-        if (_homeArea != null)
-            _homeArea.Dock = _sidebarCollapsed ? DockStyle.Fill : DockStyle.Right;
-
+        sidebarPanel.Visible = !_sidebarCollapsed;
         RefreshSidebarToggleIcon();
     }
 
     /// <summary>sidebarToggleButton은 "누르면 일어날 동작"을 보여준다(SvgIcons.MenuHide/MenuView
     /// 설명 참고) - 펼쳐진 상태면 접으라는 아이콘을, 접힌 상태면 펼치라는 아이콘을 보여준다.
-    /// ConfigureSidebarTopGap(최초 1회)과 ToggleSidebarCollapsed(전환할 때마다) 둘 다에서 부른다.</summary>
+    /// BuildHeaderSearchZone(최초 1회)과 ToggleSidebarCollapsed(전환할 때마다) 둘 다에서 부른다.</summary>
     private void RefreshSidebarToggleIcon()
     {
-        var icon = _sidebarCollapsed ? SvgIcons.MenuView : SvgIcons.MenuHide;
-        // 아이콘도 배지와 같은 중립 그레이로(2026-09-04 요청) - 브랜드색(_accentColor)을 빼서
-        // 카드 전체가 색 없는 그레이톤으로 통일되게 한다.
+        // 접힌 상태면 펼치라는 뜻으로 오른쪽 화살표를, 펼쳐진 상태면 접으라는 뜻으로 왼쪽
+        // 화살표를 보여준다(이전 MenuHide/MenuView와 같은 관례) - 2026-09-17 목업 요청으로
+        // 사각 패널 아이콘 대신 배지 안 순수 화살표(ChevronLeft/Right)로 교체.
+        var icon = _sidebarCollapsed ? SvgIcons.ChevronRight : SvgIcons.ChevronLeft;
         sidebarToggleButton.IconImage = SvgIcons.Load(icon, sidebarToggleButton.Width - sidebarToggleButton.IconInset * 2,
-            Color.FromArgb(90, 94, 102));
+            Color.White);
     }
 
     /// <summary>탭 줄 오른쪽 끝 아이콘 스트립("탭 목록"/"탭 전체 닫기") 구성 - 클릭 동작은
@@ -1178,8 +1588,14 @@ public class ShellForm : XtraForm
         // 위에 IconBadgeButton 기본 배지색(거의 흰색이지만 미세하게 다름)이 얹히면 아이콘마다
         // 옅은 사각 얼룩처럼 도드라져 보였다(실제로 지적받음, 2026-09-03) - 투명으로 두면 아이콘
         // 글리프만 보이고 호버/눌림 오버레이는 그대로 동작한다(IconBadgeButton.OnPaint 참고).
+        btnHomeStrip.BadgeColor = Color.Transparent;
         btnTabListStrip.BadgeColor = Color.Transparent;
         btnCloseAllStrip.BadgeColor = Color.Transparent;
+
+        btnHomeStrip.IconImage = SvgIcons.Load(SvgIcons.Home,
+            btnHomeStrip.Width - btnHomeStrip.IconInset * 2, ToolbarIconColor);
+        toolbarToolTip.SetToolTip(btnHomeStrip, "홈");
+        btnHomeStrip.Click += (s, e) => OpenHomeForm();
 
         btnTabListStrip.IconImage = SvgIcons.Load(SvgIcons.ToolbarTabList,
             btnTabListStrip.Width - btnTabListStrip.IconInset * 2, ToolbarIconColor);
@@ -1191,18 +1607,21 @@ public class ShellForm : XtraForm
         toolbarToolTip.SetToolTip(btnCloseAllStrip, "탭 전체 닫기");
         btnCloseAllStrip.Click += (s, e) => CloseAllMdiChildren(except: null);
 
+        tabStripButtons.Controls.Add(btnHomeStrip);
         tabStripButtons.Controls.Add(btnTabListStrip);
         tabStripButtons.Controls.Add(btnCloseAllStrip);
         tabStripButtons.Width = TabStripButtonsWidth;
     }
 
-    // [탭 목록][탭 전체 닫기][X] 세 아이콘 사이 간격을 전부 이 값 하나로 통일한다 - 예전엔
+    // [홈][탭 목록][탭 전체 닫기][X] 네 아이콘 사이 간격을 전부 이 값 하나로 통일한다 - 예전엔
     // 여백/간격/X 앞 예약폭이 6·4·30으로 제각각이라 X 앞만 유독 벌어져 보였다(실제로 지적받음,
-    // 2026-09-03). tabStripButtons 자체 폭에 "여백-버튼-간격-버튼-여백"을 다 담고, X는 그
-    // 마지막 여백 바로 뒤에서 시작하게 해서(NativeCloseButtonOwnWidth만 추가 예약, 간격은
-    // 안 더함) 세 간격이 전부 TabStripIconGap 하나로 맞춰지게 한다.
+    // 2026-09-03). tabStripButtons 자체 폭에 "여백-버튼-간격-버튼-간격-버튼-여백"을 다 담고,
+    // X는 그 마지막 여백 바로 뒤에서 시작하게 해서(NativeCloseButtonOwnWidth만 추가 예약,
+    // 간격은 안 더함) 모든 간격이 전부 TabStripIconGap 하나로 맞춰지게 한다. 홈 버튼은
+    // 2026-09-17 요청으로 추가(탭목록/탭전체닫기 기능은 그대로 두고 자리만 하나 늘림).
     private const int TabStripIconGap = 10;
-    private const int TabStripButtonsWidth = TabStripIconGap + 28 + TabStripIconGap + 28 + TabStripIconGap;
+    private const int TabStripButtonsWidth =
+        TabStripIconGap + 28 + TabStripIconGap + 28 + TabStripIconGap + 28 + TabStripIconGap;
 
     /// <summary>DevExpress가 ClosePageButtonShowMode.InAllTabPagesAndTabControlHeader로 탭
     /// 컨트롤 헤더 맨 끝에 그리는 "현재 탭 닫기" X 버튼 자체의 폭 추정치(간격 제외) - DevExpress가
@@ -1210,76 +1629,79 @@ public class ShellForm : XtraForm
     /// 어긋나면 이 값만 조정하면 된다.</summary>
     private const int NativeCloseButtonOwnWidth = 20;
 
-    /// <summary>탭목록/탭전체닫기 두 아이콘(tabStripButtons)을 창 오른쪽 끝에서 얼마나 더
-    /// 떼어놓을지 - 그냥 붙이면 창 모서리(리사이즈 코너)에 바짝 붙어 답답해 보인다는 지적으로
+    /// <summary>tabStripButtons 안의 아이콘들을 창 오른쪽 끝에서 얼마나 더 떼어놓을지 - 그냥
+    /// 붙이면 창 모서리(리사이즈 코너)에 바짝 붙어 답답해 보인다는 지적으로
     /// (2026-09-03) 여유를 뒀다. X 버튼은 DevExpress가 탭 컨트롤 헤더 자체 로직으로 그려서
     /// 우리가 직접 위치를 못 옮기지만, tabStripButtons가 그만큼 더 왼쪽에서 시작하니 결과적으로
-    /// 세 아이콘이 뭉쳐서 왼쪽으로 이동한 것처럼 보인다.</summary>
+    /// 아이콘들이 뭉쳐서 왼쪽으로 이동한 것처럼 보인다.</summary>
     private const int TabStripGroupRightMargin = 14;
 
     /// <summary>tabStripButtons를 창 오른쪽 끝(사이드바 폭과 무관, MDI 영역이 항상 거기까지
     /// 채움)·탭 줄 실측 높이에 맞춰 다시 배치한다 - Form Resize와 탭 줄 높이가 바뀔 때
     /// (TabbedMdiManager_CustomDrawTabHeader) 둘 다에서 불린다. DevExpress 자체 "현재 탭 닫기"
     /// X 버튼(NativeCloseButtonOwnWidth)이 이 스트립 오른쪽에 그려지도록 그만큼 왼쪽으로 띄워서,
-    /// [탭 목록][탭 전체 닫기][X] 세 아이콘이 겹치지 않고 동일한 간격(TabStripIconGap)으로
+    /// [홈][탭 목록][탭 전체 닫기][X] 네 아이콘이 겹치지 않고 동일한 간격(TabStripIconGap)으로
     /// 나란히 보이게 한다 - tabStripButtons 자신의 마지막 여백이 이미 X 앞 간격을 담당하므로,
     /// 여기서는 X 버튼 자체의 폭만 추가로 예약한다(간격을 두 번 더하지 않음). TabStripGroupRightMargin은
     /// 그 전체를 창 모서리에서 한 번 더 떼어놓는 여유값이다.</summary>
     private void RepositionTabStripButtons()
     {
+        // ClientSize.Width는 Form.Padding을 반영 안 한 "전체" 폭이라, 복원(Normal) 상태의
+        // 창 테두리(Padding, RefreshWindowBorder 참고)가 켜져 있으면 이 스트립이 그만큼 밖으로
+        // 밀려나 테두리색이 탭 줄 쪽에 비쳐 보였다("메뉴 열었을 때 메뉴탭 쪽에 색깔이 보인다"
+        // 지적, 2026-09-21) - Padding.Right만큼 안쪽으로 당겨서 맞춘다.
         tabStripButtons.Location = new Point(
-            ClientSize.Width - tabStripButtons.Width - NativeCloseButtonOwnWidth - TabStripGroupRightMargin, headerPanel.Bottom);
+            ClientSize.Width - tabStripButtons.Width - NativeCloseButtonOwnWidth - TabStripGroupRightMargin - Padding.Right,
+            headerPanel.Bottom);
 
-        var y = Math.Max(0, (tabStripButtons.Height - btnTabListStrip.Height) / 2);
-        btnTabListStrip.Location = new Point(TabStripIconGap, y);
+        var y = Math.Max(0, (tabStripButtons.Height - btnHomeStrip.Height) / 2);
+        btnHomeStrip.Location = new Point(TabStripIconGap, y);
+        btnTabListStrip.Location = new Point(btnHomeStrip.Right + TabStripIconGap, y);
         btnCloseAllStrip.Location = new Point(btnTabListStrip.Right + TabStripIconGap, y);
     }
 
     /// <summary>
     /// 조회/입력/삭제/행추가/행삭제/저장/출력을 카드로 묶지 않고 각각 독립된 배지 버튼으로
-    /// 헤더에 나란히 배치한다. 예전엔 조회/입력/저장을 하나의 카드로 묶고 저장만 강조색을
-    /// 꽉 채워 표시했는데, 그룹핑 자체가 산만하다는 피드백에 따라 전부 개별 버튼으로 풀고
-    /// 저장도 다른 아이콘과 같은 스타일(연한 배지 + 강조색 아이콘)로 통일했다.
-    /// 배지 배경은 순백색 대신 헤더색을 살짝 섞은 연한 톤(IconBadgeBg)을 써서 튀어 보이지
-    /// 않게 했다. "성격" 구분은 이제 아이콘 색으로만 표현한다(삭제/행삭제=빨강, 나머지=브랜드 강조색).
-    /// 홈은 화면 전환용이라 별도로 사이드바 메뉴트리 위(ConfigureSidebarTopGap)로 옮겼다.
+    /// 헤더에 나란히 배치한다. 홈은 화면 전환용이라 별도로 사이드바 메뉴트리 위
+    /// (ConfigureSidebarTopGap)로 옮겼다.
     ///
     /// 남은 7개는 성격이 다른 지점마다 여백(GroupGap) + 구분선으로 세 묶음이 뚜렷하게 읽히게
     /// 한다 - [조회 입력 삭제](레코드 단위) / [행추가 행삭제](그리드 행 단위) / [저장 출력](마무리).
-    /// 예전엔 여백만으로 나눴었는데(구분선은 조각나 보인다는 이유로 뺐었음), 그룹 경계가
-    /// 잘 안 읽힌다는 피드백으로 시스템 버튼 앞(SQL로그/로그아웃)과 같은 방식의 실선 구분선을
-    /// 나머지 두 경계에도 동일하게 넣었다. 강조는 여전히 안 준다 - 버튼 7개는 배지색/아이콘
-    /// 색이 전부 같은 톤이고, 호버/눌림/비활성 상태도 모두 같은 규칙(IconChipButton의 고정
-    /// 알파 오버레이)을 따른다. 특정 액션(조회 등)만 강조색으로 채우는 방식은 예전에 시도했다가
-    /// "그룹핑 자체가 산만하다"는 피드백으로 걷어낸 적이 있어 다시 넣지 않는다.
+    /// 강조(IconChipVariant)는 조회(Accent)/삭제·로그아웃(Danger) 세 곳에만 준다(2026-09-22
+    /// 엔터프라이즈 툴바 가이드 반영) - 나머지는 Default로, 평소엔 배경 없이 호버할 때만 옅게 채워진다.
     /// 클릭하면 현재 활성화된 MDI 자식폼(ActiveMdiChild)의 표준 액션(BaseForm.QueryClick 등)을 호출한다.
     /// </summary>
     private void BuildToolbar()
     {
-        // 로고를 없애면서(2026-09 리디자인) 사이드바 접기/펼치기 진입점이 같이 사라져서, 처음엔
-        // 툴바 맨 앞에 전용 버튼으로 되살렸었다. 그 뒤 "홈"(원래 사이드바 상단, sidebarToggleButton
-        // 참고)과 자리를 서로 바꿔달라는 요청으로 지금은 여기가 "홈"이다(2026-09-03) - 나머지
-        // 업무 액션과 성격이 달라 바로 뒤에 구분선을 두는 건 그대로 유지.
+        // 홈 버튼은 여기 있었는데, 탭 줄 오른쪽 아이콘 스트립(btnHomeStrip)에도 생기면서
+        // 중복이라 뺐다(BuildTabStripButtons 참고, 2026-09-17 요청 - "홈버튼은 중복되니까
+        // 제거"). 묶음도 재정리했다(같은 날 요청) - [조회 입력] / [행추가 행삭제] /
+        // [삭제 저장] / [출력], 총 네 묶음.
         var x = 16;
-        var btnHomeToolbar = AddPlainToolbarButton(headerPanel, ref x, 2, "홈",
-            SvgIcons.Home, OpenHomeForm);
-        x += GroupGap;
-        AddDivider(ref x);
-        x += GroupGap - 12;
 
-        btnQuery = AddToolbarButton(headerPanel, ref x, 2, "조회", SvgIcons.ToolbarSearch, f => f.QueryClick());
-        btnNew = AddToolbarButton(headerPanel, ref x, 2, "입력", SvgIcons.ToolbarNew, f => f.NewClick());
-        btnDelete = AddToolbarButton(headerPanel, ref x, 2, "삭제", SvgIcons.ToolbarDelete, f => f.DeleteClick());
+        // 메뉴검색 + 사이드바 접기/펼치기 토글을 조회 버튼 왼쪽에 배치(2026-09-22 요청).
+        x = BuildHeaderSearchZone(headerPanel, x);
+
+        btnQuery = AddToolbarButton(headerPanel, ref x, "조회", SvgIcons.ToolbarSearch, f => f.QueryClick(),
+            IconChipVariant.Accent);
+        btnNew = AddToolbarButton(headerPanel, ref x, "입력", SvgIcons.ToolbarNew, f => f.NewClick());
         x += GroupGap;
         AddDivider(ref x);
         x += GroupGap - 12;
-        btnRowAdd = AddToolbarButton(headerPanel, ref x, 2, "행추가", SvgIcons.ToolbarRowAdd, f => f.NewRowClick());
-        btnRowDelete = AddToolbarButton(headerPanel, ref x, 2, "행삭제", SvgIcons.ToolbarRowDelete, f => f.DeleteRowClick());
+        btnRowAdd = AddToolbarButton(headerPanel, ref x, "행추가", SvgIcons.ToolbarRowAdd, f => f.NewRowClick());
+        btnRowDelete = AddToolbarButton(headerPanel, ref x, "행삭제", SvgIcons.ToolbarRowDelete, f => f.DeleteRowClick());
         x += GroupGap;
         AddDivider(ref x);
         x += GroupGap - 12;
-        btnSave = AddToolbarButton(headerPanel, ref x, 2, "저장", SvgIcons.ToolbarSave, f => f.SaveClick());
-        btnPrint = AddToolbarButton(headerPanel, ref x, 2, "출력", SvgIcons.ToolbarPrint, f => f.PrintClick());
+        btnDelete = AddToolbarButton(headerPanel, ref x, "삭제", SvgIcons.ToolbarDelete, f => f.DeleteClick(),
+            IconChipVariant.Danger);
+        // Primary(꽉 찬 파란 배경) -> Default: "저장도 배경색을 다른 아이콘들과 통일해달라"
+        // 요청(2026-09-21) - 나머지 버튼과 같은 평소엔 배경 없는 스타일로 되돌렸다.
+        btnSave = AddToolbarButton(headerPanel, ref x, "저장", SvgIcons.ToolbarSave, f => f.SaveClick());
+        x += GroupGap;
+        AddDivider(ref x);
+        x += GroupGap - 12;
+        btnPrint = AddToolbarButton(headerPanel, ref x, "출력", SvgIcons.ToolbarPrint, f => f.PrintClick());
 
         // 사용자별 단축키(TSMSHORTCUTDEFAULT/TSMUSERSHORTCUT)가 ACTION_CD로 가리키는 액션 -
         // ProcessCmdKey가 눌린 키를 SessionManager.Current.Shortcuts에서 찾아 ACTION_CD를 얻으면
@@ -1291,51 +1713,29 @@ public class ShellForm : XtraForm
         _toolbarActions["ROWDELETE"] = (btnRowDelete, "행삭제", f => f.DeleteRowClick());
         _toolbarActions["SAVE"] = (btnSave, "저장", f => f.SaveClick());
         _toolbarActions["PRINT"] = (btnPrint, "출력", f => f.PrintClick());
+    }
 
-        // 시스템 성격 버튼(SQL로그/로그아웃) - 업무 액션(조회~출력)과는 종류가 아예 달라서(데이터
-        // 조작이 아니라 시스템/세션 동작), 여백만 있는 다른 소그룹들과 달리 여기는 실선으로
-        // 확실히 갈라준다. 헤더 맨 오른쪽 끝(예전 자리)이 아니라 왼쪽 버튼 무리 가까이로
-        // 모아달라는 요청 - 화면검색/서비스전환 콤보만 우측에 남긴다(BuildHeaderRight 참고).
-        // "탭 목록"/"탭 전체 닫기"는 여기 있었는데, 툴바가 지저분해 보인다는 지적(2026-09-02)으로
-        // BuildTabStripButtons가 만드는 탭 줄 오른쪽 끝 아이콘 스트립으로 옮겼다.
-        x += GroupGap;
-        AddDivider(ref x);
-        x += GroupGap - 12;
-        if (Session.UserType == "A")
+    /// <summary>두 Add*ToolbarButton이 공유하는 생성 로직. "모든 툴바 아이콘의 배경색을 조회
+    /// 버튼과 동일하게" 요청(2026-09-22)에 맞춰, 실제로 그려지는 Variant는 항상 Accent로
+    /// 고정한다 - Accent의 배경/보더(옅은 블루 틴트, 항상 켜짐)가 모든 버튼에 그대로 공유되고,
+    /// 대신 AccentTextColor만 버튼마다 덮어써서 원래 의미(조회=블루, 삭제/로그아웃=빨강,
+    /// 나머지=슬레이트)를 글자/아이콘 색으로 유지한다. 호출부(AddToolbarButton)가 넘기는
+    /// variant 파라미터는 이제 배경이 아니라 이 텍스트/아이콘 색만 고른다.</summary>
+    private IconChipButton NewChipButton(string text, string svgIconPath, IconChipVariant variant, int x, Color? iconColorOverride = null)
+    {
+        var contentColor = iconColorOverride ?? variant switch
         {
-            AddPlainToolbarButton(headerPanel, ref x, 2, "SQL로그", SvgIcons.ToolbarSqlLog,
-                () => { if (_sqlLogPanel != null) _sqlLogPanel.Visible = !_sqlLogPanel.Visible; });
-        }
-        AddPlainToolbarButton(headerPanel, ref x, 2, "로그아웃", SvgIcons.ToolbarLogout, OnLogoutClick);
-    }
-
-    /// <summary>AddToolbarButton과 같은 시각 스타일이지만, 활성 MDI 자식(BaseForm)과 무관하게
-    /// 항상 동작해야 하는 버튼(메뉴 토글, 탭목록, SQL로그 토글, 로그아웃)용 - BaseForm 액션
-    /// 델리게이트 대신 단순 Action만 받는다.</summary>
-    private IconChipButton AddPlainToolbarButton(Control container, ref int x, int y, string text, string svgIconPath,
-        Action onClick)
-    {
-        var btn = NewChipButton(text, svgIconPath, x, y);
-        btn.Click += (s, e) => onClick();
-        container.Controls.Add(btn);
-        x += btn.Width;
-        return btn;
-    }
-
-    /// <summary>두 Add*ToolbarButton이 공유하는 생성 로직 - 칩 색은 항상 브랜드 파생색
-    /// (ChipBg/ChipHoverBg/ChipPressedBg) 그대로, 예외를 두지 않는다(BuildToolbar 주석의
-    /// "강조 없음" 원칙).</summary>
-    private IconChipButton NewChipButton(string text, string svgIconPath, int x, int y)
-    {
+            IconChipVariant.Accent => ToolbarQueryIconColor,
+            IconChipVariant.Danger => Color.FromArgb(220, 38, 38),
+            _ => ToolbarIconColor // 배경이 밝은 블루 틴트라 흰 배경용 슬레이트 톤이 다시 잘 보인다.
+        };
         var btn = new IconChipButton
         {
             Text = text,
-            IconImage = SvgIcons.Load(svgIconPath, ToolbarIconSize, ToolbarIconColor),
-            ChipBackColor = ChipBg,
-            ChipHoverColor = ChipHoverBg,
-            ChipPressedColor = ChipPressedBg,
-            Location = new Point(x, y),
-            Size = ButtonSize
+            Variant = IconChipVariant.Accent,
+            AccentTextColor = contentColor,
+            IconImage = SvgIcons.Load(svgIconPath, ToolbarIconSize, contentColor),
+            Location = new Point(x, ToolbarButtonY)
         };
         toolbarToolTip.SetToolTip(btn, text);
         return btn;
@@ -1356,36 +1756,42 @@ public class ShellForm : XtraForm
     /// ProcessCmdKey의 단축키 디스패치가 읽는다.</summary>
     private readonly Dictionary<string, (IconChipButton Button, string Label, Func<BaseForm, Task> Action)> _toolbarActions = new();
 
-    // 목업 방향(더 큼직한 아이콘)에 맞춰 예전(54x48)보다 키웠다.
-    private static readonly Size ButtonSize = new(64, 56);
-
-    // SvgIcons로 그리는 툴바 아이콘 크기/색 - 전부 이 한 색·한 굵기로 통일한다(SvgIcons의
-    // ToolbarXxx 상수 설명 참고, 예전 PNG는 아이콘마다 색이 제각각이라 버튼을 키우자 더
-    // 산만해 보였다). 삭제류(빨강 고정 관례)까지 포함해 정말로 예외 없이 전부 같은 색을
-    // 쓴다 - "성격 구분"은 지금은 색이 아니라 그룹 여백/구분선으로만 표현한다.
-    private const int ToolbarIconSize = 26;
-    private static readonly Color ToolbarIconColor = Color.FromArgb(74, 78, 87);
+    // 목업(아이콘+라벨+단축키가 한 줄, 저장만 꽉 찬 파란 버튼) 방향으로 다시 그리면서
+    // (2026-09-17) 아이콘도 26 -> 16으로, 버튼도 정사각 배지 대신 내용에 맞춘 가변폭으로
+    // 바꿨다(IconChipButton.UpdateSize 참고) - 헤더(60px) 안에서 세로로 가운데 오도록 Y좌표만 고정.
+    private const int ToolbarIconSize = 16;
+    private const int ToolbarButtonY = 11; // (headerPanel.Height(52) - IconChipButton.Height(30)) / 2
+    // ToolbarIconColor(슬레이트 #334155) - tabStripButtons(홈/탭목록/전체닫기, 밝은 Gainsboro
+    // 배경) 전용으로 쓰던 색인데, "모든 툴바 아이콘 배경을 조회 버튼과 동일하게"(2026-09-22)
+    // 요청으로 나머지 툴바 버튼들도 이제 옅은 블루 칩(Accent, 밝은 배경) 위에 올라가게 되면서
+    // 다시 이 슬레이트 톤이 잘 어울리게 됐다 - NewChipButton도 그대로 재사용한다.
+    private static readonly Color ToolbarIconColor = Color.FromArgb(51, 65, 85);
+    private static readonly Color ToolbarQueryIconColor = Color.FromArgb(29, 78, 216);
 
     /// <summary>툴바 아이콘 묶음 사이 여백(BuildHeaderToolbar 주석의 3개 묶음 참고).
     /// 구분선을 긋지 않고 여백만으로 나누는 방식이라, 너무 넓으면 툴바가 흩어져 보이고
     /// 너무 좁으면 나눈 티가 안 난다 - 버튼 폭(54)의 1/4 정도가 적당했다.</summary>
     private const int GroupGap = 14;
 
+    /// <summary>같은 묶음 안(예: 조회-입력) 버튼끼리의 간격 - 예전엔 이 간격이 0이라 서로
+    /// 딱 붙어 보였다("사이가 너무 붙었어" 지적, 2026-09-17).</summary>
+    private const int ButtonGap = 6;
+
     /// <summary>
     /// action 파라미터는 BaseForm을 받지만, "홈" 버튼처럼 활성화면과 무관하게 항상 동작해야 하는
     /// 경우도 있어서, 실제로는 델리게이트 내부에서 ActiveMdiChild를 쓸지 말지 자유롭게 결정한다.
     /// (홈 버튼은 activeForm 인자를 무시하고 항상 OpenHomeForm()만 호출)
     /// container: 이 버튼을 실제로 담을 컨트롤(headerPanel 직접 또는 AddToolbarGroup으로 만든 카드).
-    /// x/y는 container 기준 로컬 좌표. 반환값은 UpdateToolbarPermissions()에서 Enabled를
-    /// 다시 계산할 수 있도록 호출측(BuildToolbar)이 필드에 보관해두기 위함.
+    /// x는 container 기준 로컬 좌표(y는 ToolbarButtonY로 고정). 반환값은 UpdateToolbarPermissions()에서
+    /// Enabled를 다시 계산할 수 있도록 호출측(BuildToolbar)이 필드에 보관해두기 위함.
     /// </summary>
-    private IconChipButton AddToolbarButton(Control container, ref int x, int y, string text, string svgIconPath,
-        Func<BaseForm, Task> action)
+    private IconChipButton AddToolbarButton(Control container, ref int x, string text, string svgIconPath,
+        Func<BaseForm, Task> action, IconChipVariant variant = IconChipVariant.Default, Color? iconColorOverride = null)
     {
-        var btn = NewChipButton(text, svgIconPath, x, y);
+        var btn = NewChipButton(text, svgIconPath, variant, x, iconColorOverride);
         btn.Click += async (s, e) => await InvokeToolbarActionAsync(text, action);
         container.Controls.Add(btn);
-        x += btn.Width;
+        x += btn.Width + ButtonGap;
         return btn;
     }
 
@@ -1449,9 +1855,15 @@ public class ShellForm : XtraForm
         btnPrint.Enabled = canPrint;
     }
 
+    // 버튼(30px)보다 짧은 16px 구분선 - "그룹 사이엔 높이 16px 연한 회색 구분선" 요청(2026-09-22).
+    // Slate 300(#CBD5E1) - IconChipButton.BorderColor(평소 테두리)와 같은 톤이라 버튼 테두리의
+    // 연장선처럼 자연스럽게 이어져 보인다.
+    private static readonly Color ToolbarGroupDividerColor = Color.FromArgb(203, 213, 225);
+
     private void AddDivider(ref int x)
     {
-        var divider = new Panel { Location = new Point(x, 14), Size = new Size(1, 32), BackColor = HeaderDividerColor };
+        var dividerY = ToolbarButtonY + (30 - 16) / 2;
+        var divider = new Panel { Location = new Point(x, dividerY), Size = new Size(1, 16), BackColor = ToolbarGroupDividerColor };
         headerPanel.Controls.Add(divider);
         x += 12;
     }
@@ -1472,17 +1884,21 @@ public class ShellForm : XtraForm
         AppConfig.EnvironmentChanged += RefreshEnvironmentStatusDot;
     }
 
-    /// <summary>서버 선택 콤보 왼쪽에 작은 색 점을 붙여 지금 어느 서버에 접속했는지 글자를 읽지
-    /// 않고도 알 수 있게 한다 - 개발서버는 주황(제목표시줄의 "실제 데이터가 아닙니다" 경고와
-    /// 같은 계열), 운영서버는 초록. MenuIconPainters.Dot을 재사용해 작은 비트맵으로 그린다
-    /// (트리 leaf 항목의 점 불릿과 같은 그리기 방식).</summary>
+    /// <summary>서버 선택 콤보 왼쪽 아이콘 - 원래는 개발/운영 색점(주황/초록)이었는데, MENU
+    /// 행(cboMenuSearch)의 돋보기 아이콘과 모양이 안 맞는다는 지적(2026-09-06)으로 같은
+    /// ButtonPredefines.Search로 통일했다. 이 콤보엔 검색 기능이 없으므로(재로그인만 트리거)
+    /// ButtonClick을 안 붙여 눌러도 아무 동작이 없다 - cboMenuSearch의 돋보기도 클릭 자체엔
+    /// 아무 기능이 없고 타이핑으로만 필터링되는 것과 동일한 상태(장식용). 메서드명은 이제
+    /// "점"이 아니지만 호출부(AppConfig.EnvironmentChanged 등)와의 연결을 그대로 유지하기
+    /// 위해 이름은 남겨둔다.</summary>
     private void RefreshEnvironmentStatusDot()
     {
-        var dotColor = AppConfig.IsDevelopment ? Color.FromArgb(240, 184, 76) : Color.FromArgb(76, 175, 100);
-        var dotImage = MenuIconPainters.Render(MenuIconPainters.Dot, 10, dotColor);
-
         cboEnvironment.Properties.Buttons.Clear();
-        cboEnvironment.Properties.Buttons.Add(new EditorButton(ButtonPredefines.Glyph, dotImage, null) { IsLeft = true });
+        cboEnvironment.Properties.Buttons.Add(new EditorButton(ButtonPredefines.Search) { IsLeft = true });
+        // Buttons.Clear()가 ComboBoxEdit 기본 드롭다운 화살표까지 같이 지워버려서(실제로 겪음 -
+        // 왼쪽 아이콘만 있고 오른쪽 화살표가 없어짐), cboMenuSearch처럼 오른쪽에 선택 삼각형이
+        // 보이도록 다시 추가한다(2026-09-06 요청).
+        cboEnvironment.Properties.Buttons.Add(new EditorButton(ButtonPredefines.Combo));
     }
 
     /// <summary>
@@ -1495,10 +1911,21 @@ public class ShellForm : XtraForm
     /// </summary>
     private void BuildMenuSearchCombo()
     {
-        cboMenuSearch.Size = new Size(210, 26);
-        cboMenuSearch.Properties.NullText = "화면 검색";
+        cboMenuSearch.Properties.NullText = "메뉴 검색";
         cboMenuSearch.Properties.ShowHeader = false;
         cboMenuSearch.Properties.ShowFooter = false;
+
+        // 검색줄이 다시 흰 배경(HeaderBg)으로 분리되면서(2026-09-17 요청) 밝은 배경용 색으로
+        // 되돌렸다 - UseXxxColor를 같이 켜야 스킨이 이 값을 실제로 반영한다. 배경은 에디터
+        // 2026-09-21: "콤보 배경은 흰색, 바깥(_cboMenuSearchPill) 배경은 그레이로" 요청으로
+        // 다시 나눴다 - 에디터 자체는 흰색 입력창처럼, 2px 바깥 여백(안쪽으로 인셋된 부분,
+        // ConfigureSidebarTopGap 참고)만 회색 테두리처럼 보이게 한다. 에디터 자체 테두리는
+        // NoBorder로 꺼서 그 회색 링과 안 겹치게 한다.
+        cboMenuSearch.Properties.BorderStyle = DevExpress.XtraEditors.Controls.BorderStyles.NoBorder;
+        cboMenuSearch.Properties.Appearance.BackColor = Color.White;
+        cboMenuSearch.Properties.Appearance.ForeColor = HeaderText;
+        cboMenuSearch.Properties.Appearance.Options.UseBackColor = true;
+        cboMenuSearch.Properties.Appearance.Options.UseForeColor = true;
         cboMenuSearch.Properties.DisplayMember = nameof(MenuDto.MenuNm);
         cboMenuSearch.Properties.ValueMember = nameof(MenuDto.MenuId);
 
@@ -1527,10 +1954,9 @@ public class ShellForm : XtraForm
         cboMenuSearch.Properties.ImmediatePopup = true;
         cboMenuSearch.Properties.Appearance.Font = AppFonts.Body;
 
-        // 왼쪽에 돋보기 아이콘을 붙여서 "여기가 검색창"이라는 걸 라벨 없이도 알 수 있게 한다 -
-        // DevExpress 내장 Search 프리셋이라 이미지를 따로 준비할 필요가 없다. LookUpEdit
-        // 자체의 드롭다운 버튼(오른쪽)은 Buttons 컬렉션과 별개로 계속 그려지므로 그대로 남는다.
-        cboMenuSearch.Properties.Buttons.Add(new EditorButton(ButtonPredefines.Search) { IsLeft = true });
+        // 왼쪽 돋보기 아이콘은 뺐다 - 제목줄 SERVICE 알약과 같은 디자인(왼쪽 아이콘 없이
+        // 오른쪽 세모만)으로 맞춰달라는 요청(2026-09-17). LookUpEdit 자체의 드롭다운 버튼
+        // (오른쪽 세모)은 Buttons 컬렉션과 별개로 항상 그려지므로 그것만 남는다.
 
         // EditValueChanged가 아니라 CloseUp을 쓴다 - EditValueChanged는 타이핑 도중 AutoFilter가
         // 후보를 좁혀가면서 EditValue를 스스로 건드릴 때도 fire해서, 실제로 고르지 않았는데도
@@ -1567,16 +1993,52 @@ public class ShellForm : XtraForm
                 OpenMenuById(menuId);
             }));
         };
+
+        // 실시간 트리 필터(2026-09-21 요청 - "마이메뉴와 전체메뉴를 동시에 필터링하여 실시간
+        // 검색"). RebuildAccordionTree만 다시 부르고 BuildAccordionMenu(전체)는 안 부른다 -
+        // 그쪽이 부르는 RefreshMenuSearchItems가 EditValue를 null로 비워서, 타이핑 도중 부르면
+        // 방금 친 글자가 지워진다.
+        cboMenuSearch.TextChanged += (s, e) =>
+        {
+            _menuFilterText = cboMenuSearch.Text?.Trim() ?? string.Empty;
+            RebuildAccordionTree();
+        };
     }
 
     /// <summary>검색 콤보의 목록을 현재 로그인 사용자가 열 수 있는 화면들로 채운다.</summary>
     private void RefreshMenuSearchItems()
     {
+        var hiddenMenuIds = Session.IsDeveloper ? new HashSet<long>() : GetDeveloperOnlyMenuIds(SessionManager.Current.Menus);
         cboMenuSearch.Properties.DataSource = SessionManager.Current.Menus
-            .Where(m => m.ViewYn && m.MenuType != "GROUP" && !string.IsNullOrWhiteSpace(m.ScreenClassNm))
+            .Where(m => m.ViewYn && m.MenuType != "GROUP" && !string.IsNullOrWhiteSpace(m.ScreenClassNm) && !hiddenMenuIds.Contains(m.MenuId))
             .OrderBy(m => m.MenuNm)
             .ToList();
         cboMenuSearch.EditValue = null;
+    }
+
+    /// <summary>"Developer Tool" 최상위 그룹(TSMMENU, MENU_NM='Developer Tool')과 그 하위 전체
+    /// (AI Builder/Component관리 그룹 + 그 안의 frmAIBuilder/frmSysLookup/frmSysPopup 등 leaf 메뉴)의
+    /// MenuId 집합을 구한다 - Session.IsDeveloper가 아닌 계정에게는 사이드바 트리와 화면검색
+    /// 콤보 양쪽에서 전부 숨기기 위함(2026-09-06 요청). MenuId는 DB마다 IDENTITY라 값을 고정할
+    /// 수 없어서 이름으로 최상위 그룹을 찾은 뒤 UpperMenuId를 따라 하위로 내려가며 모은다.</summary>
+    private static HashSet<long> GetDeveloperOnlyMenuIds(List<MenuDto> allMenus)
+    {
+        var result = new HashSet<long>();
+        var root = allMenus.FirstOrDefault(m => m.UpperMenuId == null && m.MenuNm == "Developer Tool");
+        if (root == null) return result;
+
+        var queue = new Queue<long>();
+        queue.Enqueue(root.MenuId);
+        result.Add(root.MenuId);
+        while (queue.Count > 0)
+        {
+            var id = queue.Dequeue();
+            foreach (var child in allMenus.Where(m => m.UpperMenuId == id))
+            {
+                if (result.Add(child.MenuId)) queue.Enqueue(child.MenuId);
+            }
+        }
+        return result;
     }
 
 
@@ -1586,11 +2048,14 @@ public class ShellForm : XtraForm
     private string GetEnvKey(string label) => _envLabels.FirstOrDefault(kv => kv.Value == label).Key ?? label;
 
     /// <summary>
-    /// 서버 전환. 다른 서버는 다른 DB를 바라보므로, 현재 세션/화면은 전부 무효화하고
-    /// 새 서버 기준으로 재로그인을 받아야 한다. 재로그인 취소시 프로그램을 종료한다
-    /// (예전 서버 세션으로 되돌릴 방법이 없으므로).
+    /// 서버 전환. 다른 서버는 다른 DB를 바라보므로 현재 열려있는 화면은 전부 닫아야 하지만,
+    /// 로그인한 아이디/비번이 새 서버에도 그대로 통하면(SessionManager에 기억해둔 값으로 조용히
+    /// 재로그인 시도) 로그인창을 다시 띄우지 않고 바로 전환한다(2026-09-06 요청) - 같은
+    /// 아이디/비번을 쓰는 서비스 간 이동을 테스트할 때 매번 다시 타이핑하는 번거로움을 없앤다.
+    /// 아이디/비번이 다르거나(그 서비스엔 없는 계정 등) 서버 자체에 연결이 안 되면, 예전처럼
+    /// 로그인창을 띄워서 사용자가 직접 그 서비스의 자격증명을 입력하게 한다.
     /// </summary>
-    private void OnEnvironmentComboChanged(object? sender, EventArgs e)
+    private async void OnEnvironmentComboChanged(object? sender, EventArgs e)
     {
         if (_suppressEnvChange) return;
 
@@ -1598,7 +2063,7 @@ public class ShellForm : XtraForm
         if (selectedKey == AppConfig.CurrentEnvironment) return;
 
         var confirm = AppMessageBox.Show(
-            $"'{GetEnvLabel(selectedKey)}'로 전환하면 현재 열려있는 화면이 모두 닫히고 다시 로그인해야 합니다.\n계속하시겠습니까?",
+            $"'{GetEnvLabel(selectedKey)}'로 전환하면 현재 열려있는 화면이 모두 닫힙니다.\n계속하시겠습니까?",
             "서버 전환", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
 
         if (confirm != DialogResult.Yes)
@@ -1609,7 +2074,104 @@ public class ShellForm : XtraForm
             return;
         }
 
+        var userId = SessionManager.Current.CachedUserId;
+        var password = SessionManager.Current.CachedPassword;
+        if (userId != null && password != null && await TrySwitchWithoutLoginAsync(selectedKey, userId, password))
+        {
+            return;
+        }
+
+        // 조용한 재로그인이 안 됐다(자격증명 없음/실패) - AppConfig는 이미 새 서비스를 가리키고
+        // 있을 수 있지만, SwitchEnvironment는 같은 값으로 다시 불러도 무해하므로 그대로 기존
+        // 흐름(로그인창)에 맡긴다.
         SignOutAndShowLogin(() => AppConfig.SwitchEnvironment(selectedKey));
+    }
+
+    /// <summary>같은 아이디/비번으로 새 서비스에 조용히 재로그인해본다 - 성공하면 화면 전환까지
+    /// 끝내고 true, 실패하면(계정이 그 서비스에 없거나 서버 연결 실패 등) 아무것도 바꾸지 않은
+    /// 것처럼 false를 돌려줘서 호출부가 평소 로그인창 흐름으로 넘어가게 한다.</summary>
+    private async Task<bool> TrySwitchWithoutLoginAsync(string targetEnv, string userId, string password)
+    {
+        AppConfig.SwitchEnvironment(targetEnv); // 이 뒤의 API 호출이 새 주소로 나가려면 먼저 바꿔야 한다.
+
+        LoginResponse? response;
+        try
+        {
+            response = await ApiClient.PostAsync<LoginRequest, LoginResponse>("api/auth/login",
+                new LoginRequest { UserId = userId, Password = password, ClientVersion = Application.ProductVersion });
+        }
+        catch
+        {
+            response = null;
+        }
+
+        if (response is not { Success: true, RequirePasswordChange: false })
+        {
+            return false;
+        }
+
+        foreach (Form child in MdiChildren.ToArray())
+        {
+            child.Close();
+        }
+
+        SessionManager.Current.SignOut();
+        SessionManager.Current.SignIn(response);
+        SessionManager.Current.RememberCredentials(userId, password);
+        ApiClient.SetAuthToken(response.AccessToken!);
+        RefreshTitleBarStatus(); // EnvironmentChanged 이벤트가 이미 지나간 뒤라 여기서 직접 한 번 더
+
+        await ReloadFavoriteMenusAsync(); // 즐겨찾기는 user_id 기준이라 서버(=DB) 전환 시 다시 받아야 한다.
+        return true;
+    }
+
+    [DllImport("user32.dll")]
+    private static extern bool GetLastInputInfo(ref LASTINPUTINFO plii);
+
+    [StructLayout(LayoutKind.Sequential)]
+    private struct LASTINPUTINFO
+    {
+        public uint cbSize;
+        public uint dwTime;
+    }
+
+    /// <summary>OS 전체의 "마지막 입력으로부터 지난 시간"(이 앱 창에 포커스가 있든 없든 감지됨,
+    /// Windows 자체 화면잠금과 같은 방식) - GetLastInputInfo가 돌려주는 tick과 지금 tick의 차를
+    /// uint 연산으로 뺀다(둘 다 Environment.TickCount 기준 uint 캐스팅 - int 오버플로/약 49.7일
+    /// 주기 롤오버를 안전하게 넘긴다, GetLastInputInfo의 표준 사용법).</summary>
+    private static TimeSpan GetSystemIdleTime()
+    {
+        var info = new LASTINPUTINFO { cbSize = (uint)Marshal.SizeOf(typeof(LASTINPUTINFO)) };
+        if (!GetLastInputInfo(ref info)) return TimeSpan.Zero;
+        var idleMs = unchecked((uint)Environment.TickCount - info.dwTime);
+        return TimeSpan.FromMilliseconds(idleMs);
+    }
+
+    /// <summary>자리비움 잠금화면(2026-09-09 요청 - "시스템을 켜놓고 자리를 비우는경우... 일정
+    /// 시간이 지나면 잠금화면이 뜨도록"). 20초 타이머(_idleCheckTimer)에서 호출된다. 로그인
+    /// 전이거나(SessionManager.IsSignedIn) 설정값이 없으면(0/null) 아무것도 하지 않는다.
+    /// LockScreenForm이 "다른 사용자로 로그인"으로 닫히면(DialogResult.Abort) 그 폼 자신은
+    /// SignOutAndShowLogin을 모른 채 그냥 닫히기만 했으므로, 여기서(모달이 완전히 닫힌 뒤) 이어서
+    /// 처리한다 - 모달 중첩을 피하기 위함(LockScreenForm 클래스 설명 참고).</summary>
+    private void CheckIdleLock()
+    {
+        if (_lockScreenShowing) return;
+        var minutes = AppConfig.IdleTimeoutMinutes;
+        if (minutes is not > 0) return;
+        if (!SessionManager.Current.IsSignedIn) return;
+        if (GetSystemIdleTime().TotalMinutes < minutes.Value) return;
+
+        _lockScreenShowing = true;
+        try
+        {
+            using var lockScreen = new LockScreenForm();
+            var result = lockScreen.ShowDialog(this);
+            if (result == DialogResult.Abort) SignOutAndShowLogin();
+        }
+        finally
+        {
+            _lockScreenShowing = false;
+        }
     }
 
     /// <summary>로그아웃 버튼 - 확인창에서 "예"를 누르면 SignOutAndShowLogin으로 넘어간다
@@ -1647,7 +2209,16 @@ public class ShellForm : XtraForm
         using var loginForm = new LoginForm();
         if (loginForm.ShowDialog() == DialogResult.OK)
         {
+            // Program.cs의 최초 로그인 직후와 같은 자리(2026-09-09 실제 발견 - AppConfig.
+            // IdleTimeoutMinutes를 채우는 SiteThemeSync가 여기서 안 불려서, 앱을 완전히
+            // 재시작하지 않고 로그아웃/재로그인만 하면 자리비움 잠금시간 같은 사이트설정 값이
+            // 새로 반영이 안 됐다 - 테마색/에셋도 같은 문제라 둘 다 여기서 다시 부른다).
+            AssetSyncer.SyncFromServer();
+            SiteThemeSync.ApplyFromServer();
+
+            RefreshTitleBarStatus(); // 로그아웃 시 비워둔 이름/접속시각을 새 세션 값으로 다시 채운다.
             BuildAccordionMenu();
+            _ = ReloadFavoriteMenusAsync(); // 재로그인한 사용자가 다를 수 있으므로 즐겨찾기도 다시 받는다.
             Show();
             loginForm.Splash?.Close();
         }
@@ -1657,23 +2228,15 @@ public class ShellForm : XtraForm
         }
     }
 
-    /// <summary>ICON_NM(DB) -> 실제 라인아이콘 매핑. 매칭 안 되면 기본 폴더 아이콘.</summary>
     /// <summary>
     /// TSMMENU.ICON_NM 값 -> DevExpress SVG 아이콘 이름. 여기 없는 값이 오면 폴더 아이콘으로
     /// 떨어진다(SvgIcons.Folder) - 메뉴를 새로 만들 때 아이콘 이름을 안 정해도 메뉴는 정상으로 뜬다.
-    /// 모듈이 늘어나면 이 표에 한 줄만 추가하면 되고, 쓸 수 있는 아이콘 목록은 SvgIcons 참고.
+    /// 목록 자체는 WYNLAB.Shared.MenuIconCatalog에 있다(메뉴등록 화면의 아이콘 선택 룩업과 같은
+    /// 목록을 공유해서 둘이 어긋나지 않게 하려고, 2026-09-16) - 여기서는 그 Key -> SvgResourceName만
+    /// 다시 꺼내 쓴다.
     /// </summary>
-    private static readonly Dictionary<string, string> TopMenuIcons = new(StringComparer.OrdinalIgnoreCase)
-    {
-        ["settings"] = SvgIcons.Settings,
-        ["shoppingcart"] = SvgIcons.ShoppingCart,
-        ["tools"] = SvgIcons.Database,
-        ["user"] = SvgIcons.User,
-        ["security"] = SvgIcons.Security,
-        ["box"] = SvgIcons.Box,
-        ["money"] = SvgIcons.Money,
-        ["code"] = SvgIcons.Code,
-    };
+    private static readonly Dictionary<string, string> TopMenuIcons = WYNLAB.Shared.MenuIconCatalog.Entries
+        .ToDictionary(e => e.Key, e => e.SvgResourceName, StringComparer.OrdinalIgnoreCase);
 
     /// <summary>
     /// SessionManager에 캐싱된 메뉴권한(MenuDto) 목록으로 Accordion 트리를 재귀 구성.
@@ -1681,14 +2244,84 @@ public class ShellForm : XtraForm
     /// </summary>
     private void BuildAccordionMenu()
     {
-        var menus = SessionManager.Current.Menus.Where(m => m.ViewYn).ToList();
-        var topMenus = menus.Where(m => m.UpperMenuId == null).OrderBy(m => m.SortOrder);
+        RebuildAccordionTree();
 
-        sidebarIconRail.Controls.Clear();
-        var railY = 8;
+        // 헤더의 화면검색 콤보도 같은 메뉴 목록을 쓰므로 여기서 같이 채운다 - 서버를 바꿔
+        // 재로그인하면 이 메서드가 다시 도니까 콤보 목록도 자동으로 새 메뉴로 갈린다.
+        // RebuildAccordionTree 쪽에는 안 넣는다 - 그쪽은 검색창에 타이핑할 때마다(매 키 입력)도
+        // 다시 불리는데, cboMenuSearch.EditValue를 여기서 null로 비우기 때문에 타이핑 도중
+        // 부르면 방금 친 글자가 지워진다(RefreshMenuSearchItems 설명 참고).
+        RefreshMenuSearchItems();
+    }
+
+    /// <summary>
+    /// SessionManager에 캐싱된 메뉴권한(MenuDto) 목록으로 Accordion 트리를 재귀 구성.
+    /// MENU_TYPE = GROUP 이면 상위그룹, FORM이면 클릭 시 화면 오픈. _menuFilterText가 비어있지
+    /// 않으면 자기 이름 또는 하위 어딘가가 일치하는 항목만 남기고, 일치하는 하위가 있는 그룹은
+    /// 강제로 펼쳐서 보이게 한다(검색 결과가 접힌 채로 숨어있지 않도록) - cboMenuSearch의
+    /// TextChanged가 키 입력마다 이 메서드만 다시 부른다(BuildAccordionMenu는 안 부름, 위 주석 참고).
+    /// </summary>
+    /// <summary>"전체 메뉴" 자신 - "마이 메뉴"와 대칭인 진짜 Group 엘리먼트(2026-09-21, 예전
+    /// 장식 바 accordionHeaderRow를 대체). 우클릭한 항목이 이 헤더 자신인지(그래서
+    /// ToggleMyMenuMode를 반응시킬지) 판단하는 데 쓴다.</summary>
+    private AccordionControlElement? _systemMenuGroupElement;
+
+    private void RebuildAccordionTree()
+    {
+        // BeginUpdate/EndUpdate로 Clear+재구성 전체를 한 번의 레이아웃/리페인트로 묶는다 -
+        // 안 묶으면 Elements.Add()를 여러 번 호출하는 동안 컨트롤이 매번 다시 레이아웃을 계산해
+        // 그리면서, 클릭할 때마다 배경/테두리가 다시 그려지며 살짝 움직이는 것처럼 보였다
+        // ("마이메뉴/전체메뉴 클릭할 때마다 부자연스럽게 움직인다" 지적, 2026-09-21). Clear()도
+        // 호출부마다 따로 부르던 걸 여기 한 곳으로 모았다(모든 호출부가 항상 Clear 직후 이
+        // 메서드를 불렀으므로 중복이었다).
+        accordionMenu.BeginUpdate();
+        try
+        {
+        accordionMenu.Elements.Clear();
+        // "Developer Tool"(AI Builder/Component관리) 최상위 그룹은 일반 사용자에게는 굳이 보일
+        // 필요가 없다 - TSMUSER.DEVELOPER_YN='Y'인 계정에서만 보이게 한다(2026-09-06 요청).
+        // 화면검색 콤보(RefreshMenuSearchItems)도 같은 기준으로 걸러야 사이드바에서만 숨고
+        // 검색으로는 그대로 찾아지는 반쪽짜리 숨김이 안 된다 - GetDeveloperOnlyMenuIds 참고.
+        var hiddenMenuIds = Session.IsDeveloper ? new HashSet<long>() : GetDeveloperOnlyMenuIds(SessionManager.Current.Menus);
+        var menus = SessionManager.Current.Menus.Where(m => m.ViewYn && !hiddenMenuIds.Contains(m.MenuId)).ToList();
+        var topMenus = menus.Where(m => m.UpperMenuId == null).OrderBy(m => m.SortOrder);
+        var filtering = !string.IsNullOrEmpty(_menuFilterText);
+
+        BuildFavoriteMenuGroup(menus); // 항상 트리 맨 위에 오도록 "전체 메뉴"보다 먼저 Elements에 추가한다.
+
+        // "전체 메뉴" 자신 - 시스템운영관리/기준정보관리 등 실제 모듈들을 전부 그 하위로
+        // 묶는 부모 그룹(2026-09-21 요청 - "탭모양으로 바꿨던 전체 메뉴를 없애고 모듈들을
+        // 전체메뉴 하위로 묶어달라"). "마이 메뉴"와 마찬가지로 accordionMenu 안의 진짜 Group이라
+        // DevExpress 기본 클릭-토글이 그대로 동작하고, 헤더 자체는 항상 보인다 - 마이메뉴와
+        // 상호배타 상태(_myMenuExpanded)로 Expanded만 결정한다. 검색 중엔 매치를 숨기지
+        // 않도록 강제로 편다.
+        var systemMenuGroup = new AccordionControlElement
+        {
+            Text = "전체 메뉴",
+            Name = "SYSTEM_MENU",
+            Style = ElementStyle.Group,
+            Expanded = filtering || !_myMenuExpanded
+        };
+        systemMenuGroup.ImageOptions.Image = SvgIcons.Load(SvgIcons.Folder, MenuRootHeaderIconSize, NavText);
+        systemMenuGroup.Appearance.Normal.BackColor = SidebarTreeBg;
+        systemMenuGroup.Appearance.Normal.ForeColor = NavText;
+        // Bold 제거해보는 중(2026-09-21 요청 - "메뉴그룹 Bold가 지저분해 보인다").
+        systemMenuGroup.Appearance.Normal.Font = AppFonts.Body;
+        systemMenuGroup.Appearance.Normal.Options.UseBackColor = true;
+        systemMenuGroup.Appearance.Normal.Options.UseForeColor = true;
+        systemMenuGroup.Appearance.Normal.Options.UseFont = true;
+        systemMenuGroup.Appearance.Hovered.BackColor = NavHoverBg;
+        systemMenuGroup.Appearance.Hovered.ForeColor = NavHoverFg;
+        systemMenuGroup.Appearance.Hovered.Font = AppFonts.Body;
+        systemMenuGroup.Appearance.Hovered.Options.UseBackColor = true;
+        systemMenuGroup.Appearance.Hovered.Options.UseForeColor = true;
+        systemMenuGroup.Appearance.Hovered.Options.UseFont = true;
+        ApplyGroupPressedAppearance(systemMenuGroup, AppFonts.Body);
 
         foreach (var top in topMenus)
         {
+            var iconName = (top.IconNm != null && TopMenuIcons.TryGetValue(top.IconNm, out var n)) ? n : SvgIcons.Folder;
+
             var group = new AccordionControlElement
             {
                 // 대문자로 올려서 하위 화면(leaf)과는 다른 "카테고리 라벨"이라는 느낌을 준다 -
@@ -1698,93 +2331,363 @@ public class ShellForm : XtraForm
                 Name = top.MenuId.ToString(),
                 Style = ElementStyle.Group
             };
-
-            var iconName = (top.IconNm != null && TopMenuIcons.TryGetValue(top.IconNm, out var n)) ? n : SvgIcons.Folder;
             group.ImageOptions.Image = SvgIcons.Load(iconName, MenuTopIconSize, NavText);
-            AddSidebarRailButton(top.MenuNm, iconName, ref railY);
 
-            // 최상위 항목 - 다크 배경 위에 아이콘 + 굵은 밝은 글씨. 개별 배경색은 주지 않고
-            // 사이드바 바탕색을 그대로 살려서 평평한 리스트처럼 보이게 한다.
-            group.Appearance.Normal.BackColor = NavDarkBg;
+            // 최상위 항목(모듈) - 개별 배경색은 주지 않고 사이드바 바탕색을 그대로 살려서
+            // 평평한 리스트처럼 보이게 한다. Bold는 "지저분해 보인다"는 지적(2026-09-21)으로
+            // 빼고 일반 굵기로 시험한다 - 위계는 색으로만 표현.
+            group.Appearance.Normal.BackColor = SidebarTreeBg;
             group.Appearance.Normal.ForeColor = NavText;
-            group.Appearance.Normal.Font = AppFonts.BodyBold;
+            group.Appearance.Normal.Font = AppFonts.Body;
             group.Appearance.Normal.Options.UseBackColor = true;
             group.Appearance.Normal.Options.UseForeColor = true;
             group.Appearance.Normal.Options.UseFont = true;
 
             group.Appearance.Hovered.BackColor = NavHoverBg;
-            group.Appearance.Hovered.ForeColor = Color.White;
-            group.Appearance.Hovered.Font = AppFonts.BodyBold;
+            group.Appearance.Hovered.ForeColor = NavHoverFg;
+            group.Appearance.Hovered.Font = AppFonts.Body;
             group.Appearance.Hovered.Options.UseBackColor = true;
             group.Appearance.Hovered.Options.UseForeColor = true;
             group.Appearance.Hovered.Options.UseFont = true;
 
-            ApplyGroupPressedAppearance(group, AppFonts.BodyBold);
+            ApplyGroupPressedAppearance(group, AppFonts.Body);
 
-            AddChildMenus(group, menus, top.MenuId);
-            accordionMenu.Elements.Add(group);
+            var hasMatchingDescendant = AddChildMenus(group, menus, top.MenuId);
+            var selfMatches = !filtering || top.MenuNm.IndexOf(_menuFilterText, StringComparison.OrdinalIgnoreCase) >= 0;
+            if (!filtering || selfMatches || hasMatchingDescendant)
+            {
+                if (filtering) group.Expanded = true;
+                systemMenuGroup.Elements.Add(group);
+            }
         }
 
-        // 헤더의 화면검색 콤보도 같은 메뉴 목록을 쓰므로 여기서 같이 채운다 - 서버를 바꿔
-        // 재로그인하면 이 메서드가 다시 도니까 콤보 목록도 자동으로 새 메뉴로 갈린다.
-        RefreshMenuSearchItems();
-    }
-
-    /// <summary>
-    /// 접힌 사이드바(아이콘 레일)에 최상위 메뉴 하나당 아이콘 버튼 하나를 세로로 쌓아 배치.
-    /// 하위 메뉴까지 좁은 폭에 담기는 어려워, 클릭하면 그냥 사이드바를 펼치는 것으로 위임한다.
-    /// </summary>
-    private void AddSidebarRailButton(string tooltipText, string iconName, ref int y)
-    {
-        const int size = 40;
-        var btn = new Panel
-        {
-            Size = new Size(size, size),
-            Location = new Point((SidebarCollapsedWidth - size) / 2, y),
-            BackColor = NavDarkBg,
-            Cursor = Cursors.Hand
-        };
-        var pic = new PictureBox
-        {
-            Dock = DockStyle.Fill,
-            SizeMode = PictureBoxSizeMode.CenterImage,
-            Image = SvgIcons.Load(iconName, MenuTopIconSize + 4, NavText),
-            Cursor = Cursors.Hand
-        };
-        btn.Controls.Add(pic);
-        toolbarToolTip.SetToolTip(pic, tooltipText);
-
-        void ExpandSidebar(object? s, EventArgs e)
-        {
-            if (_sidebarCollapsed) ToggleSidebarCollapsed();
+        _systemMenuGroupElement = systemMenuGroup;
+        accordionMenu.Elements.Add(systemMenuGroup);
         }
-        void Hover(object? s, EventArgs e) => btn.BackColor = NavHoverBg;
-        void Unhover(object? s, EventArgs e) => btn.BackColor = NavDarkBg;
-
-        btn.Click += ExpandSidebar;
-        pic.Click += ExpandSidebar;
-        btn.MouseEnter += Hover;
-        pic.MouseEnter += Hover;
-        btn.MouseLeave += Unhover;
-        pic.MouseLeave += Unhover;
-
-        sidebarIconRail.Controls.Add(btn);
-        y += size + 8;
+        finally
+        {
+            accordionMenu.EndUpdate();
+        }
     }
 
-    private void AddChildMenus(AccordionControlElement parent, List<MenuDto> allMenus, long upperMenuId)
+    /// <summary>"마이 메뉴" 헤더 클릭 - 마이메뉴/전체메뉴 상호배타 상태를 뒤집고 트리를
+    /// 통째로 다시 그린다(2026-09-21 목업 요청 - 한쪽이 열리면 다른 쪽은 완전히 숨음).</summary>
+    private void ToggleMyMenuMode()
     {
-        AddChildMenus(parent, allMenus, upperMenuId, new HashSet<long> { upperMenuId });
+        _myMenuExpanded = !_myMenuExpanded;
+        RebuildAccordionTree();
+    }
+
+    /// <summary>사이드바 맨 위 "마이 메뉴(N)" 그룹 - 즐겨찾기한 화면을 나열한다. 폴더 이름이
+    /// 붙은 항목(FavoriteMenuEntry.Folder)은 그 이름의 하위 그룹으로 묶고, 폴더가 없는
+    /// 항목은 마이 메뉴 바로 아래 평평하게 보인다(2026-09-21 목업 - "핵심 업무"/"자재 출납"
+    /// 같은 사용자 임의 폴더). BuildAccordionMenu가 넘겨준 menus는 이미 ViewYn/개발자전용
+    /// 필터를 거친 목록이라, 삭제되었거나 권한이 없어진 즐겨찾기는 자동으로 빠진다. 즐겨찾기가
+    /// 하나도 없으면 그룹 자체를 만들지 않는다(빈 섹션을 보여줄 이유가 없다).</summary>
+    private void BuildFavoriteMenuGroup(List<MenuDto> menus)
+    {
+        _favoritesGroupElement = null;
+        _favoriteLeafElements.Clear();
+
+        // _favorites 순서(=서버 SORT_ORDER, MoveFavoriteMenu로 사용자가 바꾼 순서)를 그대로
+        // 유지한다 - 정렬해버리면 상위로/하위로 이동이 화면에 반영 안 된 것처럼 보인다.
+        var rows = _favorites
+            .Select(f => (Entry: f, Menu: menus.FirstOrDefault(m => m.MenuId == f.MenuId)))
+            .Where(x => x.Menu != null && x.Menu!.MenuType != "GROUP")
+            .Where(x => string.IsNullOrEmpty(_menuFilterText) || x.Menu!.MenuNm.IndexOf(_menuFilterText, StringComparison.OrdinalIgnoreCase) >= 0)
+            .ToList();
+
+        // 2026-09-21 목업 - "마이 메뉴"는 즐겨찾기가 하나도 없어도 "마이 메뉴 (0)" 헤더
+        // 자체는 항상 보이는 고정 섹션이다(예전엔 비어있으면 통째로 숨겼는데, 그러면 이
+        // 기능이 있는지조차 알기 어려웠다). 단, 검색 필터링 중에 일치하는 즐겨찾기가 없을
+        // 때는 계속 숨긴다(검색 결과 없음은 굳이 빈 섹션으로 보여줄 이유가 없다).
+        var filtering = !string.IsNullOrEmpty(_menuFilterText);
+        if (filtering && rows.Count == 0) return;
+
+        var group = new AccordionControlElement
+        {
+            Text = $"My Menu ({rows.Count})",
+            Name = "FAVORITES",
+            Style = ElementStyle.Group,
+            // 2026-09-21 목업: 처음엔 닫혀 있고(전체 메뉴만 보임), 헤더 클릭(ToggleMyMenuMode)
+            // 때만 열린다 - 예전엔 항상 true(항상 펼침)였다.
+            Expanded = _myMenuExpanded
+        };
+        // 헤더 배경이 전체 메뉴와 같은 중립 슬레이트로 통일되면서(2026-09-21) 별 아이콘은
+        // 브랜드 블루로 - 배경과 더 이상 안 묶여 있으니 즐겨찾기 강조색만 담당한다.
+        group.ImageOptions.Image = MenuIconPainters.Render(MenuIconPainters.Star, MenuRootHeaderIconSize, NavAccentBlue);
+
+        group.Appearance.Normal.BackColor = SidebarTreeBg;
+        group.Appearance.Normal.ForeColor = NavText;
+        group.Appearance.Normal.Font = AppFonts.Body;
+        group.Appearance.Normal.Options.UseBackColor = true;
+        group.Appearance.Normal.Options.UseForeColor = true;
+        group.Appearance.Normal.Options.UseFont = true;
+
+        group.Appearance.Hovered.BackColor = NavHoverBg;
+        group.Appearance.Hovered.ForeColor = NavHoverFg;
+        group.Appearance.Hovered.Font = AppFonts.Body;
+        group.Appearance.Hovered.Options.UseBackColor = true;
+        group.Appearance.Hovered.Options.UseForeColor = true;
+        group.Appearance.Hovered.Options.UseFont = true;
+
+        ApplyGroupPressedAppearance(group, AppFonts.Body);
+
+        AccordionControlElement CreateLeafElement(MenuDto menu)
+        {
+            // 전체 메뉴 쪽과 같은 이유로 공백 두 칸을 붙여 들여쓴다(AddChildMenus 주석 참고).
+            var element = new AccordionControlElement { Text = "  " + menu.MenuNm, Name = menu.MenuId.ToString(), Style = ElementStyle.Item };
+            element.ImageOptions.Image = MenuIconPainters.Render(MenuIconPainters.Dot, MenuLeafDotSize, ActionAccent);
+
+            element.Appearance.Normal.BackColor = SidebarTreeBg;
+            element.Appearance.Normal.ForeColor = NavText;
+            element.Appearance.Normal.Font = AppFonts.Body;
+            element.Appearance.Normal.Options.UseBackColor = true;
+            element.Appearance.Normal.Options.UseForeColor = true;
+            element.Appearance.Normal.Options.UseFont = true;
+
+            element.Appearance.Hovered.BackColor = NavHoverBg;
+            element.Appearance.Hovered.ForeColor = NavHoverFg;
+            element.Appearance.Hovered.Font = AppFonts.BodyBold;
+            element.Appearance.Hovered.Options.UseBackColor = true;
+            element.Appearance.Hovered.Options.UseForeColor = true;
+            element.Appearance.Hovered.Options.UseFont = true;
+
+            element.Appearance.Pressed.BackColor = ColorHelper.Mix(SidebarTreeBg, NavAccentBlue, 0.15f);
+            element.Appearance.Pressed.ForeColor = NavAccentBlue;
+            element.Appearance.Pressed.Font = AppFonts.BodyBold;
+            element.Appearance.Pressed.Options.UseBackColor = true;
+            element.Appearance.Pressed.Options.UseForeColor = true;
+            element.Appearance.Pressed.Options.UseFont = true;
+
+            _favoriteLeafElements.Add(element);
+            return element;
+        }
+
+        // 폴더별로 묶는다(순서는 첫 등장 순서, 즉 전역 정렬 그대로). 폴더 없음(null/빈 문자열)은
+        // 마이 메뉴 바로 아래 평평하게 넣는다.
+        var folderGroups = rows.GroupBy(x => string.IsNullOrWhiteSpace(x.Entry.Folder) ? null : x.Entry.Folder);
+
+        foreach (var folderGroup in folderGroups)
+        {
+            var parent = group;
+            if (folderGroup.Key != null)
+            {
+                var folderElement = new AccordionControlElement { Text = folderGroup.Key, Style = ElementStyle.Group, Expanded = true };
+                folderElement.ImageOptions.Image = SvgIcons.Load(SvgIcons.Folder, MenuSubGroupIconSize, NavTextMuted);
+                folderElement.Appearance.Normal.BackColor = SidebarTreeBg;
+                folderElement.Appearance.Normal.ForeColor = NavTextMuted;
+                folderElement.Appearance.Normal.Font = AppFonts.Body;
+                folderElement.Appearance.Normal.Options.UseBackColor = true;
+                folderElement.Appearance.Normal.Options.UseForeColor = true;
+                folderElement.Appearance.Normal.Options.UseFont = true;
+                folderElement.Appearance.Hovered.BackColor = NavHoverBg;
+                folderElement.Appearance.Hovered.ForeColor = NavHoverFg;
+                folderElement.Appearance.Hovered.Font = AppFonts.Body;
+                folderElement.Appearance.Hovered.Options.UseBackColor = true;
+                folderElement.Appearance.Hovered.Options.UseForeColor = true;
+                folderElement.Appearance.Hovered.Options.UseFont = true;
+                ApplyGroupPressedAppearance(folderElement, AppFonts.Body);
+
+                group.Elements.Add(folderElement);
+                parent = folderElement;
+            }
+
+            foreach (var (_, menu) in folderGroup)
+                parent.Elements.Add(CreateLeafElement(menu!));
+        }
+
+        _favoritesGroupElement = group;
+        accordionMenu.Elements.Add(group);
+    }
+
+    /// <summary>서버(TSMUSERFAVORITEMENU)에서 현재 사용자의 즐겨찾기 목록(메뉴ID+폴더)을 다시
+    /// 받아와 트리를 재구성한다 - 로그인/서버전환/로그아웃-재로그인 등 사용자 세션이 바뀌는
+    /// 시점마다 불러야 한다(즐겨찾기는 user_id 기준). 실패해도(오프라인/API 오류) 즐겨찾기는
+    /// 부가 기능일 뿐이라 전체 메뉴트리 자체는 정상 표시되어야 하므로 예외를 삼킨다.</summary>
+    private async Task ReloadFavoriteMenusAsync()
+    {
+        try
+        {
+            var rows = await ApiClient.GetAsync<List<FavoriteMenuDto>>("api/favorite-menu");
+            _favorites.Clear();
+            if (rows != null)
+                _favorites.AddRange(rows.Select(r => new FavoriteMenuEntry { MenuId = r.MenuId, Folder = r.Folder }));
+        }
+        catch
+        {
+            // 부가 기능 - 실패해도 트리는 그대로 표시한다.
+        }
+
+        BuildAccordionMenu();
+    }
+
+    private bool IsFavorite(long menuId) => _favorites.Any(f => f.MenuId == menuId);
+
+    /// <summary>사이드바 우클릭 메뉴의 "즐겨찾기 추가/해제" 핸들러 - 낙관적으로 로컬 목록을 먼저
+    /// 바꾸고 트리를 다시 그린 뒤(즉각 반응), 서버에도 반영한다. 실패하면 오류만 알리고 다음
+    /// ReloadFavoriteMenusAsync(로그인 등) 때 서버 진짜 상태로 다시 맞춰진다.</summary>
+    private async void ToggleFavoriteMenu(long menuId, bool addFavorite)
+    {
+        if (addFavorite) _favorites.Add(new FavoriteMenuEntry { MenuId = menuId });
+        else _favorites.RemoveAll(f => f.MenuId == menuId);
+
+        BuildAccordionMenu();
+
+        try
+        {
+            if (addFavorite) await ApiClient.PutAsync<object, ApiResult>($"api/favorite-menu/{menuId}", new { });
+            else await ApiClient.DeleteAsync<ApiResult>($"api/favorite-menu/{menuId}");
+        }
+        catch (Exception ex)
+        {
+            AppMessageBox.Show($"즐겨찾기 처리 중 오류가 발생했습니다.\n{ex.Message}", "오류");
+        }
+    }
+
+    /// <summary>"마이 메뉴" 안에서 항목 순서를 바꾼다(상위로/하위로 이동) - 같은 폴더에 속한
+    /// 항목끼리만 스왑한다(다른 폴더 항목이 전역 리스트에서 사이에 끼어 있어도 건너뛴다).
+    /// 낙관적으로 로컬 목록을 먼저 바꾸고 다시 그린 뒤, 새 전역 순서를 서버에 보내
+    /// SORT_ORDER를 맞춘다. direction: -1(상위로) / +1(하위로). 같은 폴더의 맨 위/맨
+    /// 아래에서는 조용히 무시한다.</summary>
+    private async void MoveFavoriteMenu(long menuId, int direction)
+    {
+        var entry = _favorites.FirstOrDefault(f => f.MenuId == menuId);
+        if (entry == null) return;
+
+        var sameFolder = _favorites.Where(f => f.Folder == entry.Folder).ToList();
+        var localIndex = sameFolder.IndexOf(entry);
+        var newLocalIndex = localIndex + direction;
+        if (newLocalIndex < 0 || newLocalIndex >= sameFolder.Count) return;
+
+        var swapWith = sameFolder[newLocalIndex];
+        var globalIndexA = _favorites.IndexOf(entry);
+        var globalIndexB = _favorites.IndexOf(swapWith);
+        (_favorites[globalIndexA], _favorites[globalIndexB]) = (_favorites[globalIndexB], _favorites[globalIndexA]);
+
+        BuildAccordionMenu();
+
+        try
+        {
+            await ApiClient.PutAsync<List<long>, ApiResult>("api/favorite-menu/reorder", _favorites.Select(f => f.MenuId).ToList());
+        }
+        catch (Exception ex)
+        {
+            AppMessageBox.Show($"즐겨찾기 순서 변경 중 오류가 발생했습니다.\n{ex.Message}", "오류");
+        }
+    }
+
+    /// <summary>"폴더 지정..." - 즐겨찾기 하나를 마이 메뉴 안의 이름 붙은 폴더로 옮기거나
+    /// (같은 이름을 쓰는 다른 항목과 자동으로 묶인다), 빈 문자열이면 폴더에서 뺀다.</summary>
+    private async void SetFavoriteFolder(long menuId, string? folder)
+    {
+        var entry = _favorites.FirstOrDefault(f => f.MenuId == menuId);
+        if (entry == null) return;
+
+        entry.Folder = string.IsNullOrWhiteSpace(folder) ? null : folder!.Trim();
+
+        BuildAccordionMenu();
+
+        try
+        {
+            await ApiClient.PutAsync<string?, ApiResult>($"api/favorite-menu/{menuId}/folder", entry.Folder);
+        }
+        catch (Exception ex)
+        {
+            AppMessageBox.Show($"폴더 지정 중 오류가 발생했습니다.\n{ex.Message}", "오류");
+        }
+    }
+
+    /// <summary>사이드바 우클릭 메뉴 - 실제 화면(Item) 위에서 우클릭했으면 "즐겨찾기 추가/해제"를
+    /// 맨 위에 얹고(마이 메뉴 소속이면 "상위로/하위로 이동"/"폴더 지정..."도 같이), 그 외
+    /// (그룹/빈 공간)에서는 "메뉴 새로고침"만 보여준다. tabContextMenu와 같은 이유로 클릭할
+    /// 때마다 Items를 비우고 다시 채운다(대상이 매번 다른 항목이라서).</summary>
+    private void ShowSidebarContextMenu(Point location)
+    {
+        sidebarContextMenu.Items.Clear();
+
+        var hit = accordionMenu.CalcHitInfo(location);
+        if (hit.HitTest == AccordionControlHitTest.Item &&
+            hit.ItemInfo?.Element is { Style: ElementStyle.Item } element &&
+            element.Name != null && long.TryParse(element.Name, out var menuId))
+        {
+            var isFavorite = IsFavorite(menuId);
+            sidebarContextMenu.Items.Add(isFavorite ? "즐겨찾기 해제" : "즐겨찾기 추가", null,
+                (s, e) => ToggleFavoriteMenu(menuId, !isFavorite));
+
+            if (_favoriteLeafElements.Contains(element))
+            {
+                sidebarContextMenu.Items.Add("상위로 이동", null, (s, e) => MoveFavoriteMenu(menuId, -1));
+                sidebarContextMenu.Items.Add("하위로 이동", null, (s, e) => MoveFavoriteMenu(menuId, 1));
+                sidebarContextMenu.Items.Add("폴더 지정...", null, (s, e) =>
+                {
+                    var current = _favorites.FirstOrDefault(f => f.MenuId == menuId)?.Folder ?? string.Empty;
+                    var input = DevExpress.XtraEditors.XtraInputBox.Show(
+                        "마이 메뉴 폴더 이름 (비워두면 폴더 없이 바로 아래 표시)", "폴더 지정", current);
+                    SetFavoriteFolder(menuId, input);
+                });
+            }
+
+            sidebarContextMenu.Items.Add(new ToolStripSeparator());
+        }
+
+        // "전체 메뉴 모두 펼치기/접기" - accordionHeaderRow(예전 장식 바)의 "Expand" 체크박스를
+        // 대신한다(2026-09-21, 그 바 자체를 없애면서 자리를 잃었다).
+        sidebarContextMenu.Items.Add("전체 메뉴 모두 펼치기", null, (s, e) => SetAccordionMenuExpanded(true));
+        sidebarContextMenu.Items.Add("전체 메뉴 모두 접기", null, (s, e) => SetAccordionMenuExpanded(false));
+        sidebarContextMenu.Items.Add(new ToolStripSeparator());
+        sidebarContextMenu.Items.Add("메뉴 새로고침", null, async (s, e) => await RefreshMenusAsync());
+        sidebarContextMenu.Show(accordionMenu, location);
+    }
+
+    /// <summary>사이드바 우클릭 "메뉴 새로고침" - api/auth/menus(로그인 때와 같은 권한 계산
+    /// 로직, AuthController.GetMyMenus)를 다시 불러와 SessionManager 캐시를 바꿔치기한 뒤
+    /// 트리를 다시 그린다. ReLoginWithSameCredentials(서버 전환 재로그인)가 쓰는
+    /// "accordionMenu.Elements.Clear(); BuildAccordionMenu();" 조합과 같은 방식이다.</summary>
+    private async Task RefreshMenusAsync()
+    {
+        List<MenuDto>? menus;
+        try
+        {
+            menus = await ApiClient.GetAsync<List<MenuDto>>("api/auth/menus");
+        }
+        catch (Exception ex)
+        {
+            AppMessageBox.Show($"메뉴를 새로고침하는 중 오류가 발생했습니다.\n{ex.Message}", "새로고침 실패");
+            return;
+        }
+
+        if (menus == null)
+        {
+            AppMessageBox.Show("메뉴를 새로고침하는 중 오류가 발생했습니다.", "새로고침 실패");
+            return;
+        }
+
+        SessionManager.Current.ReplaceMenus(menus);
+        BuildAccordionMenu();
+        Toast.Show("메뉴를 새로고침했습니다.");
+    }
+
+
+    private bool AddChildMenus(AccordionControlElement parent, List<MenuDto> allMenus, long upperMenuId)
+    {
+        return AddChildMenus(parent, allMenus, upperMenuId, new HashSet<long> { upperMenuId });
     }
 
     /// <summary>
     /// visited: 지금까지 내려온 조상 메뉴ID 목록. 메뉴관리 화면에서 상위메뉴를
     /// 순환되게(A→B→A) 잘못 지정해도, 이걸로 감지해서 무한재귀(StackOverflow로 인한
     /// 프로그램 다운)를 막는다. 순환이 감지되면 해당 하위 메뉴는 그냥 건너뛴다.
+    ///
+    /// 반환값: 하나라도 자식을 parent.Elements에 추가했는지(2026-09-21, 검색 필터 추가하며
+    /// 도입) - _menuFilterText가 있을 때 "이 그룹 자체는 검색어와 안 맞아도 하위에 일치하는
+    /// 화면이 있으니 그룹은 남겨야 한다"를 호출부(RebuildAccordionTree)가 판단하는 데 쓴다.
     /// </summary>
-    private void AddChildMenus(AccordionControlElement parent, List<MenuDto> allMenus, long upperMenuId, HashSet<long> visited)
+    private bool AddChildMenus(AccordionControlElement parent, List<MenuDto> allMenus, long upperMenuId, HashSet<long> visited)
     {
         var children = allMenus.Where(m => m.UpperMenuId == upperMenuId).OrderBy(m => m.SortOrder);
+        var filtering = !string.IsNullOrEmpty(_menuFilterText);
+        var anyAdded = false;
 
         foreach (var child in children)
         {
@@ -1794,9 +2697,15 @@ public class ShellForm : XtraForm
                 continue;
             }
 
+            // 화면(leaf)만 텍스트 앞에 공백 두 칸을 붙여 서브그룹보다 살짝 더 들여써 보이게
+            // 한다("서브그룹과 폼 정보가 왼쪽정렬이 거의 같아 구분이 안 간다" 지적, 2026-09-21) -
+            // 처음엔 Graphics.TranslateTransform으로 그리기 좌표 자체를 밀었는데, DevExpress
+            // 내부 클리핑 계산과 안 맞아 스크롤할 때마다 아이콘이 생겼다 없어지는 버그가
+            // 났다(실제로 겪음) - 그 대신 텍스트 자체에 공백을 넣는(MDI 탭 제목과 같은 방식,
+            // ConfigureTabAppearance의 PageAdded 참고) 훨씬 안전한 방법으로 바꿨다.
             var element = new AccordionControlElement
             {
-                Text = child.MenuNm,
+                Text = child.MenuType == "GROUP" ? child.MenuNm : "  " + child.MenuNm,
                 Name = child.MenuId.ToString(),
                 Style = child.MenuType == "GROUP" ? ElementStyle.Group : ElementStyle.Item
             };
@@ -1805,28 +2714,28 @@ public class ShellForm : XtraForm
             {
                 // 2단계 이하 그룹(소분류) - 클릭해서 화면이 열리는 게 아니라 펼치기만 하는
                 // "구획 라벨"이라는 걸 보여주려고, 오히려 화면(leaf)보다 차분한(muted) 색으로
-                // 낮춘다. 굵은 글씨는 유지해서 "헤더"라는 느낌은 남긴다. 폴더 아이콘까지 붙여서
-                // 화면(leaf)의 점 불릿과 뚜렷이 구분되게 한다 - 굵기/색만으로는 구분이 잘 안
-                // 간다는 지적으로 추가(2026-09-02). 최상위 모듈이 아이콘 없을 때 쓰는 기본
-                // 폴더 아이콘(SvgIcons.Folder)과 같은 그림을 그대로 재사용해서 "폴더=펼침"이라는
-                // 시각 언어를 트리 전체에서 통일했다(처음엔 직접 그린 MenuIconPainters.Folder를
-                // 썼는데, 사용자가 최상위와 똑같은 폴더 모양을 요구해서 교체함).
+                // 낮춘다. 폴더 아이콘까지 붙여서 화면(leaf)의 점 불릿과 뚜렷이 구분되게 한다 -
+                // 굵기/색만으로는 구분이 잘 안 간다는 지적으로 추가(2026-09-02). 최상위 모듈이
+                // 아이콘 없을 때 쓰는 기본 폴더 아이콘(SvgIcons.Folder)과 같은 그림을 그대로
+                // 재사용해서 "폴더=펼침"이라는 시각 언어를 트리 전체에서 통일했다. Bold는
+                // "지저분해 보인다"는 지적(2026-09-21)으로 뺐다 - 이제 위계는 색(muted)과
+                // 폴더 아이콘만으로 표현한다.
                 element.ImageOptions.Image = SvgIcons.Load(SvgIcons.Folder, MenuSubGroupIconSize, NavTextMuted);
-                element.Appearance.Normal.BackColor = NavDarkBg;
+                element.Appearance.Normal.BackColor = SidebarTreeBg;
                 element.Appearance.Normal.ForeColor = NavTextMuted;
-                element.Appearance.Normal.Font = AppFonts.BodyBold;
+                element.Appearance.Normal.Font = AppFonts.Body;
                 element.Appearance.Normal.Options.UseBackColor = true;
                 element.Appearance.Normal.Options.UseForeColor = true;
                 element.Appearance.Normal.Options.UseFont = true;
 
                 element.Appearance.Hovered.BackColor = NavHoverBg;
-                element.Appearance.Hovered.ForeColor = Color.White;
-                element.Appearance.Hovered.Font = AppFonts.BodyBold;
+                element.Appearance.Hovered.ForeColor = NavHoverFg;
+                element.Appearance.Hovered.Font = AppFonts.Body;
                 element.Appearance.Hovered.Options.UseBackColor = true;
                 element.Appearance.Hovered.Options.UseForeColor = true;
                 element.Appearance.Hovered.Options.UseFont = true;
 
-                ApplyGroupPressedAppearance(element, AppFonts.BodyBold);
+                ApplyGroupPressedAppearance(element, AppFonts.Body);
             }
             else
             {
@@ -1834,41 +2743,57 @@ public class ShellForm : XtraForm
                 // 작은 점 불릿(강조색)을 붙이고, 글자색도 그룹보다 밝게 해서 "여기가 실제
                 // 이동 가능한 화면"이라는 게 한눈에 보이게 한다. 호버 시 살짝 밝아지는 배경으로
                 // 클릭 가능함을 한 번 더 보강.
-                element.ImageOptions.Image = MenuIconPainters.Render(MenuIconPainters.Dot, MenuLeafDotSize, ActionAccent);
-                element.Appearance.Normal.BackColor = NavDarkBg;
-                element.Appearance.Normal.ForeColor = NavText;
-                element.Appearance.Normal.Font = AppFonts.Body;
+                //
+                // 이미 "마이 메뉴"에 즐겨찾기된 화면은 점 대신 작은 별 아이콘 + 굵은 강조색
+                // 글자로 표시한다(2026-09-21 목업 - 전체 메뉴를 훑다가 이미 즐겨찾기한 화면을
+                // 우클릭으로 또 확인할 필요 없이 한눈에 알아보도록).
+                var isFavoriteMenu = IsFavorite(child.MenuId);
+                element.ImageOptions.Image = isFavoriteMenu
+                    ? MenuIconPainters.Render(MenuIconPainters.Star, MenuLeafDotSize + 2, NavAccentBlue)
+                    : MenuIconPainters.Render(MenuIconPainters.Dot, MenuLeafDotSize, ActionAccent);
+                element.Appearance.Normal.BackColor = SidebarTreeBg;
+                element.Appearance.Normal.ForeColor = isFavoriteMenu ? NavAccentBlue : NavText;
+                element.Appearance.Normal.Font = isFavoriteMenu ? AppFonts.BodyBold : AppFonts.Body;
                 element.Appearance.Normal.Options.UseBackColor = true;
                 element.Appearance.Normal.Options.UseForeColor = true;
                 element.Appearance.Normal.Options.UseFont = true;
 
                 element.Appearance.Hovered.BackColor = NavHoverBg;
-                element.Appearance.Hovered.ForeColor = Color.White;
+                element.Appearance.Hovered.ForeColor = NavHoverFg;
                 element.Appearance.Hovered.Font = AppFonts.BodyBold;
                 element.Appearance.Hovered.Options.UseBackColor = true;
                 element.Appearance.Hovered.Options.UseForeColor = true;
                 element.Appearance.Hovered.Options.UseFont = true;
 
-                // 클릭(선택) 상태 - 배경을 브랜드 블루 pill(NavAccentBlue를 살짝 섞은 톤)로
-                // 채우고 글자를 흰색으로 올려서 "선택됨"이 한눈에 보이게 한다. 왼쪽 강조 바는
-                // AccordionMenu_CustomDrawElement가 같은 Pressed 상태를 보고 덧그린다(여기서는
-                // 배경/글자색만 책임진다). 예전엔 배경은 그대로 두고 글자색만 옅은 골드톤으로
-                // 바꿨었는데, 더 뚜렷한 강조가 필요하다는 방향으로 바뀌었다. 폰트는 Normal과
-                // 동일하게 명시(AppFonts.Body) - 안 주면 Pressed가 스타일 안 먹은 기본(더 작아
-                // 보이는) 폰트로 떨어지는 버그가 있었다(실제로 겪음).
-                element.Appearance.Pressed.BackColor = ColorHelper.Mix(NavDarkBg, NavAccentBlue, 0.22f);
-                element.Appearance.Pressed.ForeColor = Color.White;
-                element.Appearance.Pressed.Font = AppFonts.Body;
+                // 클릭(선택) 상태 - 실제로 칠해지는 배경은 AccordionMenu_CustomDrawElement가
+                // 전체 폭이 아니라 좌우로 살짝 띄운 둥근 알약(pill) 모양으로 따로 그린다(참고
+                // 목업의 "미결재 문서함"처럼, 2026-09-17) - 여기 BackColor는 그 pill 색과 같은
+                // 값을 써서 DrawHeaderBackground를 안 거치는 다른 경로(예: 포커스 사각형 등
+                // DevExpress 내부 로직)에서도 색이 어긋나지 않게 맞춰만 둔다. 글자는 흰색+굵게로
+                // 올려서 "선택됨"이 한눈에 보이게 한다 - 안 주면 Pressed가 스타일 안 먹은
+                // 기본(더 작아 보이는) 폰트로 떨어지는 버그가 있었다(실제로 겪음).
+                element.Appearance.Pressed.BackColor = ColorHelper.Mix(SidebarTreeBg, NavAccentBlue, 0.15f);
+                element.Appearance.Pressed.ForeColor = NavAccentBlue;
+                element.Appearance.Pressed.Font = AppFonts.BodyBold;
                 element.Appearance.Pressed.Options.UseBackColor = true;
                 element.Appearance.Pressed.Options.UseForeColor = true;
                 element.Appearance.Pressed.Options.UseFont = true;
             }
 
-            AddChildMenus(element, allMenus, child.MenuId, visited);
-            parent.Elements.Add(element);
+            var hasMatchingDescendant = AddChildMenus(element, allMenus, child.MenuId, visited);
+            var selfMatches = !filtering || child.MenuNm.IndexOf(_menuFilterText, StringComparison.OrdinalIgnoreCase) >= 0;
+
+            if (!filtering || selfMatches || hasMatchingDescendant)
+            {
+                if (filtering && child.MenuType == "GROUP") element.Expanded = true; // 검색 결과가 접힌 채로 숨지 않게
+                parent.Elements.Add(element);
+                anyAdded = true;
+            }
 
             visited.Remove(child.MenuId); // 형제 메뉴 처리를 위해 이 가지에서만 빠져나오면 복원
         }
+
+        return anyAdded;
     }
 
     /// <summary>
@@ -1882,7 +2807,7 @@ public class ShellForm : XtraForm
     private void ApplyGroupPressedAppearance(AccordionControlElement element, Font font)
     {
         element.Appearance.Pressed.BackColor = NavHoverBg;
-        element.Appearance.Pressed.ForeColor = Color.White;
+        element.Appearance.Pressed.ForeColor = NavHoverFg;
         element.Appearance.Pressed.Font = font;
         element.Appearance.Pressed.Options.UseBackColor = true;
         element.Appearance.Pressed.Options.UseForeColor = true;
@@ -1906,26 +2831,79 @@ public class ShellForm : XtraForm
     }
 
     /// <summary>
-    /// 트리 각 행을 그릴 때마다 호출된다. 배경/아이콘/텍스트는 DevExpress 기본 로직
-    /// (DrawHeaderBackground/DrawImage/DrawText 등, TabbedMdiManager_CustomDrawTabHeader와 같은
-    /// 패턴)에 그대로 맡기고, 그 사이에 우리가 추가한 장식 두 가지만 얹는다:
+    /// 트리 각 행을 그릴 때마다 호출된다. 아이콘/텍스트는 DevExpress 기본 로직(DrawImage/
+    /// DrawText 등, TabbedMdiManager_CustomDrawTabHeader와 같은 패턴)에 그대로 맡기고, 배경과
+    /// 장식은 우리가 직접 그린다:
     ///  1) 세로 가이드라인 - 1단계 이상(하위 항목)의 행 왼쪽에 짧은 세로선을 그어, 들여쓰기만으론
     ///     흐릿했던 상위-하위 소속 관계를 더 또렷하게 만든다. 레벨마다 픽셀을 직접 계산하지
     ///     않는 이유: DevExpress가 이미 레벨에 비례해 HeaderBounds.X를 들여써주므로, 그 X에서
     ///     고정폭(6px)만 안쪽으로 들어가면 레벨마다 자연스럽게 제자리에 그려진다.
-    ///  2) 좌측 강조 바 - 지금 선택된(Pressed 상태) leaf 화면 행에 3px 폭의 브랜드 블루 바를
-    ///     덧그린다. 배경/글자색은 AddChildMenus가 이미 Appearance.Pressed로 칠해둔 값을 그대로
-    ///     쓰고(DrawHeaderBackground), 여기서는 그 위에 바만 얹는다.
+    ///  2) 선택된 화면(leaf, Pressed 상태) - 예전엔 DrawHeaderBackground로 전체 폭을 칠하고
+    ///     왼쪽에 3px 바만 덧그렸는데, 참고 목업(2026-09-17, "미결재 문서함")처럼 좌우로 살짝
+    ///     띄운 둥근 알약(pill) 모양만 강조색으로 채우는 방식으로 바꿨다 - 먼저 바탕색으로
+    ///     전체를 지운 뒤 그 위에 알약만 얹는다(DrawHeaderBackground는 항상 전체 폭 사각형이라
+    ///     이 모양을 낼 수 없어서 안 쓴다). 선택되지 않은 행은 그대로 DrawHeaderBackground를 쓴다.
     /// e.Handled를 true로 안 두면 이 이벤트 다음에 컨트롤이 자기 기본 그리기를 또 실행해서
     /// 방금 그린 장식을 덮어써 버린다(탭 헤더 커스텀드로우에서와 같은 이유) - 그래서 배경/
     /// 이미지/텍스트/버튼까지 전부 우리가 직접 순서대로 그려주고 마지막에 Handled = true로 막는다.
     /// </summary>
+    /// <summary>"마이 메뉴"/"전체 메뉴" 헤더 배경색 - 2026-09-21 목업 요청("배경색 및
+    /// 보더라인을 줘서 구분되게"). 마이 메뉴는 별 아이콘과 어울리는 옅은 골드, 전체 메뉴는
+    /// 중립 슬레이트로 서로 다른 톤을 준다.</summary>
+    // 마이 메뉴만 옅은 골드로 구분했었는데, "전체메뉴, mymenu의 배경색을 현재 전체 메뉴와
+    // 동일하게 맞춰달라"는 요청(2026-09-21)으로 둘 다 같은 슬레이트 톤을 쓰도록 통일했다.
+    private static readonly Color SystemMenuHeaderBg = Color.FromArgb(241, 245, 249);
+    private static readonly Color SystemMenuHeaderBorder = Color.FromArgb(203, 213, 225);
+    private static readonly Color FavoritesHeaderBg = SystemMenuHeaderBg;
+    private static readonly Color FavoritesHeaderBorder = SystemMenuHeaderBorder;
+
     private void AccordionMenu_CustomDrawElement(object? sender, CustomDrawElementEventArgs e)
     {
         var bounds = e.ObjectInfo.HeaderBounds;
         if (bounds.Width <= 0 || bounds.Height <= 0) return;
 
-        e.DrawHeaderBackground();
+        // "마이 메뉴"/"전체 메뉴" 자신의 헤더 줄만 별도 배경+테두리선으로 구분한다 - 그 안의
+        // 하위 그룹/화면들은 평소 로직(가이드라인/선택 알약)을 그대로 탄다.
+        if (e.Element == _favoritesGroupElement || e.Element == _systemMenuGroupElement)
+        {
+            var isFavoritesHeader = e.Element == _favoritesGroupElement;
+            var fill = isFavoritesHeader ? FavoritesHeaderBg : SystemMenuHeaderBg;
+            var border = isFavoritesHeader ? FavoritesHeaderBorder : SystemMenuHeaderBorder;
+
+            using (var brush = new SolidBrush(fill))
+                e.Graphics.FillRectangle(brush, bounds);
+            using (var pen = new Pen(border))
+            {
+                e.Graphics.DrawLine(pen, bounds.Left, bounds.Top, bounds.Right, bounds.Top);
+                // 마이 메뉴가 접혀 있으면(DistanceBetweenRootGroups=0이라) 바로 아래 전체 메뉴
+                // 헤더와 맞닿아서, 마이 메뉴의 아래쪽 선 + 전체 메뉴의 위쪽 선이 거의 같은
+                // 자리에 겹쳐 그려져 테두리가 두 겹으로 두꺼워 보였다("마이메뉴 닫으면 보더가
+                // 이중으로 보인다" 지적, 2026-09-21) - 마이 메뉴는 아래쪽 선을 안 그리고, 그
+                // 경계는 항상 존재하는 전체 메뉴의 위쪽 선 하나로만 표현한다.
+                if (!isFavoritesHeader)
+                    e.Graphics.DrawLine(pen, bounds.Left, bounds.Bottom - 1, bounds.Right, bounds.Bottom - 1);
+            }
+
+            e.DrawImage();
+            e.DrawText();
+            e.DrawExpandCollapseButton();
+            e.DrawContextButtons();
+            e.Handled = true;
+            return;
+        }
+
+        var isSelectedLeaf = e.Element.Style == ElementStyle.Item &&
+            (e.ObjectInfo.State & DevExpress.Utils.Drawing.ObjectState.Pressed) != 0;
+
+        if (isSelectedLeaf)
+        {
+            using var baseBrush = new SolidBrush(SidebarTreeBg);
+            e.Graphics.FillRectangle(baseBrush, bounds);
+        }
+        else
+        {
+            e.DrawHeaderBackground();
+        }
 
         if (e.Element.Level >= 1)
         {
@@ -1934,13 +2912,12 @@ public class ShellForm : XtraForm
             e.Graphics.DrawLine(guidePen, guideX, bounds.Top, guideX, bounds.Bottom);
         }
 
-        var isSelectedLeaf = e.Element.Style == ElementStyle.Item &&
-            (e.ObjectInfo.State & DevExpress.Utils.Drawing.ObjectState.Pressed) != 0;
         if (isSelectedLeaf)
         {
-            var barRect = new Rectangle(bounds.X, bounds.Y + 6, 3, bounds.Height - 12);
-            using var barBrush = new SolidBrush(NavAccentBlue);
-            e.Graphics.FillRectangle(barBrush, barRect);
+            var pillRect = new Rectangle(bounds.X + 4, bounds.Y + 3, bounds.Width - 8, bounds.Height - 6);
+            using var pillPath = RoundedRect(pillRect, 8);
+            using var pillBrush = new SolidBrush(ColorHelper.Mix(SidebarTreeBg, NavAccentBlue, 0.15f));
+            e.Graphics.FillPath(pillBrush, pillPath);
         }
 
         e.DrawImage();
@@ -1948,6 +2925,18 @@ public class ShellForm : XtraForm
         e.DrawExpandCollapseButton();
         e.DrawContextButtons();
         e.Handled = true;
+    }
+
+    private static GraphicsPath RoundedRect(Rectangle bounds, int radius)
+    {
+        var path = new GraphicsPath();
+        var d = Math.Min(radius * 2, Math.Min(bounds.Width, bounds.Height));
+        path.AddArc(bounds.X, bounds.Y, d, d, 180, 90);
+        path.AddArc(bounds.Right - d, bounds.Y, d, d, 270, 90);
+        path.AddArc(bounds.Right - d, bounds.Bottom - d, d, d, 0, 90);
+        path.AddArc(bounds.X, bounds.Bottom - d, d, d, 90, 90);
+        path.CloseFigure();
+        return path;
     }
 
     /// <summary>
@@ -2028,7 +3017,9 @@ public class ShellForm : XtraForm
         // 단순 이름의 첫 해석 결과를 내부적으로 캐싱해버려서, 두 번째 열 때부터는
         // EnsureLoaded로 최신 dll을 새로 읽어와도 무시되고 계속 예전 화면이 뜬다(실제로
         // 겪은 버그 - ModuleLoader 클래스 설명 참고).
-        var nameParts = formClassNm.Split(',');
+        // net48의 string.IsNullOrWhiteSpace엔 [NotNullWhen(false)]가 없어 위 가드(2161행)로
+        // 이미 확인했는데도 컴파일러가 못 알아채고 경고한다 - 안전하다.
+        var nameParts = formClassNm!.Split(',');
         var typeName = nameParts[0].Trim();
         var assembly = nameParts.Length > 1 ? ModuleLoader.EnsureLoaded(nameParts[1].Trim()) : null;
 

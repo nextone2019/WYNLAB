@@ -78,20 +78,30 @@ public static class ProcData
 
     /// <summary>
     /// DataRow의 한 컬럼 값을 지정한 버전(Current/Original)으로 안전하게 문자열로 읽는다.
-    /// 없는 컬럼이거나 NULL이면 빈 문자열.
+    /// 없는 컬럼이거나 NULL이면 C# null(빈 문자열 아님).
     ///
     /// 버전을 반드시 명시해야 하는 이유: DataRow의 값 없는 인덱서(row[컬럼])는
     /// DataRowVersion.Default를 쓰는데, Deleted 상태 행에서 이걸 읽으면 "Current가 없다"는
     /// 이유로 DeletedRowInaccessibleException이 난다(실제로 확인함 - Original로도 안 넘어가고
     /// 그냥 예외가 난다). 그리드에서 지운 행의 원래 키 값을 읽어 서버에 삭제 요청을 보내야 하는
     /// 행 단위 저장 화면에서는 이 버전 인자를 빼먹으면 곧바로 예외로 죽는다.
+    ///
+    /// NULL을 빈 문자열("")이 아니라 null로 돌려주는 이유(2026-09-07 변경 - 원래는 ""였음):
+    /// 이 결과가 그대로 SaveAsync의 파라미터 딕셔너리 값(p_xxx)으로 들어가는데, 서버가 문자열
+    /// 값을 항상 NVARCHAR로 SqlParameter에 바인딩한다(GenericDataRepository.BuildParameters -
+    /// 대상 프로시저 파라미터의 실제 SQL 타입을 조회하지 않음). 그 결과 컬럼이 NULL인 채로 "" 를
+    /// 보내면, 저장프로시저의 BIGINT/DATETIME 파라미터에 ""를 바인딩하려다 프로시저 본문(BEGIN
+    /// TRY)에 들어가기도 전에 "nvarchar을(를) numeric(으)로 변환하는 중 오류" SqlException으로
+    /// 그대로 죽는다(2026-09-07 실제 발견 - frmItem333의 dept_id를 비워두고 저장). null이면
+    /// Dapper가 DBNull로 보내서 그 파라미터의 기본값(NULL)이 그대로 적용된다. 호출부는 이미 전부
+    /// Dictionary&lt;string, string?&gt;에 담으므로(널 허용) 이 반환 타입 변경으로 깨지는 곳은 없다.
     /// </summary>
-    public static string Str(DataRow row, string columnName, DataRowVersion version)
+    public static string? Str(DataRow row, string columnName, DataRowVersion version)
     {
-        if (!row.Table.Columns.Contains(columnName)) return string.Empty;
+        if (!row.Table.Columns.Contains(columnName)) return null;
 
         var value = row[columnName, version];
-        return value == DBNull.Value ? string.Empty : Convert.ToString(value) ?? string.Empty;
+        return value == DBNull.Value ? null : Convert.ToString(value);
     }
 
     /// <summary>
@@ -148,7 +158,7 @@ public static class ProcData
     /// 중복 오류가 났다). AcceptChanges 이후에야 방금 로드한 행은 Unchanged, 그 다음 사용자가
     /// 그리드에서 실제로 편집/추가/삭제한 행만 Modified/Added/Deleted로 구분된다.
     /// </summary>
-    /// <summary>PopupLookupForm처럼 BaseForm을 상속하지 않아 menuId 기반 QueryAsync를 못 쓰는
+    /// <summary>popPopUp처럼 BaseForm을 상속하지 않아 menuId 기반 QueryAsync를 못 쓰는
     /// 곳(api/lookups/* 같은 별도 엔드포인트를 직접 호출)도 이 변환 로직만은 그대로 재사용할 수
     /// 있도록 internal로 연다 - JsonElement 언래핑을 빠뜨리면 그리드 정렬/검색이 조용히 깨진다
     /// (아래 UnwrapJsonValue 설명 참고).</summary>

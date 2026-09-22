@@ -1,12 +1,11 @@
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text.Json;
-using System.Windows.Forms;
 
 namespace WYNLAB.Bootstrap;
 
 /// <summary>
-/// 프레임워크 본체(WYNLAB.BaseForm.dll/WYNLAB.Shared.dll/WYNLAB.Controls.dll)가 실행 중 프로세스에 로드되기
+/// 프레임워크 본체(WYNLAB.BaseForm.dll/WYNLAB.Shared.dll/WYNLAB.Controls.dll/WYNLAB.Popup.dll)가 실행 중 프로세스에 로드되기
 /// 전에, 서버(CoreAssemblyPath 공유폴더)의 최신 버전과 비교해서 다르면 교체한다.
 /// 화면 모듈(WYNLAB.SM.*.dll)은 Shell이 리플렉션으로만 알기 때문에 핫스왑이 쉬웠지만,
 /// 프레임워크 본체는 Shell.exe와 모든 화면이 컴파일타임에 직접 참조하고 있어서 "이미 로드된
@@ -19,7 +18,11 @@ namespace WYNLAB.Bootstrap;
 /// </summary>
 public static class CoreAssemblyUpdater
 {
-    private static readonly string[] TrackedFiles = { "WYNLAB.BaseForm.dll", "WYNLAB.Shared.dll", "WYNLAB.Controls.dll" };
+    // WYNLAB.Popup.dll(전자결재/파일첨부/팝업조회 - 2026-09-12에 BaseForm에서 분리된 별도
+    // CoreAssembly 구성원)이 여기 빠져있던 게 오늘 실제로 사고를 냈다: BaseForm.dll은 갱신됐는데
+    // Popup.dll은 그대로 남아서 두 dll의 API가 어긋나(ApprovalClient.GetEmployeesAsync 시그니처
+    // 변경) MissingMethodException이 났다 - Popup도 반드시 같이 추적해야 한다.
+    private static readonly string[] TrackedFiles = { "WYNLAB.BaseForm.dll", "WYNLAB.Shared.dll", "WYNLAB.Controls.dll", "WYNLAB.Popup.dll" };
 
     public static void EnsureUpToDate()
     {
@@ -51,22 +54,6 @@ public static class CoreAssemblyUpdater
             }
 
             if (filesToUpdate.Count == 0) { Log("이미 최신 상태"); return; }
-
-            // 로드되기 전에 교체해야 하므로(클래스 설명 참고) 이 시점에 파일이 잠겨있다면
-            // 그건 "다른 이미 실행 중인 WYNLAB 인스턴스"가 들고 있다는 뜻뿐이다.
-            foreach (var file in filesToUpdate)
-            {
-                var localPath = Path.Combine(appDir, file.FileName);
-                if (File.Exists(localPath) && IsFileLocked(localPath))
-                {
-                    Log($"중단: {file.FileName}이(가) 잠겨있어 업데이트 필요 안내 후 종료");
-                    MessageBox.Show(
-                        "프로그램 업데이트가 있습니다.\n실행 중인 다른 WYN LAB 창을 모두 닫은 후 다시 실행해주세요.",
-                        "업데이트 필요", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                    Environment.Exit(0);
-                    return;
-                }
-            }
 
             // 파일 하나씩 독립적으로 시도한다 - 예전엔 하나가 실패(throw)하면 그 예외가 밖의
             // catch까지 올라가서 나머지 파일 업데이트까지 전부 취소됐다. 실제로 BaseForm.dll
@@ -193,24 +180,6 @@ public static class CoreAssemblyUpdater
         return string.IsNullOrWhiteSpace(env.CoreAssemblyPath) ? string.Empty : env.CoreAssemblyPath;
     }
 
-    /// <summary>다른 WYNLAB 프로세스가 이 dll을 로드해서 "쓰기"를 막고 있는지만 확인한다.
-    /// FileShare.None(그 어떤 동시 접근도 불허)으로 열면 백신 실시간 검사 같은 무해한 동시 읽기
-    /// 조차 "잠김"으로 오판해서 실제로는 아무도 안 물고 있는데 이 메시지가 계속 뜨는 문제가
-    /// 있었다(실제로 겪음) - FileShare.Read로 완화해서 "다른 프로세스의 읽기"는 허용하고
-    /// 진짜 문제가 되는 쓰기 충돌만 잡는다.</summary>
-    private static bool IsFileLocked(string path)
-    {
-        try
-        {
-            using var _ = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read);
-            return false;
-        }
-        catch (IOException)
-        {
-            return true;
-        }
-    }
-
     /// <summary>임시 파일명으로 받고 해시를 검증한 다음에야 실제 파일명으로 바꾼다 - 받다가
     /// 끊기거나 손상되면 기존에 잘 동작하던 로컬 파일을 절대 건드리지 않기 위함.</summary>
     private static void UpdateFile(string serverDir, string appDir, CoreAssemblyManifestFile file)
@@ -238,18 +207,24 @@ public static class CoreAssemblyUpdater
     }
 
     /// <summary>
-    /// 검증이 끝난 새 파일로 기존 파일을 교체한다. 보통은 삭제 후 이동이면 되지만, 그 dll이
-    /// 이미 이 프로세스에 로드(이미지로 매핑)돼 있으면 File.Delete가 UnauthorizedAccessException으로
-    /// 실패한다 - 사용 중을 뜻하는 IOException이 아니라서 IsFileLocked 사전 체크로도 못 거른다.
+    /// 검증이 끝난 새 파일로 기존 파일을 교체한다. 보통은 삭제 후 이동이면 되지만, 다른 이미
+    /// 실행 중인 WYNLAB 인스턴스가 이 dll을 이미 로드(이미지로 매핑)해뒀으면 File.Delete가
+    /// UnauthorizedAccessException으로 실패한다 - "사용 중"을 뜻하는 IOException과는 다른
+    /// 예외라 별도로 잡아야 한다(2026-09-06 이전엔 이 상황을 별도의 사전 체크(IsFileLocked)로
+    /// 걸러서 업데이트 자체를 막고 사용자에게 재실행을 요구하는 MessageBox + Environment.Exit로
+    /// 처리했었는데, 그 대화상자가 주인 창 없이(Program.Main 맨 앞이라 아직 어떤 창도 없음)
+    /// 떠서 사용자가 못 보고 지나치면 창 없는 좀비 프로세스로 영원히 멈춰버리는 문제가 있었다 -
+    /// 이 클래스 자체가 표준으로 삼는 "가용성이 최신성보다 우선" 원칙과도 맞지 않았다. 지금은
+    /// 그 사전 체크를 없애고, 아래 rename 처리 하나로 통일했다 - 다른 파일들의 try/catch와
+    /// 똑같이, 이 파일 하나만 다음 실행으로 미뤄지고 나머지는 계속 진행된다).
     ///
     /// 다행히 Windows는 "매핑된 파일 삭제"는 막아도 "이름 변경"은 허용하므로, 삭제가 거부되면
     /// 기존 파일을 .old로 밀어내고 그 자리에 새 파일을 넣는다. 이렇게 하면 지금 실행 중인
     /// 프로세스는 이미 메모리에 올라간 예전 코드로 계속 돌지만(그건 어차피 못 바꿈), 최소한
     /// 디스크에는 최신 파일이 자리잡아서 "다음 실행부터는" 정상 반영된다 - 예전엔 이 경우
-    /// 영영 갱신이 안 돼서 며칠씩 예전 버전에 머물렀다(2026-08-24~25 실제로 겪음).
-    ///
-    /// 애초에 로드되기 전에 교체하는 게 정석이고 그건 Program.Main의 구조로 보장한다(Program.cs
-    /// 주석 참고) - 여기는 그게 어떤 이유로든 깨졌을 때를 위한 안전망이다.
+    /// 영영 갱신이 안 돼서 며칠씩 예전 버전에 머물렀다(2026-08-24~25 실제로 겪음). rename마저
+    /// 실패하면(극히 드묾 - 다른 프로세스가 FileShare.None으로 열어둔 경우 등) 그 예외는 밖의
+    /// try/catch(EnsureUpToDate)가 "이 파일만 갱신 실패, 예전 버전 유지"로 로그하고 계속 진행한다.
     /// </summary>
     private static void ReplaceTarget(string targetPath, string tempPath, string fileName)
     {

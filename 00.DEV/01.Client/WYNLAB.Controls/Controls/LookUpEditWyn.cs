@@ -91,6 +91,10 @@ public class LookUpEditWyn : LookUpEdit
     public LookUpEditWyn()
     {
         Properties.NullText = string.Empty;
+        // 타이핑한 글자가 포함된 항목만 팝업 목록에 남긴다(2026-09-09 요청) - 기존엔 자동완성
+        // (일치하는 첫 항목으로 이동만 함)만 되고 나머지 항목은 그대로 다 보여서, 목록이 길면
+        // 원하는 값을 찾기 어려웠다.
+        Properties.PopupFilterMode = PopupFilterMode.Contains;
     }
 
     /// <summary>base.EditValue는 "선택 안 함" 상태에서 null을 돌려준다 - 저장 코드마다 매번
@@ -98,7 +102,13 @@ public class LookUpEditWyn : LookUpEdit
     /// 이유로(2026-09-02, 자산구분 콤보에서 `.ToString()`만 쓰다가 NullReferenceException 날
     /// 뻔한 사례) 항상 빈 문자열을 대신 돌려주도록 오버라이드한다. EditValue = null로 값을
     /// 지우는 건 그대로 되고(내부 저장값 자체는 그대로 null), 읽을 때만 문자열로 보정된다 -
-    /// 그래서 호출부는 이제 `EditValue.ToString()`만 써도 안전하다.</summary>
+    /// 그래서 호출부는 이제 `EditValue.ToString()`만 써도 안전하다.
+    ///
+    /// [AllowNull]로 "set엔 null 허용, get은 항상 non-null"이라는 이 비대칭을 컴파일러에
+    /// 알리고 싶었지만, net48엔 System.Diagnostics.CodeAnalysis.AllowNullAttribute가 없다
+    /// (.NET Core 3.0+/.NET Standard 2.1부터 추가됨 - 폴리필 없이는 못 씀). 그래서 값을
+    /// 지우려고 `EditValue = null`을 쓰는 호출부는 `null!`로 명시적으로 경고를 끈다
+    /// (frmMinorCode.cs 등 - "이 자리는 원래 null 허용" 표시).</summary>
     public override object EditValue
     {
         get => base.EditValue ?? string.Empty;
@@ -139,6 +149,16 @@ public class LookUpEditWyn : LookUpEdit
     {
         _lookupParams[paramNm] = value;
         _ = LoadFromLookupKeyAsync();
+    }
+
+    /// <summary>SetParam과 같지만 목록이 실제로 다시 채워질 때까지 기다린다 - 연쇄(부모-자식)
+    /// LookUp에서 기존 레코드를 불러와 자식의 EditValue를 이어서 설정해야 할 때 쓴다. SetParam은
+    /// fire-and-forget이라, 부모 값에 맞는 목록이 아직 안 채워진 상태에서 자식 EditValue를
+    /// 설정하면 표시텍스트가 안 붙을 수 있다(품목그룹 1~4단 연쇄, 2026-09-15).</summary>
+    public async Task SetParamAsync(string paramNm, string? value)
+    {
+        _lookupParams[paramNm] = value;
+        await LoadFromLookupKeyAsync();
     }
 
     private async Task LoadFromLookupKeyAsync()

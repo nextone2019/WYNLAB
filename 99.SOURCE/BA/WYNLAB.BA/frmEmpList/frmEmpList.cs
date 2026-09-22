@@ -1,4 +1,4 @@
-// AI Builder가 싱글그리드 템플릿을 복제해서 자동 생성 - 2026-09-03.
+// AI Builder가 싱글그리드 템플릿을 복제해서 자동 생성 - 2026-09-18.
 // 디자인(제목영역/여백/색상)을 바꾸려면 이 파일이 아니라 원본 템플릿(99.SOURCE/TEMPLATE/WYNLAB.TEMPLATE)을 고치세요.
 using System.Data;
 using WYNLAB.Base;
@@ -18,6 +18,9 @@ public partial class frmEmpList : BaseForm
 
         Controls.Add(BuildScreenHeader());
 
+        txtDeptNm.MapField("DEPT_ID", txtDeptId);
+
+
         gvw1.Role = GridRoleWyn.Edit;
         gvw1.HighlightFocusedRow = true;
         gvw1.RowAdd += (s, e) => gvw1.AddNewRow();
@@ -36,8 +39,8 @@ public partial class frmEmpList : BaseForm
         var p = new Dictionary<string, string?>
         {
             ["p_work_type"] = "Q",
-            ["p_emp_no"] = txtEmpNo.Text,
-            ["p_dept_cd"] = txtDeptCd.Text,
+            ["p_dept_id"] = string.IsNullOrWhiteSpace(txtDeptId.Text) ? null : txtDeptId.Text,
+            ["p_emp_nm"] = string.IsNullOrWhiteSpace(txtEmpNm.Text) ? null : txtEmpNm.Text.Trim(),
         };
         _list = await QueryAsync("USP_BA_EMPLIST_Q", p);
         grd1.DataSource = _list;

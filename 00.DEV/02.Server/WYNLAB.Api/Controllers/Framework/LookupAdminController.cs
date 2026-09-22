@@ -1,5 +1,7 @@
+using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using WYNLAB.Api.Controllers;
 using WYNLAB.Api.Authorization;
 using WYNLAB.Api.Repositories;
 using WYNLAB.Api.Repositories.Framework;
@@ -15,7 +17,7 @@ namespace WYNLAB.Api.Controllers.Framework;
 /// 두 곳에 복붙하지 않기 위함. 메뉴권한은 이 화면(SYS_LOOKUP) 것을 건다 - PopupAdminController와
 /// 권한이 분리되어 있어야 한쪽 화면 권한만 가진 사람이 다른 관리화면 기능까지 쓰게 되는 걸 막는다.
 /// sysLookupM/P 자체의 조회/저장은 새 컨트롤러 없이 기존 범용 데이터 통로(api/data/*)를 그대로
-/// 쓴다 - USP_SYS_LOOKUP_Q/_S가 다른 화면들과 똑같은 방식으로 동작하기 때문.
+/// 쓴다 - SSP_SYS_LOOKUP_Q/_S가 다른 화면들과 똑같은 방식으로 동작하기 때문.
 /// </summary>
 [ApiController]
 [Route("api/lookup-admin")]
@@ -104,4 +106,99 @@ public class LookupAdminController : ControllerBase
 
         return Ok(result);
     }
+
+    public class GenerateMinorLookupRequest
+    {
+        public string MajorCd { get; set; } = string.Empty;
+    }
+
+    /// <summary>frmMinorCode(대분류/소분류 등록)의 "LookUp생성" 버튼 - 지금 화면에 표시된
+    /// 대분류 하나의 소분류 목록을 그대로 골라 쓸 수 있는 LookUp을 sysLookupM/C에 자동으로
+    /// 만들어준다(2026-09-09 요청). lookup_key는 항상 "L_"+major_cd - 이미 같은 이름이 있으면
+    /// 지우고 다시 만든다(대분류명이나 소분류 구성이 바뀐 뒤 다시 눌러도 항상 최신 상태가 되게).
+    /// 기존 L_BA0001과 완전히 같은 구조(source_type='Q', TSMMINOR 조회, value_field=minor_cd/
+    /// display_field=minor_nm, 코드/코드명 2열 컬럼 구성)로 만들되 WHERE절의 major_cd 리터럴만
+    /// 이 대분류 값으로 바꾼다.
+    ///
+    /// frmMinorCode(SM)이 아니라 이 화면(SYS_LOOKUP)의 메뉴권한을 건다 - 클래스 설명대로
+    /// LookUp관리는 이 컨트롤러 전체가 SYS_LOOKUP 화면 권한자만 쓸 수 있어야 하는 기능이라(Developer
+    /// Tool 하위 기능), 트리거 버튼이 다른 화면(frmMinorCode)에 있다고 해서 그 화면 권한만으로
+    /// sysLookupM/C를 쓸 수 있게 하면 이 컨트롤러의 권한 경계가 무너진다. 그래서 클라이언트도
+    /// 이 화면 권한이 실린 범용 데이터 통로(BaseForm.SaveAsync, 메뉴별 PROC_PREFIX 화이트리스트)를
+    /// 안 쓰고 이 전용 엔드포인트를 직접 부른다 - SSP_SYS_LOOKUP_S/_S_2도 여기서 서버 코드가
+    /// 직접 고른 이름으로만 호출하므로(사용자가 프로시저명을 못 정함) 화이트리스트가 굳이 없어도
+    /// 안전하다.</summary>
+    [HttpPost("generate-minor-lookup")]
+    [RequireMenuPermission("SYS", "frmSysLookup", MenuAction.Insert)]
+    public async Task<ActionResult<ApiResult>> GenerateMinorLookup([FromBody] GenerateMinorLookupRequest request)
+    {
+        var majorCd = request.MajorCd?.Trim().ToUpperInvariant() ?? string.Empty;
+        if (majorCd.Length == 0)
+            return BadRequest(new ApiResult { Success = false, Message = "대분류코드가 없습니다." });
+
+        var lookupKey = "L_" + majorCd;
+
+        var majorRows = await _dataRepo.QueryRawAsync(
+            "SELECT major_nm FROM TSMMAJOR WHERE major_cd = @p_major_cd",
+            new Dictionary<string, string?> { ["p_major_cd"] = majorCd });
+        var majorNm = majorRows.Tables.Count > 0 && majorRows.Tables[0].Rows.Count > 0
+            ? Convert.ToString(majorRows.Tables[0].Rows[0].GetValueOrDefault("major_nm")) ?? lookupKey
+            : lookupKey;
+
+        // 같은 이름의 LookUp이 이미 있으면 지운다 - SSP_SYS_LOOKUP_S의 D 분기는 sysLookupC/P/M을
+        // 순서대로 지우고, 대상이 없어도(0건) 에러 없이 그냥 넘어간다.
+        await _dataRepo.SaveAsync("SSP_SYS_LOOKUP_S",
+            new Dictionary<string, string?> { ["p_work_type"] = "D", ["p_lookup_key"] = lookupKey },
+            CurrentUserId, ClientPc);
+
+        var queryTxt =
+            "SELECT   minor_cd, \r\n" +
+            "            minor_nm \r\n" +
+            "FROM TSMMINOR\r\n" +
+            $"WHERE major_cd= '{majorCd}'\r\n" +
+            "AND     use_yn = 'Y'\r\n" +
+            "Order by sort, minor_nm";
+
+        var createResult = await _dataRepo.SaveAsync("SSP_SYS_LOOKUP_S", new Dictionary<string, string?>
+        {
+            ["p_work_type"] = "N",
+            ["p_lookup_key"] = lookupKey,
+            ["p_source_type"] = "Q",
+            ["p_query_txt"] = queryTxt,
+            ["p_lookup_nm"] = majorNm,
+            ["p_value_field"] = "minor_cd",
+            ["p_display_field"] = "minor_nm",
+            ["p_use_yn"] = "Y"
+        }, CurrentUserId, ClientPc);
+
+        if (!createResult.IsSuccess)
+            return Ok(new ApiResult { Success = false, Message = createResult.FailMessage, ErrorCode = createResult.ErrorCode });
+
+        // L_BA0001과 같은 컬럼 구성(코드/코드명 2열, 코드는 폭 0=숨김) - 실패해도 LookUp 자체는
+        // 이미 만들어졌으니 조용히 넘어간다(컬럼 구성이 없으면 값/표시필드 2컬럼 고정으로 그려질
+        // 뿐이라 화면이 못 쓰게 되지는 않는다, LookUpEditWyn.LoadFromLookupKeyAsync 참고).
+        await _dataRepo.SaveAsync("SSP_SYS_LOOKUP_S_2", new Dictionary<string, string?>
+        {
+            ["p_work_type"] = "N",
+            ["p_lookup_key"] = lookupKey,
+            ["p_column_nm"] = "minor_cd",
+            ["p_caption"] = "코드",
+            ["p_sort"] = "1",
+            ["p_width"] = "0"
+        }, CurrentUserId, ClientPc);
+        await _dataRepo.SaveAsync("SSP_SYS_LOOKUP_S_2", new Dictionary<string, string?>
+        {
+            ["p_work_type"] = "N",
+            ["p_lookup_key"] = lookupKey,
+            ["p_column_nm"] = "minor_nm",
+            ["p_caption"] = "코드명",
+            ["p_sort"] = "2",
+            ["p_width"] = "100"
+        }, CurrentUserId, ClientPc);
+
+        return Ok(new ApiResult { Success = true, Message = $"LookUp [{lookupKey}]이(가) 생성되었습니다.", GeneratedCode = lookupKey });
+    }
+
+    private string CurrentUserId => User.FindFirstValue(ClaimTypes.NameIdentifier) ?? string.Empty;
+    private string? ClientPc => ClientPcInfo.Build(HttpContext);
 }

@@ -18,6 +18,11 @@ public static class UiTheme
     public static Color TreeLeafBackColor { get; set; } = ColorHelper.FromHex("#FFFFFF");
     public static Color TreeLeafForeColor { get; set; } = ColorHelper.FromHex("#373737");
 
+    /// <summary>메뉴 트리 최상위(MENU_LEVEL=1, "모듈" - SM/BA/MA 같은 업무영역 자체) 행의
+    /// 배경색 - 그 아래 중간 폴더(TreeGroupBackColor)보다 한 단계 더 눈에 띄게 한다(2026-09-16
+    /// 요청, "silver").</summary>
+    public static Color TreeModuleBackColor { get; set; } = ColorHelper.FromHex("#C0C0C0");
+
     /// <summary>화면명 아래 구분선(PanelWyn.Style = TitleDivider) 색상.</summary>
     public static Color DividerColor { get; set; } = ColorHelper.FromHex("#E4E5E8");
 

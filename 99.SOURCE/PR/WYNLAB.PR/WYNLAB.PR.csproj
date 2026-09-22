@@ -83,6 +83,11 @@
       <HintPath>..\..\..\00.DEV\03.Shared\WYNLAB.Shared\bin\Debug\netstandard2.0\WYNLAB.Shared.dll</HintPath>
       <Private>false</Private>
     </Reference>
+    <!-- 파일첨부/전자결재 등 공용 팝업(어떤 모듈에도 속하지 않는 화면) - 00.DEV/MODULE_ARCHITECTURE.md -->
+    <Reference Include="WYNLAB.Popup">
+      <HintPath>..\..\POPUP\WYNLAB.Popup\bin\Debug\net48\WYNLAB.Popup.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
   </ItemGroup>
 
   <!-- SDK 스타일 프로젝트는 보통 이름만 맞으면 "이건 이미 다 자동 인식되는" 파일도 있지만,

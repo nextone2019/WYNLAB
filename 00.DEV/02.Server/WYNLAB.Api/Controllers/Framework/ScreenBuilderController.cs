@@ -62,4 +62,23 @@ public class ScreenBuilderController : ControllerBase
         var result = await _repo.DescribeUspProcMultiAsync(request.ProcName, request.WorkType);
         return Ok(result);
     }
+
+    public class ProcWorkTypesRequest
+    {
+        public string ProcName { get; set; } = string.Empty;
+    }
+
+    /// <summary>프로시저를 실행하지 않고 소스 텍스트에서 "@p_work_type = 'X'" 리터럴만 찾아
+    /// work_type 후보 목록을 돌려준다 - AI Builder "레코드셋 조회"가 계획 그리드에 WorkType을
+    /// 비워둔 행을 만나면 이걸 먼저 불러서 Q/Q1/... 각각을 자동으로 describe한다.</summary>
+    [HttpPost("proc-work-types")]
+    [RequireMenuPermission("SYS", "frmAIBuilder", MenuAction.View)]
+    public async Task<ActionResult<ProcWorkTypesResultDto>> ProcWorkTypes([FromBody] ProcWorkTypesRequest request)
+    {
+        if (string.IsNullOrWhiteSpace(request.ProcName) || !request.ProcName.StartsWith("USP_", StringComparison.OrdinalIgnoreCase))
+            return BadRequest(new ApiResult { Success = false, Message = "USP_로 시작하는 프로시저만 지정할 수 있습니다." });
+
+        var workTypes = await _repo.ListProcWorkTypesAsync(request.ProcName);
+        return Ok(new ProcWorkTypesResultDto { WorkTypes = workTypes });
+    }
 }

@@ -1,5 +1,6 @@
 using System.ComponentModel;
 using System.Text.Json;
+using WYNLAB.Shared.Dtos;
 
 namespace WYNLAB.Base;
 
@@ -20,13 +21,40 @@ public static class AppConfig
     private static readonly string UserSitesPath = Path.Combine(
         Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "WYNLAB", "sites.json");
 
-    public static string CurrentEnvironment => _currentEnvironment ??= _config.Value.DefaultEnvironment;
+    /// <summary>마지막으로 로그인 화면에서 선택했던 서비스 이름 하나만 저장하는 파일 - sites.json과
+    /// 형식을 섞지 않으려고 따로 둔다(2026-09-14, "다음 로그인 때 마지막 접속 서비스가 선택돼
+    /// 있어야 한다"는 요청으로 추가). 이 값 자체는 CurrentEnvironment 하나뿐이라 JSON으로 감쌀
+    /// 필요 없이 이름만 그대로 텍스트로 저장한다.</summary>
+    private static readonly string LastEnvironmentPath = Path.Combine(
+        Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "WYNLAB", "last-environment.txt");
+
+    public static string CurrentEnvironment => _currentEnvironment ??= LoadLastUsedEnvironmentOrDefault();
 
     /// <summary>appsettings.json에 내장된 기본 서비스(일반 사용자용 Prod/Test 등) + 사용자가
     /// 이 PC에서 직접 추가한 서비스(개발자가 여러 고객사 서버를 오갈 때 씀, AddSite 참고)를
-    /// 합쳐서 보여준다. 후자는 재배포 없이 실행 중에 자유롭게 추가/삭제할 수 있다.</summary>
-    public static IReadOnlyList<string> AvailableEnvironments =>
-        _config.Value.Environments.Keys.Concat(_userSites.Value.Select(s => s.Name)).ToList();
+    /// 합쳐서 보여준다. 후자는 재배포 없이 실행 중에 자유롭게 추가/삭제할 수 있다.
+    ///
+    /// 내장 서비스를 OverrideBuiltin으로 직접 수정한 경우, 그 원래 이름은 목록에서 빠진다(자기
+    /// 자신을 오버라이드한 사용자 서비스가 그 자리를 대신하므로 - 2026-09-13, "개발자 혼자 쓰는
+    /// PC라 회사 공통이라는 구분이 의미 없다, Development/Production도 자유롭게 고쳐 쓸 수
+    /// 있어야 한다"는 요청으로 도입). 이름을 바꿔서 오버라이드했다면(예: Production -> A사)
+    /// 원래 이름은 완전히 안 보이고 새 이름만 보인다 - 그 오버라이드 항목을 삭제하면
+    /// OverridesBuiltin 덕분에 원래 이름이 자동으로 다시 나타난다(RemoveSite 참고).</summary>
+    public static IReadOnlyList<string> AvailableEnvironments
+    {
+        get
+        {
+            var overridden = _userSites.Value
+                .Where(s => s.OverridesBuiltin != null)
+                .Select(s => s.OverridesBuiltin!)
+                .ToHashSet();
+
+            return _config.Value.Environments.Keys
+                .Where(k => !overridden.Contains(k))
+                .Concat(_userSites.Value.Select(s => s.Name))
+                .ToList();
+        }
+    }
 
     /// <summary>사용자가 이 PC에서 직접 추가한 서비스 목록(appsettings.json 내장분 제외) -
     /// 서비스 관리 화면에서 목록 표시/삭제용으로 쓴다.</summary>
@@ -102,8 +130,38 @@ public static class AppConfig
             throw new ArgumentException($"'{environmentName}' 환경은 등록되어 있지 않습니다.");
 
         _currentEnvironment = environmentName;
+        SaveLastUsedEnvironment(environmentName);
         ApiClient.Reconfigure(ApiBaseUrl);
         EnvironmentChanged?.Invoke();
+    }
+
+    /// <summary>last-environment.txt에 저장된 이름을 읽어온다 - 아직 없거나(최초 실행), 저장된
+    /// 이름이 그 사이 삭제/이름변경돼서 더 이상 존재하지 않으면 DefaultEnvironment로 조용히
+    /// 대체한다(파일이 깨져 있어도 앱 시작 자체는 막지 않는다, LoadUserSites와 같은 방침).</summary>
+    private static string LoadLastUsedEnvironmentOrDefault()
+    {
+        try
+        {
+            if (File.Exists(LastEnvironmentPath))
+            {
+                var saved = File.ReadAllText(LastEnvironmentPath).Trim();
+                if (!string.IsNullOrEmpty(saved) && AvailableEnvironments.Contains(saved))
+                    return saved;
+            }
+        }
+        catch { }
+        return _config.Value.DefaultEnvironment;
+    }
+
+    private static void SaveLastUsedEnvironment(string name)
+    {
+        try
+        {
+            var dir = Path.GetDirectoryName(LastEnvironmentPath)!;
+            Directory.CreateDirectory(dir);
+            File.WriteAllText(LastEnvironmentPath, name);
+        }
+        catch { }
     }
 
     /// <summary>
@@ -129,11 +187,84 @@ public static class AppConfig
         SitesChanged?.Invoke();
     }
 
-    /// <summary>사용자가 추가한 서비스만 삭제 가능 - 내장 서비스는 이름을 안 찾으므로 조용히 무시된다.</summary>
+    /// <summary>appsettings.json 내장 서비스를 이 PC에서만 직접 덮어쓴다(값뿐 아니라 이름도
+    /// 바꿀 수 있다 - 예: Production -> A사). 회사 전체가 appsettings.json을 공유하던 "여러
+    /// 사용자" 전제와 달리, 개발자 1명이 여러 고객사(A사/B사...) 서버를 오가며 쓰는 이 PC에서는
+    /// Development/Production 같은 내장 이름도 자유롭게 재정의할 수 있어야 한다는 요청으로
+    /// 추가함(2026-09-13). 결과물은 평범한 UserSiteEntry라서, 이후 재수정은 UpdateSite가 그대로
+    /// 처리한다 - OverridesBuiltin만 원본 이름을 계속 기억해서 나중에 삭제하면 그 원본이 다시
+    /// 나타나게(AvailableEnvironments 참고) 해준다.</summary>
+    public static void OverrideBuiltin(string builtinName, string newName, string apiBaseUrl, string modulesPath, string coreAssemblyPath, string assetsPath)
+    {
+        if (!_config.Value.Environments.ContainsKey(builtinName))
+            throw new ArgumentException($"'{builtinName}'은(는) 내장 서비스가 아닙니다.");
+        if (string.IsNullOrWhiteSpace(newName)) throw new ArgumentException("이름을 입력해주세요.");
+        if (string.IsNullOrWhiteSpace(apiBaseUrl)) throw new ArgumentException("API 주소를 입력해주세요.");
+        if (newName != builtinName && (_config.Value.Environments.ContainsKey(newName) || IsUserSite(newName)))
+            throw new ArgumentException($"'{newName}'은(는) 이미 등록되어 있습니다.");
+
+        var wasCurrent = CurrentEnvironment == builtinName;
+
+        _userSites.Value.Add(new UserSiteEntry
+        {
+            Name = newName,
+            ApiBaseUrl = apiBaseUrl,
+            ModulesPath = modulesPath,
+            CoreAssemblyPath = coreAssemblyPath,
+            AssetsPath = assetsPath,
+            OverridesBuiltin = builtinName
+        });
+        SaveUserSites();
+
+        if (wasCurrent) _currentEnvironment = newName;
+        SitesChanged?.Invoke();
+    }
+
+    /// <summary>사용자가 추가/오버라이드한 서비스를 삭제한다 - 아직 한 번도 안 건드린 순수 내장
+    /// 서비스는 여기서 못 찾으므로 조용히 무시된다. 지운 항목이 OverrideBuiltin으로 만들어진
+    /// 것이었다면, 그 원래 내장 이름은 별도 조치 없이도 AvailableEnvironments에 자동으로 다시
+    /// 나타난다(오버라이드 항목 자체가 없어졌으므로) - "덮어쓰기를 지우면 원래 기본값으로
+    /// 돌아간다"는 직관과 맞아떨어진다.</summary>
     public static void RemoveSite(string name)
     {
         if (_userSites.Value.RemoveAll(s => s.Name == name) == 0) return;
         SaveUserSites();
+        SitesChanged?.Invoke();
+
+        // 지금 접속 중인 환경이 방금 지워졌다면(사용자가 자기가 접속한 서비스를 스스로
+        // 삭제한 경우) CurrentEnvironment가 더 이상 존재하지 않는 이름을 가리키게 되어
+        // ResolveCurrent()가 다음 접근에서 예외를 던진다 - 기본 환경으로 되돌린다.
+        if (_currentEnvironment == name) _currentEnvironment = _config.Value.DefaultEnvironment;
+    }
+
+    /// <summary>사용자가 추가/오버라이드한 서비스의 접속 정보를 수정한다(이름 변경 포함) - 아직
+    /// appsettings.json 내장 상태 그대로인 항목은 여기서 못 찾으므로 조용히 무시된다(그런
+    /// 경우는 OverrideBuiltin을 먼저 써야 함 - SiteManagerForm이 IsUserSite로 둘을 구분해서
+    /// 알아서 호출한다). 이름을 바꾸는 경우, 그 새 이름이 다른 항목과 겹치지 않는지도
+    /// 확인한다(자기 자신과 겹치는 건 당연히 허용).</summary>
+    public static void UpdateSite(string oldName, string newName, string apiBaseUrl, string modulesPath, string coreAssemblyPath, string assetsPath)
+    {
+        var site = _userSites.Value.FirstOrDefault(s => s.Name == oldName);
+        if (site == null) return;
+
+        if (string.IsNullOrWhiteSpace(newName)) throw new ArgumentException("이름을 입력해주세요.");
+        if (string.IsNullOrWhiteSpace(apiBaseUrl)) throw new ArgumentException("API 주소를 입력해주세요.");
+        if (newName != oldName && (_config.Value.Environments.ContainsKey(newName) || IsUserSite(newName)))
+            throw new ArgumentException($"'{newName}'은(는) 이미 등록되어 있습니다.");
+
+        var wasCurrent = CurrentEnvironment == oldName;
+
+        site.Name = newName;
+        site.ApiBaseUrl = apiBaseUrl;
+        site.ModulesPath = modulesPath;
+        site.CoreAssemblyPath = coreAssemblyPath;
+        site.AssetsPath = assetsPath;
+        SaveUserSites();
+
+        // 지금 접속 중인 서비스 자신을 수정한 경우, 새 이름으로 계속 그 서비스를 가리키게
+        // 한다(이름이 안 바뀌었으면 이 대입은 그냥 같은 값을 다시 쓰는 것뿐이라 무해함).
+        if (wasCurrent) _currentEnvironment = newName;
+
         SitesChanged?.Invoke();
     }
 
@@ -141,14 +272,28 @@ public static class AppConfig
     /// 접속 정보를 돌려준다.</summary>
     private static (string ApiBaseUrl, string ModulesPath, string CoreAssemblyPath, string AssetsPath) ResolveCurrent()
     {
-        if (_config.Value.Environments.TryGetValue(CurrentEnvironment, out var env))
-            return (env.ApiBaseUrl, env.ModulesPath, env.CoreAssemblyPath, env.AssetsPath);
+        var info = GetSiteInfo(CurrentEnvironment);
+        if (info != null) return info.Value;
 
-        var site = _userSites.Value.FirstOrDefault(s => s.Name == CurrentEnvironment);
+        throw new InvalidOperationException($"'{CurrentEnvironment}' 환경 설정을 찾을 수 없습니다.");
+    }
+
+    /// <summary>지금 접속 중인 환경인지와 무관하게, 이름 하나(내장이든 사용자 추가든)로 접속
+    /// 정보를 조회한다 - SiteManagerForm이 "회사 공통" 항목을 클릭했을 때도 값을 보여주려고
+    /// 추가했다(예전엔 ResolveCurrent가 CurrentEnvironment 전용이라 "지금 안 쓰는 회사 공통
+    /// 항목의 값을 미리 들여다보기"가 불가능했다 - 2026-09-13). 사용자 서비스를 내장 목록보다
+    /// 먼저 확인한다 - OverrideBuiltin으로 만든 항목(이름이 안 바뀐 경우 내장과 이름이 같음)이
+    /// 내장 원본이 아니라 사용자가 고친 값으로 조회되어야 하므로.</summary>
+    public static (string ApiBaseUrl, string ModulesPath, string CoreAssemblyPath, string AssetsPath)? GetSiteInfo(string name)
+    {
+        var site = _userSites.Value.FirstOrDefault(s => s.Name == name);
         if (site != null)
             return (site.ApiBaseUrl, site.ModulesPath, site.CoreAssemblyPath, site.AssetsPath);
 
-        throw new InvalidOperationException($"'{CurrentEnvironment}' 환경 설정을 찾을 수 없습니다.");
+        if (_config.Value.Environments.TryGetValue(name, out var env))
+            return (env.ApiBaseUrl, env.ModulesPath, env.CoreAssemblyPath, env.AssetsPath);
+
+        return null;
     }
 
     private static List<UserSiteEntry> LoadUserSites()
@@ -232,6 +377,7 @@ public static class AppConfig
         UiTheme.TreeGroupForeColor = ColorHelper.FromHex(theme.TreeGroupForeColor);
         UiTheme.TreeLeafBackColor = ColorHelper.FromHex(theme.TreeLeafBackColor);
         UiTheme.TreeLeafForeColor = ColorHelper.FromHex(theme.TreeLeafForeColor);
+        UiTheme.TreeModuleBackColor = ColorHelper.FromHex(theme.TreeModuleBackColor);
         UiTheme.DividerColor = ColorHelper.FromHex(theme.DividerColor);
         UiTheme.CardBackColor = ColorHelper.FromHex(theme.CardBackColor);
         UiTheme.CardBorderColor = ColorHelper.FromHex(theme.CardBorderColor);
@@ -241,6 +387,29 @@ public static class AppConfig
         UiTheme.GridHeaderForeColor = ColorHelper.FromHex(theme.GridHeaderForeColor);
         UiTheme.GridFocusedRowBackColor = ColorHelper.FromHex(theme.GridFocusedRowBackColor);
         UiTheme.SplitterBackColor = ColorHelper.FromHex(theme.SplitterBackColor);
+    }
+
+    /// <summary>frmSiteConfig(사이트환경설정 > 비밀번호 정책 > 세션)에서 관리자가 지정한
+    /// 자리비움 잠금화면 시간(분) - NULL/0이면 잠금 기능 비활성. ShellForm의 유휴감지 타이머가
+    /// 이 값을 읽는다. ApplySiteConfigTheme과 같은 자리(로그인 직후 1회)에서 채워진다.</summary>
+    public static int? IdleTimeoutMinutes { get; set; }
+
+    /// <summary>frmSiteConfig(사이트환경설정 > 색상)에서 개발자가 배포 시 지정한 값을
+    /// appsettings.json의 Theme 위에 덮어쓴다 - DB 값이 appsettings.json보다 우선한다.
+    /// 필드가 NULL(미지정)이면 appsettings.json 값을 그대로 둔다. 로그인 성공 직후
+    /// (Program.cs, ShellForm 생성 전)에 한 번 호출된다 - SiteThemeSync.ApplyFromServer 참고.</summary>
+    public static void ApplySiteConfigTheme(RuntimeSiteConfigDto dto)
+    {
+        IdleTimeoutMinutes = dto.IdleTimeoutMinutes;
+        // net48의 string.IsNullOrWhiteSpace엔 [NotNullWhen(false)]가 없어(.NET Core+ 전용) 아래
+        // 가드로 이미 null이 아님을 확인했는데도 컴파일러가 못 알아채고 매번 CS8604로 경고한다 -
+        // 전부 안전하다.
+        if (!string.IsNullOrWhiteSpace(dto.RequiredFieldBackColor)) UiTheme.RequiredFieldBackColor = ColorHelper.FromHex(dto.RequiredFieldBackColor!);
+        if (!string.IsNullOrWhiteSpace(dto.GridHeaderBackColor)) UiTheme.GridHeaderBackColor = ColorHelper.FromHex(dto.GridHeaderBackColor!);
+        if (!string.IsNullOrWhiteSpace(dto.GridFocusedRowBackColor)) UiTheme.GridFocusedRowBackColor = ColorHelper.FromHex(dto.GridFocusedRowBackColor!);
+        if (!string.IsNullOrWhiteSpace(dto.TreeGroupBackColor)) UiTheme.TreeGroupBackColor = ColorHelper.FromHex(dto.TreeGroupBackColor!);
+        if (!string.IsNullOrWhiteSpace(dto.DividerColor)) UiTheme.DividerColor = ColorHelper.FromHex(dto.DividerColor!);
+        if (!string.IsNullOrWhiteSpace(dto.BrandColor)) ApplyBrandDerivedTheme(dto.BrandColor!);
     }
 
     private class ClientConfig
@@ -273,6 +442,12 @@ public class UserSiteEntry
     public string ModulesPath { get; set; } = "Modules";
     public string CoreAssemblyPath { get; set; } = string.Empty;
     public string AssetsPath { get; set; } = string.Empty;
+
+    /// <summary>이 항목이 appsettings.json 내장 서비스를 OverrideBuiltin으로 덮어써서 만들어진
+    /// 경우, 그 원래 내장 이름(예: "Production") - Name 자체를 다른 이름으로 바꿔 저장해도
+    /// (예: "A사") 이 값은 원본을 계속 가리킨다. 이 항목을 삭제하면 그 원래 내장 이름이
+    /// AvailableEnvironments에 다시 나타난다. 순수하게 새로 추가한 서비스는 null.</summary>
+    public string? OverridesBuiltin { get; set; }
 }
 
 /// <summary>
@@ -298,6 +473,10 @@ public class UiThemeConfig
     /// <summary>트리 화면에서 실제로 클릭해서 이동 가능한 화면(leaf) 행의 배경/글자색</summary>
     public string TreeLeafBackColor { get; set; } = "#FFFFFF";
     public string TreeLeafForeColor { get; set; } = "#373737";
+
+    /// <summary>메뉴 트리 최상위(MENU_LEVEL=1, "모듈") 행의 배경색 - TreeGroupBackColor보다
+    /// 한 단계 더 진하게 해서 중간 폴더와 구분한다.</summary>
+    public string TreeModuleBackColor { get; set; } = "#C0C0C0";
 
     /// <summary>화면명 아래 구분선(PanelWyn.Style = TitleDivider) 색상</summary>
     public string DividerColor { get; set; } = "#E4E5E8";

@@ -48,6 +48,7 @@ public partial class frmMinorCode
             this.sectionHeaderWyn2 = new WYNLAB.Base.Controls.SectionHeaderWyn();
             this.panelWyn5 = new WYNLAB.Base.Controls.PanelWyn();
             this.panData = new WYNLAB.Base.Controls.PanelWyn();
+            this.btnLookUp = new WYNLAB.Base.Controls.ButtonWyn();
             this.cborel_cd_type10 = new WYNLAB.Base.Controls.LookUpEditWyn();
             this.cborel_cd_type6 = new WYNLAB.Base.Controls.LookUpEditWyn();
             this.cborel_cd_type9 = new WYNLAB.Base.Controls.LookUpEditWyn();
@@ -174,6 +175,7 @@ public partial class frmMinorCode
             // panBase
             // 
             this.panBase.Appearance.BackColor = System.Drawing.Color.White;
+            this.panBase.Appearance.Options.UseBackColor = true;
             this.panBase.Controls.Add(this.panelWyn3);
             this.panBase.Controls.Add(this.panHeader);
             this.panBase.Controls.Add(this.paTitle);
@@ -192,9 +194,9 @@ public partial class frmMinorCode
             this.panelWyn3.Controls.Add(this.panelWyn8);
             this.panelWyn3.Dock = System.Windows.Forms.DockStyle.Fill;
             this.panelWyn3.EdgeLineColor = System.Drawing.Color.FromArgb(((int)(((byte)(228)))), ((int)(((byte)(229)))), ((int)(((byte)(232)))));
-            this.panelWyn3.Location = new System.Drawing.Point(3, 82);
+            this.panelWyn3.Location = new System.Drawing.Point(3, 71);
             this.panelWyn3.Name = "panelWyn3";
-            this.panelWyn3.Size = new System.Drawing.Size(1159, 515);
+            this.panelWyn3.Size = new System.Drawing.Size(1159, 526);
             this.panelWyn3.TabIndex = 7;
             // 
             // panelWyn4
@@ -207,18 +209,23 @@ public partial class frmMinorCode
             this.panelWyn4.Location = new System.Drawing.Point(412, 0);
             this.panelWyn4.Name = "panelWyn4";
             this.panelWyn4.Padding = new System.Windows.Forms.Padding(3, 0, 0, 0);
-            this.panelWyn4.Size = new System.Drawing.Size(747, 515);
+            this.panelWyn4.Size = new System.Drawing.Size(747, 526);
             this.panelWyn4.TabIndex = 7;
             // 
             // grd2
             // 
             this.grd2.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.grd2.EmbeddedNavigator.Buttons.Append.Visible = false;
+            this.grd2.EmbeddedNavigator.Buttons.CancelEdit.Visible = false;
+            this.grd2.EmbeddedNavigator.Buttons.Edit.Visible = false;
+            this.grd2.EmbeddedNavigator.Buttons.EndEdit.Visible = false;
+            this.grd2.EmbeddedNavigator.Buttons.Remove.Visible = false;
             this.grd2.Location = new System.Drawing.Point(3, 245);
             this.grd2.MainView = this.gvw2;
             this.grd2.Name = "grd2";
             this.grd2.RepositoryItems.AddRange(new DevExpress.XtraEditors.Repository.RepositoryItem[] {
             this.repositoryItemCheckEdit1});
-            this.grd2.Size = new System.Drawing.Size(744, 270);
+            this.grd2.Size = new System.Drawing.Size(744, 281);
             this.grd2.TabIndex = 7;
             this.grd2.ViewCollection.AddRange(new DevExpress.XtraGrid.Views.Base.BaseView[] {
             this.gvw2});
@@ -234,6 +241,8 @@ public partial class frmMinorCode
             this.gvw2.GridControl = this.grd2;
             this.gvw2.HighlightFocusedRow = true;
             this.gvw2.Name = "gvw2";
+            this.gvw2.OptionsBehavior.Editable = false;
+            this.gvw2.OptionsClipboard.PasteMode = DevExpress.Export.PasteMode.None;
             this.gvw2.OptionsView.ColumnAutoWidth = false;
             this.gvw2.OptionsView.ShowGroupPanel = false;
             // 
@@ -318,11 +327,16 @@ public partial class frmMinorCode
             // btnDeletRow2
             // 
             this.btnDeletRow2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnDeletRow2.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(253)))), ((int)(((byte)(236)))), ((int)(((byte)(234)))));
+            this.btnDeletRow2.BackColor = System.Drawing.Color.Transparent;
             this.btnDeletRow2.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(245)))), ((int)(((byte)(198)))), ((int)(((byte)(193)))));
-            this.btnDeletRow2.Image = ((System.Drawing.Image)(resources.GetObject("btnDeletRow2.ImageOptions.Image")));
+            this.btnDeletRow2.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.btnDeletRow2.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(253)))), ((int)(((byte)(236)))), ((int)(((byte)(234)))));
+            this.btnDeletRow2.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(51)))), ((int)(((byte)(51)))), ((int)(((byte)(51)))));
+            this.btnDeletRow2.HoverColor = System.Drawing.Color.FromArgb(((int)(((byte)(240)))), ((int)(((byte)(245)))), ((int)(((byte)(255)))));
+            this.btnDeletRow2.Image = ((System.Drawing.Image)(resources.GetObject("btnDeletRow2.Image")));
             this.btnDeletRow2.Location = new System.Drawing.Point(42, 2);
             this.btnDeletRow2.Name = "btnDeletRow2";
+            this.btnDeletRow2.PressedColor = System.Drawing.Color.FromArgb(((int)(((byte)(225)))), ((int)(((byte)(235)))), ((int)(((byte)(253)))));
             this.btnDeletRow2.Size = new System.Drawing.Size(24, 22);
             this.btnDeletRow2.TabIndex = 0;
             this.btnDeletRow2.Text = "";
@@ -332,11 +346,16 @@ public partial class frmMinorCode
             // btnAddRow2
             // 
             this.btnAddRow2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnAddRow2.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(228)))), ((int)(((byte)(245)))), ((int)(((byte)(231)))));
+            this.btnAddRow2.BackColor = System.Drawing.Color.Transparent;
             this.btnAddRow2.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(198)))), ((int)(((byte)(231)))), ((int)(((byte)(203)))));
-            this.btnAddRow2.Image = ((System.Drawing.Image)(resources.GetObject("btnAddRow2.ImageOptions.Image")));
+            this.btnAddRow2.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.btnAddRow2.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(228)))), ((int)(((byte)(245)))), ((int)(((byte)(231)))));
+            this.btnAddRow2.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(51)))), ((int)(((byte)(51)))), ((int)(((byte)(51)))));
+            this.btnAddRow2.HoverColor = System.Drawing.Color.FromArgb(((int)(((byte)(240)))), ((int)(((byte)(245)))), ((int)(((byte)(255)))));
+            this.btnAddRow2.Image = ((System.Drawing.Image)(resources.GetObject("btnAddRow2.Image")));
             this.btnAddRow2.Location = new System.Drawing.Point(10, 2);
             this.btnAddRow2.Name = "btnAddRow2";
+            this.btnAddRow2.PressedColor = System.Drawing.Color.FromArgb(((int)(((byte)(225)))), ((int)(((byte)(235)))), ((int)(((byte)(253)))));
             this.btnAddRow2.Size = new System.Drawing.Size(24, 22);
             this.btnAddRow2.TabIndex = 0;
             this.btnAddRow2.Text = "";
@@ -370,6 +389,7 @@ public partial class frmMinorCode
             // panData
             // 
             this.panData.BorderStyle = DevExpress.XtraEditors.Controls.BorderStyles.Default;
+            this.panData.Controls.Add(this.btnLookUp);
             this.panData.Controls.Add(this.cborel_cd_type10);
             this.panData.Controls.Add(this.cborel_cd_type6);
             this.panData.Controls.Add(this.cborel_cd_type9);
@@ -421,9 +441,29 @@ public partial class frmMinorCode
             this.panData.Size = new System.Drawing.Size(744, 191);
             this.panData.TabIndex = 8;
             // 
+            // btnLookUp
+            // 
+            this.btnLookUp.BackColor = System.Drawing.Color.Transparent;
+            this.btnLookUp.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(74)))), ((int)(((byte)(134)))), ((int)(((byte)(232)))));
+            this.btnLookUp.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.btnLookUp.FillColor = System.Drawing.Color.White;
+            this.btnLookUp.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(51)))), ((int)(((byte)(51)))), ((int)(((byte)(51)))));
+            this.btnLookUp.HoverColor = System.Drawing.Color.FromArgb(((int)(((byte)(240)))), ((int)(((byte)(245)))), ((int)(((byte)(255)))));
+            this.btnLookUp.Image = null;
+            this.btnLookUp.Location = new System.Drawing.Point(524, 13);
+            this.btnLookUp.Name = "btnLookUp";
+            this.btnLookUp.PressedColor = System.Drawing.Color.FromArgb(((int)(((byte)(225)))), ((int)(((byte)(235)))), ((int)(((byte)(253)))));
+            this.btnLookUp.Size = new System.Drawing.Size(116, 28);
+            this.btnLookUp.TabIndex = 32;
+            this.btnLookUp.Text = "LookUp생성";
+            this.btnLookUp.ToolTip = null;
+            this.btnLookUp.Click += new System.EventHandler(this.btnLookUp_Click);
+            // 
             // cborel_cd_type10
             // 
+            this.cborel_cd_type10.EditValue = "";
             this.cborel_cd_type10.Location = new System.Drawing.Point(524, 148);
+            this.cborel_cd_type10.LookupKey = "L_SM0001";
             this.cborel_cd_type10.Name = "cborel_cd_type10";
             this.cborel_cd_type10.Properties.Buttons.AddRange(new DevExpress.XtraEditors.Controls.EditorButton[] {
             new DevExpress.XtraEditors.Controls.EditorButton(DevExpress.XtraEditors.Controls.ButtonPredefines.Combo)});
@@ -433,7 +473,9 @@ public partial class frmMinorCode
             // 
             // cborel_cd_type6
             // 
+            this.cborel_cd_type6.EditValue = "";
             this.cborel_cd_type6.Location = new System.Drawing.Point(524, 44);
+            this.cborel_cd_type6.LookupKey = "L_SM0001";
             this.cborel_cd_type6.Name = "cborel_cd_type6";
             this.cborel_cd_type6.Properties.Buttons.AddRange(new DevExpress.XtraEditors.Controls.EditorButton[] {
             new DevExpress.XtraEditors.Controls.EditorButton(DevExpress.XtraEditors.Controls.ButtonPredefines.Combo)});
@@ -443,7 +485,9 @@ public partial class frmMinorCode
             // 
             // cborel_cd_type9
             // 
+            this.cborel_cd_type9.EditValue = "";
             this.cborel_cd_type9.Location = new System.Drawing.Point(524, 122);
+            this.cborel_cd_type9.LookupKey = "L_SM0001";
             this.cborel_cd_type9.Name = "cborel_cd_type9";
             this.cborel_cd_type9.Properties.Buttons.AddRange(new DevExpress.XtraEditors.Controls.EditorButton[] {
             new DevExpress.XtraEditors.Controls.EditorButton(DevExpress.XtraEditors.Controls.ButtonPredefines.Combo)});
@@ -453,7 +497,9 @@ public partial class frmMinorCode
             // 
             // cborel_cd_type5
             // 
+            this.cborel_cd_type5.EditValue = "";
             this.cborel_cd_type5.Location = new System.Drawing.Point(176, 148);
+            this.cborel_cd_type5.LookupKey = "L_SM0001";
             this.cborel_cd_type5.Name = "cborel_cd_type5";
             this.cborel_cd_type5.Properties.Buttons.AddRange(new DevExpress.XtraEditors.Controls.EditorButton[] {
             new DevExpress.XtraEditors.Controls.EditorButton(DevExpress.XtraEditors.Controls.ButtonPredefines.Combo)});
@@ -463,7 +509,9 @@ public partial class frmMinorCode
             // 
             // cborel_cd_type8
             // 
+            this.cborel_cd_type8.EditValue = "";
             this.cborel_cd_type8.Location = new System.Drawing.Point(524, 96);
+            this.cborel_cd_type8.LookupKey = "L_SM0001";
             this.cborel_cd_type8.Name = "cborel_cd_type8";
             this.cborel_cd_type8.Properties.Buttons.AddRange(new DevExpress.XtraEditors.Controls.EditorButton[] {
             new DevExpress.XtraEditors.Controls.EditorButton(DevExpress.XtraEditors.Controls.ButtonPredefines.Combo)});
@@ -473,7 +521,9 @@ public partial class frmMinorCode
             // 
             // cborel_cd_type4
             // 
+            this.cborel_cd_type4.EditValue = "";
             this.cborel_cd_type4.Location = new System.Drawing.Point(176, 122);
+            this.cborel_cd_type4.LookupKey = "L_SM0001";
             this.cborel_cd_type4.Name = "cborel_cd_type4";
             this.cborel_cd_type4.Properties.Buttons.AddRange(new DevExpress.XtraEditors.Controls.EditorButton[] {
             new DevExpress.XtraEditors.Controls.EditorButton(DevExpress.XtraEditors.Controls.ButtonPredefines.Combo)});
@@ -483,7 +533,9 @@ public partial class frmMinorCode
             // 
             // cborel_cd_type7
             // 
+            this.cborel_cd_type7.EditValue = "";
             this.cborel_cd_type7.Location = new System.Drawing.Point(524, 70);
+            this.cborel_cd_type7.LookupKey = "L_SM0001";
             this.cborel_cd_type7.Name = "cborel_cd_type7";
             this.cborel_cd_type7.Properties.Buttons.AddRange(new DevExpress.XtraEditors.Controls.EditorButton[] {
             new DevExpress.XtraEditors.Controls.EditorButton(DevExpress.XtraEditors.Controls.ButtonPredefines.Combo)});
@@ -493,7 +545,9 @@ public partial class frmMinorCode
             // 
             // cborel_cd_type3
             // 
+            this.cborel_cd_type3.EditValue = "";
             this.cborel_cd_type3.Location = new System.Drawing.Point(176, 96);
+            this.cborel_cd_type3.LookupKey = "L_SM0001";
             this.cborel_cd_type3.Name = "cborel_cd_type3";
             this.cborel_cd_type3.Properties.Buttons.AddRange(new DevExpress.XtraEditors.Controls.EditorButton[] {
             new DevExpress.XtraEditors.Controls.EditorButton(DevExpress.XtraEditors.Controls.ButtonPredefines.Combo)});
@@ -503,7 +557,9 @@ public partial class frmMinorCode
             // 
             // cborel_cd_type2
             // 
+            this.cborel_cd_type2.EditValue = "";
             this.cborel_cd_type2.Location = new System.Drawing.Point(176, 70);
+            this.cborel_cd_type2.LookupKey = "L_SM0001";
             this.cborel_cd_type2.Name = "cborel_cd_type2";
             this.cborel_cd_type2.Properties.Buttons.AddRange(new DevExpress.XtraEditors.Controls.EditorButton[] {
             new DevExpress.XtraEditors.Controls.EditorButton(DevExpress.XtraEditors.Controls.ButtonPredefines.Combo)});
@@ -513,7 +569,9 @@ public partial class frmMinorCode
             // 
             // cborel_cd_type1
             // 
+            this.cborel_cd_type1.EditValue = "";
             this.cborel_cd_type1.Location = new System.Drawing.Point(176, 44);
+            this.cborel_cd_type1.LookupKey = "L_SM0001";
             this.cborel_cd_type1.Name = "cborel_cd_type1";
             this.cborel_cd_type1.Properties.Buttons.AddRange(new DevExpress.XtraEditors.Controls.EditorButton[] {
             new DevExpress.XtraEditors.Controls.EditorButton(DevExpress.XtraEditors.Controls.ButtonPredefines.Combo)});
@@ -524,6 +582,7 @@ public partial class frmMinorCode
             // labelControl15
             // 
             this.labelControl15.Appearance.Font = new System.Drawing.Font("맑은 고딕", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
+            this.labelControl15.Appearance.Options.UseFont = true;
             this.labelControl15.Location = new System.Drawing.Point(381, 150);
             this.labelControl15.Name = "labelControl15";
             this.labelControl15.Size = new System.Drawing.Size(38, 15);
@@ -533,6 +592,7 @@ public partial class frmMinorCode
             // labelControl11
             // 
             this.labelControl11.Appearance.Font = new System.Drawing.Font("맑은 고딕", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
+            this.labelControl11.Appearance.Options.UseFont = true;
             this.labelControl11.Location = new System.Drawing.Point(388, 49);
             this.labelControl11.Name = "labelControl11";
             this.labelControl11.Size = new System.Drawing.Size(31, 15);
@@ -542,6 +602,7 @@ public partial class frmMinorCode
             // labelControl14
             // 
             this.labelControl14.Appearance.Font = new System.Drawing.Font("맑은 고딕", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
+            this.labelControl14.Appearance.Options.UseFont = true;
             this.labelControl14.Location = new System.Drawing.Point(388, 127);
             this.labelControl14.Name = "labelControl14";
             this.labelControl14.Size = new System.Drawing.Size(31, 15);
@@ -551,6 +612,7 @@ public partial class frmMinorCode
             // labelControl10
             // 
             this.labelControl10.Appearance.Font = new System.Drawing.Font("맑은 고딕", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
+            this.labelControl10.Appearance.Options.UseFont = true;
             this.labelControl10.Location = new System.Drawing.Point(40, 150);
             this.labelControl10.Name = "labelControl10";
             this.labelControl10.Size = new System.Drawing.Size(31, 15);
@@ -560,6 +622,7 @@ public partial class frmMinorCode
             // labelControl13
             // 
             this.labelControl13.Appearance.Font = new System.Drawing.Font("맑은 고딕", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
+            this.labelControl13.Appearance.Options.UseFont = true;
             this.labelControl13.Location = new System.Drawing.Point(388, 101);
             this.labelControl13.Name = "labelControl13";
             this.labelControl13.Size = new System.Drawing.Size(31, 15);
@@ -569,6 +632,7 @@ public partial class frmMinorCode
             // labelControl9
             // 
             this.labelControl9.Appearance.Font = new System.Drawing.Font("맑은 고딕", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
+            this.labelControl9.Appearance.Options.UseFont = true;
             this.labelControl9.Location = new System.Drawing.Point(40, 127);
             this.labelControl9.Name = "labelControl9";
             this.labelControl9.Size = new System.Drawing.Size(31, 15);
@@ -578,6 +642,7 @@ public partial class frmMinorCode
             // labelControl12
             // 
             this.labelControl12.Appearance.Font = new System.Drawing.Font("맑은 고딕", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
+            this.labelControl12.Appearance.Options.UseFont = true;
             this.labelControl12.Location = new System.Drawing.Point(388, 75);
             this.labelControl12.Name = "labelControl12";
             this.labelControl12.Size = new System.Drawing.Size(31, 15);
@@ -587,6 +652,7 @@ public partial class frmMinorCode
             // labelControl8
             // 
             this.labelControl8.Appearance.Font = new System.Drawing.Font("맑은 고딕", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
+            this.labelControl8.Appearance.Options.UseFont = true;
             this.labelControl8.Location = new System.Drawing.Point(40, 101);
             this.labelControl8.Name = "labelControl8";
             this.labelControl8.Size = new System.Drawing.Size(31, 15);
@@ -596,6 +662,7 @@ public partial class frmMinorCode
             // labelControl6
             // 
             this.labelControl6.Appearance.Font = new System.Drawing.Font("맑은 고딕", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
+            this.labelControl6.Appearance.Options.UseFont = true;
             this.labelControl6.Location = new System.Drawing.Point(40, 75);
             this.labelControl6.Name = "labelControl6";
             this.labelControl6.Size = new System.Drawing.Size(31, 15);
@@ -605,6 +672,7 @@ public partial class frmMinorCode
             // labelControl7
             // 
             this.labelControl7.Appearance.Font = new System.Drawing.Font("맑은 고딕", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
+            this.labelControl7.Appearance.Options.UseFont = true;
             this.labelControl7.Location = new System.Drawing.Point(40, 49);
             this.labelControl7.Name = "labelControl7";
             this.labelControl7.Size = new System.Drawing.Size(31, 15);
@@ -614,6 +682,7 @@ public partial class frmMinorCode
             // labelControl5
             // 
             this.labelControl5.Appearance.Font = new System.Drawing.Font("맑은 고딕", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
+            this.labelControl5.Appearance.Options.UseFont = true;
             this.labelControl5.Location = new System.Drawing.Point(241, 20);
             this.labelControl5.Name = "labelControl5";
             this.labelControl5.Size = new System.Drawing.Size(48, 15);
@@ -623,6 +692,7 @@ public partial class frmMinorCode
             // labelControl4
             // 
             this.labelControl4.Appearance.Font = new System.Drawing.Font("맑은 고딕", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
+            this.labelControl4.Appearance.Options.UseFont = true;
             this.labelControl4.Location = new System.Drawing.Point(11, 20);
             this.labelControl4.Name = "labelControl4";
             this.labelControl4.Size = new System.Drawing.Size(60, 15);
@@ -773,7 +843,7 @@ public partial class frmMinorCode
             // 
             this.txtmajor_nm.Location = new System.Drawing.Point(294, 18);
             this.txtmajor_nm.Name = "txtmajor_nm";
-            this.txtmajor_nm.Size = new System.Drawing.Size(421, 20);
+            this.txtmajor_nm.Size = new System.Drawing.Size(227, 20);
             this.txtmajor_nm.TabIndex = 1;
             // 
             // txtmajor_cd
@@ -813,7 +883,7 @@ public partial class frmMinorCode
             this.splitterWyn1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(255)))), ((int)(((byte)(255)))));
             this.splitterWyn1.Location = new System.Drawing.Point(402, 0);
             this.splitterWyn1.Name = "splitterWyn1";
-            this.splitterWyn1.Size = new System.Drawing.Size(10, 515);
+            this.splitterWyn1.Size = new System.Drawing.Size(10, 526);
             this.splitterWyn1.TabIndex = 9;
             this.splitterWyn1.TabStop = false;
             // 
@@ -825,16 +895,21 @@ public partial class frmMinorCode
             this.panelWyn8.EdgeLineColor = System.Drawing.Color.FromArgb(((int)(((byte)(228)))), ((int)(((byte)(229)))), ((int)(((byte)(232)))));
             this.panelWyn8.Location = new System.Drawing.Point(0, 0);
             this.panelWyn8.Name = "panelWyn8";
-            this.panelWyn8.Size = new System.Drawing.Size(402, 515);
+            this.panelWyn8.Size = new System.Drawing.Size(402, 526);
             this.panelWyn8.TabIndex = 12;
             // 
             // grd1
             // 
             this.grd1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.grd1.EmbeddedNavigator.Buttons.Append.Visible = false;
+            this.grd1.EmbeddedNavigator.Buttons.CancelEdit.Visible = false;
+            this.grd1.EmbeddedNavigator.Buttons.Edit.Visible = false;
+            this.grd1.EmbeddedNavigator.Buttons.EndEdit.Visible = false;
+            this.grd1.EmbeddedNavigator.Buttons.Remove.Visible = false;
             this.grd1.Location = new System.Drawing.Point(0, 27);
             this.grd1.MainView = this.gvw1;
             this.grd1.Name = "grd1";
-            this.grd1.Size = new System.Drawing.Size(402, 488);
+            this.grd1.Size = new System.Drawing.Size(402, 499);
             this.grd1.TabIndex = 10;
             this.grd1.ViewCollection.AddRange(new DevExpress.XtraGrid.Views.Base.BaseView[] {
             this.gvw1});
@@ -847,6 +922,8 @@ public partial class frmMinorCode
             this.gvw1.GridControl = this.grd1;
             this.gvw1.HighlightFocusedRow = true;
             this.gvw1.Name = "gvw1";
+            this.gvw1.OptionsBehavior.Editable = false;
+            this.gvw1.OptionsClipboard.PasteMode = DevExpress.Export.PasteMode.None;
             this.gvw1.OptionsSelection.InvertSelection = true;
             this.gvw1.OptionsView.ColumnAutoWidth = false;
             this.gvw1.OptionsView.ShowGroupPanel = false;
@@ -898,12 +975,13 @@ public partial class frmMinorCode
             // panHeader
             // 
             this.panHeader.Appearance.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(240)))), ((int)(((byte)(240)))), ((int)(((byte)(240)))));
+            this.panHeader.Appearance.Options.UseBackColor = true;
             this.panHeader.BorderStyle = DevExpress.XtraEditors.Controls.BorderStyles.Default;
             this.panHeader.Controls.Add(this.txtminor_cd_q);
             this.panHeader.Controls.Add(this.labelControl1);
             this.panHeader.Dock = System.Windows.Forms.DockStyle.Top;
             this.panHeader.EdgeLineColor = System.Drawing.Color.FromArgb(((int)(((byte)(228)))), ((int)(((byte)(229)))), ((int)(((byte)(232)))));
-            this.panHeader.Location = new System.Drawing.Point(3, 33);
+            this.panHeader.Location = new System.Drawing.Point(3, 22);
             this.panHeader.Name = "panHeader";
             this.panHeader.Size = new System.Drawing.Size(1159, 49);
             this.panHeader.TabIndex = 8;
@@ -919,6 +997,7 @@ public partial class frmMinorCode
             // labelControl1
             // 
             this.labelControl1.Appearance.Font = new System.Drawing.Font("맑은 고딕", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
+            this.labelControl1.Appearance.Options.UseFont = true;
             this.labelControl1.Location = new System.Drawing.Point(25, 18);
             this.labelControl1.Name = "labelControl1";
             this.labelControl1.Size = new System.Drawing.Size(77, 15);
@@ -932,23 +1011,25 @@ public partial class frmMinorCode
             this.paTitle.EdgeLineColor = System.Drawing.Color.FromArgb(((int)(((byte)(228)))), ((int)(((byte)(229)))), ((int)(((byte)(232)))));
             this.paTitle.Location = new System.Drawing.Point(3, 0);
             this.paTitle.Name = "paTitle";
-            this.paTitle.Size = new System.Drawing.Size(1159, 33);
+            this.paTitle.Size = new System.Drawing.Size(1159, 22);
             this.paTitle.TabIndex = 5;
             // 
             // sectionHeaderWyn1
             // 
             this.sectionHeaderWyn1.BackColor = System.Drawing.Color.White;
+            this.sectionHeaderWyn1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.sectionHeaderWyn1.Font = new System.Drawing.Font("맑은 고딕", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
             this.sectionHeaderWyn1.Icon = WYNLAB.Base.Controls.SectionHeaderIcon.Folder;
-            this.sectionHeaderWyn1.Location = new System.Drawing.Point(5, 6);
+            this.sectionHeaderWyn1.Location = new System.Drawing.Point(0, 0);
             this.sectionHeaderWyn1.Name = "sectionHeaderWyn1";
-            this.sectionHeaderWyn1.Size = new System.Drawing.Size(209, 23);
+            this.sectionHeaderWyn1.Size = new System.Drawing.Size(1159, 22);
             this.sectionHeaderWyn1.SvgIcon = ((DevExpress.Utils.Svg.SvgImage)(resources.GetObject("sectionHeaderWyn1.SvgIcon")));
             this.sectionHeaderWyn1.TabIndex = 8;
             this.sectionHeaderWyn1.Text = "기초코드 등록 [frmMinorCode]";
             // 
             // frmMinorCode
             // 
+            this.Appearance.Options.UseFont = true;
             this.ClientSize = new System.Drawing.Size(1165, 600);
             this.Controls.Add(this.panBase);
             this.Name = "frmMinorCode";
@@ -1095,4 +1176,5 @@ public partial class frmMinorCode
     private PanelWyn panelWyn7;
     private DevExpress.XtraEditors.Repository.RepositoryItemCheckEdit repositoryItemCheckEdit1;
     private PanelWyn panelWyn8;
+    private ButtonWyn btnLookUp;
 }

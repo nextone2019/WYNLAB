@@ -1,4 +1,5 @@
 using System.Data;
+using DevExpress.Utils;
 using DevExpress.XtraEditors.Controls;
 using DevExpress.XtraEditors.Repository;
 using DevExpress.XtraGrid.Columns;
@@ -77,6 +78,7 @@ public partial class frmMinorCode : BaseForm
         // (NewRowClick/DeleteRowClick, 대분류 미저장 시 막는 등)을 그대로 태운다. 헤더의 +/x
         // 버튼과 네비게이터 버튼 둘 다 같은 메서드를 부르므로 동작이 어긋나지 않는다.
         gvw2.Role = GridRoleWyn.Edit;
+        gvw2.HighlightUnsavedCells = true; // 수동 입력뿐 아니라 엑셀 붙여넣기로 바뀐 셀도 노랗게 표시
         gvw2.RowAdd += async (s, e) => await NewRowClick();
         gvw2.RowDelete += async (s, e) => await DeleteRowClick();
 
@@ -84,6 +86,21 @@ public partial class frmMinorCode : BaseForm
         {
             cbo.ProcName = "SSP_CBO_CODE_Q";
             cbo.Where = RelCdTypeMajorCd;
+        }
+
+        // 개발자용 마우스오버 툴팁(BindingField) - 실제 적용은 BaseForm.ApplyBindingFieldTooltips가
+        // 공통으로 처리한다(Session.IsDeveloper일 때만). 그리드 컬럼은 FieldName이 이미 DB
+        // 컬럼명이라 자동 적용되지만, panData 개별 컨트롤은 Tag에 미리 넣어둬야 잡힌다
+        // (2026-09-12 감사 - 이 화면엔 원래 빠져있었음). rel_title/rel_cd_type/rel_cd는 10개
+        // 반복이라 배열 프로퍼티(TxtRelTitle 등)로 한 번에 돈다.
+        txtmajor_cd.Tag = new BindingFieldTag("major_cd");
+        txtmajor_nm.Tag = new BindingFieldTag("major_nm");
+        for (var i = 0; i < RelCount; i++)
+        {
+            var n = i + 1;
+            TxtRelTitle[i].Tag = new BindingFieldTag($"rel_title{n}");
+            CboRelCdType[i].Tag = new BindingFieldTag($"rel_cd_type{n}");
+            TxtRelCd[i].Tag = new BindingFieldTag($"rel_cd{n}");
         }
 
         // 화면종료 시 저장 확인(BaseForm.ConfirmCloseAsync) - grd2(소분류)는 편집 가능한
@@ -139,8 +156,12 @@ public partial class frmMinorCode : BaseForm
         // 복원이 끝날 때까지 이벤트를 끊어두고, 최종적으로 남길 행 하나에 대해서만 아래에서
         // 명시적으로 EnterEditMode/EnterNewMode를 호출한다(실제로 겪음 - 저장 후 재조회하면
         // 방금 편집하던 대분류에서 포커스가 풀렸다).
+        // BaseForm.ConfirmMasterRowSwitch(저장 안 된 변경 확인용)도 이 구간에서는 같이 눌러둬야
+        // 한다 - 이 재바인딩은 방금 저장이 끝난 뒤(SaveClick -> QueryCore)에도 불리는데, 그
+        // 시점엔 아직 IsDirty가 true로 남아있어서(_minors.AcceptChanges()는 RowChanged를 안 냄)
+        // 저장 직후에 "변경사항이 있다"는 확인창이 또 뜨는 오작동이 생긴다.
         gvw1.FocusedRowObjectChanged -= Gvw1_FocusedRowObjectChanged;
-        try
+        SuppressMasterRowSwitchConfirm(gvw1, () =>
         {
             grd1.DataSource = _majors;
             if (targetRow != null)
@@ -148,11 +169,8 @@ public partial class frmMinorCode : BaseForm
                 var handle = FindMajorRowHandle(editingMajorCd);
                 if (handle != null) gvw1.FocusedRowHandle = handle.Value;
             }
-        }
-        finally
-        {
-            gvw1.FocusedRowObjectChanged += Gvw1_FocusedRowObjectChanged;
-        }
+        });
+        gvw1.FocusedRowObjectChanged += Gvw1_FocusedRowObjectChanged;
 
         // 편집 중이던 대분류가 조회 결과에서 사라졌으면(검색어가 바뀌었거나 지워졌으면) 신규모드로,
         // 남아 있으면 그 행으로 우측 패널/소분류를 맞춘다.
@@ -172,17 +190,20 @@ public partial class frmMinorCode : BaseForm
     /// JsonElement이지 순수 string이 아니다. LocateByValue는 셀의 실제 값과 넘겨준 값(순수
     /// string)을 그대로 값비교(Equals)하는데 JsonElement와 string은 절대 같다고 판정되지 않아서
     /// 늘 못 찾은 것처럼 실패한다(실제로 겪음 - 저장 후 포커스가 정확한 행으로 갔다고 우측
-    /// 패널은 맞는데 노란 포커스 표시만 첫 행에 남아있었다). Convert.ToString으로 비교하는
-    /// FindMajorRow와 같은 방식으로 직접 순회하면 이 문제가 없다.</summary>
+    /// 패널은 맞는데 노란 포커스 표시만 첫 행에 남아있었다).
+    ///
+    /// 컬럼 셀 값(gvw1.Columns[fieldName] + GetRowCellValue, 예전에 이 자리에 있었던 방식)으로
+    /// 찾는 것도 그 키 컬럼이 화면에 안 보이는 숨김 컬럼일 때 안 먹힌다(2026-09-11 실제 발견,
+    /// frmEMP에서 재현) - FindMajorRow로 찾은 DataRow의 DataTable상 인덱스를 GridView.
+    /// GetRowHandle로 표시 행 핸들로 변환하면 키 컬럼이 보이든 안 보이든 항상 동작한다.</summary>
     private int? FindMajorRowHandle(string majorCd)
     {
-        var column = gvw1.Columns["major_cd"];
-        for (var handle = 0; handle < gvw1.RowCount; handle++)
-        {
-            if (string.Equals(Convert.ToString(gvw1.GetRowCellValue(handle, column)), majorCd, StringComparison.OrdinalIgnoreCase))
-                return handle;
-        }
-        return null;
+        var row = FindMajorRow(majorCd);
+        if (row == null) return null;
+
+        var rowIndex = _majors.Rows.IndexOf(row);
+        var handle = gvw1.GetRowHandle(rowIndex);
+        return handle >= 0 ? handle : null;
     }
 
     public override Task NewClick()
@@ -272,10 +293,11 @@ public partial class frmMinorCode : BaseForm
     }
 
     /// <summary>DataTable에 바인딩하면 포커스 행 객체는 DataRowView로 온다(예전엔 DTO였다).</summary>
-    private void Gvw1_FocusedRowObjectChanged(object? sender, FocusedRowObjectChangedEventArgs e)
-    {
-        if (e.Row is DataRowView view) EnterEditMode(view.Row);
-    }
+    /// <summary>대분류(grd1)에서 다른 행을 고를 때 소분류(grd2)/panData에 저장 안 된 변경이 있으면
+    /// 먼저 확인한다(BaseForm.ConfirmMasterRowSwitch 참고, 2026-09-06 - 모든 화면 공통 적용. 예전엔
+    /// EnterEditMode 주석대로 "미저장 변경은 그냥 버린다"였다).</summary>
+    private void Gvw1_FocusedRowObjectChanged(object? sender, FocusedRowObjectChangedEventArgs e) =>
+        ConfirmMasterRowSwitch(gvw1, e, row => EnterEditMode(row.Row));
 
     /// <summary>소분류 그리드(grd2)에 새 행을 추가하면 사용여부를 기본 'Y'로 채운다 - 비워두면
     /// 매번 체크박스를 직접 눌러줘야 하는데, 신규 등록은 대개 바로 쓰는 코드라 기본이
@@ -303,7 +325,7 @@ public partial class frmMinorCode : BaseForm
             for (var i = 0; i < RelCount; i++)
             {
                 titles[i].Text = string.Empty;
-                types[i].EditValue = null;
+                types[i].EditValue = null!; // LookUpEditWyn.EditValue는 null 허용(net48엔 [AllowNull]이 없어 ! 로 표시)
                 codes[i].Text = string.Empty;
             }
 
@@ -346,13 +368,14 @@ public partial class frmMinorCode : BaseForm
             {
                 var n = i + 1;
                 titles[i].Text = Str(major, $"rel_title{n}");
-                types[i].EditValue = Str(major, $"rel_cd_type{n}") is { Length: > 0 } t ? t : null;
+                types[i].EditValue = Str(major, $"rel_cd_type{n}") is { Length: > 0 } t ? t : null!; // 위와 같은 이유
                 codes[i].Text = Str(major, $"rel_cd{n}");
             }
         });
 
-        // 소분류는 이 대분류 기준으로 다시 받아와야 정확하다(그리드에서 편집 중인 내용을
-        // 잃더라도, 대분류를 바꿔 선택했다는 건 이전 미저장 소분류 변경은 버린다는 뜻).
+        // 소분류는 이 대분류 기준으로 다시 받아와야 정확하다. 여기 도달했다는 건 이미
+        // ConfirmMasterRowSwitch가 "저장 안 된 변경 없음/저장 완료/버리기로 확정"을 끝냈다는
+        // 뜻이라(EnterEditMode는 그 확인을 통과한 뒤에만 불린다), 안심하고 새로 받아와도 된다.
         // QueryClick() 대신 소분류 전용 API를 쓴다 - QueryClick은 대분류(grd1)까지 같이
         // 다시 받아와서 grd1.DataSource를 매번 재할당하는 바람에, grd1에서 행을 클릭할
         // 때마다 grd1 자체도 리프레시되는 것처럼 보이는 문제가 있었다(실제로 겪음).
@@ -381,7 +404,8 @@ public partial class frmMinorCode : BaseForm
     ///
     /// 구분(rel_cd_type{n})이 SM00001의 "C"(CheckBox)면 체크박스로, "L"(LOOKUP)이면 그 슬롯의
     /// 참조코드(rel_cd{n})를 대분류코드로 쓰는 SSP_CBO_CODE_Q 결과를 팝업 목록으로 갖는
-    /// LookUp으로 그린다. 매번 이전 컬럼/리포지토리 아이템을 먼저 전부 지운다.
+    /// LookUp으로, "SPINEDIT"이면 소수점 3자리 SpinEdit으로 그린다. 매번 이전 컬럼/리포지토리
+    /// 아이템을 먼저 전부 지운다.
     /// </summary>
     private async Task RebuildDynamicMinorColumnsAsync()
     {
@@ -449,6 +473,23 @@ public partial class frmMinorCode : BaseForm
                 _dynamicMinorRepositoryItems.Add(lookup);
                 column.ColumnEdit = lookup;
             }
+            else if (relCdType == "SPINEDIT")
+            {
+                // SpinEditWyn(00.DEV/01.Client/WYNLAB.Controls/Controls/SpinEditWyn.cs)과 같은
+                // 기본값(천단위 표시, 음수 금지)에 소수점만 3자리로 맞춘다 - SpinEditWyn 자체의
+                // 기본 FormatString("n0")은 정수용이라 그리드 컬럼에는 그대로 못 쓴다.
+                var spin = new RepositoryItemSpinEdit
+                {
+                    DisplayFormat = { FormatType = FormatType.Numeric, FormatString = "n3" },
+                    EditFormat = { FormatType = FormatType.Numeric, FormatString = "n3" },
+                    MaxValue = 999_999_999_999,
+                    MinValue = 0
+                };
+
+                grd2.RepositoryItems.Add(spin);
+                _dynamicMinorRepositoryItems.Add(spin);
+                column.ColumnEdit = spin;
+            }
         }
     }
 
@@ -515,7 +556,7 @@ public partial class frmMinorCode : BaseForm
     private async Task<string?> SaveNewMinorAsync(string majorCd, DataRow row)
     {
         var minorCd = ProcData.Str(row, "minor_cd", DataRowVersion.Current);
-        if (minorCd.Length == 0) return null; // 코드 없이 행만 추가해둔 빈 행은 건너뜀
+        if (string.IsNullOrEmpty(minorCd)) return null; // 코드 없이 행만 추가해둔 빈 행은 건너뜀
 
         var result = await SaveAsync("USP_SM_MINORCODE_S_1", MinorParams("N", majorCd, row, DataRowVersion.Current));
         return result.Success ? null : $"[{minorCd}] {FormatSaveFailMessage(result)}";
@@ -670,5 +711,43 @@ public partial class frmMinorCode : BaseForm
     private async void btnDeletRow2_Click(object sender, EventArgs e)
     {
         await DeleteRowClick();
+    }
+
+
+    /// <summary>LookUp생성 버튼 - 지금 panData에 표시된 대분류(major_cd)의 소분류 목록을 그대로
+    /// 골라 쓸 수 있는 LookUp을 Developer Tool &gt; Component &gt; LookUp등록(frmSysLookup)에
+    /// 자동으로 만들어준다. LookUp 이름은 항상 "L_"+major_cd(예: L_BA0001) - 이미 같은 이름의
+    /// LookUp이 있으면 지우고 다시 만든다. 내용은 기존 L_BA0001과 완전히 같은 구조(source_type=
+    /// 'Q', 소분류 코드/명 2열, TSMMINOR 조회)로 만들되 WHERE절의 major_cd 리터럴만 이 대분류
+    /// 값으로 바꾼다(2026-09-09 요청).
+    ///
+    /// SaveAsync(범용 데이터 통로, api/data/save)가 아니라 전용 엔드포인트
+    /// (api/lookup-admin/generate-minor-lookup)를 직접 부른다 - 처음에 SaveAsync로 SSP_SYS_LOOKUP_S를
+    /// 불렀다가 "이 메뉴에서 사용할 수 없는 프로시저입니다"로 막혔다(실제로 겪음, 2026-09-09) -
+    /// DataController가 호출된 프로시저명이 지금 메뉴(frmMinorCode)에 등록된 PROC_PREFIX로
+    /// 시작하는지 검사하는데, SSP_SYS_LOOKUP_*은 frmMinorCode가 아니라 frmSysLookup 소관이라
+    /// 이 화이트리스트를 못 지난다. sysLookupM/C 쓰기는 LookupAdminController 전체가 원래
+    /// frmSysLookup 화면 권한자만 쓸 수 있게 설계돼 있어서(그 컨트롤러 설명 참고), 서버에 이
+    /// 목적 전용 엔드포인트를 새로 만들어 그 권한 검사를 그대로 걸고 호출했다.</summary>
+    private async void btnLookUp_Click(object sender, EventArgs e)
+    {
+        var majorCd = txtmajor_cd.Text.Trim();
+        if (majorCd.Length == 0)
+        {
+            AppMessageBox.Show("대분류를 먼저 조회하거나 저장한 뒤 사용하세요.", "안내");
+            return;
+        }
+
+        var result = await ApiClient.PostAsync<object, ApiResult>(
+            "api/lookup-admin/generate-minor-lookup",
+            new { MajorCd = majorCd });
+
+        if (result == null || !result.Success)
+        {
+            AppMessageBox.Show(result?.Message ?? "LookUp 생성에 실패했습니다.", "생성 실패");
+            return;
+        }
+
+        Toast.Show(result.Message ?? $"LookUp [{result.GeneratedCode}]이(가) 생성되었습니다.");
     }
 }

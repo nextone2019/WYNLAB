@@ -58,7 +58,10 @@ internal static class SvgIcons
     public const string ToolbarPrint = "embedded:print.svg";
     public const string ToolbarTabList = "svgimages/xaf/action_windowlist.svg";
     public const string ToolbarCloseAll = "svgimages/xaf/action_closeallwindows.svg";
-    public const string ToolbarSqlLog = "svgimages/icon%20builder/actions_database.svg";
+    // DevExpress icon builder 세트(actions_database.svg)는 선이 가늘고 촘촘해서 상태바처럼
+    // 작은 자리(16px 이하)에 그리면 뭉개져 보였다("아이콘이 깨져" 지적, 2026-09-17) - 다른
+    // 툴바 아이콘과 같은 Lucide 단순 윤곽선 세트(embedded:database.svg)로 교체.
+    public const string ToolbarSqlLog = "embedded:database.svg";
     public const string ToolbarLogout = "embedded:logout.svg";
 
     /// <summary>사이드바 메뉴 접기/펼치기 버튼(sidebarToggleButton)이 상태에 따라 바꿔 끼우는
@@ -68,6 +71,11 @@ internal static class SvgIcons
     /// 하나(NavigationToggle)만 썼었다.</summary>
     public const string MenuHide = "embedded:menu_hide.svg";
     public const string MenuView = "embedded:menu_view.svg";
+
+    /// <summary>사각 패널 모양이 섞인 MenuHide/MenuView 대신, 사이드바 상단 검색줄의 둥근 배지
+    /// 안에 넣을 순수 화살표 - 2026-09-17 목업 요청("아이콘도 저모양으로 바꿨으면").</summary>
+    public const string ChevronLeft = "embedded:chevron_left.svg";
+    public const string ChevronRight = "embedded:chevron_right.svg";
 
     /// <summary>
     /// 아이콘을 size×size 이미지로 만들어 돌려준다. 이름을 못 찾으면(오타/버전 차이) null -

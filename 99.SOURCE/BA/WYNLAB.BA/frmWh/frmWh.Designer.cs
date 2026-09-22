@@ -1,69 +1,107 @@
-// @AI_BUILDER:BEGIN FILE_HEADER
-// AI Builder 마스터-상세폼-탭그리드 템플릿 원본 - TplMasterFormSubGrid(기초코드등록형)과 같은
-// grd1(마스터 목록)+panData(상세폼) 구조에, 하위 그리드가 1개가 아니라 2개(grd2/grd3)이고
-// 탭으로 묶여있다(거래처등록: grd1=거래처, panData=거래처상세, grd2=담당자, grd3=계좌 같은 형태).
-// grd2/grd3는 조회전용이 아니라 편집 가능하고(추가/삭제 버튼이 현재 활성 탭 그리드에 작동),
-// 각자 자기 저장프로시저로 저장된다(ScreenGenSpec.SaveActions). VS 디자이너로 열어 제목영역/
-// 여백/색상을 다듬으면 AI Builder가 만드는 모든 마스터-폼-탭그리드 화면에 그대로 반영된다.
-// @AI_BUILDER:END FILE_HEADER
 #nullable disable
+using DevExpress.XtraGrid;
 using WYNLAB.Base.Controls;
 
-namespace WYNLAB.TEMPLATE;
+namespace WYNLAB.BA;
 
-public partial class TplMasterFormTabGrid
+public partial class frmWh
 {
     private System.ComponentModel.IContainer components = null;
 
     protected override void Dispose(bool disposing)
     {
-        if (disposing && components != null) { components.Dispose(); }
+        if (disposing && components != null)
+        {
+            components.Dispose();
+        }
         base.Dispose(disposing);
     }
 
+    private PanelWyn panBase;
+    private PanelWyn paTitle;
+    private PanelWyn panHeader;
+    private DevExpress.XtraEditors.LabelControl labelControl1;
+    private TextEditWyn txtWhNm_Q;
+    private PanelWyn panelWyn3;
+    private PanelWyn panelWyn8;
+    private GridControlWyn grd1;
+    private GridViewWyn gvw1;
+    private DevExpress.XtraGrid.Columns.GridColumn colWhId;
+    private DevExpress.XtraGrid.Columns.GridColumn colWhNm;
+    private DevExpress.XtraGrid.Columns.GridColumn colWhType;
+    private DevExpress.XtraGrid.Columns.GridColumn colWhDeptNm;
+    private DevExpress.XtraGrid.Columns.GridColumn colWhEmpNm;
+    private PanelWyn panelWyn2;
+    private SplitterWyn splitterWyn1;
+    private PanelWyn panelWyn4;
+    private PanelWyn panelWyn5;
+    private PanelWyn panelWyn6;
+    private PanelWyn panData;
+    private DevExpress.XtraEditors.LabelControl labelControl4;
+    private LookUpEditWyn cboDetailAccId;
+    private DevExpress.XtraEditors.LabelControl labelControl5;
+    private TextEditWyn txtDetailWhNm;
+    private DevExpress.XtraEditors.LabelControl labelControl6;
+    private TextEditWyn txtDetailWhType;
+    private DevExpress.XtraEditors.LabelControl labelControl7;
+    private TextEditWyn txtDetailDeptId;
+    private PopupLookupEditWyn popDetailDeptNm;
+    private DevExpress.XtraEditors.LabelControl labelControl8;
+    private TextEditWyn txtDetailEmpId;
+    private PopupLookupEditWyn popDetailEmpNm;
+    private PanelWyn panelWyn1;
+    private PanelWyn panelWyn7;
+    private ButtonWyn btnAddRow2;
+    private ButtonWyn btnDeletRow2;
+    private GridControlWyn grd2;
+    private GridViewWyn gvw2;
+    private DevExpress.XtraGrid.Columns.GridColumn colLocId;
+    private DevExpress.XtraGrid.Columns.GridColumn colLocNm;
+    private DevExpress.XtraGrid.Columns.GridColumn colLocType;
+
     private void InitializeComponent()
     {
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(TplMasterFormTabGrid));
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(frmWh));
             this.panBase = new WYNLAB.Base.Controls.PanelWyn();
             this.panelWyn3 = new WYNLAB.Base.Controls.PanelWyn();
             this.panelWyn4 = new WYNLAB.Base.Controls.PanelWyn();
-            this.tabDetailGrids = new WYNLAB.Base.Controls.TabControlWyn();
-            this.tabDetail1 = new DevExpress.XtraTab.XtraTabPage();
             this.grd2 = new WYNLAB.Base.Controls.GridControlWyn();
             this.gvw2 = new WYNLAB.Base.Controls.GridViewWyn();
-            // @AI_BUILDER:BEGIN DETAIL_COLUMN_NEW
-            this.colD1 = new DevExpress.XtraGrid.Columns.GridColumn();
-            // @AI_BUILDER:END DETAIL_COLUMN_NEW
-            this.tabDetail2 = new DevExpress.XtraTab.XtraTabPage();
-            this.grd3 = new WYNLAB.Base.Controls.GridControlWyn();
-            this.gvw3 = new WYNLAB.Base.Controls.GridViewWyn();
-            // @AI_BUILDER:BEGIN DETAIL2_COLUMN_NEW
-            this.colD2 = new DevExpress.XtraGrid.Columns.GridColumn();
-            // @AI_BUILDER:END DETAIL2_COLUMN_NEW
+            this.colLocId = new DevExpress.XtraGrid.Columns.GridColumn();
+            this.colLocNm = new DevExpress.XtraGrid.Columns.GridColumn();
+            this.colLocType = new DevExpress.XtraGrid.Columns.GridColumn();
             this.panelWyn1 = new WYNLAB.Base.Controls.PanelWyn();
             this.panelWyn7 = new WYNLAB.Base.Controls.PanelWyn();
             this.btnDeletRow2 = new WYNLAB.Base.Controls.ButtonWyn();
             this.btnAddRow2 = new WYNLAB.Base.Controls.ButtonWyn();
             this.panelWyn5 = new WYNLAB.Base.Controls.PanelWyn();
             this.panData = new WYNLAB.Base.Controls.PanelWyn();
-            // @AI_BUILDER:BEGIN DETAIL_FORM_NEW
-            this.lblDetailSample1 = new DevExpress.XtraEditors.LabelControl();
-            this.txtDetailSample1 = new WYNLAB.Base.Controls.TextEditWyn();
-            // @AI_BUILDER:END DETAIL_FORM_NEW
+            this.labelControl4 = new DevExpress.XtraEditors.LabelControl();
+            this.cboDetailAccId = new WYNLAB.Base.Controls.LookUpEditWyn();
+            this.labelControl5 = new DevExpress.XtraEditors.LabelControl();
+            this.txtDetailWhNm = new WYNLAB.Base.Controls.TextEditWyn();
+            this.labelControl6 = new DevExpress.XtraEditors.LabelControl();
+            this.txtDetailWhType = new WYNLAB.Base.Controls.TextEditWyn();
+            this.labelControl7 = new DevExpress.XtraEditors.LabelControl();
+            this.txtDetailDeptId = new WYNLAB.Base.Controls.TextEditWyn();
+            this.popDetailDeptNm = new WYNLAB.Base.Controls.PopupLookupEditWyn();
+            this.labelControl8 = new DevExpress.XtraEditors.LabelControl();
+            this.txtDetailEmpId = new WYNLAB.Base.Controls.TextEditWyn();
+            this.popDetailEmpNm = new WYNLAB.Base.Controls.PopupLookupEditWyn();
             this.panelWyn6 = new WYNLAB.Base.Controls.PanelWyn();
             this.splitterWyn1 = new WYNLAB.Base.Controls.SplitterWyn();
             this.panelWyn8 = new WYNLAB.Base.Controls.PanelWyn();
             this.grd1 = new WYNLAB.Base.Controls.GridControlWyn();
             this.gvw1 = new WYNLAB.Base.Controls.GridViewWyn();
-            // @AI_BUILDER:BEGIN MASTER_COLUMN_NEW
-            this.colM1 = new DevExpress.XtraGrid.Columns.GridColumn();
-            // @AI_BUILDER:END MASTER_COLUMN_NEW
+            this.colWhId = new DevExpress.XtraGrid.Columns.GridColumn();
+            this.colWhNm = new DevExpress.XtraGrid.Columns.GridColumn();
+            this.colWhType = new DevExpress.XtraGrid.Columns.GridColumn();
+            this.colWhDeptNm = new DevExpress.XtraGrid.Columns.GridColumn();
+            this.colWhEmpNm = new DevExpress.XtraGrid.Columns.GridColumn();
             this.panelWyn2 = new WYNLAB.Base.Controls.PanelWyn();
             this.panHeader = new WYNLAB.Base.Controls.PanelWyn();
+            this.txtWhNm_Q = new WYNLAB.Base.Controls.TextEditWyn();
             this.labelControl1 = new DevExpress.XtraEditors.LabelControl();
-            // @AI_BUILDER:BEGIN SEARCH_FIELD_NEW
-            this.txtSearchQ = new WYNLAB.Base.Controls.TextEditWyn();
-            // @AI_BUILDER:END SEARCH_FIELD_NEW
             this.paTitle = new WYNLAB.Base.Controls.PanelWyn();
             this.sectionHeaderWyn1 = new WYNLAB.Base.Controls.SectionHeaderWyn();
             this.sectionHeaderWyn4 = new WYNLAB.Base.Controls.SectionHeaderWyn();
@@ -75,14 +113,8 @@ public partial class TplMasterFormTabGrid
             this.panelWyn3.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.panelWyn4)).BeginInit();
             this.panelWyn4.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.tabDetailGrids)).BeginInit();
-            this.tabDetailGrids.SuspendLayout();
-            this.tabDetail1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.grd2)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.gvw2)).BeginInit();
-            this.tabDetail2.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.grd3)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.gvw3)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.panelWyn1)).BeginInit();
             this.panelWyn1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.panelWyn7)).BeginInit();
@@ -91,6 +123,13 @@ public partial class TplMasterFormTabGrid
             this.panelWyn5.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.panData)).BeginInit();
             this.panData.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.cboDetailAccId.Properties)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.txtDetailWhNm.Properties)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.txtDetailWhType.Properties)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.txtDetailDeptId.Properties)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.popDetailDeptNm.Properties)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.txtDetailEmpId.Properties)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.popDetailEmpNm.Properties)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.panelWyn6)).BeginInit();
             this.panelWyn6.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.panelWyn8)).BeginInit();
@@ -101,6 +140,7 @@ public partial class TplMasterFormTabGrid
             this.panelWyn2.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.panHeader)).BeginInit();
             this.panHeader.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.txtWhNm_Q.Properties)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.paTitle)).BeginInit();
             this.paTitle.SuspendLayout();
             this.SuspendLayout();
@@ -116,9 +156,9 @@ public partial class TplMasterFormTabGrid
             this.panBase.EdgeLineColor = System.Drawing.Color.FromArgb(((int)(((byte)(228)))), ((int)(((byte)(229)))), ((int)(((byte)(232)))));
             this.panBase.Location = new System.Drawing.Point(0, 0);
             this.panBase.Name = "panBase";
-            this.panBase.Padding = new System.Windows.Forms.Padding(5, 0, 5, 5);
-            this.panBase.Size = new System.Drawing.Size(1245, 580);
-            this.panBase.TabIndex = 6;
+            this.panBase.Padding = new System.Windows.Forms.Padding(3, 0, 3, 3);
+            this.panBase.Size = new System.Drawing.Size(1165, 600);
+            this.panBase.TabIndex = 0;
             // 
             // panelWyn3
             // 
@@ -127,42 +167,23 @@ public partial class TplMasterFormTabGrid
             this.panelWyn3.Controls.Add(this.panelWyn8);
             this.panelWyn3.Dock = System.Windows.Forms.DockStyle.Fill;
             this.panelWyn3.EdgeLineColor = System.Drawing.Color.FromArgb(((int)(((byte)(228)))), ((int)(((byte)(229)))), ((int)(((byte)(232)))));
-            this.panelWyn3.Location = new System.Drawing.Point(5, 82);
+            this.panelWyn3.Location = new System.Drawing.Point(3, 82);
             this.panelWyn3.Name = "panelWyn3";
-            this.panelWyn3.Size = new System.Drawing.Size(1235, 493);
-            this.panelWyn3.TabIndex = 7;
+            this.panelWyn3.Size = new System.Drawing.Size(1159, 515);
+            this.panelWyn3.TabIndex = 3;
             // 
             // panelWyn4
             // 
-            this.panelWyn4.Controls.Add(this.tabDetailGrids);
+            this.panelWyn4.Controls.Add(this.grd2);
             this.panelWyn4.Controls.Add(this.panelWyn1);
             this.panelWyn4.Controls.Add(this.panelWyn5);
             this.panelWyn4.Dock = System.Windows.Forms.DockStyle.Fill;
             this.panelWyn4.EdgeLineColor = System.Drawing.Color.FromArgb(((int)(((byte)(228)))), ((int)(((byte)(229)))), ((int)(((byte)(232)))));
-            this.panelWyn4.Location = new System.Drawing.Point(412, 0);
+            this.panelWyn4.Location = new System.Drawing.Point(440, 0);
             this.panelWyn4.Name = "panelWyn4";
             this.panelWyn4.Padding = new System.Windows.Forms.Padding(3, 0, 0, 0);
-            this.panelWyn4.Size = new System.Drawing.Size(823, 493);
-            this.panelWyn4.TabIndex = 7;
-            // 
-            // tabDetailGrids
-            // 
-            this.tabDetailGrids.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.tabDetailGrids.Location = new System.Drawing.Point(3, 245);
-            this.tabDetailGrids.Name = "tabDetailGrids";
-            this.tabDetailGrids.SelectedTabPage = this.tabDetail2;
-            this.tabDetailGrids.Size = new System.Drawing.Size(820, 248);
-            this.tabDetailGrids.TabIndex = 7;
-            this.tabDetailGrids.TabPages.AddRange(new DevExpress.XtraTab.XtraTabPage[] {
-            this.tabDetail1,
-            this.tabDetail2});
-            // 
-            // tabDetail1
-            // 
-            this.tabDetail1.Controls.Add(this.grd2);
-            this.tabDetail1.Name = "tabDetail1";
-            this.tabDetail1.Size = new System.Drawing.Size(818, 222);
-            this.tabDetail1.Text = "tabDetail1";
+            this.panelWyn4.Size = new System.Drawing.Size(719, 515);
+            this.panelWyn4.TabIndex = 2;
             // 
             // grd2
             // 
@@ -172,92 +193,69 @@ public partial class TplMasterFormTabGrid
             this.grd2.EmbeddedNavigator.Buttons.Edit.Visible = false;
             this.grd2.EmbeddedNavigator.Buttons.EndEdit.Visible = false;
             this.grd2.EmbeddedNavigator.Buttons.Remove.Visible = false;
-            this.grd2.Location = new System.Drawing.Point(0, 0);
+            this.grd2.Location = new System.Drawing.Point(3, 175);
             this.grd2.MainView = this.gvw2;
             this.grd2.Name = "grd2";
-            this.grd2.Size = new System.Drawing.Size(818, 222);
-            this.grd2.TabIndex = 0;
+            this.grd2.Size = new System.Drawing.Size(716, 340);
+            this.grd2.TabIndex = 2;
             this.grd2.ViewCollection.AddRange(new DevExpress.XtraGrid.Views.Base.BaseView[] {
             this.gvw2});
-            //
+            // 
             // gvw2
-            //
+            // 
+            this.gvw2.Columns.AddRange(new DevExpress.XtraGrid.Columns.GridColumn[] {
+            this.colLocId,
+            this.colLocNm,
+            this.colLocType});
             this.gvw2.GridControl = this.grd2;
             this.gvw2.HighlightFocusedRow = true;
             this.gvw2.Name = "gvw2";
             this.gvw2.OptionsBehavior.Editable = false;
+            this.gvw2.OptionsClipboard.PasteMode = DevExpress.Export.PasteMode.None;
             this.gvw2.OptionsView.ColumnAutoWidth = false;
             this.gvw2.OptionsView.ShowGroupPanel = false;
-            //
-            // colD1
-            //
-            // @AI_BUILDER:BEGIN DETAIL_COLUMN_CONFIG
-            this.colD1.Caption = "예시컬럼";
-            this.colD1.FieldName = "sample1";
-            this.colD1.Name = "colD1";
-            this.colD1.Visible = true;
-            this.colD1.VisibleIndex = 0;
-            this.colD1.Width = 100;
-            this.gvw2.Columns.AddRange(new DevExpress.XtraGrid.Columns.GridColumn[] {
-            this.colD1});
-            // @AI_BUILDER:END DETAIL_COLUMN_CONFIG
-            //
-            // tabDetail2
             // 
-            this.tabDetail2.Controls.Add(this.grd3);
-            this.tabDetail2.Name = "tabDetail2";
-            this.tabDetail2.Size = new System.Drawing.Size(822, 224);
-            this.tabDetail2.Text = "tabDetail2";
+            // colLocId
             // 
-            // grd3
+            this.colLocId.AppearanceCell.Options.UseTextOptions = true;
+            this.colLocId.AppearanceCell.TextOptions.HAlignment = DevExpress.Utils.HorzAlignment.Center;
+            this.colLocId.Caption = "위치ID";
+            this.colLocId.FieldName = "loc_id";
+            this.colLocId.Name = "colLocId";
+            this.colLocId.OptionsColumn.AllowEdit = false;
+            this.colLocId.Visible = true;
+            this.colLocId.VisibleIndex = 0;
+            this.colLocId.Width = 70;
             // 
-            this.grd3.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.grd3.EmbeddedNavigator.Buttons.Append.Visible = false;
-            this.grd3.EmbeddedNavigator.Buttons.CancelEdit.Visible = false;
-            this.grd3.EmbeddedNavigator.Buttons.Edit.Visible = false;
-            this.grd3.EmbeddedNavigator.Buttons.EndEdit.Visible = false;
-            this.grd3.EmbeddedNavigator.Buttons.Remove.Visible = false;
-            this.grd3.Location = new System.Drawing.Point(0, 0);
-            this.grd3.MainView = this.gvw3;
-            this.grd3.Name = "grd3";
-            this.grd3.Size = new System.Drawing.Size(822, 224);
-            this.grd3.TabIndex = 0;
-            this.grd3.ViewCollection.AddRange(new DevExpress.XtraGrid.Views.Base.BaseView[] {
-            this.gvw3});
-            //
-            // gvw3
-            //
-            this.gvw3.GridControl = this.grd3;
-            this.gvw3.HighlightFocusedRow = true;
-            this.gvw3.Name = "gvw3";
-            this.gvw3.OptionsBehavior.Editable = false;
-            this.gvw3.OptionsView.ColumnAutoWidth = false;
-            this.gvw3.OptionsView.ShowGroupPanel = false;
-            //
-            // colD2
-            //
-            // @AI_BUILDER:BEGIN DETAIL2_COLUMN_CONFIG
-            this.colD2.Caption = "예시컬럼";
-            this.colD2.FieldName = "sample1";
-            this.colD2.Name = "colD2";
-            this.colD2.Visible = true;
-            this.colD2.VisibleIndex = 0;
-            this.colD2.Width = 100;
-            this.gvw3.Columns.AddRange(new DevExpress.XtraGrid.Columns.GridColumn[] {
-            this.colD2});
-            // @AI_BUILDER:END DETAIL2_COLUMN_CONFIG
-            //
+            // colLocNm
+            // 
+            this.colLocNm.Caption = "위치명";
+            this.colLocNm.FieldName = "loc_nm";
+            this.colLocNm.Name = "colLocNm";
+            this.colLocNm.Visible = true;
+            this.colLocNm.VisibleIndex = 1;
+            this.colLocNm.Width = 260;
+            // 
+            // colLocType
+            // 
+            this.colLocType.Caption = "위치유형";
+            this.colLocType.FieldName = "loc_type";
+            this.colLocType.Name = "colLocType";
+            this.colLocType.Visible = true;
+            this.colLocType.VisibleIndex = 2;
+            this.colLocType.Width = 150;
+            // 
             // panelWyn1
             // 
             this.panelWyn1.Controls.Add(this.sectionHeaderWyn2);
             this.panelWyn1.Controls.Add(this.panelWyn7);
             this.panelWyn1.Dock = System.Windows.Forms.DockStyle.Top;
             this.panelWyn1.EdgeLineColor = System.Drawing.Color.FromArgb(((int)(((byte)(228)))), ((int)(((byte)(229)))), ((int)(((byte)(232)))));
-            this.panelWyn1.Location = new System.Drawing.Point(3, 218);
+            this.panelWyn1.Location = new System.Drawing.Point(3, 148);
             this.panelWyn1.Name = "panelWyn1";
             this.panelWyn1.Padding = new System.Windows.Forms.Padding(5, 0, 0, 2);
-            this.panelWyn1.Size = new System.Drawing.Size(820, 27);
-            this.panelWyn1.TabIndex = 8;
+            this.panelWyn1.Size = new System.Drawing.Size(716, 27);
+            this.panelWyn1.TabIndex = 1;
             // 
             // panelWyn7
             // 
@@ -265,14 +263,15 @@ public partial class TplMasterFormTabGrid
             this.panelWyn7.Controls.Add(this.btnAddRow2);
             this.panelWyn7.Dock = System.Windows.Forms.DockStyle.Right;
             this.panelWyn7.EdgeLineColor = System.Drawing.Color.FromArgb(((int)(((byte)(228)))), ((int)(((byte)(229)))), ((int)(((byte)(232)))));
-            this.panelWyn7.Location = new System.Drawing.Point(752, 0);
+            this.panelWyn7.Location = new System.Drawing.Point(648, 0);
             this.panelWyn7.Name = "panelWyn7";
             this.panelWyn7.Size = new System.Drawing.Size(68, 25);
-            this.panelWyn7.TabIndex = 9;
+            this.panelWyn7.TabIndex = 1;
             // 
             // btnDeletRow2
             // 
             this.btnDeletRow2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnDeletRow2.BackColor = System.Drawing.Color.Transparent;
             this.btnDeletRow2.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(245)))), ((int)(((byte)(198)))), ((int)(((byte)(193)))));
             this.btnDeletRow2.Cursor = System.Windows.Forms.Cursors.Hand;
             this.btnDeletRow2.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(253)))), ((int)(((byte)(236)))), ((int)(((byte)(234)))));
@@ -284,11 +283,14 @@ public partial class TplMasterFormTabGrid
             this.btnDeletRow2.PressedColor = System.Drawing.Color.FromArgb(((int)(((byte)(225)))), ((int)(((byte)(235)))), ((int)(((byte)(253)))));
             this.btnDeletRow2.Size = new System.Drawing.Size(24, 22);
             this.btnDeletRow2.TabIndex = 0;
-            this.btnDeletRow2.ToolTip = "행삭제(현재 탭)";
+            this.btnDeletRow2.Text = "-";
+            this.btnDeletRow2.ToolTip = "행삭제";
+            this.btnDeletRow2.Click += new System.EventHandler(this.btnDeletRow2_Click);
             // 
             // btnAddRow2
             // 
             this.btnAddRow2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnAddRow2.BackColor = System.Drawing.Color.Transparent;
             this.btnAddRow2.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(198)))), ((int)(((byte)(231)))), ((int)(((byte)(203)))));
             this.btnAddRow2.Cursor = System.Windows.Forms.Cursors.Hand;
             this.btnAddRow2.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(228)))), ((int)(((byte)(245)))), ((int)(((byte)(231)))));
@@ -300,7 +302,9 @@ public partial class TplMasterFormTabGrid
             this.btnAddRow2.PressedColor = System.Drawing.Color.FromArgb(((int)(((byte)(225)))), ((int)(((byte)(235)))), ((int)(((byte)(253)))));
             this.btnAddRow2.Size = new System.Drawing.Size(24, 22);
             this.btnAddRow2.TabIndex = 0;
-            this.btnAddRow2.ToolTip = "행추가(현재 탭)";
+            this.btnAddRow2.Text = "+";
+            this.btnAddRow2.ToolTip = "행추가";
+            this.btnAddRow2.Click += new System.EventHandler(this.btnAddRow2_Click);
             // 
             // panelWyn5
             // 
@@ -310,38 +314,150 @@ public partial class TplMasterFormTabGrid
             this.panelWyn5.EdgeLineColor = System.Drawing.Color.FromArgb(((int)(((byte)(228)))), ((int)(((byte)(229)))), ((int)(((byte)(232)))));
             this.panelWyn5.Location = new System.Drawing.Point(3, 0);
             this.panelWyn5.Name = "panelWyn5";
-            this.panelWyn5.Size = new System.Drawing.Size(820, 218);
-            this.panelWyn5.TabIndex = 6;
+            this.panelWyn5.Size = new System.Drawing.Size(716, 148);
+            this.panelWyn5.TabIndex = 0;
             // 
             // panData
             // 
             this.panData.BorderStyle = DevExpress.XtraEditors.Controls.BorderStyles.Default;
+            this.panData.Controls.Add(this.labelControl4);
+            this.panData.Controls.Add(this.cboDetailAccId);
+            this.panData.Controls.Add(this.labelControl5);
+            this.panData.Controls.Add(this.txtDetailWhNm);
+            this.panData.Controls.Add(this.labelControl6);
+            this.panData.Controls.Add(this.txtDetailWhType);
+            this.panData.Controls.Add(this.labelControl7);
+            this.panData.Controls.Add(this.txtDetailDeptId);
+            this.panData.Controls.Add(this.popDetailDeptNm);
+            this.panData.Controls.Add(this.labelControl8);
+            this.panData.Controls.Add(this.txtDetailEmpId);
+            this.panData.Controls.Add(this.popDetailEmpNm);
             this.panData.Dock = System.Windows.Forms.DockStyle.Fill;
             this.panData.EdgeLineColor = System.Drawing.Color.FromArgb(((int)(((byte)(228)))), ((int)(((byte)(229)))), ((int)(((byte)(232)))));
             this.panData.Location = new System.Drawing.Point(0, 27);
             this.panData.Name = "panData";
-            this.panData.Size = new System.Drawing.Size(820, 191);
-            this.panData.TabIndex = 8;
-            //
-            // lblDetailSample1
-            //
-            // @AI_BUILDER:BEGIN DETAIL_FORM_CONFIG
-            this.lblDetailSample1.Location = new System.Drawing.Point(16, 19);
-            this.lblDetailSample1.Name = "lblDetailSample1";
-            this.lblDetailSample1.Size = new System.Drawing.Size(40, 14);
-            this.lblDetailSample1.TabIndex = 0;
-            this.lblDetailSample1.Text = "예시필드";
-            //
-            // txtDetailSample1
-            //
-            this.txtDetailSample1.Location = new System.Drawing.Point(120, 16);
-            this.txtDetailSample1.Name = "txtDetailSample1";
-            this.txtDetailSample1.Size = new System.Drawing.Size(220, 20);
-            this.txtDetailSample1.TabIndex = 1;
-            this.panData.Controls.Add(this.lblDetailSample1);
-            this.panData.Controls.Add(this.txtDetailSample1);
-            // @AI_BUILDER:END DETAIL_FORM_CONFIG
-            //
+            this.panData.Size = new System.Drawing.Size(716, 121);
+            this.panData.TabIndex = 1;
+            // 
+            // labelControl4
+            // 
+            this.labelControl4.Appearance.Font = new System.Drawing.Font("맑은 고딕", 9F);
+            this.labelControl4.Appearance.Options.UseFont = true;
+            this.labelControl4.Location = new System.Drawing.Point(15, 26);
+            this.labelControl4.Name = "labelControl4";
+            this.labelControl4.Size = new System.Drawing.Size(36, 15);
+            this.labelControl4.TabIndex = 0;
+            this.labelControl4.Text = "사업장";
+            // 
+            // cboDetailAccId
+            // 
+            this.cboDetailAccId.EditValue = "";
+            this.cboDetailAccId.Location = new System.Drawing.Point(80, 24);
+            this.cboDetailAccId.LookupKey = "L_ACC";
+            this.cboDetailAccId.Name = "cboDetailAccId";
+            this.cboDetailAccId.Properties.Buttons.AddRange(new DevExpress.XtraEditors.Controls.EditorButton[] {
+            new DevExpress.XtraEditors.Controls.EditorButton(DevExpress.XtraEditors.Controls.ButtonPredefines.Combo)});
+            this.cboDetailAccId.Properties.NullText = "";
+            this.cboDetailAccId.Size = new System.Drawing.Size(180, 20);
+            this.cboDetailAccId.TabIndex = 1;
+            // 
+            // labelControl5
+            // 
+            this.labelControl5.Appearance.Font = new System.Drawing.Font("맑은 고딕", 9F);
+            this.labelControl5.Appearance.Options.UseFont = true;
+            this.labelControl5.Location = new System.Drawing.Point(15, 52);
+            this.labelControl5.Name = "labelControl5";
+            this.labelControl5.Size = new System.Drawing.Size(36, 15);
+            this.labelControl5.TabIndex = 2;
+            this.labelControl5.Text = "창고명";
+            // 
+            // txtDetailWhNm
+            // 
+            this.txtDetailWhNm.Location = new System.Drawing.Point(80, 50);
+            this.txtDetailWhNm.Name = "txtDetailWhNm";
+            this.txtDetailWhNm.Properties.Appearance.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(249)))), ((int)(((byte)(219)))));
+            this.txtDetailWhNm.Properties.Appearance.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))));
+            this.txtDetailWhNm.Properties.Appearance.Options.UseBackColor = true;
+            this.txtDetailWhNm.Properties.Appearance.Options.UseForeColor = true;
+            this.txtDetailWhNm.Required = true;
+            this.txtDetailWhNm.Size = new System.Drawing.Size(180, 20);
+            this.txtDetailWhNm.TabIndex = 3;
+            // 
+            // labelControl6
+            // 
+            this.labelControl6.Appearance.Font = new System.Drawing.Font("맑은 고딕", 9F);
+            this.labelControl6.Appearance.Options.UseFont = true;
+            this.labelControl6.Location = new System.Drawing.Point(284, 52);
+            this.labelControl6.Name = "labelControl6";
+            this.labelControl6.Size = new System.Drawing.Size(48, 15);
+            this.labelControl6.TabIndex = 4;
+            this.labelControl6.Text = "창고유형";
+            // 
+            // txtDetailWhType
+            // 
+            this.txtDetailWhType.Location = new System.Drawing.Point(344, 50);
+            this.txtDetailWhType.Name = "txtDetailWhType";
+            this.txtDetailWhType.Size = new System.Drawing.Size(110, 20);
+            this.txtDetailWhType.TabIndex = 5;
+            // 
+            // labelControl7
+            // 
+            this.labelControl7.Appearance.Font = new System.Drawing.Font("맑은 고딕", 9F);
+            this.labelControl7.Appearance.Options.UseFont = true;
+            this.labelControl7.Location = new System.Drawing.Point(15, 78);
+            this.labelControl7.Name = "labelControl7";
+            this.labelControl7.Size = new System.Drawing.Size(48, 15);
+            this.labelControl7.TabIndex = 6;
+            this.labelControl7.Text = "담당부서";
+            // 
+            // txtDetailDeptId
+            // 
+            this.txtDetailDeptId.Location = new System.Drawing.Point(202, 76);
+            this.txtDetailDeptId.Name = "txtDetailDeptId";
+            this.txtDetailDeptId.Properties.ReadOnly = true;
+            this.txtDetailDeptId.Size = new System.Drawing.Size(55, 20);
+            this.txtDetailDeptId.TabIndex = 7;
+            // 
+            // popDetailDeptNm
+            // 
+            this.popDetailDeptNm.Location = new System.Drawing.Point(80, 76);
+            this.popDetailDeptNm.LookupKey = "P_DEPT";
+            this.popDetailDeptNm.Name = "popDetailDeptNm";
+            this.popDetailDeptNm.Properties.Buttons.AddRange(new DevExpress.XtraEditors.Controls.EditorButton[] {
+            new DevExpress.XtraEditors.Controls.EditorButton()});
+            this.popDetailDeptNm.Size = new System.Drawing.Size(120, 20);
+            this.popDetailDeptNm.TabIndex = 8;
+            this.popDetailDeptNm.ToolTip = null;
+            // 
+            // labelControl8
+            // 
+            this.labelControl8.Appearance.Font = new System.Drawing.Font("맑은 고딕", 9F);
+            this.labelControl8.Appearance.Options.UseFont = true;
+            this.labelControl8.Location = new System.Drawing.Point(284, 78);
+            this.labelControl8.Name = "labelControl8";
+            this.labelControl8.Size = new System.Drawing.Size(36, 15);
+            this.labelControl8.TabIndex = 9;
+            this.labelControl8.Text = "담당자";
+            // 
+            // txtDetailEmpId
+            // 
+            this.txtDetailEmpId.Location = new System.Drawing.Point(466, 76);
+            this.txtDetailEmpId.Name = "txtDetailEmpId";
+            this.txtDetailEmpId.Properties.ReadOnly = true;
+            this.txtDetailEmpId.Size = new System.Drawing.Size(55, 20);
+            this.txtDetailEmpId.TabIndex = 10;
+            // 
+            // popDetailEmpNm
+            // 
+            this.popDetailEmpNm.Location = new System.Drawing.Point(344, 76);
+            this.popDetailEmpNm.LookupKey = "P_EMP";
+            this.popDetailEmpNm.Name = "popDetailEmpNm";
+            this.popDetailEmpNm.Properties.Buttons.AddRange(new DevExpress.XtraEditors.Controls.EditorButton[] {
+            new DevExpress.XtraEditors.Controls.EditorButton()});
+            this.popDetailEmpNm.Size = new System.Drawing.Size(120, 20);
+            this.popDetailEmpNm.TabIndex = 11;
+            this.popDetailEmpNm.ToolTip = null;
+            // 
             // panelWyn6
             // 
             this.panelWyn6.Controls.Add(this.sectionHeaderWyn3);
@@ -350,16 +466,16 @@ public partial class TplMasterFormTabGrid
             this.panelWyn6.Location = new System.Drawing.Point(0, 0);
             this.panelWyn6.Name = "panelWyn6";
             this.panelWyn6.Padding = new System.Windows.Forms.Padding(5, 0, 0, 2);
-            this.panelWyn6.Size = new System.Drawing.Size(820, 27);
-            this.panelWyn6.TabIndex = 7;
+            this.panelWyn6.Size = new System.Drawing.Size(716, 27);
+            this.panelWyn6.TabIndex = 0;
             // 
             // splitterWyn1
             // 
-            this.splitterWyn1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(255)))), ((int)(((byte)(255)))));
-            this.splitterWyn1.Location = new System.Drawing.Point(402, 0);
+            this.splitterWyn1.BackColor = System.Drawing.Color.White;
+            this.splitterWyn1.Location = new System.Drawing.Point(430, 0);
             this.splitterWyn1.Name = "splitterWyn1";
-            this.splitterWyn1.Size = new System.Drawing.Size(10, 493);
-            this.splitterWyn1.TabIndex = 9;
+            this.splitterWyn1.Size = new System.Drawing.Size(10, 515);
+            this.splitterWyn1.TabIndex = 1;
             this.splitterWyn1.TabStop = false;
             // 
             // panelWyn8
@@ -370,8 +486,8 @@ public partial class TplMasterFormTabGrid
             this.panelWyn8.EdgeLineColor = System.Drawing.Color.FromArgb(((int)(((byte)(228)))), ((int)(((byte)(229)))), ((int)(((byte)(232)))));
             this.panelWyn8.Location = new System.Drawing.Point(0, 0);
             this.panelWyn8.Name = "panelWyn8";
-            this.panelWyn8.Size = new System.Drawing.Size(402, 493);
-            this.panelWyn8.TabIndex = 12;
+            this.panelWyn8.Size = new System.Drawing.Size(430, 515);
+            this.panelWyn8.TabIndex = 0;
             // 
             // grd1
             // 
@@ -384,34 +500,75 @@ public partial class TplMasterFormTabGrid
             this.grd1.Location = new System.Drawing.Point(0, 27);
             this.grd1.MainView = this.gvw1;
             this.grd1.Name = "grd1";
-            this.grd1.Size = new System.Drawing.Size(402, 466);
-            this.grd1.TabIndex = 10;
+            this.grd1.Size = new System.Drawing.Size(430, 488);
+            this.grd1.TabIndex = 1;
             this.grd1.ViewCollection.AddRange(new DevExpress.XtraGrid.Views.Base.BaseView[] {
             this.gvw1});
-            //
+            // 
             // gvw1
-            //
+            // 
+            this.gvw1.Columns.AddRange(new DevExpress.XtraGrid.Columns.GridColumn[] {
+            this.colWhId,
+            this.colWhNm,
+            this.colWhType,
+            this.colWhDeptNm,
+            this.colWhEmpNm});
             this.gvw1.GridControl = this.grd1;
             this.gvw1.HighlightFocusedRow = true;
             this.gvw1.Name = "gvw1";
             this.gvw1.OptionsBehavior.Editable = false;
+            this.gvw1.OptionsClipboard.PasteMode = DevExpress.Export.PasteMode.None;
             this.gvw1.OptionsSelection.InvertSelection = true;
             this.gvw1.OptionsView.ColumnAutoWidth = false;
             this.gvw1.OptionsView.ShowGroupPanel = false;
-            //
-            // colM1
-            //
-            // @AI_BUILDER:BEGIN MASTER_COLUMN_CONFIG
-            this.colM1.Caption = "예시컬럼";
-            this.colM1.FieldName = "sample1";
-            this.colM1.Name = "colM1";
-            this.colM1.Visible = true;
-            this.colM1.VisibleIndex = 0;
-            this.colM1.Width = 100;
-            this.gvw1.Columns.AddRange(new DevExpress.XtraGrid.Columns.GridColumn[] {
-            this.colM1});
-            // @AI_BUILDER:END MASTER_COLUMN_CONFIG
-            //
+            // 
+            // colWhId
+            // 
+            this.colWhId.AppearanceCell.Options.UseTextOptions = true;
+            this.colWhId.AppearanceCell.TextOptions.HAlignment = DevExpress.Utils.HorzAlignment.Center;
+            this.colWhId.Caption = "창고ID";
+            this.colWhId.FieldName = "wh_id";
+            this.colWhId.Name = "colWhId";
+            this.colWhId.Visible = true;
+            this.colWhId.VisibleIndex = 0;
+            this.colWhId.Width = 60;
+            // 
+            // colWhNm
+            // 
+            this.colWhNm.Caption = "창고명";
+            this.colWhNm.FieldName = "wh_nm";
+            this.colWhNm.Name = "colWhNm";
+            this.colWhNm.Visible = true;
+            this.colWhNm.VisibleIndex = 1;
+            this.colWhNm.Width = 130;
+            // 
+            // colWhType
+            // 
+            this.colWhType.Caption = "창고유형";
+            this.colWhType.FieldName = "wh_type";
+            this.colWhType.Name = "colWhType";
+            this.colWhType.Visible = true;
+            this.colWhType.VisibleIndex = 2;
+            this.colWhType.Width = 80;
+            // 
+            // colWhDeptNm
+            // 
+            this.colWhDeptNm.Caption = "담당부서";
+            this.colWhDeptNm.FieldName = "dept_nm";
+            this.colWhDeptNm.Name = "colWhDeptNm";
+            this.colWhDeptNm.Visible = true;
+            this.colWhDeptNm.VisibleIndex = 3;
+            this.colWhDeptNm.Width = 90;
+            // 
+            // colWhEmpNm
+            // 
+            this.colWhEmpNm.Caption = "담당자";
+            this.colWhEmpNm.FieldName = "emp_nm";
+            this.colWhEmpNm.Name = "colWhEmpNm";
+            this.colWhEmpNm.Visible = true;
+            this.colWhEmpNm.VisibleIndex = 4;
+            this.colWhEmpNm.Width = 70;
+            // 
             // panelWyn2
             // 
             this.panelWyn2.Controls.Add(this.sectionHeaderWyn4);
@@ -420,51 +577,50 @@ public partial class TplMasterFormTabGrid
             this.panelWyn2.Location = new System.Drawing.Point(0, 0);
             this.panelWyn2.Name = "panelWyn2";
             this.panelWyn2.Padding = new System.Windows.Forms.Padding(5, 0, 0, 2);
-            this.panelWyn2.Size = new System.Drawing.Size(402, 27);
-            this.panelWyn2.TabIndex = 11;
+            this.panelWyn2.Size = new System.Drawing.Size(430, 27);
+            this.panelWyn2.TabIndex = 0;
             // 
             // panHeader
             // 
             this.panHeader.Appearance.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(240)))), ((int)(((byte)(240)))), ((int)(((byte)(240)))));
             this.panHeader.Appearance.Options.UseBackColor = true;
             this.panHeader.BorderStyle = DevExpress.XtraEditors.Controls.BorderStyles.Default;
+            this.panHeader.Controls.Add(this.txtWhNm_Q);
             this.panHeader.Controls.Add(this.labelControl1);
             this.panHeader.Dock = System.Windows.Forms.DockStyle.Top;
             this.panHeader.EdgeLineColor = System.Drawing.Color.FromArgb(((int)(((byte)(228)))), ((int)(((byte)(229)))), ((int)(((byte)(232)))));
-            this.panHeader.Location = new System.Drawing.Point(5, 33);
+            this.panHeader.Location = new System.Drawing.Point(3, 33);
             this.panHeader.Name = "panHeader";
-            this.panHeader.Size = new System.Drawing.Size(1235, 49);
-            this.panHeader.TabIndex = 8;
+            this.panHeader.Size = new System.Drawing.Size(1159, 49);
+            this.panHeader.TabIndex = 2;
+            // 
+            // txtWhNm_Q
+            // 
+            this.txtWhNm_Q.Location = new System.Drawing.Point(67, 15);
+            this.txtWhNm_Q.Name = "txtWhNm_Q";
+            this.txtWhNm_Q.Properties.BorderStyle = DevExpress.XtraEditors.Controls.BorderStyles.Simple;
+            this.txtWhNm_Q.Size = new System.Drawing.Size(230, 20);
+            this.txtWhNm_Q.TabIndex = 0;
             // 
             // labelControl1
             // 
-            this.labelControl1.Appearance.Font = new System.Drawing.Font("맑은 고딕", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
+            this.labelControl1.Appearance.Font = new System.Drawing.Font("맑은 고딕", 9F);
             this.labelControl1.Appearance.Options.UseFont = true;
             this.labelControl1.Location = new System.Drawing.Point(25, 18);
             this.labelControl1.Name = "labelControl1";
-            this.labelControl1.Size = new System.Drawing.Size(48, 15);
-            this.labelControl1.TabIndex = 0;
-            this.labelControl1.Text = "검색조건";
+            this.labelControl1.Size = new System.Drawing.Size(36, 15);
+            this.labelControl1.TabIndex = 1;
+            this.labelControl1.Text = "창고명";
             // 
-            // txtSearchQ
-            //
-            // @AI_BUILDER:BEGIN SEARCH_FIELD_CONFIG
-            this.txtSearchQ.Location = new System.Drawing.Point(79, 15);
-            this.txtSearchQ.Name = "txtSearchQ";
-            this.txtSearchQ.Size = new System.Drawing.Size(265, 20);
-            this.txtSearchQ.TabIndex = 1;
-            this.panHeader.Controls.Add(this.txtSearchQ);
-            // @AI_BUILDER:END SEARCH_FIELD_CONFIG
-            //
             // paTitle
             // 
             this.paTitle.Controls.Add(this.sectionHeaderWyn1);
             this.paTitle.Dock = System.Windows.Forms.DockStyle.Top;
             this.paTitle.EdgeLineColor = System.Drawing.Color.FromArgb(((int)(((byte)(228)))), ((int)(((byte)(229)))), ((int)(((byte)(232)))));
-            this.paTitle.Location = new System.Drawing.Point(5, 0);
+            this.paTitle.Location = new System.Drawing.Point(3, 0);
             this.paTitle.Name = "paTitle";
-            this.paTitle.Size = new System.Drawing.Size(1235, 33);
-            this.paTitle.TabIndex = 5;
+            this.paTitle.Size = new System.Drawing.Size(1159, 33);
+            this.paTitle.TabIndex = 1;
             // 
             // sectionHeaderWyn1
             // 
@@ -474,10 +630,10 @@ public partial class TplMasterFormTabGrid
             this.sectionHeaderWyn1.Icon = WYNLAB.Base.Controls.SectionHeaderIcon.Folder;
             this.sectionHeaderWyn1.Location = new System.Drawing.Point(0, 0);
             this.sectionHeaderWyn1.Name = "sectionHeaderWyn1";
-            this.sectionHeaderWyn1.Size = new System.Drawing.Size(1235, 33);
+            this.sectionHeaderWyn1.Size = new System.Drawing.Size(1159, 33);
             this.sectionHeaderWyn1.SvgIcon = ((DevExpress.Utils.Svg.SvgImage)(resources.GetObject("sectionHeaderWyn1.SvgIcon")));
-            this.sectionHeaderWyn1.TabIndex = 9;
-            this.sectionHeaderWyn1.Text = "__MENU_CAPTION__ [TplMasterFormTabGrid]";
+            this.sectionHeaderWyn1.TabIndex = 12;
+            this.sectionHeaderWyn1.Text = "창고정보등록 [frmWh]";
             // 
             // sectionHeaderWyn4
             // 
@@ -487,10 +643,10 @@ public partial class TplMasterFormTabGrid
             this.sectionHeaderWyn4.Icon = WYNLAB.Base.Controls.SectionHeaderIcon.Folder;
             this.sectionHeaderWyn4.Location = new System.Drawing.Point(5, 0);
             this.sectionHeaderWyn4.Name = "sectionHeaderWyn4";
-            this.sectionHeaderWyn4.Size = new System.Drawing.Size(397, 25);
+            this.sectionHeaderWyn4.Size = new System.Drawing.Size(425, 25);
             this.sectionHeaderWyn4.SvgIcon = ((DevExpress.Utils.Svg.SvgImage)(resources.GetObject("sectionHeaderWyn4.SvgIcon")));
-            this.sectionHeaderWyn4.TabIndex = 9;
-            this.sectionHeaderWyn4.Text = "목록";
+            this.sectionHeaderWyn4.TabIndex = 10;
+            this.sectionHeaderWyn4.Text = "창고LIST";
             // 
             // sectionHeaderWyn3
             // 
@@ -501,10 +657,10 @@ public partial class TplMasterFormTabGrid
             this.sectionHeaderWyn3.Location = new System.Drawing.Point(5, 0);
             this.sectionHeaderWyn3.Name = "sectionHeaderWyn3";
             this.sectionHeaderWyn3.Padding = new System.Windows.Forms.Padding(0, 0, 3, 0);
-            this.sectionHeaderWyn3.Size = new System.Drawing.Size(815, 25);
+            this.sectionHeaderWyn3.Size = new System.Drawing.Size(711, 25);
             this.sectionHeaderWyn3.SvgIcon = ((DevExpress.Utils.Svg.SvgImage)(resources.GetObject("sectionHeaderWyn3.SvgIcon")));
-            this.sectionHeaderWyn3.TabIndex = 9;
-            this.sectionHeaderWyn3.Text = "상세 등록";
+            this.sectionHeaderWyn3.TabIndex = 10;
+            this.sectionHeaderWyn3.Text = "창고정보";
             // 
             // sectionHeaderWyn2
             // 
@@ -514,31 +670,25 @@ public partial class TplMasterFormTabGrid
             this.sectionHeaderWyn2.Icon = WYNLAB.Base.Controls.SectionHeaderIcon.Folder;
             this.sectionHeaderWyn2.Location = new System.Drawing.Point(5, 0);
             this.sectionHeaderWyn2.Name = "sectionHeaderWyn2";
-            this.sectionHeaderWyn2.Size = new System.Drawing.Size(747, 25);
+            this.sectionHeaderWyn2.Size = new System.Drawing.Size(643, 25);
             this.sectionHeaderWyn2.SvgIcon = ((DevExpress.Utils.Svg.SvgImage)(resources.GetObject("sectionHeaderWyn2.SvgIcon")));
             this.sectionHeaderWyn2.TabIndex = 10;
-            this.sectionHeaderWyn2.Text = "하위 목록";
+            this.sectionHeaderWyn2.Text = "창고별 LOCATION정보";
             // 
-            // TplMasterFormTabGrid
+            // frmWh
             // 
             this.Appearance.Options.UseFont = true;
-            this.ClientSize = new System.Drawing.Size(1245, 580);
+            this.ClientSize = new System.Drawing.Size(1165, 600);
             this.Controls.Add(this.panBase);
-            this.Name = "TplMasterFormTabGrid";
+            this.Name = "frmWh";
             ((System.ComponentModel.ISupportInitialize)(this.panBase)).EndInit();
             this.panBase.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.panelWyn3)).EndInit();
             this.panelWyn3.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.panelWyn4)).EndInit();
             this.panelWyn4.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.tabDetailGrids)).EndInit();
-            this.tabDetailGrids.ResumeLayout(false);
-            this.tabDetail1.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.grd2)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.gvw2)).EndInit();
-            this.tabDetail2.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.grd3)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.gvw3)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.panelWyn1)).EndInit();
             this.panelWyn1.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.panelWyn7)).EndInit();
@@ -548,6 +698,13 @@ public partial class TplMasterFormTabGrid
             ((System.ComponentModel.ISupportInitialize)(this.panData)).EndInit();
             this.panData.ResumeLayout(false);
             this.panData.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.cboDetailAccId.Properties)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.txtDetailWhNm.Properties)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.txtDetailWhType.Properties)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.txtDetailDeptId.Properties)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.popDetailDeptNm.Properties)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.txtDetailEmpId.Properties)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.popDetailEmpNm.Properties)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.panelWyn6)).EndInit();
             this.panelWyn6.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.panelWyn8)).EndInit();
@@ -559,55 +716,15 @@ public partial class TplMasterFormTabGrid
             ((System.ComponentModel.ISupportInitialize)(this.panHeader)).EndInit();
             this.panHeader.ResumeLayout(false);
             this.panHeader.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.txtWhNm_Q.Properties)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.paTitle)).EndInit();
             this.paTitle.ResumeLayout(false);
             this.ResumeLayout(false);
 
     }
 
-    private PanelWyn panBase;
-    private PanelWyn panelWyn3;
-    private PanelWyn panelWyn4;
-    private TabControlWyn tabDetailGrids;
-    private DevExpress.XtraTab.XtraTabPage tabDetail1;
-    private GridControlWyn grd2;
-    private GridViewWyn gvw2;
-    // @AI_BUILDER:BEGIN DETAIL_COLUMN_DECL
-    private DevExpress.XtraGrid.Columns.GridColumn colD1;
-    // @AI_BUILDER:END DETAIL_COLUMN_DECL
-    private DevExpress.XtraTab.XtraTabPage tabDetail2;
-    private GridControlWyn grd3;
-    private GridViewWyn gvw3;
-    // @AI_BUILDER:BEGIN DETAIL2_COLUMN_DECL
-    private DevExpress.XtraGrid.Columns.GridColumn colD2;
-    // @AI_BUILDER:END DETAIL2_COLUMN_DECL
-    private PanelWyn panelWyn1;
-    private PanelWyn panelWyn7;
-    private ButtonWyn btnDeletRow2;
-    private ButtonWyn btnAddRow2;
-    private PanelWyn panelWyn5;
-    private PanelWyn panData;
-    // @AI_BUILDER:BEGIN DETAIL_FORM_DECL
-    private DevExpress.XtraEditors.LabelControl lblDetailSample1;
-    private TextEditWyn txtDetailSample1;
-    // @AI_BUILDER:END DETAIL_FORM_DECL
-    private PanelWyn panelWyn6;
-    private SplitterWyn splitterWyn1;
-    private PanelWyn panelWyn8;
-    private GridControlWyn grd1;
-    private GridViewWyn gvw1;
-    // @AI_BUILDER:BEGIN MASTER_COLUMN_DECL
-    private DevExpress.XtraGrid.Columns.GridColumn colM1;
-    // @AI_BUILDER:END MASTER_COLUMN_DECL
-    private PanelWyn panelWyn2;
-    private PanelWyn panHeader;
-    // @AI_BUILDER:BEGIN SEARCH_FIELD_DECL
-    private TextEditWyn txtSearchQ;
-    // @AI_BUILDER:END SEARCH_FIELD_DECL
-    private DevExpress.XtraEditors.LabelControl labelControl1;
-    private PanelWyn paTitle;
-    private SectionHeaderWyn sectionHeaderWyn2;
-    private SectionHeaderWyn sectionHeaderWyn3;
-    private SectionHeaderWyn sectionHeaderWyn4;
     private SectionHeaderWyn sectionHeaderWyn1;
+    private SectionHeaderWyn sectionHeaderWyn4;
+    private SectionHeaderWyn sectionHeaderWyn3;
+    private SectionHeaderWyn sectionHeaderWyn2;
 }

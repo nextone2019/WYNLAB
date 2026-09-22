@@ -1,7 +1,9 @@
 using DevExpress.XtraEditors;
 using DevExpress.XtraGrid;
 using DevExpress.XtraGrid.Views.Grid;
+using DevExpress.XtraTab;
 using DevExpress.XtraTreeList;
+using DevExpress.XtraTreeList.Nodes;
 using System.Data;
 using System.Drawing;
 using System.Windows.Forms;
@@ -43,7 +45,6 @@ public class BaseForm : XtraForm
     protected string CurrentUserId => Session.UserId;
     protected string CurrentUserNm => Session.UserNm;
     protected string CurrentEmpNo => Session.EmpNo;
-    protected string CurrentDeptCd => Session.DeptCd;
     protected string CurrentDeptNm => Session.DeptNm;
     protected bool CurrentIsAdmin => Session.IsAdmin;
     protected bool CurrentIsDeveloper => Session.IsDeveloper;
@@ -61,11 +62,29 @@ public class BaseForm : XtraForm
     public virtual Task SaveClick() => Task.CompletedTask;
     public virtual Task PrintClick() => Task.CompletedTask;
 
+    /// <summary>메뉴 클릭이 아니라 다른 화면(결재함 등)이 특정 건을 바로 보여주려고 이 화면을 연
+    /// 경우에 호출된다 - key는 그 화면의 PK를 문자열로 넘긴 값(예: req_id). 기본은 아무 동작
+    /// 안 함(메뉴로 여는 일반적인 화면은 신경 쓸 필요 없음) - 결재대상 문서처럼 "결재함에서
+    /// 바로 포커스해서 열려야 하는" 화면만 override해서 그 키로 조회+상세 진입하면 된다.</summary>
+    public virtual Task FocusRecordAsync(string key) => Task.CompletedTask;
+
     /// <summary>
-    /// 화면 타이틀 바(BuildScreenHeader) 왼쪽에 그려지는 아이콘. 기본은 폴더지만, 화면 성격에
-    /// 더 맞는 아이콘이 있으면(예: 메뉴관리의 트리 아이콘) 화면 클래스에서 override한다.
+    /// 화면 타이틀 바(BuildScreenHeader) 왼쪽에 그려지는 아이콘. 기본은 DevExpress 내장 SVG
+    /// "datapanel"(Outlook Inspired 세트, 리소스명 "svgimages/outlook%20inspired/datapanel.svg" -
+    /// PowerShell로 DevExpress.Images.v21.2.dll을 직접 로드해서 ImageResourceCache.GetSvgImage
+    /// 호출까지 실제로 검증함, 2026-09-09) - 예전엔 손으로 그린 폴더 모양(MenuIconPainters.Folder)
+    /// 이었는데, "폴더는 담는 그릇이라 개별 업무화면 자체를 가리키기엔 어색하다"는 지적과 함께
+    /// SectionHeaderWyn의 SvgIcon 갤러리에서 사용자가 직접 고른 이 아이콘을 쓰라는 요청으로 바꿨다.
+    /// 이 SVG는 단색 실루엣이 아니라 2색(테두리 회색 + 내용 파랑)짜리라 다른 SVG 아이콘들과 달리
+    /// 색을 덧씌우지(tint) 않고 원본 그대로 쓴다. 리소스를 못 찾는 극히 드문 경우(다른 PC의
+    /// DevExpress 버전 차이 등)엔 예전 폴더 아이콘으로 안전하게 되돌아간다.
+    ///
+    /// 화면 성격에 더 맞는 아이콘이 있으면(예: 메뉴관리의 트리 아이콘) 화면 클래스에서 override한다.
     /// </summary>
-    protected virtual Action<Graphics, Rectangle, Color> ScreenIconPainter => MenuIconPainters.Folder;
+    protected virtual Image ScreenIcon =>
+        DevExpress.Images.ImageResourceCache.Default.GetSvgImage(
+            "svgimages/outlook%20inspired/datapanel.svg", null, new Size(16, 16))
+        ?? MenuIconPainters.Render(MenuIconPainters.Folder, 16, Color.FromArgb(120, 124, 132));
 
     // ===== 저장프로시저 직접 호출(범용 데이터 통로) =====
     // 화면마다 서버에 Controller/Repository를 만들지 않고 프로시저를 바로 부른다. 덕분에
@@ -173,6 +192,25 @@ public class BaseForm : XtraForm
         }
     }
 
+    /// <summary>SuppressDirtyTracking의 비동기 버전 - 코드가 값을 채우는 구간에 await가 섞여
+    /// 있을 때 쓴다(예: 서버에서 받아온 이미지를 PictureEdit.Image에 채우는 것처럼, 그 대입도
+    /// BaseEdit 계열이라 EditValueChanged가 뜨는 컨트롤을 async 흐름 안에서 채우는 경우 -
+    /// frmSiteConfig가 로그인배경/로고/파비콘을 QueryClick에서 이렇게 채운다). 동기 버전을 그대로
+    /// await 하나만 감싸는 걸로는 안 된다 - _suppressDirtyTracking이 꺼진 뒤에 실행되는 await
+    /// 이후 코드는 보호를 못 받는다(2026-09-09 실제 발견 - frmSiteConfig가 저장 직후 QueryClick을
+    /// 다시 부르는데, 이미지 3장을 SuppressDirtyTracking 블록 "밖"에서 채우고 있어서 저장하자마자
+    /// 다시 IsDirty=true가 되어 "변경 내역이 존재합니다" 확인창이 매번 다시 떴다).</summary>
+    protected async Task SuppressDirtyTrackingAsync(Func<Task> action)
+    {
+        _suppressDirtyTracking = true;
+        try { await action(); }
+        finally
+        {
+            _suppressDirtyTracking = false;
+            IsDirty = false;
+        }
+    }
+
     /// <summary>
     /// 변경사항이 있으면 "{화면명} 화면의 변경 내역이 존재 합니다. 저장 후 종료 하시겠습니까?"를
     /// 묻고, "예"면 저장까지 마친 뒤 닫아도 되는지 판단한다. 개별 탭의 X버튼(아래 FormClosing)과
@@ -199,6 +237,163 @@ public class BaseForm : XtraForm
 
         _closeConfirmed = true;
         return true;
+    }
+
+    // ===== 마스터 그리드 행 전환 시 저장 확인(2026-09-06, 사장님 지시 - "모든 화면에서 동일하게
+    // 적용되어야 할 기능") =====
+    // grd1(대분류/거래처 등 마스터 목록)에서 다른 행을 고르면 그 순간 panData/grd2(상세, 편집
+    // 가능)가 새로 채워지는 화면들(frmMinorCode, frmCust 등)에서, 상세 쪽에 저장 안 된 변경이
+    // 있어도 그냥 버리고 넘어가던 것을 "저장하시겠습니까?"로 먼저 물어보게 한다.
+
+    /// <summary>ConfirmMasterRowSwitch가 그리드별로 기억해두는 "마지막으로 확정된(그대로 있어도 되는)
+    /// 포커스 행 핸들" - 되돌릴 때 이 값을 쓴다.</summary>
+    private readonly Dictionary<GridView, int> _confirmedRowHandles = new();
+    private bool _suppressMasterRowSwitchConfirm;
+
+    /// <summary>
+    /// 마스터 그리드의 FocusedRowObjectChanged 핸들러 맨 앞에서 이 메서드를 부르고, 실제로 하던 일
+    /// (EnterEditMode 등)은 onRowSelected 콜백으로 넘긴다:
+    /// <code>gvw1.FocusedRowObjectChanged += (s, e) => ConfirmMasterRowSwitch(gvw1, e, row => EnterEditMode(row));</code>
+    ///
+    /// DevExpress WinForms GridView(21.2)에는 "행이 실제로 바뀌기 전" 취소할 수 있는 이벤트가 없다
+    /// (직접 확인 - DevExpress.XtraGrid.Views.Base에 FocusedRowChangedEventArgs만 있고 Changing류는
+    /// 없음). 그래서 이미 바뀐 뒤(FocusedRowObjectChanged)에 일단 이전 행으로 조용히 되돌리고
+    /// 확인(예/아니오/취소)을 받은 뒤, 확정되면 다시 원래 옮기려던 행으로 이동하는 방식으로
+    /// "바뀌기 전에 막는" 것처럼 흉내낸다. 그리드 자체(grd1)는 조회전용이라 여기서 다루는 "저장 안
+    /// 된 변경"은 항상 grd1이 아니라 panData/grd2 등 상세 쪽 편집 내용이다(HasUnsavedChanges 그대로
+    /// 재사용 - ConfirmCloseAsync와 같은 기준).
+    ///
+    /// 되돌리기/재이동으로 인한 재귀 호출을 이 메서드 스스로 처리하므로, 화면 쪽 EnterEditMode 등은
+    /// "실제로 선택이 확정된 행"만 신경 쓰면 된다 - 취소/버림/저장실패로 원래 자리에 머무는 경우도
+    /// onRowSelected가 그 행에 대해 다시 호출되므로 패널이 항상 grd1의 실제 포커스 행과 일치한다.
+    /// </summary>
+    protected void ConfirmMasterRowSwitch(GridView masterView, DevExpress.XtraGrid.Views.Base.FocusedRowObjectChangedEventArgs e, Action<DataRowView> onRowSelected)
+    {
+        if (e.Row is DataRowView view) ConfirmMasterRowSwitchCore(masterView, view, onRowSelected);
+    }
+
+    /// <summary>List&lt;T&gt;(POCO DTO)에 바인딩된 마스터 그리드용 - frmUserAuth처럼 e.Row가
+    /// DataRowView가 아니라 DTO 자신인 화면에서 쓴다. 타입 추론이 되도록 람다 매개변수에 타입을
+    /// 명시해야 한다: <code>ConfirmMasterRowSwitch(gvw1, e, (UserListItemDto user) => ...);</code></summary>
+    protected void ConfirmMasterRowSwitch<TRow>(GridView masterView, DevExpress.XtraGrid.Views.Base.FocusedRowObjectChangedEventArgs e, Action<TRow> onRowSelected) where TRow : class
+    {
+        if (e.Row is TRow row) ConfirmMasterRowSwitchCore(masterView, row, onRowSelected);
+    }
+
+    private async void ConfirmMasterRowSwitchCore<TRow>(GridView masterView, TRow row, Action<TRow> onRowSelected) where TRow : class
+    {
+        var targetHandle = masterView.FocusedRowHandle;
+
+        if (!_suppressMasterRowSwitchConfirm && HasUnsavedChanges
+            && _confirmedRowHandles.TryGetValue(masterView, out var previousHandle)
+            && previousHandle != targetHandle && previousHandle >= 0 && previousHandle < masterView.RowCount)
+        {
+            masterView.FocusedRowHandle = previousHandle; // 재귀 호출 - 이 handle에 대해 onRowSelected까지 알아서 다시 불림
+
+            var confirm = AppMessageBox.Show(
+                "변경 내역이 저장되지 않았습니다.\n저장하시겠습니까?",
+                "변경 내역 확인", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question);
+            if (confirm == DialogResult.Cancel) return; // 되돌린 행에 그대로 머무른다
+
+            if (confirm == DialogResult.Yes)
+            {
+                await SafeExecuteAsync(SaveClick, "저장");
+                if (HasUnsavedChanges) return; // 저장 실패 - 되돌린 행에 그대로 머무른다
+            }
+            else
+            {
+                IsDirty = false; // "아니오" - 미저장 변경을 버리고 이동한다
+            }
+
+            if (targetHandle >= 0 && targetHandle < masterView.RowCount)
+                masterView.FocusedRowHandle = targetHandle; // 재귀 호출 - 원래 옮기려던 행으로 확정
+            return;
+        }
+
+        _confirmedRowHandles[masterView] = targetHandle;
+        onRowSelected(row);
+    }
+
+    /// <summary>재조회/저장 직후처럼 화면이 스스로 grd1을 다시 그리거나 포커스를 옮기는 구간을
+    /// 감싼다 - 이 구간에서 발생하는 FocusedRowObjectChanged는 사용자가 고른 게 아니므로
+    /// ConfirmMasterRowSwitch의 확인을 타면 안 된다(특히 저장 직후엔 AcceptChanges가 RowChanged를
+    /// 안 내서 IsDirty가 아직 true로 남아있는 채로 재조회가 걸려, 저장하자마자 또 확인창이
+    /// 뜨는 오작동이 생긴다 - 실제로 겪음).</summary>
+    protected void SuppressMasterRowSwitchConfirm(GridView masterView, Action action)
+    {
+        _suppressMasterRowSwitchConfirm = true;
+        try { action(); }
+        finally
+        {
+            _suppressMasterRowSwitchConfirm = false;
+            _confirmedRowHandles[masterView] = masterView.FocusedRowHandle;
+        }
+    }
+
+    // ===== 마스터가 트리(TreeListWyn)인 화면용 - GridView 버전과 완전히 같은 원리(2026-09-08,
+    // TplTreeMasterSubGrid 템플릿 추가하며 같이 만듦). DevExpress TreeList도 GridView와 마찬가지로
+    // "포커스 노드가 바뀌기 전" 취소 가능한 이벤트가 없어서(FocusedNodeChanged만 있음, Changing류
+    // 없음 - 직접 확인) 같은 트릭(일단 이전 노드로 되돌리고 확인받은 뒤 원래 노드로 재이동)을 쓴다.
+    // GridView 버전의 FocusedRowHandle(int)을 TreeListNode 참조로만 바꾼 것 - 로직은 동일하다.
+    // TreeList.GetDataRecordByNode(node)가 GridView의 DataRowView와 똑같은 타입(DataTable에
+    // 바인딩했다면 DataRowView)을 돌려주므로 onRowSelected 콜백 시그니처(Action<DataRowView>)도
+    // GridView 버전과 그대로 재사용할 수 있다. =====
+
+    private readonly Dictionary<TreeList, TreeListNode?> _confirmedTreeNodes = new();
+
+    /// <summary>
+    /// 마스터 트리의 FocusedNodeChanged 핸들러 맨 앞에서 이 메서드를 부르고, 실제로 하던 일은
+    /// onRowSelected 콜백으로 넘긴다:
+    /// <code>tree1.FocusedNodeChanged += (s, e) => ConfirmMasterRowSwitch(tree1, e, row => _ = OnMasterSelectedAsync(row.Row));</code>
+    /// </summary>
+    protected void ConfirmMasterRowSwitch(TreeList masterTree, FocusedNodeChangedEventArgs e, Action<DataRowView> onRowSelected)
+    {
+        if (e.Node != null && masterTree.GetDataRecordByNode(e.Node) is DataRowView view)
+            ConfirmMasterRowSwitchCoreTree(masterTree, e.Node, view, onRowSelected);
+    }
+
+    private async void ConfirmMasterRowSwitchCoreTree<TRow>(TreeList masterTree, TreeListNode targetNode, TRow row, Action<TRow> onRowSelected) where TRow : class
+    {
+        if (!_suppressMasterRowSwitchConfirm && HasUnsavedChanges
+            && _confirmedTreeNodes.TryGetValue(masterTree, out var previousNode)
+            && previousNode != targetNode && previousNode != null)
+        {
+            masterTree.FocusedNode = previousNode; // 재귀 호출 - 이 노드에 대해 onRowSelected까지 알아서 다시 불림
+
+            var confirm = AppMessageBox.Show(
+                "변경 내역이 저장되지 않았습니다.\n저장하시겠습니까?",
+                "변경 내역 확인", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question);
+            if (confirm == DialogResult.Cancel) return; // 되돌린 노드에 그대로 머무른다
+
+            if (confirm == DialogResult.Yes)
+            {
+                await SafeExecuteAsync(SaveClick, "저장");
+                if (HasUnsavedChanges) return; // 저장 실패 - 되돌린 노드에 그대로 머무른다
+            }
+            else
+            {
+                IsDirty = false; // "아니오" - 미저장 변경을 버리고 이동한다
+            }
+
+            masterTree.FocusedNode = targetNode; // 재귀 호출 - 원래 옮기려던 노드로 확정
+            return;
+        }
+
+        _confirmedTreeNodes[masterTree] = targetNode;
+        onRowSelected(row);
+    }
+
+    /// <summary>GridView 버전의 SuppressMasterRowSwitchConfirm과 같은 용도 - 재조회/저장 직후처럼
+    /// 화면이 스스로 tree1을 다시 그리거나 포커스를 옮기는 구간을 감싼다.</summary>
+    protected void SuppressMasterRowSwitchConfirm(TreeList masterTree, Action action)
+    {
+        _suppressMasterRowSwitchConfirm = true;
+        try { action(); }
+        finally
+        {
+            _suppressMasterRowSwitchConfirm = false;
+            _confirmedTreeNodes[masterTree] = masterTree.FocusedNode;
+        }
     }
 
     /// <summary>탭의 X버튼(DevExpress ClosePageButtonShowMode가 내부적으로 부르는 Close())을
@@ -241,6 +436,23 @@ public class BaseForm : XtraForm
         // 모든 사용자 대상(개발자 전용 아님). 화면 코드에서 그리드마다 따로 부를 필요 없이
         // BaseForm 한 곳에서 화면 안의 GridViewWyn을 전부 찾아 처리한다.
         await ApplyGridLayoutsAsync(this);
+
+        // 화면 안의 탭(TabControlWyn/XtraTabControl)은 항상 맨 앞 탭이 선택된 채로 열려야 한다
+        // (2026-09-08, 사장님 지시 - "탭을 사용하는 모든 화면은 최초 오픈시 제일 앞쪽에 있는 탭이
+        // 선택되어 있도록"). VS 디자이너는 마지막으로 편집하던 탭을 SelectedTabPage로 그대로
+        // 저장해버려서(예: 개발 중 두 번째 탭을 보다가 저장하면 그 탭이 초기 선택값이 됨) 화면마다
+        // 실수로 뒷탭이 열린 채 배포되는 사고가 반복됐다 - Designer.cs를 손으로 고치는 대신 여기
+        // 한 곳에서 강제로 되돌려 앞으로 디자이너가 다시 틀어놔도 항상 맞다.
+        ResetTabsToFirstPage(this);
+    }
+
+    private static void ResetTabsToFirstPage(Control root)
+    {
+        foreach (Control child in root.Controls)
+        {
+            if (child is XtraTabControl tab && tab.TabPages.Count > 0) tab.SelectedTabPageIndex = 0;
+            ResetTabsToFirstPage(child);
+        }
     }
 
     /// <summary>
@@ -425,7 +637,7 @@ public class BaseForm : XtraForm
 
         var icon = new PictureBox
         {
-            Image = MenuIconPainters.Render(ScreenIconPainter, 16, Color.FromArgb(120, 124, 132)),
+            Image = ScreenIcon,
             SizeMode = PictureBoxSizeMode.CenterImage,
             Location = new Point(14, 4),
             Size = new Size(20, 20),
@@ -508,7 +720,6 @@ public class BaseForm : XtraForm
         }
     }
 
-    private Panel? _busyOverlay;
     private SpinnerControl? _busySpinner;
     private System.Windows.Forms.Timer? _busyDelayTimer;
     private int _busyDepth;
@@ -548,7 +759,7 @@ public class BaseForm : XtraForm
         if (_busyDepth > 0) return; // 바깥 작업이 아직 진행 중
 
         _busyDelayTimer?.Stop(); // 아직 안 떴으면 영영 안 뜨게 - 이게 깜빡임을 없애는 핵심
-        if (_busyOverlay != null) _busyOverlay.Visible = false;
+        if (_busySpinner != null) _busySpinner.Visible = false;
         if (ReferenceEquals(_busyForm, this)) _busyForm = null;
     }
 
@@ -586,7 +797,7 @@ public class BaseForm : XtraForm
         if (form == null) return;
 
         form._busyDelayTimer?.Stop();
-        if (form._busyOverlay != null) form._busyOverlay.Visible = false;
+        if (form._busySpinner != null) form._busySpinner.Visible = false;
     }
 
     /// <summary>모달이 닫힌 뒤 호출 - 아직 작업이 끝나지 않았다면 지연 타이머를 처음부터 다시 건다.</summary>
@@ -598,26 +809,31 @@ public class BaseForm : XtraForm
         form.StartBusyTimer();
     }
 
+    /// <summary>예전엔 화면 전체를 옅은 회색 오버레이로 덮고 그 위에 스피너를 얹었는데, 화면이
+    /// 통째로 안 보이는 게 불편하다는 지적(2026-09-15, "로딩이 걸리더라도 화면은 그대로 살아있었
+    /// 으면 좋겠어" - 게다가 드물게 오버레이가 안 걷히고 그대로 남는 증상도 있었음, 전체화면을
+    /// 덮는 오버레이라 그 증상이 특히 눈에 띄었다)으로, 화면을 덮지 않고 우측 하단에 작은
+    /// 스피너만 띄우는 방식으로 바꿨다 - 로딩 중에도 화면 내용이 그대로 보이고 조작도 막지
+    /// 않는다.</summary>
     private void ShowBusyOverlayNow()
     {
-        if (_busyOverlay == null)
+        if (_busySpinner == null)
         {
-            _busyOverlay = new Panel { Dock = DockStyle.Fill, BackColor = Color.FromArgb(246, 247, 248) };
             _busySpinner = new SpinnerControl { SpinnerColor = Color.FromArgb(41, 121, 255) };
-            _busyOverlay.Controls.Add(_busySpinner);
-            _busyOverlay.Resize += (s, e) => CenterBusySpinner();
-            Controls.Add(_busyOverlay);
+            Controls.Add(_busySpinner);
+            Resize += (s, e) => PositionBusySpinner();
         }
 
-        CenterBusySpinner();
-        _busyOverlay.Visible = true;
-        _busyOverlay.BringToFront();
+        PositionBusySpinner();
+        _busySpinner.Visible = true;
+        _busySpinner.BringToFront();
     }
 
-    private void CenterBusySpinner()
+    private void PositionBusySpinner()
     {
-        if (_busyOverlay == null || _busySpinner == null) return;
-        _busySpinner.Location = new Point((_busyOverlay.Width - _busySpinner.Width) / 2, (_busyOverlay.Height - _busySpinner.Height) / 2);
+        if (_busySpinner == null) return;
+        const int margin = 16;
+        _busySpinner.Location = new Point(ClientSize.Width - _busySpinner.Width - margin, ClientSize.Height - _busySpinner.Height - margin);
     }
 
     protected override void Dispose(bool disposing)

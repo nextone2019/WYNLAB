@@ -1,4 +1,5 @@
 using System.Data;
+using System.Text.RegularExpressions;
 using Dapper;
 using Microsoft.Data.SqlClient;
 using WYNLAB.Api.Data;
@@ -14,6 +15,10 @@ public interface IScreenBuilderRepository
     /// 끝나면 무조건 롤백한다. AI Builder가 "이 프로시저가 결과셋을 몇 개, 어떤 컬럼으로
     /// 반환하는지" 미리 보고 각 레코드셋을 화면의 어느 컨트롤(그리드/폼)에 바인딩할지 고르는 데 쓴다.</summary>
     Task<DescribeProcMultiResultDto> DescribeUspProcMultiAsync(string procName, string workType);
+
+    /// <summary>프로시저를 실행하지 않고 소스 텍스트에서 "@p_work_type = 'X'" 리터럴만 찾아
+    /// work_type 후보 목록을 등장 순서대로 돌려준다(정적 텍스트 검색, 실행 위험 없음).</summary>
+    Task<List<string>> ListProcWorkTypesAsync(string procName);
 }
 
 /// <summary>
@@ -100,6 +105,31 @@ public class ScreenBuilderRepository : IScreenBuilderRepository
         }
 
         return new DescribeProcMultiResultDto { Params = paramDtos, ResultSets = resultSets };
+    }
+
+    // "@p_work_type = 'X'"(공백 有無/대소문자 무관, 작은따옴표) 패턴만 찾는다 - 이 코드베이스의
+    // SQL 프로시저는 전부 IF @p_work_type = 'Q' / ELSE IF @p_work_type = 'Q1' 형태로 분기하므로
+    // (feedback_sql_proc_style 관례) 이 정도 정규식으로 충분하다. 등장 순서 그대로, 중복 제거해서
+    // 돌려준다(보통 Q가 먼저, Q1/Q2가 그 뒤 - AI Builder가 grd1/grd2/...로 순서대로 배정하는 데
+    // 이 순서를 그대로 쓴다).
+    private static readonly Regex WorkTypeLiteralRegex = new(
+        @"@p_work_type\s*=\s*'([^']+)'", RegexOptions.IgnoreCase | RegexOptions.Compiled);
+
+    public async Task<List<string>> ListProcWorkTypesAsync(string procName)
+    {
+        using var conn = _context.CreateConnection();
+        var source = await conn.QuerySingleOrDefaultAsync<string?>(
+            "SELECT OBJECT_DEFINITION(OBJECT_ID(@procName))", new { procName });
+        if (string.IsNullOrEmpty(source)) return new List<string>();
+
+        var seen = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        var result = new List<string>();
+        foreach (Match m in WorkTypeLiteralRegex.Matches(source))
+        {
+            var value = m.Groups[1].Value;
+            if (seen.Add(value)) result.Add(value);
+        }
+        return result;
     }
 
     private static async Task<List<(string name, string type_name)>> LoadParamsAsync(IDbConnection conn, string procName)

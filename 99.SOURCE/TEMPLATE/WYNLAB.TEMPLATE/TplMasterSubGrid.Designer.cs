@@ -5,6 +5,7 @@
 // 예시 컨트롤(txtSample1, colM1 등)은 실제 화면에는 생성되지 않는다.
 // @AI_BUILDER:END FILE_HEADER
 #nullable disable
+using WYNLAB.Base;
 using WYNLAB.Base.Controls;
 
 namespace WYNLAB.TEMPLATE;

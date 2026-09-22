@@ -1,0 +1,63 @@
+/* ---------- USP_BA_EMPLIST_Q: TBAEMP/TBADEPT의 dept_cd -> DEPT_ID 전환에 맞춰 조인/검색 방식 수정 ---------- */
+CREATE OR ALTER PROCEDURE [dbo].[USP_BA_EMPLIST_Q]
+    @p_work_type VARCHAR(50),
+    ---------------------------------------------------------------------------------------------------
+    @p_emp_no   VARCHAR(20) = NULL,
+    @p_dept_nm   NVARCHAR(50) = NULL,
+    ---------------------------------------------------------------------------------------------------
+    @GeneratedCode VARCHAR(20) = NULL OUTPUT,
+    @ReturnCode INT = 0 OUTPUT,
+    @ReturnMsg NVARCHAR(200) = NULL OUTPUT,
+    @ErrorCode INT = 0 OUTPUT,
+    @ErrorMsg NVARCHAR(500) = NULL OUTPUT
+AS
+BEGIN
+    SET NOCOUNT ON;
+    SET @ReturnCode = 0; SET @ReturnMsg = N'성공'; SET @ErrorCode = 0; SET @ErrorMsg = NULL;
+
+    BEGIN TRY
+        IF @p_work_type = 'Q'
+        BEGIN
+            SELECT
+                            a.acc_cd,
+                            a.emp_no,
+                            a.emp_nm,
+                            a.emp_nm_eng,
+                            a.DEPT_ID,
+                            b.dept_nm,
+                            a.ent_date,
+                            a.grp_ent_date,
+                            a.job_grade,
+                            a.job_type,
+                            a.ret_yn,
+                            a.ret_date,
+                            a.sex_cd,
+                            a.tel,
+                            a.hp_tel,
+                            a.email,
+                            a.nat_cd,
+                            a.zip_code,
+                            a.addr1,
+                            a.addr2,
+                            a.holi_yn,
+                            a.dilig_yn,
+                            a.pay_yn,
+                            a.photo
+            FROM        TBAEMP as  a
+                            JOIN TBADEPT as b on a.DEPT_ID = b.DEPT_ID
+            WHERE       1 = 1
+            AND         (@p_dept_nm IS NULL OR @p_dept_nm = '' OR b.dept_nm LIKE '%' + @p_dept_nm + '%')
+            AND         ((@p_emp_no IS NULL OR emp_no LIKE '%' + @p_emp_no + '%')
+                            OR
+                          (@p_emp_no IS NULL OR emp_nm LIKE '%' + @p_emp_no + '%'))
+            ORDER BY emp_no;
+        END
+    END TRY
+    BEGIN CATCH
+        SET @ReturnCode = -1;
+        SET @ReturnMsg = N'처리 중 오류가 발생했습니다.';
+        SET @ErrorCode = ERROR_NUMBER();
+        SET @ErrorMsg = ERROR_MESSAGE();
+    END CATCH
+END
+GO

@@ -14,7 +14,7 @@ public interface IMenuManageRepository
     Task<ProcResult> UpdateAsync(long menuId, string menuNm, long? upperMenuId, int menuLevel,
         string menuType, string? module, string? screenClassNm, string? iconNm, string? procPrefix, int sortOrder, bool useYn, string?[] authNm,
         string userId, string? clientPc);
-    Task<ProcResult> SetUseYnAsync(long menuId, bool useYn);
+    Task<ProcResult> SetUseYnAsync(long menuId, bool useYn, string userId, string? clientPc);
 }
 
 /// <summary>DB 조회 전용 - 관리화면 목록 표시용</summary>
@@ -134,13 +134,15 @@ public class MenuManageRepository : IMenuManageRepository
     }
 
     /// <summary>물리삭제 대신 USE_YN='N' 처리 - 하위 메뉴 참조무결성 보존을 위한 표준 삭제 방식(work_type='D')</summary>
-    public async Task<ProcResult> SetUseYnAsync(long menuId, bool useYn)
+    public async Task<ProcResult> SetUseYnAsync(long menuId, bool useYn, string userId, string? clientPc)
     {
         using var conn = _context.CreateConnection();
         var p = new DynamicParameters();
         p.Add("p_work_type", "D");
         p.Add("p_menu_id", menuId);
         p.Add("p_use_yn", useYn ? "Y" : "N");
+        p.Add("p_user_id", userId);
+        p.Add("p_client_pc", clientPc);
         p.AddStandardOutputs(pascalCase: true);
 
         await conn.ExecuteAsync("USP_SM_MENU_S_1", p, commandType: CommandType.StoredProcedure);

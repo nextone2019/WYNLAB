@@ -1,45 +1,86 @@
+// AI Builder가 싱글그리드 템플릿을 복제해서 자동 생성 - 2026-09-16.
+// 디자인(제목영역/여백/색상)을 바꾸려면 이 파일이 아니라 원본 템플릿(99.SOURCE/TEMPLATE/WYNLAB.TEMPLATE)을 고치세요.
 using System.Data;
 using WYNLAB.Base;
 using WYNLAB.Base.Controls;
 
 namespace WYNLAB.BA;
 
-/// <summary>
-/// 품목현황 화면 - 조회 전용 목록 하나만 있다(등록/수정/삭제는 품목등록(frmItem)에서 한다).
-/// USP_BA_ITEMLIST_Q 하나로 동작하는 범용 데이터 통로 화면(GENERIC_DATA_API.md) - 서버
-/// Controller/Repository 없음, 메뉴등록(TSMMENU)의 PROC_PREFIX=USP_BA_ITEMLIST_ 만으로 동작.
-/// </summary>
 public partial class frmItemList : BaseForm
 {
+    private DataTable _list = new();
+
     public frmItemList()
     {
         InitializeComponent();
 
-        Text = "품목현황";
+        Text = "품목정보조회";
 
-        // 조회전용 - 편집/행추가삭제 전부 막는다(등록/수정은 frmItem에서).
-        gvw1.Role = GridRoleWyn.Query;
+        Controls.Add(BuildScreenHeader());
 
-        // 개발자용 마우스오버 툴팁(BindingField)이 읽어갈 정보 - 실제 적용은
-        // BaseForm.ApplyBindingFieldTooltips가 공통으로 처리한다. 그리드 컬럼은 FieldName이
-        // 이미 실제 DB 컬럼명이라 자동 적용되고, 검색창 하나만 여기서 심어둔다.
-        txtSearchQ.Tag = new BindingFieldTag("item_cd / item_nm");
+        gvw1.Role = GridRoleWyn.Edit;
+        gvw1.HighlightFocusedRow = true;
+        gvw1.RowAdd += (s, e) => gvw1.AddNewRow();
+        gvw1.RowDelete += (s, e) =>
+        {
+            try { if (gvw1.GetFocusedRow() is DataRowView view) view.Row.Delete(); }
+            catch (Exception ex) { AppMessageBox.Show(ex.Message, "삭제 실패"); }
+        };
+
+        
+        Load += async (s, e) => await QueryClick();
     }
 
-    /// <summary>품목 목록 조회 - 검색어 하나로 품목코드/품목명 둘 다(LIKE) 찾는다.
-    /// 상세 패널이 없는 화면이라 재조회 후 선택 복원 같은 처리가 필요 없다(frmAcc/frmEmp와
-    /// 다른 점 - QueryClick이 preserveSelection 분기 없이 이거 하나뿐).</summary>
     public override async Task QueryClick()
     {
-        var keyword = txtSearchQ.Text.Trim();
-
-        var items = await QueryAsync("USP_BA_ITEMLIST_Q", new
+        var p = new Dictionary<string, string?>
         {
-            p_work_type = "Q",
-            p_item_cd = keyword,
-            p_item_nm = keyword
-        });
+            ["p_work_type"] = "Q",
+            ["p_item_no"] = txtItemNo_Q.Text,
+            ["p_item_nm"] = txtItemNm_Q.Text,
+            ["p_item_spec"] = txtItemNm_Q.Text,
+            ["p_stat_cd"] = cboStatCd_Q.EditValue.ToString(),
+            ["p_asset_type"] = cboAssetType_Q.EditValue.ToString(),
+        };
+        _list = await QueryAsync("USP_BA_ITEMLIST_Q", p);
+        grd1.DataSource = _list;
+    }
 
-        grd1.DataSource = items;
+    public override async Task SaveClick()
+    {
+        // 저장프로시저가 지정 안 된 조회전용 화면이면 여기서 막는다 - 코드생성 시점에 이 메서드
+        // 자체를 없애는 대신 실행시점 가드로 처리해서, 나중에 저장프로시저를 붙여도 이 메서드
+        // 골격을 그대로 재사용할 수 있게 한다.
+        if (string.IsNullOrEmpty(""))
+        {
+            AppMessageBox.Show("이 화면은 조회전용으로 생성됐습니다 - 저장프로시저가 지정되지 않았습니다.", "저장 불가");
+            return;
+        }
+
+        gvw1.CloseEditor();
+        gvw1.UpdateCurrentRow();
+
+        foreach (DataRow row in _list.Rows.Cast<DataRow>().ToList())
+        {
+            if (row.RowState == DataRowState.Unchanged) continue;
+
+            var workType = row.RowState == DataRowState.Deleted ? "D" : row.RowState == DataRowState.Added ? "N" : "U";
+            var version = row.RowState == DataRowState.Deleted ? DataRowVersion.Original : DataRowVersion.Current;
+
+            var p = new Dictionary<string, string?>
+            {
+                ["p_work_type"] = workType,
+            };
+
+            var result = await SaveAsync("", p);
+            if (result == null || !result.Success)
+            {
+                AppMessageBox.Show(result?.Message ?? "저장에 실패했습니다.", "저장 실패");
+                return;
+            }
+        }
+
+        Toast.Show("저장되었습니다.");
+        await QueryClick();
     }
 }

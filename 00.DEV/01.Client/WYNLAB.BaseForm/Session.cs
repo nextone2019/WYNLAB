@@ -11,7 +11,6 @@ public static class Session
     public static string UserId => SessionManager.Current.UserInfo?.UserId ?? string.Empty;
     public static string UserNm => SessionManager.Current.UserInfo?.UserNm ?? string.Empty;
     public static string EmpNo => SessionManager.Current.UserInfo?.EmpNo ?? string.Empty;
-    public static string DeptCd => SessionManager.Current.UserInfo?.DeptCd ?? string.Empty;
     public static string DeptNm => SessionManager.Current.UserInfo?.DeptNm ?? string.Empty;
     public static bool IsAdmin => SessionManager.Current.UserInfo?.UserType == "A";
 
@@ -20,5 +19,11 @@ public static class Session
     /// 별개 축 - 사용자등록 화면에 이 값을 고치는 UI가 없어서 DB에서 직접 UPDATE해야만 바뀐다.</summary>
     public static bool IsDeveloper => SessionManager.Current.UserInfo?.DeveloperYn ?? false;
     public static string? UserType => SessionManager.Current.UserInfo?.UserType;
+
+    /// <summary>TSMUSER.ACC_ID(TBAACC 참조, 2026-09-08 추가) - 로그인한 사용자의 사업장. BA
+    /// 모듈 저장프로시저들의 "로그인 세션에 사업장 생기면 채우도록 전환" TODO에 그대로 넘기면 된다
+    /// (예: p_acc_id = Session.AccId).</summary>
+    public static long? AccId => SessionManager.Current.UserInfo?.AccId;
+    public static string AccNm => SessionManager.Current.UserInfo?.AccNm ?? string.Empty;
     public static bool IsSignedIn => SessionManager.Current.IsSignedIn;
 }

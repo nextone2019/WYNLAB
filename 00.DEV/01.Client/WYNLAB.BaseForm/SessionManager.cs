@@ -30,6 +30,18 @@ public sealed class SessionManager
 
     public bool IsSignedIn => UserInfo != null;
 
+    /// <summary>로그인에 쓴 아이디/비번을 메모리에만 잠깐 들고 있는다(디스크 저장 안 함) - 서비스
+    /// 전환(ShellForm의 서버 콤보) 시 로그인창을 다시 띄우지 않고 같은 자격증명으로 새 서비스에
+    /// 조용히 재로그인해보기 위함(2026-09-06 요청). 로그아웃하면 즉시 비운다.</summary>
+    public string? CachedUserId { get; private set; }
+    public string? CachedPassword { get; private set; }
+
+    public void RememberCredentials(string userId, string password)
+    {
+        CachedUserId = userId;
+        CachedPassword = password;
+    }
+
     /// <summary>최근 열어본 화면(최신순, 최대 RecentMenusMaxCount개) - 홈 대시보드 "최근 사용" 카드용.
     /// 로그인 세션 안에서만 유지되고 서버엔 저장하지 않는다(가벼운 UX 편의 기능).</summary>
     public IReadOnlyList<MenuDto> RecentMenus => _recentMenus;
@@ -51,6 +63,11 @@ public sealed class SessionManager
     /// 재로그인 없이도 그 자리에서 바로 새 단축키가 전역에 반영된다.</summary>
     public void ReplaceShortcuts(List<ShortcutDto> shortcuts) => Shortcuts = shortcuts;
 
+    /// <summary>ShellForm의 "메뉴 새로고침"이 api/auth/menus(로그인과 같은 권한 계산 로직)를
+    /// 다시 불러온 뒤 세션 캐시를 바꿔치기할 때 쓴다 - 새로 등록된 메뉴를 보려고 재로그인(아이디/
+    /// 비번 재입력)할 필요가 없어진다(ReplaceShortcuts와 같은 패턴, 2026-09-16).</summary>
+    public void ReplaceMenus(List<MenuDto> menus) => Menus = menus;
+
     public MenuDto? GetMenuAuth(long menuId) =>
         Menus.FirstOrDefault(m => m.MenuId == menuId);
 
@@ -71,5 +88,7 @@ public sealed class SessionManager
         Shortcuts.Clear();
         _recentMenus.Clear();
         SignInTime = null;
+        CachedUserId = null;
+        CachedPassword = null;
     }
 }

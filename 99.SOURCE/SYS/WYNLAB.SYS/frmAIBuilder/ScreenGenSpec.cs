@@ -4,18 +4,32 @@ namespace WYNLAB.SYS;
 /// - SingleGrid: grd1 하나(인라인 편집, 저장버튼이 변경된 행을 일괄 저장) - 가장 단순한 목록화면.
 /// - MasterSubGrid: grd1(마스터, 조회전용) + grd2(grd1 선택행에 따라 재조회) - 그리드 2개,
 ///   상세입력폼은 없음(frmDept.cs 패턴).
-/// - MasterFormSubGrid: grd1(마스터, 조회전용 목록) + panData(선택행 상세편집폼) + grd2(하위
-///   인라인편집 그리드) - 기초코드등록(frmMinorCode) 패턴, 화면 하나에 목록/상세/하위목록이
-///   전부 있는 가장 완전한 형태.
-/// - MasterFormTabGrid: MasterFormSubGrid와 같은 grd1+panData 구조에, 하위 그리드가 1개가
-///   아니라 탭으로 묶인 2개(grd2/grd3)다. grd2/grd3는 조회전용이 아니라 편집 가능하고 각자
-///   자기 저장프로시저로 저장된다(거래처+담당자+계좌 같은 1:N:N 구조, frmCust 패턴).</summary>
+/// - MasterFormSubGrid: grd1(마스터, 조회전용 목록) + panData(선택행 상세편집폼) + 탭으로 묶인
+///   하위 인라인편집 그리드 1~2개(grd2/grd3, 둘 다 편집 가능하고 각자 자기 저장프로시저로
+///   저장된다) - 기초코드등록/거래처등록(frmMinorCode/frmCust) 패턴, 화면 하나에 목록/상세/
+///   하위목록이 전부 있는 가장 완전한 형태. grd3는 선택사항이라 하위그리드가 1개뿐인 화면도
+///   이걸로 만든다(2026-09-08 - 예전엔 grd2 하나만 조회전용으로 만드는 "MasterFormSubGrid"와
+///   grd2/grd3 둘 다 편집 가능한 "MasterFormTabGrid"가 별도 템플릿이었는데, 후자가 전자를 완전히
+///   포함하는 상위호환이라 하나로 합쳤다 - grd3/grd2저장을 안 쓰면 생성 후 그 탭/저장액션만 지우면
+///   예전 MasterFormSubGrid와 동일해진다).
+/// - MasterOneSheet: grd1(마스터 목록 그리드) 자체가 없다(2026-09-09 재설계 - "grd1이 없는
+///   모습"). panHeader(검색조건)에 키를 입력하고 툴바 조회를 누르면 그 문서 1건이 곧바로
+///   panData(문서 자체)에 채워진다 - grd1에서 행을 고르는 중간 단계가 없다. 하위 그리드
+///   (grd2~grd5, 탭)는 MasterFormSubGrid와 달리 전부 선택사항이다(0~4개, 예전엔 하위그리드가
+///   아예 없었는데 지금은 있어도/없어도 된다). QuerySources 쪽에서는 여전히 "grd1"을 문서
+///   헤더 레코드셋의 슬롯 이름으로 쓰지만(도구 내부 규약, 실제 그리드는 없음), grd1~grd5가
+///   전부 같은 조회프로시저(한 번의 QueryMultiAsync)의 서로 다른 레코드셋이어야 한다 - grd1
+///   선택에 따라 별도 프로시저를 다시 부르는 중간 단계 자체가 없기 때문.
+/// - TreeMasterSubGrid: MasterFormSubGrid와 완전히 같은 구조인데 grd1(평범한 목록 그리드) 대신
+///   tree1(TreeListWyn, 자기참조 계층 데이터)이 마스터다(2026-09-08 추가) - 부서/메뉴처럼 상위-
+///   하위 구조를 가진 목록이 마스터인 화면용. MasterParentColumn(아래)이 이 템플릿에서만 쓰인다.</summary>
 public enum TemplateKind
 {
     SingleGrid,
     MasterSubGrid,
     MasterFormSubGrid,
-    MasterFormTabGrid
+    MasterOneSheet,
+    TreeMasterSubGrid
 }
 
 /// <summary>AI Builder가 생성할 화면 하나를 기술하는 값 - describe-proc 결과를 사람이
@@ -42,19 +56,26 @@ public class ScreenGenSpec
     public string? DetailWorkType { get; set; } // 기본 "Q1"
     public string? SaveProc { get; set; }
 
-    /// <summary>조회프로시저의 파라미터(p_ 뗀 이름, p_work_type 제외) - panHeader 검색조건
-    /// 텍스트박스로 하나씩 만들어진다.</summary>
-    public List<string> QueryParams { get; set; } = new();
+    /// <summary>panHeader(검색조건)에 노출할 컨트롤 목록 - Name/ControlKind/LookupKey는 그리드/
+    /// panData 컬럼과 같은 어휘(ColumnSpec)를 그대로 쓴다. 기본은 조회프로시저 자체 파라미터가
+    /// 1:1로 채워지지만(ParamName="p_"+파라미터명), 그 프로시저의 실제 파라미터가 아닌 화면표시
+    /// 전용 컨트롤도 자유롭게 추가할 수 있다 - 그런 항목은 ParamName을 비워둔다(예: 검색조건에
+    /// dept_cd를 쓰면서 화면엔 dept_nm도 같이 보여주고 싶을 때, dept_cd는 ParamName="p_dept_cd",
+    /// dept_nm은 ParamName=""로 추가한다. 2026-09-08).</summary>
+    public List<ColumnSpec> SearchFields { get; set; } = new();
 
     /// <summary>마스터 그리드에서 선택된 행의 이 컬럼 값을 서브 조회의 유일한 필터 파라미터로
     /// 넘긴다(frmDept.cs 패턴) - grd1 컬럼 중 하나여야 한다.</summary>
     public string? MasterKeyColumn { get; set; }
 
+    /// <summary>Kind가 TreeMasterSubGrid일 때만 쓰인다 - 마스터 트리(tree1)의 자기참조 상위키
+    /// 컬럼명(예: 부서 테이블의 UPPER_DEPT_ID). MasterKeyColumn과 짝을 이뤄 tree1.KeyFieldName/
+    /// ParentFieldName에 그대로 들어간다 - 이 컬럼도 grd1(마스터) 컬럼 목록에 실제로 있어야 한다.</summary>
+    public string? MasterParentColumn { get; set; }
+
     /// <summary>MasterKeyColumn 값을 서브 조회 시 어느 파라미터(p_ 뗀 이름)로 보낼지 - 같은
     /// 프로시저를 Q/Q1으로 나눠 쓰므로 파라미터 목록 자체는 Q/Q1 공통이다.</summary>
     public string? DetailKeyParam { get; set; }
-
-    public List<string> SearchParams() => QueryParams;
 
     /// <summary>조회 - 프로시저/워크타입 조합마다 레코드셋을 1개 이상 반환할 수 있고, 그 각각을
     /// ResultSetBindings로 화면의 슬롯(그리드/폼 컨트롤, 예: "grd1"/"grd2"/"grd3")에 바인딩한다.
@@ -119,6 +140,17 @@ public class ColumnSpec
     public bool IncludeInGrid { get; set; } = true;
     public bool IsKey { get; set; }
 
+    /// <summary>그리드(grd1~5)/panData/검색조건 컨트롤에 공통으로 적용된다(2026-09-09 요청).
+    /// true면 생성된 컨트롤에 BaseEdit 계열은 RequiredFieldExtensions.MarkRequired()(배경색 강조),
+    /// 그리드 컬럼은 GridColumn.MarkRequired()(빈 셀만 강조)가 적용된다 - 두 확장메서드 모두 기존
+    /// hand-written 화면들이 이미 쓰던 것을 그대로 재사용한다. 예외 두 가지: (1) TreeListColumn
+    /// (tree1)에는 대응하는 확장메서드가 없어 트리 컬럼은 적용하지 않는다(의도적 범위 제한).
+    /// (2) 그리드 컬럼은 그 그리드의 Role이 Query(조회전용, 편집 불가)면 이 플래그를 무시한다
+    /// (2026-09-09, 사장님 지적 - "roll이 query인 컨트롤에는 필수입력 여부를 적용할 필요가 없어":
+    /// 편집이 안 되는 그리드에 강조를 표시해봐야 사용자가 채울 방법이 없다) - panData/검색조건은
+    /// 항상 편집 가능하므로 이 예외가 없다.</summary>
+    public bool Required { get; set; }
+
     /// <summary>TEXT/CHECK/NUMBER/COMBO 중 하나 - COMBO면 LookupKey로 지정된 LookUp에 연결된다.</summary>
     public string ControlKind { get; set; } = "TEXT";
 
@@ -126,4 +158,16 @@ public class ColumnSpec
     /// LookUp 키). 그리드 컬럼은 LookUpColumnEdit, panData 컨트롤은 LookUpEditWyn으로 이 값에
     /// 연결된다.</summary>
     public string? LookupKey { get; set; }
+
+    /// <summary>ScreenGenSpec.SearchFields에서만 쓰인다(그리드/panData 컬럼은 안 씀) - 이 검색조건
+    /// 컨트롤이 조회프로시저의 실제 파라미터일 때 그 파라미터 키를 "p_" 접두어까지 포함해서 그대로
+    /// 담는다(예: "p_dept_cd"). 비어있으면 조회 시 이 컨트롤의 값을 안 보낸다 - 화면표시 전용
+    /// 컨트롤(예: dept_cd 옆의 dept_nm)이라는 뜻이다.</summary>
+    public string? ParamName { get; set; }
+
+    /// <summary>ScreenGenSpec.SearchFields에서만 쓰인다(그리드/panData 컬럼은 안 씀, 2026-09-09) -
+    /// false면 panHeader에 라벨+컨트롤이 그대로 생성되지만 Visible=false로 만들어진다(코드에서 값을
+    /// 계속 읽고 쓸 수는 있어야 하는 화면 로직상 필요조건이라, ParamName처럼 아예 안 만들지는 않고
+    /// 숨기기만 한다). 조회 시 QUERY_PARAMS에 값을 보내는지 여부(ParamName)와는 완전히 별개다.</summary>
+    public bool Visible { get; set; } = true;
 }

@@ -1,8 +1,5 @@
 using DevExpress.XtraEditors;
 using DevExpress.XtraEditors.Controls;
-using DevExpress.XtraLayout;
-using DevExpress.XtraTreeList;
-using DevExpress.XtraTreeList.Columns;
 using WYNLAB.Shared.Dtos;
 using WYNLAB.Base;
 using WYNLAB.Base.Controls;
@@ -15,80 +12,83 @@ namespace WYNLAB.SM.MENU;
 /// (별도 팝업 없음 - UserEditForm/UserGroupEditForm과 달리 이 화면은 계층 구조 자체가
 /// 핵심이라 트리를 보면서 바로 옆에서 편집하는 게 훨씬 직관적).
 ///
-/// 신규 등록 규칙:
-/// - Shell 툴바 "입력"(NewClick) -> 좌측 트리에서 현재 선택된 메뉴가 있으면 그 메뉴의
-///   "하위 메뉴"로 신규 등록 (상위메뉴ID/메뉴레벨 자동 세팅, 직접 입력 불가)
-/// - 우측 상단 "최상위 메뉴로 등록" 버튼 -> 트리 선택과 무관하게 항상 최상위(모듈)로 신규 등록
+/// 신규/삭제는 표준 툴바가 아니라 화면 자체의 버튼/체크박스로만 한다(2026-09-16 요청,
+/// ApplyMenuAuth 참고):
+/// - "최상위메뉴추가" -> 트리 선택과 무관하게 항상 최상위(모듈)로 신규 등록
+/// - "하위메뉴추가" -> 좌측 트리에서 현재 선택된 메뉴가 있으면 그 메뉴의 하위로 신규 등록
+///   (상위메뉴ID/메뉴레벨 자동 세팅, 직접 입력 불가)
+/// - 삭제 = panData의 "사용" 체크박스를 해제하고 저장(소프트삭제, USE_YN='N') - 다시 체크하고
+///   저장하면 복구된다. 사용중지된 메뉴는 좌측 트리에서 회색 글씨로 표시된다(TreeListWyn 참고).
 ///
 /// MENU_ID는 BIGINT IDENTITY라 더는 사람이 입력하지 않는다(서버가 채번) - 메뉴코드 자기입력
 /// 필드는 없어졌고, 대신 등록된 메뉴의 ID를 읽기전용으로만 보여준다.
 /// </summary>
-public class frmMenu : BaseForm
+public partial class frmMenu : BaseForm
 {
     private List<MenuListItemDto> _menus = new();
 
     private long? _editingMenuId;   // null이면 신규모드, 값이 있으면 그 메뉴 수정모드
     private long? _lastSelectedId;  // 트리에서 마지막으로 선택된 메뉴 (신규 시 상위메뉴 후보)
 
-    // 트리 폭은 사용자가 스플리터로 조절할 수 있게 하되(SplitContainerControl), 우측 입력
-    // 필드들은 FixedControlWidth로 각자 고정폭이라 스플리터를 옮기거나 MDI 창을 리사이즈해도
-    // 필드 자체의 크기/배치는 흔들리지 않는다 - 늘어나는/줄어드는 건 여백뿐이다.
-    private readonly SplitContainerControl splitContainer = new() { Dock = DockStyle.Fill };
-    private readonly Panel leftPanel = new() { Dock = DockStyle.Fill };
-    private readonly Panel rightPanel = new() { Dock = DockStyle.Fill };
-    private readonly TreeList menuTree = new();
-    private readonly TreeListColumn colMenuId = new() { FieldName = "MenuId", Caption = "메뉴ID" };
-    private readonly TreeListColumn colMenuNm = new() { FieldName = "MenuNm", Caption = "메뉴명" };
-
-    private readonly LabelControl lblFormTitle = new();
-    private readonly LabelControl lblFormHint = new();
-    private readonly SimpleButton btnNewTop = new() { Text = "최상위 메뉴로 등록" };
-
-    // 메뉴ID는 서버 채번(IDENTITY) - 항상 읽기전용, 신규모드에선 저장 전까지 비어있다.
-    private readonly TextEdit txtMenuId = new() { Properties = { ReadOnly = true } };
-    private readonly TextEdit txtMenuNm = new();
-    private readonly TextEdit txtUpperMenuId = new() { Properties = { ReadOnly = true } };
-
-    // 상위메뉴를 이름으로 찾아서 고르는 팝업(P_MENU, 메뉴 자기참조 트리) - 고르면 MapField가
-    // 위 txtUpperMenuId를 같이 채운다. 트리 클릭으로 자동 세팅되던 상위메뉴를 이제 이 필드로도
-    // 바꿀 수 있으므로, txtUpperMenuId.EditValueChanged에서 메뉴레벨을 다시 계산해야 한다
-    // (아래 생성자 참고) - 안 그러면 신규모드에서 트리로 잡힌 레벨이 팝업으로 부모를 바꾼
-    // 뒤에도 안 바뀌어서 저장 시 실제 부모 레벨과 안 맞는 값이 들어간다.
-    private readonly PopupLookupEditWyn txtUpperMenuNm = new();
-    private readonly SpinEdit spnMenuLevel = new() { Properties = { MinValue = 1, MaxValue = 5, ReadOnly = true } };
-    private readonly ComboBoxEdit cboMenuType = new();
-    private readonly TextEdit txtModule = new();
-    private readonly TextEdit txtScreenClassNm = new();
-    private readonly TextEdit txtIconNm = new();
-
-    // 범용 데이터 통로(api/data/*)가 이 메뉴에서 호출을 허용할 프로시저 접두사 - 비어있으면
-    // 그 메뉴로는 api/data/* 저장/조회가 전부 거부된다(DataController.ValidateAsync ②단계).
-    // 지금까지는 이 값을 UI에서 아예 편집할 방법이 없어서 마이그레이션 스크립트로만 채워졌었다
-    // (2026-09-04 실제 발견 - AI Builder가 즉시등록한 메뉴는 전부 이게 비어서 저장이 막혔음).
-    private readonly TextEdit txtProcPrefix = new();
-    private readonly SpinEdit spnSortOrder = new() { Properties = { MinValue = 0, MaxValue = 9999 } };
-    private readonly CheckEdit chkUseYn = new() { Text = "사용" };
-
-    // AUTH01~10 캡션 - 이 메뉴에서 BaseForm.Auth[0..9]를 어떤 의미로 쓸지 여기서 한 번만 정의해두면
-    // 사용자권한관리(frmUserAuth)에서 이 메뉴를 클릭했을 때 그대로 표시된다. 비워두면 그 화면에서
-    // "Auth01"처럼 기본 표기로 대체됨 - 그래서 여기도 전부 선택 입력(필수 아님)이다.
-    private readonly TextEdit[] txtAuthNm = Enumerable.Range(0, 10).Select(_ => new TextEdit()).ToArray();
-
-    private readonly LayoutControl layoutControl = new() { Padding = new Padding(16) };
-    private readonly Panel formFooterPanel = new() { Dock = DockStyle.Bottom, Height = 56 };
-    private readonly SimpleButton btnSaveInline = new() { Text = "저장" };
-    private readonly SimpleButton btnCancelEdit = new() { Text = "취소" };
-    private readonly SimpleButton btnCopy = new() { Text = "복사" };
-
-    // 화면 타이틀의 기본 폴더 아이콘 대신 "계층 구조를 관리한다"는 의미가 더 명확한 트리 아이콘을 사용.
-    protected override Action<Graphics, Rectangle, Color> ScreenIconPainter => MenuIconPainters.MenuTree;
+    // AUTH01~10은 화면에 10칸이 반복될 뿐이라 배열로 묶어서 반복문으로 다룬다 - 필드 자체는
+    // Designer.cs에 개별로 선언돼 있어야(txtAuthNm1..10) VS 디자이너에서 하나씩 옮길 수 있다.
+    private TextEditWyn[] TxtAuthNm => new[]
+    {
+        txtAuthNm1, txtAuthNm2, txtAuthNm3, txtAuthNm4, txtAuthNm5,
+        txtAuthNm6, txtAuthNm7, txtAuthNm8, txtAuthNm9, txtAuthNm10
+    };
 
     public frmMenu()
     {
+        InitializeComponent();
+
         Text = "메뉴관리";
 
-        cboMenuType.Properties.Items.AddRange(new[] { "GROUP", "FORM" });
-        cboMenuType.Properties.TextEditStyle = TextEditStyles.DisableTextEditor;
+        Controls.Add(BuildScreenHeader());
+
+
+        // svgImageCollection1(디자이너 갤러리에서 고른 datapanel/open 두 아이콘)은 DevExpress 전용
+        // 컬렉션이라 TreeList.SelectImageList(순정 ImageList)에 바로 못 꽂는다 - 여기서 각 항목을
+        // 실제 비트맵으로 한 번 렌더링해서 옮겨줘야 한다(안 하면 ImageIndex를 줘도 아무 목록이
+        // 없어서 그려지지 않는다 - 2026-09-16 실제 겪음).
+        var menuTypeIcons = new System.Windows.Forms.ImageList { ImageSize = new Size(16, 16) };
+        menuTypeIcons.Images.Add(svgImageCollection1.GetImage("datapanel", new Size(16, 16), null));
+        menuTypeIcons.Images.Add(svgImageCollection1.GetImage("open", new Size(16, 16), null));
+        menuTree.SelectImageList = menuTypeIcons;
+
+        menuTree.NodeCellStyle += (s, e) =>
+        {
+            var menuType = e.Node.GetValue("MenuType") as string;
+            e.Node.ImageIndex = e.Node.SelectImageIndex = menuType switch
+            {
+                "GROUP" => 1,   // menuTypeIcons의 1번 = "open"
+                "FORM" => 0,    // menuTypeIcons의 0번 = "datapanel"
+                _ => -1         // 아이콘 없음
+            };
+        };
+
+        //cboMenuType.Properties.Items.AddRange(new[] { "GROUP", "FORM" });
+
+        // 아이콘명 콤보 - 손입력 대신 실제 아이콘을 미리보기로 보고 고른다(2026-09-16 요청).
+        // 목록은 WYNLAB.Shared.MenuIconCatalog 하나뿐이라, 사이드바(ShellForm.TopMenuIcons)가
+        // 실제로 그릴 수 있는 아이콘과 항상 일치한다 - 여기 없는 값을 억지로 넣을 방법이 없다.
+        // 지금은 최상위(모듈) 메뉴의 사이드바 아이콘에만 쓰이지만(하위 메뉴는 이 값이 아직
+        // 화면에 반영 안 됨), 콤보 자체는 모든 레벨에서 선택 가능하게 둔다.
+        BuildIconNmCombo();
+
+        // 입력 컨트롤 폰트를 앱 공통 스케일(AppFonts.Body)로 통일 - 지정하지 않으면
+        // DevExpress 기본 폰트(Tahoma 8.25pt)로 표시되어 화면마다 크기가 들쭉날쭉해 보였다.
+        foreach (var edit in new BaseEdit[]
+                 {
+                     txtMenuId, txtMenuNm, txtUpperMenuId, txtUpperMenuNm, spnMenuLevel, cboMenuType,
+                     cboModule, txtScreenClassNm, cboIconNm, txtProcPrefix, spnSortOrder, chkUseYn
+                 }.Concat(TxtAuthNm))
+        {
+            edit.Properties.Appearance.Font = AppFonts.Body;
+            edit.Properties.Appearance.Options.UseFont = true;
+        }
+        txtMenuNm.MarkRequired();
+        cboMenuType.MarkRequired();
 
         // 상위메뉴 팝업(멀티필드 모드) - MatchField가 이 컨트롤 자신이 대표하는 팝업 결과
         // 컬럼(menu_nm)을 가리키고, MapField가 나머지 컬럼(menu_id)을 txtUpperMenuId에 채운다.
@@ -117,201 +117,80 @@ public class frmMenu : BaseForm
         txtUpperMenuNm.Tag = new BindingFieldTag("UPPER_MENU_ID");
         spnMenuLevel.Tag = new BindingFieldTag("MENU_LEVEL");
         cboMenuType.Tag = new BindingFieldTag("MENU_TYPE");
-        txtModule.Tag = new BindingFieldTag("MODULE");
+        cboModule.Tag = new BindingFieldTag("MODULE");
         txtScreenClassNm.Tag = new BindingFieldTag("SCREEN_CLASS_NM");
-        txtIconNm.Tag = new BindingFieldTag("ICON_NM");
+        cboIconNm.Tag = new BindingFieldTag("ICON_NM");
         txtProcPrefix.Tag = new BindingFieldTag("PROC_PREFIX");
         spnSortOrder.Tag = new BindingFieldTag("SORT_ORDER");
         chkUseYn.Tag = new BindingFieldTag("USE_YN");
-        for (var i = 0; i < txtAuthNm.Length; i++)
-            txtAuthNm[i].Tag = new BindingFieldTag($"AUTH{(i + 1):00}_NM");
+        for (var i = 0; i < TxtAuthNm.Length; i++)
+            TxtAuthNm[i].Tag = new BindingFieldTag($"AUTH{(i + 1):00}_NM");
 
-        BuildLeftPanel();
-        BuildRightPanel();
-        splitContainer.Panel1.Controls.Add(leftPanel);
-        splitContainer.Panel2.Controls.Add(rightPanel);
-        // 트리 컬럼 폭 합(메뉴ID 70 + 메뉴명 170 = 240)에 계층 들여쓰기(레벨이 깊어질수록
-        // 늘어남)까지 감안해서 여유를 둔다.
-        splitContainer.Panel1.MinSize = 260;
-        splitContainer.Panel2.MinSize = 500; // 우측 필드 중 화면 클래스명(300px)이 가장 넓어서 그보다 여유있게
-        splitContainer.SplitterPosition = 340;
+        // 버그 수정(원래 코드에도 있던 주석): Dock을 실제로 지정한 적이 없어서 트리가 기본
+        // 크기(작은 박스)로만 떠 있었다 - Designer.cs에서 Dock=Fill로 이미 잡아뒀다.
+        menuTree.KeyFieldName = "MenuId";
+        menuTree.ParentFieldName = "UpperMenuId";
+        menuTree.OptionsBehavior.Editable = false;
+        // 컬럼 폭 합이 패널보다 좁아도(또는 스플리터로 더 늘려도) 남는/모자란 폭을 컬럼이
+        // 채우게 해서 가로 스크롤바가 생기지 않게 한다.
+        menuTree.OptionsView.AutoWidth = true;
+        menuTree.FocusedNodeChanged += (s, e) => OnTreeSelectionChanged();
 
-        // Dock 추가 순서: Fill(splitContainer) 먼저, Top(타이틀바)은 나중에 추가해야 맨 위를 차지한다
-        Controls.Add(splitContainer);
-        Controls.Add(BuildScreenHeader());
+        btnNewTop.Click += (s, e) => EnterNewMode(null, forceTop: true);
+        btnNewChild.Click += (s, e) => EnterNewMode(_lastSelectedId);
+        btnSaveInline.Click += async (s, e) => await SaveClick();
+        btnCancelEdit.Click += (s, e) => EnterNewMode(_lastSelectedId);
+        // 복사(Save As) - 지금 선택된 메뉴가 있을 때만 의미가 있다(EnterEditMode/EnterNewMode에서
+        // Enabled를 맞춘다). 저장은 하지 않고 신규입력 상태(메뉴ID만 비움)로만 만들어둔다 -
+        // 나머지 값은 전부 그대로 복사돼 있으니 저장 누르면 새 ID로 채번된다.
+        btnCopy.Enabled = false;
+        btnCopy.Click += (s, e) => EnterCopyMode();
 
-        // 화면종료 시 저장 확인(BaseForm.ConfirmCloseAsync) - 이 화면은 panData 대신 layoutControl에
-        // 편집 컨트롤을 직접 담으므로 그걸 넘긴다. menuTree는 편집 불가(OptionsBehavior.Editable
-        // = false)라 별도로 걸 것이 없다.
-        TrackDirty(layoutControl);
+        // 화면종료 시 저장 확인(BaseForm.ConfirmCloseAsync) - 이 화면은 panData에 편집 컨트롤을
+        // 직접 담으므로 그걸 넘긴다. menuTree는 편집 불가(OptionsBehavior.Editable = false)라
+        // 별도로 걸 것이 없다.
+        TrackDirty(panData);
 
         EnterNewMode(null);
         Load += async (s, e) => await QueryClick();
     }
 
-    private void BuildLeftPanel()
+    /// <summary>WYNLAB.Shared.MenuIconCatalog의 각 항목을 실제 DevExpress SVG 아이콘으로 렌더링해서
+    /// cboIconNm의 드롭다운에 "그림 + 설명"으로 보여준다(2026-09-16 요청 - "아이콘명을 실제
+    /// 아이콘을 룩업에서 선택"). Value는 그 항목의 Key(예: "settings") 그대로라 TSMMENU.ICON_NM에
+    /// 저장되는 값과 ShellForm.TopMenuIcons가 찾는 값이 항상 같다. WYNLAB.SM은 WYNLAB.Shell을
+    /// 참조하지 않는 방향이라(모듈이 호스트를 참조하면 안 됨) SvgIcons.cs를 그대로 못 가져다
+    /// 쓰고, 같은 API(DevExpress.Images.ImageResourceCache)를 여기서 직접 호출한다.</summary>
+    private void BuildIconNmCombo()
     {
-        var divider = new Panel { Dock = DockStyle.Right, Width = 1, BackColor = Color.FromArgb(225, 225, 225) };
+        var images = new System.Windows.Forms.ImageList { ImageSize = new Size(16, 16), ColorDepth = System.Windows.Forms.ColorDepth.Depth32Bit };
+        var iconColor = System.Drawing.Color.FromArgb(90, 94, 102);
 
-        // 버그 수정: Dock을 실제로 지정한 적이 없어서 트리가 기본 크기(작은 박스)로만 떠 있었다.
-        menuTree.Dock = DockStyle.Fill;
-        menuTree.KeyFieldName = "MenuId";
-        menuTree.ParentFieldName = "UpperMenuId";
-        menuTree.OptionsBehavior.Editable = false;
-        menuTree.OptionsView.ShowIndicator = false;
-        menuTree.OptionsView.ShowHorzLines = false;
-        menuTree.OptionsView.ShowVertLines = false;
-        menuTree.RowHeight = 26; // 기본 행높이는 다소 빡빡해 보여서 살짝 여유를 줌
-        menuTree.Appearance.Row.Font = AppFonts.Body;
-        colMenuId.Visible = true;
-        colMenuId.VisibleIndex = 0;
-        colMenuId.Width = 70;
-        colMenuNm.Visible = true;
-        colMenuNm.VisibleIndex = 1;
-        colMenuNm.Width = 170;
-        menuTree.Columns.AddRange(new[] { colMenuId, colMenuNm });
-        menuTree.OptionsView.ShowColumns = true; // 컬럼이 둘이라 헤더로 구분해준다(메뉴ID/메뉴명)
-        // 두 컬럼 폭 합이 패널보다 좁아도(또는 스플리터로 더 늘려도) 남는/모자란 폭을 컬럼들이
-        // 나눠 채우게 해서 가로 스크롤바가 생기지 않게 한다 - 컬럼이 하나였을 때도 같은 이유로 켰었다.
-        menuTree.OptionsView.AutoWidth = true;
-        menuTree.FocusedNodeChanged += (s, e) => OnTreeSelectionChanged();
-
-        // 그룹(폴더, 클릭해도 화면이 안 열림) 행과 실제 화면(leaf) 행을 배경/글자색으로 구분한다.
-        // 색은 UiTheme(=appsettings.json Theme 섹션)에서 가져와서, 트리를 쓰는 다른 화면이
-        // 늘어나도 전부 같은 톤을 재사용하게 한다.
-        menuTree.NodeCellStyle += (s, e) =>
+        foreach (var entry in WYNLAB.Shared.MenuIconCatalog.Entries)
         {
-            var menuType = e.Node.GetValue("MenuType") as string;
-            var isGroup = menuType == "GROUP";
-            e.Appearance.BackColor = isGroup ? UiTheme.TreeGroupBackColor : UiTheme.TreeLeafBackColor;
-            e.Appearance.ForeColor = isGroup ? UiTheme.TreeGroupForeColor : UiTheme.TreeLeafForeColor;
-            e.Appearance.Font = isGroup ? AppFonts.BodyBold : AppFonts.Body;
-            e.Appearance.Options.UseBackColor = true;
-            e.Appearance.Options.UseForeColor = true;
-            e.Appearance.Options.UseFont = true;
-        };
+            // GetSvgImage는 이름+크기별로 캐싱된 인스턴스를 그대로 돌려주므로(SvgIcons.cs와 같은
+            // 이유) Dispose하지 않는다 - ImageList.Images.Add가 내부적으로 복사해서 담는다.
+            var rendered = DevExpress.Images.ImageResourceCache.Default.GetSvgImage(entry.SvgResourceName, null, new Size(16, 16));
+            images.Images.Add(rendered ?? new System.Drawing.Bitmap(16, 16));
 
-        leftPanel.Controls.Add(menuTree); // Fill 먼저
-        leftPanel.Controls.Add(divider);
-    }
-
-    private void BuildRightPanel()
-    {
-        var headerPanel = new Panel { Dock = DockStyle.Top, Height = 56, Padding = new Padding(16, 10, 16, 0) };
-        lblFormTitle.Font = AppFonts.BodyBold;
-        lblFormTitle.Location = new Point(0, 2);
-        lblFormTitle.AutoSizeMode = LabelAutoSizeMode.None;
-        lblFormTitle.Size = new Size(400, 20);
-        headerPanel.Controls.Add(lblFormTitle);
-
-        lblFormHint.Font = AppFonts.Caption;
-        lblFormHint.Appearance.ForeColor = Color.FromArgb(140, 140, 140);
-        lblFormHint.Location = new Point(0, 22);
-        lblFormHint.AutoSizeMode = LabelAutoSizeMode.None;
-        lblFormHint.Size = new Size(400, 18);
-        headerPanel.Controls.Add(lblFormHint);
-
-        btnNewTop.Size = new Size(140, 28);
-        btnNewTop.Anchor = AnchorStyles.Top | AnchorStyles.Right;
-        btnNewTop.Click += (s, e) => EnterNewMode(null, forceTop: true);
-        headerPanel.Controls.Add(btnNewTop);
-        headerPanel.Resize += (s, e) => btnNewTop.Location = new Point(headerPanel.Width - btnNewTop.Width - 16, 12);
-
-        BuildLayout();
-
-        // Dock 추가 순서: Fill(layoutControl) 먼저, Top(headerPanel)은 나중에 추가해야
-        // 맨 위 가장자리를 정상적으로 차지한다.
-        rightPanel.Controls.Add(layoutControl);
-        rightPanel.Controls.Add(headerPanel);
-        BuildFooter();
-    }
-
-    private void BuildLayout()
-    {
-        layoutControl.Dock = DockStyle.Fill;
-        layoutControl.BeginUpdate();
-
-        var root = layoutControl.Root;
-        root.TextVisible = false;
-        root.Padding = new DevExpress.XtraLayout.Utils.Padding(4, 4, 4, 4);
-
-        // 입력 컨트롤 폰트를 앱 공통 스케일(AppFonts.Body)로 통일 - 지정하지 않으면
-        // DevExpress 기본 폰트(Tahoma 8.25pt)로 표시되어 화면마다 크기가 들쭉날쭉해 보였다.
-        foreach (var edit in new BaseEdit[] { txtMenuId, txtMenuNm, txtUpperMenuId, txtUpperMenuNm, spnMenuLevel, cboMenuType, txtModule, txtScreenClassNm, txtIconNm, txtProcPrefix, spnSortOrder, chkUseYn }.Concat(txtAuthNm))
-        {
-            edit.Properties.Appearance.Font = AppFonts.Body;
-            edit.Properties.Appearance.Options.UseFont = true;
+            cboIconNm.Properties.Items.Add(new DevExpress.XtraEditors.Controls.ImageComboBoxItem(
+                entry.DisplayNm, entry.Key, images.Images.Count - 1));
         }
 
-        // 각 필드에 입력될 값의 실제 길이를 고려한 고정폭 - LayoutControl 기본 동작(그룹 폭까지
-        // 무조건 늘어남)을 끄고, 짧은 코드/콤보는 짧게, 긴 클래스명은 넉넉하게 잡는다.
-        // 창 크기가 바뀌어도 이 폭은 그대로 유지된다(FixedControlWidth 참고).
-        var groupBasic = root.AddGroup("기본정보").StyleAsSection();
-        groupBasic.AddItem("메뉴ID", txtMenuId).FixedControlWidth(100);
-        groupBasic.AddItem("메뉴명", txtMenuNm).MarkRequired().FixedControlWidth(220);
-        groupBasic.AddItem("상위메뉴ID", txtUpperMenuId).FixedControlWidth(100);
-        groupBasic.AddItem("상위메뉴명", txtUpperMenuNm).FixedControlWidth(220);
-        groupBasic.AddItem("메뉴레벨", spnMenuLevel).FixedControlWidth(70);
-        groupBasic.AddItem("메뉴유형", cboMenuType).MarkRequired().FixedControlWidth(130);
-
-        var groupAdvanced = root.AddGroup("연결정보").StyleAsSection();
-        groupAdvanced.AddItem("모듈", txtModule).FixedControlWidth(120);
-        groupAdvanced.AddItem("화면 클래스명", txtScreenClassNm).FixedControlWidth(300);
-        groupAdvanced.AddItem("아이콘명", txtIconNm).FixedControlWidth(150);
-        groupAdvanced.AddItem("Proc Prefix", txtProcPrefix).FixedControlWidth(220);
-        groupAdvanced.AddItem("정렬순서", spnSortOrder).FixedControlWidth(70);
-
-        var groupStatus = root.AddGroup("상태").StyleAsSection();
-        var itemUseYn = groupStatus.AddItem(string.Empty, chkUseYn);
-        itemUseYn.TextVisible = false;
-
-        // AUTH01~10 캡션 - 사용자권한관리(frmUserAuth)의 AUTH01~10 패널에 그대로 표시될 텍스트.
-        var groupAuthNm = root.AddGroup("추가권한 캡션(AUTH01~10)").StyleAsSection();
-        for (var i = 0; i < txtAuthNm.Length; i++)
-            groupAuthNm.AddItem($"AUTH{(i + 1):00}", txtAuthNm[i]).FixedControlWidth(160);
-
-        layoutControl.EndUpdate();
-        // 필드 수가 많아 세로로 길어질 수 있어 우측 패널 자체를 스크롤 가능하게 한다.
-        rightPanel.AutoScroll = true;
-        txtMenuNm.MarkRequired();
+        cboIconNm.Properties.SmallImages = images;
     }
 
-    private void BuildFooter()
+/// <summary>이 화면은 등록/삭제를 표준 툴바(신규입력/삭제, 그리고 같은 플래그를 공유하는
+/// 행추가/행삭제)가 아니라 화면 자체의 버튼("최상위메뉴추가"/"하위메뉴추가")과 panData의
+/// "사용" 체크박스(체크 해제 후 저장 = 삭제, 다시 체크 후 저장 = 복구)로만 처리한다
+/// (2026-09-16 요청) - 툴바 쪽 4개는 항상 꺼둬서 두 가지 경로가 헷갈리지 않게 한다.
+/// ShellForm.UpdateToolbarPermissions가 CanInsert/CanDelete를 그대로 읽어가므로, 서버가
+/// 내려준 실제 권한(base.ApplyMenuAuth) 위에 이 화면만 덮어쓴다.</summary>
+protected override void ApplyMenuAuth()
     {
-        formFooterPanel.BackColor = Color.FromArgb(245, 246, 248);
-        var topBorder = new Panel { Dock = DockStyle.Top, Height = 1, BackColor = Color.FromArgb(230, 231, 234) };
-        formFooterPanel.Controls.Add(topBorder);
-
-        btnSaveInline.Size = new Size(90, 32);
-        btnSaveInline.Appearance.BackColor = Color.FromArgb(37, 122, 201);
-        btnSaveInline.Appearance.ForeColor = Color.White;
-        btnSaveInline.Appearance.Options.UseBackColor = true;
-        btnSaveInline.Appearance.Options.UseForeColor = true;
-        btnSaveInline.Click += async (s, e) => await SaveClick();
-
-        btnCancelEdit.Size = new Size(90, 32);
-        btnCancelEdit.Click += (s, e) => EnterNewMode(_lastSelectedId);
-
-        // 복사(Save As) - 지금 선택된 메뉴가 있을 때만 의미가 있다(EnterEditMode/EnterNewMode에서
-        // Enabled를 맞춘다). 저장은 하지 않고 신규입력 상태(메뉴ID만 비움)로만 만들어둔다 -
-        // 나머지 값은 전부 그대로 복사돼 있으니 저장 누르면 새 ID로 채번된다.
-        btnCopy.Size = new Size(90, 32);
-        btnCopy.Enabled = false;
-        btnCopy.Click += (s, e) => EnterCopyMode();
-
-        formFooterPanel.Resize += (s, e) => PositionFooterButtons();
-        formFooterPanel.Controls.Add(btnSaveInline);
-        formFooterPanel.Controls.Add(btnCancelEdit);
-        formFooterPanel.Controls.Add(btnCopy);
-        rightPanel.Controls.Add(formFooterPanel);
-        PositionFooterButtons();
-    }
-
-    private void PositionFooterButtons()
-    {
-        btnCancelEdit.Location = new Point(formFooterPanel.Width - btnCancelEdit.Width - 16, 12);
-        btnSaveInline.Location = new Point(btnCancelEdit.Left - btnSaveInline.Width - 8, 12);
-        btnCopy.Location = new Point(btnSaveInline.Left - btnCopy.Width - 8, 12);
+        base.ApplyMenuAuth();
+        CanInsert = false;
+        CanDelete = false;
     }
 
     public override async Task QueryClick()
@@ -327,30 +206,12 @@ public class frmMenu : BaseForm
         }
     }
 
-    public override Task NewClick()
-    {
-        EnterNewMode(_lastSelectedId);
-        return Task.CompletedTask;
-    }
-
-    public override async Task DeleteClick()
-    {
-        if (_editingMenuId == null)
-        {
-            AppMessageBox.Show("삭제할 메뉴를 왼쪽 트리에서 선택해주세요.", "안내");
-            return;
-        }
-
-        var menu = _menus.FirstOrDefault(m => m.MenuId == _editingMenuId);
-        var confirm = AppMessageBox.Show(
-            $"'{menu?.MenuNm}(ID:{_editingMenuId})' 메뉴를 사용중지 처리하시겠습니까?\n하위 메뉴가 있다면 좌측 메뉴트리에서 같이 사라집니다.",
-            "삭제 확인", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
-        if (confirm != DialogResult.Yes) return;
-
-        await ApiClient.DeleteAsync($"api/menus/{_editingMenuId}");
-        await QueryClick();
-        Toast.Show("사용중지 처리되었습니다.");
-    }
+    // 표준 툴바 신규입력/삭제는 이 화면에서 항상 꺼져있다(ApplyMenuAuth) - BaseForm 추상
+    // 멤버라 구현만 비워둔다. 실제 등록/삭제는 btnNewTop/btnNewChild/chkUseYn으로 한다.
+    public override Task NewClick() => Task.CompletedTask;
+    public override Task DeleteClick() => Task.CompletedTask;
+    public override Task NewRowClick() => Task.CompletedTask;
+    public override Task DeleteRowClick() => Task.CompletedTask;
 
     private void OnTreeSelectionChanged()
     {
@@ -365,13 +226,11 @@ public class frmMenu : BaseForm
         EnterEditMode(menu);
     }
 
-    /// <summary>
-    /// 신규모드 진입. parentId가 있으면 그 메뉴의 하위로, forceTop이면(또는 parentId가 null이면)
-    /// 트리 선택과 무관하게 최상위(모듈)로 등록되도록 상위메뉴ID/메뉴레벨을 자동 세팅한다.
-    /// </summary>
-    /// <summary>편집 컨트롤 값을 채우는 부분은 SuppressDirtyTracking으로 감싼다 - 안 그러면
-    /// 코드가 값을 채우는 것뿐인데 TrackDirty(layoutControl)가 "사용자가 고쳤다"로 오인해서,
-    /// 트리 선택/신규모드 진입 직후부터 화면을 닫을 때 저장 확인이 뜨는 오작동이 생긴다.</summary>
+    /// <summary>신규모드 진입. parentId가 있으면 그 메뉴의 하위로, forceTop이면(또는 parentId가
+    /// null이면) 트리 선택과 무관하게 최상위(모듈)로 등록되도록 상위메뉴ID/메뉴레벨을 자동
+    /// 세팅한다. 편집 컨트롤 값을 채우는 부분은 SuppressDirtyTracking으로 감싼다 - 안 그러면
+    /// 코드가 값을 채우는 것뿐인데 TrackDirty(panData)가 "사용자가 고쳤다"로 오인해서, 트리
+    /// 선택/신규모드 진입 직후부터 화면을 닫을 때 저장 확인이 뜨는 오작동이 생긴다.</summary>
     private void EnterNewMode(long? parentId, bool forceTop = false)
     {
         var newParentId = forceTop ? null : parentId;
@@ -386,15 +245,15 @@ public class frmMenu : BaseForm
             txtUpperMenuId.Text = parent?.MenuId.ToString() ?? string.Empty;
             txtUpperMenuNm.Text = parent?.MenuNm ?? string.Empty;
             spnMenuLevel.Value = (parent?.MenuLevel ?? 0) + 1;
-            cboMenuType.SelectedItem = "FORM";
-            txtModule.Text = string.Empty;
+            cboMenuType.EditValue = "FORM";
+            cboModule.EditValue = string.Empty;
             txtScreenClassNm.Text = string.Empty;
-            txtIconNm.Text = string.Empty;
+            cboIconNm.EditValue = null;
             txtProcPrefix.Text = string.Empty;
             spnSortOrder.Value = 0;
             chkUseYn.Checked = true;
             chkUseYn.Enabled = false; // 신규는 항상 사용상태로 생성됨(서버에서 'Y' 고정)
-            foreach (var t in txtAuthNm) t.Text = string.Empty;
+            foreach (var t in TxtAuthNm) t.Text = string.Empty;
         });
 
         lblFormTitle.Text = parent != null ? "신규 메뉴 등록 (하위 메뉴)" : "신규 메뉴 등록 (최상위 모듈)";
@@ -447,16 +306,19 @@ public class frmMenu : BaseForm
             txtUpperMenuId.Text = menu.UpperMenuId?.ToString() ?? string.Empty;
             txtUpperMenuNm.Text = parent?.MenuNm ?? string.Empty;
             spnMenuLevel.Value = menu.MenuLevel;
-            cboMenuType.SelectedItem = menu.MenuType;
-            txtModule.Text = menu.Module ?? string.Empty;
+            cboMenuType.EditValue = menu.MenuType;
+            cboModule.EditValue = menu.Module ?? string.Empty;
             txtScreenClassNm.Text = menu.ScreenClassNm ?? string.Empty;
-            txtIconNm.Text = menu.IconNm;
+            cboIconNm.EditValue = menu.IconNm;
             txtProcPrefix.Text = menu.ProcPrefix ?? string.Empty;
             spnSortOrder.Value = menu.SortOrder;
+            // "삭제 여부" 편집 지점 - 사용중지(USE_YN='N')된 메뉴를 선택하면 여기 체크가 풀린
+            // 채로 뜬다. 다시 체크하고 저장하면 USP_SM_MENU_S(U)를 거쳐 복구된다(2026-09-16
+            // 요청 - 툴바 삭제 버튼을 없앤 대신 이 체크박스가 삭제/복구를 모두 담당한다).
             chkUseYn.Checked = menu.UseYn;
             chkUseYn.Enabled = true;
-            for (var i = 0; i < txtAuthNm.Length; i++)
-                txtAuthNm[i].Text = i < menu.AuthNm.Length ? (menu.AuthNm[i] ?? string.Empty) : string.Empty;
+            for (var i = 0; i < TxtAuthNm.Length; i++)
+                TxtAuthNm[i].Text = i < menu.AuthNm.Length ? (menu.AuthNm[i] ?? string.Empty) : string.Empty;
         });
 
         lblFormTitle.Text = "메뉴 수정";
@@ -480,9 +342,9 @@ public class frmMenu : BaseForm
         // Shell.exe가 시작할 때 ModuleLoader.LoadAll이 Modules\ 폴더의 모든 화면 dll을 이미
         // 로드해뒀고 AssemblyResolve 훅도 걸어놔서(ModuleLoader.cs 참고), 여기서 Type.GetType을
         // 호출하면 ShellForm이 실제 메뉴 클릭 시 찾는 것과 완전히 같은 경로로 찾아본다.
-        var module = txtModule.Text.Trim();
+        var module =cboModule.EditValue.ToString();
         var screenClassNm = txtScreenClassNm.Text.Trim();
-        if ((string)cboMenuType.SelectedItem == "FORM"
+        if ((string)cboMenuType.EditValue.ToString() == "FORM"
             && !string.IsNullOrWhiteSpace(module) && !string.IsNullOrWhiteSpace(screenClassNm)
             && Type.GetType($"WYNLAB.{module}.{screenClassNm}, WYNLAB.{module}") == null)
         {
@@ -499,7 +361,7 @@ public class frmMenu : BaseForm
             ApiResult? result;
             long savedMenuId;
             var wasNew = _editingMenuId == null;
-            var authNm = txtAuthNm.Select(t => string.IsNullOrWhiteSpace(t.Text) ? null : t.Text).ToArray();
+            var authNm = TxtAuthNm.Select(t => string.IsNullOrWhiteSpace(t.Text) ? null : t.Text).ToArray();
             var upperMenuId = long.TryParse(txtUpperMenuId.Text, out var parsedUpperId) ? parsedUpperId : (long?)null;
 
             if (_editingMenuId != null)
@@ -510,10 +372,10 @@ public class frmMenu : BaseForm
                     MenuNm = txtMenuNm.Text,
                     UpperMenuId = upperMenuId,
                     MenuLevel = (int)spnMenuLevel.Value,
-                    MenuType = (string)cboMenuType.SelectedItem,
+                    MenuType = (string)cboMenuType.EditValue,
                     Module = module,
                     ScreenClassNm = screenClassNm,
-                    IconNm = txtIconNm.Text,
+                    IconNm = cboIconNm.EditValue as string,
                     ProcPrefix = txtProcPrefix.Text.Trim(),
                     SortOrder = (int)spnSortOrder.Value,
                     UseYn = chkUseYn.Checked,
@@ -528,10 +390,10 @@ public class frmMenu : BaseForm
                     MenuNm = txtMenuNm.Text,
                     UpperMenuId = upperMenuId,
                     MenuLevel = (int)spnMenuLevel.Value,
-                    MenuType = (string)cboMenuType.SelectedItem,
+                    MenuType = (string)cboMenuType.EditValue,
                     Module = module,
                     ScreenClassNm = screenClassNm,
-                    IconNm = txtIconNm.Text,
+                    IconNm = cboIconNm.EditValue as string,
                     ProcPrefix = txtProcPrefix.Text.Trim(),
                     SortOrder = (int)spnSortOrder.Value,
                     AuthNm = authNm

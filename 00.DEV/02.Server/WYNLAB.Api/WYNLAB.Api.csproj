@@ -27,6 +27,15 @@
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.8" />
     <PackageReference Include="BCrypt.Net-Next" Version="4.0.3" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.2" />
+    <!-- 로깅/모니터링(2026-09-15) - 지금까지 운영에서 에러가 나도 서버 쪽에 아무 기록이 안
+         남았다(개발환경에서만 예외 상세를 응답 바디로 내려줬을 뿐, 그마저도 로그 파일로는
+         안 남겼음). 파일로 남기는 게 제일 단순하고 이 규모(단일 서버, 외부 로그 수집
+         인프라 없음)에 맞는다 - ELK/Grafana 같은 걸 새로 들일 이유가 없다. -->
+    <PackageReference Include="Serilog.AspNetCore" Version="8.0.3" />
+    <PackageReference Include="Serilog.Sinks.File" Version="6.0.0" />
+    <!-- 외부 API 연동 프레임워크(2026-09-15) - TSMAPIDEF.auth_key_enc를 Windows DPAPI로
+         암호화하는 데 쓴다(ApiKeyProtector.cs). .NET에서 DPAPI는 이 패키지로 분리되어 있음. -->
+    <PackageReference Include="System.Security.Cryptography.ProtectedData" Version="8.0.0" />
   </ItemGroup>
 
   <ItemGroup>

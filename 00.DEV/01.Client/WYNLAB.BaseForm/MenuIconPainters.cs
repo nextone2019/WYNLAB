@@ -66,6 +66,21 @@ public static class MenuIconPainters
         gg.FillEllipse(brush, 9.5f, 9.5f, 5, 5);
     });
 
+    /// <summary>채워진 5각 별 - 사이드바 "마이 메뉴(즐겨찾기)" 그룹 아이콘용(2026-09-21).</summary>
+    public static void Star(Graphics g, Rectangle rect, Color color) => DrawScaled(g, rect, gg =>
+    {
+        using var brush = new SolidBrush(color);
+        const float cx = 12f, cy = 12.5f, outerR = 9.5f, innerR = 4f;
+        var pts = new PointF[10];
+        for (var i = 0; i < 10; i++)
+        {
+            var angle = -Math.PI / 2 + i * Math.PI / 5;
+            var r = i % 2 == 0 ? outerR : innerR;
+            pts[i] = new PointF(cx + (float)(r * Math.Cos(angle)), cy + (float)(r * Math.Sin(angle)));
+        }
+        gg.FillPolygon(brush, pts);
+    });
+
     /// <summary>메뉴(트리) 관리 화면 타이틀용 아이콘 - 세로 줄기에서 가지 3개가 뻗어나가는 형태로
     /// "계층 구조를 관리한다"는 의미를 폴더 아이콘보다 명확하게 전달한다.</summary>
     public static void MenuTree(Graphics g, Rectangle rect, Color color) => DrawScaled(g, rect, gg =>

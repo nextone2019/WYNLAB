@@ -23,7 +23,7 @@ public interface ILookupRepository
 /// 폭까지 지정할 수 있게 확장).
 ///
 /// 관리 화면(frmSysLookup)의 sysLookupM/P/C 자체 CRUD는 새 Repository 없이 기존 범용 데이터
-/// 통로(api/data/*)를 그대로 쓴다 - USP_SYS_LOOKUP_Q/_S가 다른 화면들과 똑같은 방식으로 동작하기 때문.
+/// 통로(api/data/*)를 그대로 쓴다 - SSP_SYS_LOOKUP_Q/_S가 다른 화면들과 똑같은 방식으로 동작하기 때문.
 /// </summary>
 public class LookupRepository : ILookupRepository
 {

@@ -1,5 +1,7 @@
 using System.Net.Http;
 using System.Net.Http.Json;
+using System.Net.NetworkInformation;
+using System.Net.Sockets;
 
 namespace WYNLAB.Base;
 
@@ -12,7 +14,58 @@ public static class ApiClient
 {
     private static HttpClient _http = CreateClient();
 
-    private static HttpClient CreateClient() => new() { BaseAddress = new Uri(AppConfig.ApiBaseUrl) };
+    private static HttpClient CreateClient()
+    {
+        // SessionRefreshHandler가 401을 가로채 캐시된 자격증명으로 조용히 재로그인+재시도한다
+        // (2026-09-09 요청 - "사용중에는 원시 에러메시지가 안 보이게") - Get/Post/Put/Delete 등
+        // 모든 verb가 이 하나의 HttpClient를 공유하므로 여기 한 곳에서만 꽂으면 전체에 적용된다.
+        var client = new HttpClient(new SessionRefreshHandler { InnerHandler = new HttpClientHandler() })
+            { BaseAddress = new Uri(AppConfig.ApiBaseUrl) };
+        // 서버가 reg_pc/upt_pc 등에 접속 IP 대신 쓸 수 있게 이 PC의 컴퓨터 이름을 매 요청에
+        // 실어 보낸다(2026-09-06 - 클라이언트/서버가 같은 PC일 때 IP만으로는 전부 "::1"로
+        // 찍혀 구분이 안 됐음). ClientPcInfo가 모든 컨트롤러 공통으로 읽는다(2026-09-11).
+        client.DefaultRequestHeaders.Add("X-Client-Pc", Environment.MachineName);
+        // 클라이언트/서버가 같은 PC(로컬 개발)일 땐 서버가 보는 접속 IP가 루프백(::1)이라
+        // reg_pc/upt_pc에 실제 사설망 IP(예: 192.168.x.x)가 안 남는다(2026-09-11 실사용 발견 -
+        // "IP정보가 반영 안된것 같아", NEXTONE | 192.168.120.1처럼 남길 원함) - 그래서 이 PC의
+        // 실제 사설망 IP를 클라이언트가 직접 찾아 같이 실어 보내고, 서버는 이 헤더가 있으면
+        // RemoteIpAddress보다 이 값을 우선한다(ClientPcInfo.Build 참고). PC명과 마찬가지로
+        // 클라이언트가 보고하는 값이라 신뢰하지 않는 보안 판단(로그인 등)에는 쓰지 않는다 - 어디까지나
+        // 감사이력(reg_pc/upt_pc) 참고용.
+        var localIp = GetLocalIPv4();
+        if (!string.IsNullOrEmpty(localIp))
+            client.DefaultRequestHeaders.Add("X-Client-Ip", localIp);
+        return client;
+    }
+
+    /// <summary>이 PC가 LAN에서 실제로 쓰는 사설망 IPv4 주소를 찾는다 - NetworkInterface를 돌며
+    /// 사용 중(Up)이고 루프백/터널이 아닌 어댑터의 첫 IPv4 유니캐스트 주소를 쓴다. 여러 어댑터가
+    /// 있어도(VPN, 가상 NIC 등) 실제 통신에 쓰는 어댑터를 우선하도록 OperationalStatus로 거른다.
+    /// 못 찾으면 null - 이때 서버는 RemoteIpAddress(접속 IP)로 되돌아간다.</summary>
+    private static string? GetLocalIPv4()
+    {
+        try
+        {
+            foreach (var nic in NetworkInterface.GetAllNetworkInterfaces())
+            {
+                if (nic.OperationalStatus != OperationalStatus.Up) continue;
+                if (nic.NetworkInterfaceType == NetworkInterfaceType.Loopback) continue;
+                if (nic.NetworkInterfaceType == NetworkInterfaceType.Tunnel) continue;
+
+                foreach (var addr in nic.GetIPProperties().UnicastAddresses)
+                {
+                    if (addr.Address.AddressFamily == AddressFamily.InterNetwork)
+                        return addr.Address.ToString();
+                }
+            }
+        }
+        catch
+        {
+            // 감사이력 보조 정보일 뿐이므로 실패해도 저장 자체를 막지 않는다 - null 반환시
+            // 서버가 RemoteIpAddress로 되돌아간다.
+        }
+        return null;
+    }
 
     /// <summary>
     /// 서버 전환(AppConfig.SwitchEnvironment)시 호출됨 - 접속주소를 새로 설정하고
@@ -20,7 +73,8 @@ public static class ApiClient
     /// </summary>
     public static void Reconfigure(string newBaseUrl)
     {
-        _http = new HttpClient { BaseAddress = new Uri(newBaseUrl) };
+        _http = new HttpClient(new SessionRefreshHandler { InnerHandler = new HttpClientHandler() })
+            { BaseAddress = new Uri(newBaseUrl) };
     }
 
     /// <summary>목록/단건 조회 - 화면의 "조회" 버튼에서 사용</summary>
@@ -70,8 +124,61 @@ public static class ApiClient
         return Deserialize<TResponse>(text);
     }
 
+    /// <summary>파일 청크 하나를 본문 그대로(멀티파트 아님) 올린다 - 첨부파일 공통팝업
+    /// (popFileUpload)의 청크 업로드 전용. 응답 본문은 안 쓰므로(성공/실패만 중요) 실패 시
+    /// 예외만 던진다 - 호출측이 청크별로 재시도 루프를 도는 데 이 예외를 쓴다.</summary>
+    public static async Task UploadChunkAsync(string url, byte[] buffer, int count)
+    {
+        using var content = new ByteArrayContent(buffer, 0, count);
+        content.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("application/octet-stream");
+        var response = await _http.PostAsync(url, content);
+        await ReadBodyOrThrowAsync(response, url);
+    }
+
+    /// <summary>파일 다운로드(바이너리) - 첨부파일 공통팝업 전용. 서버가 Content-Disposition에
+    /// 담아 보낸 파일명을 함께 돌려준다(FilesController.Download의 File(bytes, contentType,
+    /// fileNm) 호출이 자동으로 채워줌).</summary>
+    public static async Task<(byte[] Bytes, string? FileName)> DownloadAsync(string url)
+    {
+        var response = await _http.GetAsync(url);
+        if (!response.IsSuccessStatusCode)
+        {
+            var text = await response.Content.ReadAsStringAsync();
+            var detail = string.IsNullOrWhiteSpace(text) ? "(응답 본문 없음)" : text;
+            throw new HttpRequestException($"서버 오류(HTTP {(int)response.StatusCode} {response.StatusCode}) - {url}\n{detail}");
+        }
+
+        var bytes = await response.Content.ReadAsByteArrayAsync();
+        var fileName = response.Content.Headers.ContentDisposition?.FileNameStar
+            ?? response.Content.Headers.ContentDisposition?.FileName?.Trim('"');
+        return (bytes, fileName);
+    }
+
+    /// <summary>파일 하나를 멀티파트로 PUT - 서버 액션이 IFormFile로 받는 업로드 전용
+    /// (frmSiteConfig의 로그인배경/로고/파비콘 등, 청크 없이 한 번에 보내는 작은 파일용).
+    /// UploadChunkAsync(본문 그대로/멀티파트 아님, 청크 업로드 전용)와는 용도가 다르다 -
+    /// 여기는 서버가 [FromForm] 없이 그냥 IFormFile file 파라미터로 받는 액션에 맞춘다.</summary>
+    public static async Task<TResponse?> PutFileAsync<TResponse>(string url, byte[] bytes, string fileName)
+    {
+        using var content = new MultipartFormDataContent();
+        var fileContent = new ByteArrayContent(bytes);
+        fileContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("application/octet-stream");
+        content.Add(fileContent, "file", fileName);
+
+        var response = await _http.PutAsync(url, content);
+        var text = await ReadBodyOrThrowAsync(response, url);
+        return Deserialize<TResponse>(text);
+    }
+
     public static void SetAuthToken(string accessToken) =>
         _http.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", accessToken);
+
+    /// <summary>강제 비밀번호 변경 흐름에서, 제한된(mustChangePwd=Y) 토큰을 붙인 채로 재로그인을
+    /// 시도하면 로그인 자체가 [AllowAnonymous]라도 이 토큰이 그대로 딸려가서
+    /// MustChangePasswordFilter에 막힌다(실제로 겪음 - "비밀번호를 먼저 변경해야 합니다"가
+    /// 재로그인 시도에서도 뜸). 재로그인 직전에 이걸 호출해서 완전히 익명 상태로 되돌린다.</summary>
+    public static void ClearAuthToken() =>
+        _http.DefaultRequestHeaders.Authorization = null;
 
     /// <summary>
     /// 응답 본문을 문자열로 한 번만 읽어서(스트림은 한 번만 읽을 수 있으므로), 실패 상태 코드면

@@ -1,0 +1,28 @@
+﻿cust_cd varchar 20 NULL NULL NO NULL
+cust_nm nvarchar 100 NULL NULL YES NULL
+biz_no varchar 30 NULL NULL YES NULL
+tel varchar 30 NULL NULL YES NULL
+cur_cd varchar 3 NULL NULL YES NULL
+owner_nm nvarchar 100 NULL NULL YES NULL
+zip_code varchar 20 NULL NULL YES NULL
+addr1 nvarchar 1000 NULL NULL YES NULL
+addr2 nvarchar 1000 NULL NULL YES NULL
+homepage nvarchar 200 NULL NULL YES NULL
+email nvarchar 100 NULL NULL YES NULL
+fax varchar 30 NULL NULL YES NULL
+biz_kind nvarchar 200 NULL NULL YES NULL
+biz_type nvarchar 200 NULL NULL YES NULL
+trans_open_date varchar 8 NULL NULL YES NULL
+vat_type varchar 10 NULL NULL YES NULL
+vat_rate numeric NULL 19 2 YES NULL
+remark nvarchar 3000 NULL NULL YES NULL
+stat_cd varchar 10 NULL NULL YES NULL
+reg_user_id varchar 50 NULL NULL YES NULL
+reg_dt datetime NULL NULL NULL YES NULL
+reg_pc nvarchar 200 NULL NULL YES NULL
+upt_user_id varchar 50 NULL NULL YES NULL
+upt_dt datetime NULL NULL NULL YES NULL
+upt_pc nvarchar 200 NULL NULL YES NULL
+emp_no varchar 20 NULL NULL YES NULL
+
+(26개 행 적용됨)

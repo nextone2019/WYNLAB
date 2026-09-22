@@ -22,7 +22,7 @@ public class ComboLookupsController : ControllerBase
     /// <summary>실제 조회 실행 - sysLookupM.proc_nm을 찾아서 파라미터 값들로 부르고 value/display
     /// (항상)와 컬럼 구성(sysLookupC, 설정 없으면 빈 리스트)을 같이 돌려준다. 파라미터 개수는
     /// LookUp마다 다를 수 있어(sysLookupP 참고) POST+JSON 바디로 받는다(팝업 검색과 같은 이유 -
-    /// PopupLookupForm/LookupsController.Search 참고).</summary>
+    /// popPopUp/LookupsController.Search 참고).</summary>
     [HttpPost("{key}/items")]
     public async Task<ActionResult<LookupItemsResultDto>> GetItems(string key, [FromBody] Dictionary<string, string?> paramValues)
     {

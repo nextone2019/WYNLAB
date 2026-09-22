@@ -5,4 +5,8 @@
 publish-*/
 _publish/
 _deploy/
+_serverpackage/
 *.zip
+*.bak
+.claude/settings.local.json
+.claude/scheduled_tasks.lock

@@ -57,6 +57,7 @@
        그 DLL만 배포해도 Shell 자체는 재게시할 필요가 없게 하기 위함. -->
   <ItemGroup>
     <ProjectReference Include="..\WYNLAB.BaseForm\WYNLAB.BaseForm.csproj" />
+    <ProjectReference Include="..\..\..\99.SOURCE\POPUP\WYNLAB.Popup\WYNLAB.Popup.csproj" />
     <ProjectReference Include="..\..\03.Shared\WYNLAB.Shared\WYNLAB.Shared.csproj" />
     <!-- Program.cs 맨 앞에서 WYNLAB.BaseForm.dll/WYNLAB.Shared.dll 갱신 여부를 확인하는
          용도로만 참조 - 이 dll은 그 확인이 끝나기 전까지 로드되면 안 되므로, CoreAssemblyUpdater

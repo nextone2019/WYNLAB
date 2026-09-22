@@ -1,0 +1,16 @@
+﻿cust_cd varchar 20 NULL NULL NO
+serl int NULL 10 0 NO
+prsn_nm nvarchar 50 NULL NULL NO
+grade nvarchar 50 NULL NULL YES
+tel1 varchar 30 NULL NULL YES
+tel2 varchar 30 NULL NULL YES
+fax varchar 30 NULL NULL YES
+email varchar 30 NULL NULL YES
+reg_user_id varchar 50 NULL NULL NO
+reg_dt datetime NULL NULL NULL YES
+reg_pc nvarchar 200 NULL NULL YES
+upt_user_id varchar 50 NULL NULL YES
+upt_dt datetime NULL NULL NULL YES
+upt_pc nvarchar 200 NULL NULL YES
+
+(14개 행 적용됨)

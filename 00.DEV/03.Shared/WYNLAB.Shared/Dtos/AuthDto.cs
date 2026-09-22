@@ -29,7 +29,6 @@ public class UserInfoDto
     public string UserId { get; set; } = string.Empty;
     public string UserNm { get; set; } = string.Empty;
     public string? EmpNo { get; set; }
-    public string? DeptCd { get; set; }
     public string? DeptNm { get; set; }
 
     /// <summary>TSMUSER.DEVELOPER_YN - "시스템관리자"(SYS 모듈/개발자 전용 도구 접근) 판단
@@ -40,4 +39,10 @@ public class UserInfoDto
     /// <summary>TSMUSER.USER_TYPE 원본 값('A'=관리자/'U'=일반) - SQL 로그 뷰어처럼 정확히
     /// 'A'인지 확인해야 하는 화면(ShellForm)을 위해 원본 값을 내려준다.</summary>
     public string? UserType { get; set; }
+
+    /// <summary>TSMUSER.ACC_ID(TBAACC 참조) - 로그인한 사용자가 어느 사업장 소속인지(2026-09-08
+    /// 추가). BA 모듈 저장프로시저들(USP_BA_DEPT_S 등)에 아직 남아있는 "로그인 세션에 사업장
+    /// 생기면 채우도록 전환" TODO가 바로 이 값을 쓰라는 뜻이다.</summary>
+    public long? AccId { get; set; }
+    public string? AccNm { get; set; }
 }

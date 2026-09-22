@@ -5,12 +5,22 @@ public class UserListItemDto
 {
     public string UserId { get; set; } = string.Empty;
     public string UserNm { get; set; } = string.Empty;
+    /// <summary>TSMUSER.EMP_ID - 저장(수정) 요청 시 그대로 되돌려 보내는 실제 값(팝업으로 다시
+    /// 고르지 않고 다른 필드만 고쳐도 EMP_ID가 유지되도록). EmpNo/EmpNm은 표시 전용이다.</summary>
+    public long? EmpId { get; set; }
     public string? EmpNo { get; set; }
     public string? EmpNm { get; set; }
-    public string? DeptCd { get; set; }
     public string? DeptNm { get; set; }
+    /// <summary>TSMUSER.ACC_ID(TBAACC 참조, 2026-09-08 추가) - EmpId와 같은 이유로 저장 요청 시
+    /// 그대로 되돌려 보낸다. AccNm은 표시 전용.</summary>
+    public long? AccId { get; set; }
+    public string? AccNm { get; set; }
     public string? Email { get; set; }
     public bool UseYn { get; set; }
+    /// <summary>grd1(사용자 목록) "사용자구분" 컬럼용 - L_SM0002 코드값(예: "U"). 서버 매핑
+    /// (UsersController.MapToDto)에서 이 필드 자체가 빠져있어서 컬럼이 항상 빈 칸으로 보였다
+    /// (2026-09-06 실제 발견).</summary>
+    public string? UserType { get; set; }
 
     /// <summary>grd1(사용자 목록) "사용" 컬럼 전용 - 그 컬럼의 ColumnEdit(LookUpColumnEdit,
     /// L_CM0100)는 셀 값을 그 LookUp의 값필드(문자열 "Y"/"N")와 비교해서 표시 텍스트를 찾는데,
@@ -26,17 +36,25 @@ public class UserListItemDto
     public DateTime? LastLoginDt { get; set; }
 }
 
-/// <summary>사용자 신규등록 요청</summary>
+/// <summary>사용자 신규등록 요청 - 초기 비밀번호는 클라이언트가 정하지 않는다. 서버가
+/// TSMSITECONFIG.init_pwd_policy(아이디와 동일/랜덤)를 보고 결정해서 ApiResult.InitialPassword로
+/// 돌려준다(2026-09-06, frmSiteConfig 비밀번호정책 연동).</summary>
 public class UserCreateRequest
 {
     public string UserId { get; set; } = string.Empty;
     public string UserNm { get; set; } = string.Empty;
-    public string Password { get; set; } = string.Empty; // 초기 비밀번호, 서버에서 BCrypt 해시 처리
 
-    /// <summary>TSMUSER.EMP_NO - 부서(DeptCd/DeptNm)는 여기 없다. TSMUSER는 더 이상 DEPT_CD를
-    /// 직접 저장하지 않고, EMP_NO로 TBAEMP를 조인해서 그때그때 얻어온다(사장님 지시,
-    /// 2026-08-31) - EmpNo만 저장하면 부서는 자동으로 따라온다.</summary>
-    public string? EmpNo { get; set; }
+    /// <summary>TSMUSER.EMP_ID - TBAEMP를 EMP_ID로 조인해서 사번/부서 등을 그때그때 얻어온다
+    /// (사장님 지시, 2026-08-31 부서 / 2026-09-06 EMP_ID 전환) - EmpId만 저장하면 나머지는
+    /// 자동으로 따라온다.</summary>
+    public long? EmpId { get; set; }
+
+    /// <summary>TSMUSER.ACC_ID(TBAACC 참조, 2026-09-08 추가) - cboAccCd(L_ACC LookUp)가 고른 값.</summary>
+    public long? AccId { get; set; }
+
+    /// <summary>TSMUSER.USER_TYPE(L_SM0002) - panData의 cboUserType이 있는데도 이 필드가
+    /// 없어서 신규는 항상 서버 하드코딩 'U'로만 생성되던 문제 수정(2026-09-06).</summary>
+    public string? UserType { get; set; }
 
     /// <summary>비밀번호 찾기(잊어버렸을 때 인증코드를 보낼 주소) 용도 - 선택 입력.
     /// 비어있으면 그 계정은 이메일 셀프 초기화를 못 쓴다(관리자 경유만 가능).</summary>
@@ -47,7 +65,9 @@ public class UserCreateRequest
 public class UserUpdateRequest
 {
     public string UserNm { get; set; } = string.Empty;
-    public string? EmpNo { get; set; }
+    public long? EmpId { get; set; }
+    public long? AccId { get; set; }
+    public string? UserType { get; set; }
     public string? Email { get; set; }
     public bool UseYn { get; set; }
 }
@@ -84,6 +104,11 @@ public class ApiResult
 
     /// <summary>신규등록(Create) 응답에서만 사용 - 채번/확정된 PK값(지금은 입력값 그대로 에코)</summary>
     public string? GeneratedCode { get; set; }
+
+    /// <summary>사용자 신규등록(UsersController.Create) 응답에서만 사용 - 서버가 정책에 따라
+    /// 정한 초기 비밀번호(아이디와 동일/랜덤). 화면이 등록 직후 관리자에게 안내해줘야
+    /// 랜덤 정책일 때도 계정을 실제로 전달할 수 있다.</summary>
+    public string? InitialPassword { get; set; }
 
     /// <summary>실패 시에만 채워짐 - 프로시저 TRY/CATCH가 잡은 SQL 오류번호(ERROR_NUMBER(), 예:
     /// PK 중복이면 2627). 화면에서 특정 오류번호별로 다른 안내를 보여주고 싶을 때 참고용 - 0이면
