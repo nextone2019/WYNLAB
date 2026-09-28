@@ -44,32 +44,32 @@ public partial class frmAutoKey : BaseForm
             catch (Exception ex) { AppMessageBox.Show(ex.Message, "삭제 실패"); }
         };
 
-        gvw3.Role = GridRoleWyn.Edit;
-        gvw3.HighlightFocusedRow = true;
-        gvw3.RowAdd += (s, e) => gvw3.AddNewRow();
-        gvw3.RowDelete += (s, e) =>
-        {
-            try { if (gvw3.GetFocusedRow() is DataRowView view) view.Row.Delete(); }
-            catch (Exception ex) { AppMessageBox.Show(ex.Message, "삭제 실패"); }
-        };
+        //gvw3.Role = GridRoleWyn.Edit;
+        //gvw3.HighlightFocusedRow = true;
+        //gvw3.RowAdd += (s, e) => gvw3.AddNewRow();
+        //gvw3.RowDelete += (s, e) =>
+        //{
+        //    try { if (gvw3.GetFocusedRow() is DataRowView view) view.Row.Delete(); }
+        //    catch (Exception ex) { AppMessageBox.Show(ex.Message, "삭제 실패"); }
+        //};
 
-        gvw4.Role = GridRoleWyn.Edit;
-        gvw4.HighlightFocusedRow = true;
-        gvw4.RowAdd += (s, e) => gvw4.AddNewRow();
-        gvw4.RowDelete += (s, e) =>
-        {
-            try { if (gvw4.GetFocusedRow() is DataRowView view) view.Row.Delete(); }
-            catch (Exception ex) { AppMessageBox.Show(ex.Message, "삭제 실패"); }
-        };
+        //gvw4.Role = GridRoleWyn.Edit;
+        //gvw4.HighlightFocusedRow = true;
+        //gvw4.RowAdd += (s, e) => gvw4.AddNewRow();
+        //gvw4.RowDelete += (s, e) =>
+        //{
+        //    try { if (gvw4.GetFocusedRow() is DataRowView view) view.Row.Delete(); }
+        //    catch (Exception ex) { AppMessageBox.Show(ex.Message, "삭제 실패"); }
+        //};
 
-        gvw5.Role = GridRoleWyn.Edit;
-        gvw5.HighlightFocusedRow = true;
-        gvw5.RowAdd += (s, e) => gvw5.AddNewRow();
-        gvw5.RowDelete += (s, e) =>
-        {
-            try { if (gvw5.GetFocusedRow() is DataRowView view) view.Row.Delete(); }
-            catch (Exception ex) { AppMessageBox.Show(ex.Message, "삭제 실패"); }
-        };
+        //gvw5.Role = GridRoleWyn.Edit;
+        //gvw5.HighlightFocusedRow = true;
+        //gvw5.RowAdd += (s, e) => gvw5.AddNewRow();
+        //gvw5.RowDelete += (s, e) =>
+        //{
+        //    try { if (gvw5.GetFocusedRow() is DataRowView view) view.Row.Delete(); }
+        //    catch (Exception ex) { AppMessageBox.Show(ex.Message, "삭제 실패"); }
+        //};
 
         // panelWyn1의 공용 추가/삭제 버튼 - 현재 활성 탭의 그리드에 적용(각 그리드 자체
         // EmbeddedNavigator와 별개로, 탭을 안 넘나들어도 되는 지름길).
@@ -108,9 +108,9 @@ public partial class frmAutoKey : BaseForm
 
     private GridViewWyn ActiveDetailView() => tabDetailGrids.SelectedTabPage switch
     {
-        var t when ReferenceEquals(t, tabDetail2) => gvw3,
-        var t when ReferenceEquals(t, tabDetail3) => gvw4,
-        var t when ReferenceEquals(t, tabDetail4) => gvw5,
+        //var t when ReferenceEquals(t, tabDetail2) => gvw3,
+        //var t when ReferenceEquals(t, tabDetail3) => gvw4,
+        //var t when ReferenceEquals(t, tabDetail4) => gvw5,
         _ => gvw2
     };
 
@@ -243,9 +243,9 @@ public partial class frmAutoKey : BaseForm
             TrackDirty(_detail3);
             TrackDirty(_detail4);
             grd2.DataSource = _detail1;
-            grd3.DataSource = _detail2;
-            grd4.DataSource = _detail3;
-            grd5.DataSource = _detail4;
+            //grd3.DataSource = _detail2;
+            //grd4.DataSource = _detail3;
+            //grd5.DataSource = _detail4;
         });
     }
 
@@ -271,9 +271,9 @@ public partial class frmAutoKey : BaseForm
             TrackDirty(_detail3);
             TrackDirty(_detail4);
             grd2.DataSource = _detail1;
-            grd3.DataSource = _detail2;
-            grd4.DataSource = _detail3;
-            grd5.DataSource = _detail4;
+            //grd3.DataSource = _detail2;
+            //grd4.DataSource = _detail3;
+            //grd5.DataSource = _detail4;
             return;
         }
 
@@ -292,9 +292,9 @@ public partial class frmAutoKey : BaseForm
         TrackDirty(_detail3);
         TrackDirty(_detail4);
         grd2.DataSource = _detail1;
-        grd3.DataSource = _detail2;
-        grd4.DataSource = _detail3;
-        grd5.DataSource = _detail4;
+        //grd3.DataSource = _detail2;
+        //grd4.DataSource = _detail3;
+        //grd5.DataSource = _detail4;
     }
 
     public override Task NewClick()
@@ -351,35 +351,35 @@ public partial class frmAutoKey : BaseForm
             if (!detail1Ok) return;
         }
 
-        // ---- 3) 명세2(grd3 -> ) - grd3은 선택사항이라(AI Builder에서 안 채우면
-        // 빈 문자열로 치환됨) 저장프로시저가 없으면 이 단계를 건너뛴다(MasterFormSubGrid의 panData
-        // 조회전용 폴백과 같은 원칙 - "지우지 말 것" 주석이 아니라 실제로 이 화면에 grd3이 없는
-        // 정상적인 경우다). ----
-        if (!string.IsNullOrEmpty(""))
-        {
-            var detail2Ok = await SaveDetailRowsAsync(gvw3, _detail2, "", headerKey, (row, version) => new Dictionary<string, string?>
-            {
-            });
-            if (!detail2Ok) return;
-        }
+        //// ---- 3) 명세2(grd3 -> ) - grd3은 선택사항이라(AI Builder에서 안 채우면
+        //// 빈 문자열로 치환됨) 저장프로시저가 없으면 이 단계를 건너뛴다(MasterFormSubGrid의 panData
+        //// 조회전용 폴백과 같은 원칙 - "지우지 말 것" 주석이 아니라 실제로 이 화면에 grd3이 없는
+        //// 정상적인 경우다). ----
+        //if (!string.IsNullOrEmpty(""))
+        //{
+        //    var detail2Ok = await SaveDetailRowsAsync(gvw3, _detail2, "", headerKey, (row, version) => new Dictionary<string, string?>
+        //    {
+        //    });
+        //    if (!detail2Ok) return;
+        //}
 
-        // ---- 4) 명세3(grd4 -> ) - grd3/grd4/grd5와 같은 원칙으로 선택사항이다. ----
-        if (!string.IsNullOrEmpty(""))
-        {
-            var detail3Ok = await SaveDetailRowsAsync(gvw4, _detail3, "", headerKey, (row, version) => new Dictionary<string, string?>
-            {
-            });
-            if (!detail3Ok) return;
-        }
+        //// ---- 4) 명세3(grd4 -> ) - grd3/grd4/grd5와 같은 원칙으로 선택사항이다. ----
+        //if (!string.IsNullOrEmpty(""))
+        //{
+        //    var detail3Ok = await SaveDetailRowsAsync(gvw4, _detail3, "", headerKey, (row, version) => new Dictionary<string, string?>
+        //    {
+        //    });
+        //    if (!detail3Ok) return;
+        //}
 
-        // ---- 5) 명세4(grd5 -> ) - 선택사항. ----
-        if (!string.IsNullOrEmpty(""))
-        {
-            var detail4Ok = await SaveDetailRowsAsync(gvw5, _detail4, "", headerKey, (row, version) => new Dictionary<string, string?>
-            {
-            });
-            if (!detail4Ok) return;
-        }
+        //// ---- 5) 명세4(grd5 -> ) - 선택사항. ----
+        //if (!string.IsNullOrEmpty(""))
+        //{
+        //    var detail4Ok = await SaveDetailRowsAsync(gvw5, _detail4, "", headerKey, (row, version) => new Dictionary<string, string?>
+        //    {
+        //    });
+        //    if (!detail4Ok) return;
+        //}
 
         _editingKey ??= headerResult.GeneratedCode;
         Toast.Show("저장되었습니다.");

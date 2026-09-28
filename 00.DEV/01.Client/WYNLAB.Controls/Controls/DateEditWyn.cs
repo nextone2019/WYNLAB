@@ -105,6 +105,30 @@ internal static class SmartDateParser
 [ToolboxItem(true)]
 public class DateEditWyn : DateEdit
 {
+    private bool _required;
+
+    /// <summary>TextEditWyn 등과 같은 규칙 - 필수 표시(연노랑 배경) + BaseForm의 필수입력 검사(저장/조회) 대상이 된다.
+    /// false(기본값)면 검사하지 않는다.</summary>
+    [Category("WYNLAB")]
+    [Description("필수 입력 항목이면 배경색으로 강조 표시하고, 조회/저장 시 비어 있으면 안내합니다.")]
+    [DefaultValue(false)]
+    public bool Required
+    {
+        get => _required;
+        set
+        {
+            _required = value;
+            if (value)
+            {
+                this.MarkRequired();
+            }
+            else
+            {
+                this.ClearRequired();
+            }
+        }
+    }
+
     public DateEditWyn()
     {
         // DevExpress DateEdit은 기본값이 MaskType=DateTime(EditMask="d")인 대화형 마스크라, 위

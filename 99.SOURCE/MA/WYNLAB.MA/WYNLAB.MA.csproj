@@ -53,6 +53,11 @@
     <Reference Include="DevExpress.XtraGrid.v21.2">
       <HintPath>C:\Program Files (x86)\DevExpress 21.2\Components\Bin\Framework\DevExpress.XtraGrid.v21.2.dll</HintPath>
     </Reference>
+    <!-- BaseForm.ConfirmMasterRowSwitch/SuppressMasterRowSwitchConfirm에 TreeList 오버로드가 있어서, 마스터 행 전환
+         확인을 쓰는 화면(frmPoPrice)을 컴파일하려면 이 참조가 필요하다(2026-09-26). -->
+    <Reference Include="DevExpress.XtraTreeList.v21.2">
+      <HintPath>C:\Program Files (x86)\DevExpress 21.2\Components\Bin\Framework\DevExpress.XtraTreeList.v21.2.dll</HintPath>
+    </Reference>
     <Reference Include="DevExpress.XtraLayout.v21.2">
       <HintPath>C:\Program Files (x86)\DevExpress 21.2\Components\Bin\Framework\DevExpress.XtraLayout.v21.2.dll</HintPath>
     </Reference>
@@ -104,6 +109,180 @@
     <EmbeddedResource Update="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="frmDelv\frmDelv.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="frmDelv\frmDelv.Designer.cs">
+      <DependentUpon>frmDelv.cs</DependentUpon>
+    </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="frmDelvList\frmDelvList.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="frmDelvList\frmDelvList.Designer.cs">
+      <DependentUpon>frmDelvList.cs</DependentUpon>
+    </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="frmIqc\frmIqc.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="frmIqc\frmIqc.Designer.cs">
+      <DependentUpon>frmIqc.cs</DependentUpon>
+    </Compile>
+    <EmbeddedResource Update="frmIqc\frmIqc.resx">
+      <DependentUpon>frmIqc.cs</DependentUpon>
+    </EmbeddedResource>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="frmIqcList\frmIqcList.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="frmIqcList\frmIqcList.Designer.cs">
+      <DependentUpon>frmIqcList.cs</DependentUpon>
+    </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="frmPoStatus\frmPoStatus.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="frmPoStatus\frmPoStatus.Designer.cs">
+      <DependentUpon>frmPoStatus.cs</DependentUpon>
+    </Compile>
+    <EmbeddedResource Update="frmPoStatus\frmPoStatus.resx">
+      <DependentUpon>frmPoStatus.cs</DependentUpon>
+    </EmbeddedResource>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="frmGr\frmGr.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="frmGr\frmGr.Designer.cs">
+      <DependentUpon>frmGr.cs</DependentUpon>
+    </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="frmGrList\frmGrList.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="frmGrList\frmGrList.Designer.cs">
+      <DependentUpon>frmGrList.cs</DependentUpon>
+    </Compile>
+    <EmbeddedResource Update="frmGrList\frmGrList.resx">
+      <DependentUpon>frmGrList.cs</DependentUpon>
+    </EmbeddedResource>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="frmStockList\frmStockList.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="frmStockList\frmStockList.Designer.cs">
+      <DependentUpon>frmStockList.cs</DependentUpon>
+    </Compile>
+    <EmbeddedResource Update="frmStockList\frmStockList.resx">
+      <DependentUpon>frmStockList.cs</DependentUpon>
+    </EmbeddedResource>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="frmTransList\frmTransList.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="frmTransList\frmTransList.Designer.cs">
+      <DependentUpon>frmTransList.cs</DependentUpon>
+    </Compile>
+    <EmbeddedResource Update="frmTransList\frmTransList.resx">
+      <DependentUpon>frmTransList.cs</DependentUpon>
+    </EmbeddedResource>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="frmPo\popPick.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="frmPo\popPick.Designer.cs">
+      <DependentUpon>popPick.cs</DependentUpon>
+    </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="frmPo\popReqPick.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="frmPo\popReqPick.Designer.cs">
+      <DependentUpon>popReqPick.cs</DependentUpon>
+    </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="frmPoPrice\frmPoPrice.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="frmPoPrice\frmPoPrice.Designer.cs">
+      <DependentUpon>frmPoPrice.cs</DependentUpon>
+    </Compile>
+    <EmbeddedResource Update="frmPoPrice\frmPoPrice.resx">
+      <DependentUpon>frmPoPrice.cs</DependentUpon>
+    </EmbeddedResource>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="frmPoReq\frmPoReq.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="frmPoReq\frmPoReq.Designer.cs">
+      <DependentUpon>frmPoReq.cs</DependentUpon>
+    </Compile>
+    <EmbeddedResource Update="frmPoReq\frmPoReq.resx">
+      <DependentUpon>frmPoReq.cs</DependentUpon>
+    </EmbeddedResource>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="frmPoReqList\frmPoReqList.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="frmPoReqList\frmPoReqList.Designer.cs">
+      <DependentUpon>frmPoReqList.cs</DependentUpon>
+    </Compile>
+    <EmbeddedResource Update="frmPoReqList\frmPoReqList.resx">
+      <DependentUpon>frmPoReqList.cs</DependentUpon>
+    </EmbeddedResource>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="frmPo\frmPo.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="frmPo\frmPo.Designer.cs">
+      <DependentUpon>frmPo.cs</DependentUpon>
+    </Compile>
+    <EmbeddedResource Update="frmPo\frmPo.resx">
+      <DependentUpon>frmPo.cs</DependentUpon>
+    </EmbeddedResource>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="frmPoList\frmPoList.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="frmPoList\frmPoList.Designer.cs">
+      <DependentUpon>frmPoList.cs</DependentUpon>
+    </Compile>
+    <EmbeddedResource Update="frmPoList\frmPoList.resx">
+      <DependentUpon>frmPoList.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
 

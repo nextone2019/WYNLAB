@@ -1,5 +1,5 @@
-// AI Builder가 마스터-폼-서브그리드 템플릿을 복제해서 자동 생성 - 2026-09-09.
-// 디자인(제목영역/여백/색상)을 바꾸려면 이 파일이 아니라 원본 템플릿(99.SOURCE/TEMPLATE/WYNLAB.TEMPLATE)을 고치세요.
+﻿// AI Builder媛 留덉뒪?????쒕툕洹몃━???쒗뵆由우쓣 蹂듭젣?댁꽌 ?먮룞 ?앹꽦 - 2026-09-09.
+// ?붿옄???쒕ぉ?곸뿭/?щ갚/?됱긽)??諛붽씀?ㅻ㈃ ???뚯씪???꾨땲???먮낯 ?쒗뵆由?99.SOURCE/TEMPLATE/WYNLAB.TEMPLATE)??怨좎튂?몄슂.
 #nullable disable
 using WYNLAB.Base;
 using WYNLAB.Base.Controls;
@@ -73,7 +73,7 @@ public partial class frmEMP
             this.splitterWyn1 = new WYNLAB.Base.Controls.SplitterWyn();
             this.panelWyn5 = new WYNLAB.Base.Controls.PanelWyn();
             this.panData = new WYNLAB.Base.Controls.PanelWyn();
-            this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.groupBox1 = new WYNLAB.Base.Controls.GroupBoxWyn();
             this.lblDetailHoliYn = new DevExpress.XtraEditors.LabelControl();
             this.chkDetailPayYn = new WYNLAB.Base.Controls.CheckBoxWyn();
             this.lblDetailPayYn = new DevExpress.XtraEditors.LabelControl();
@@ -215,6 +215,8 @@ public partial class frmEMP
             // 
             // panelWyn3
             // 
+            this.panelWyn3.Appearance.BackColor = System.Drawing.Color.White;
+            this.panelWyn3.Appearance.Options.UseBackColor = true;
             this.panelWyn3.Controls.Add(this.panelWyn4);
             this.panelWyn3.Dock = System.Windows.Forms.DockStyle.Fill;
             this.panelWyn3.EdgeLineColor = System.Drawing.Color.FromArgb(((int)(((byte)(228)))), ((int)(((byte)(229)))), ((int)(((byte)(232)))));
@@ -225,6 +227,8 @@ public partial class frmEMP
             // 
             // panelWyn4
             // 
+            this.panelWyn4.Appearance.BackColor = System.Drawing.Color.White;
+            this.panelWyn4.Appearance.Options.UseBackColor = true;
             this.panelWyn4.Controls.Add(this.panelWyn8);
             this.panelWyn4.Controls.Add(this.splitterWyn1);
             this.panelWyn4.Controls.Add(this.panelWyn5);
@@ -232,19 +236,24 @@ public partial class frmEMP
             this.panelWyn4.EdgeLineColor = System.Drawing.Color.FromArgb(((int)(((byte)(228)))), ((int)(((byte)(229)))), ((int)(((byte)(232)))));
             this.panelWyn4.Location = new System.Drawing.Point(0, 0);
             this.panelWyn4.Name = "panelWyn4";
-            this.panelWyn4.Padding = new System.Windows.Forms.Padding(3, 0, 0, 0);
+            this.panelWyn4.Padding = new System.Windows.Forms.Padding(0, 3, 0, 3);
             this.panelWyn4.Size = new System.Drawing.Size(1678, 739);
             this.panelWyn4.TabIndex = 7;
             // 
             // panelWyn8
             // 
+            this.panelWyn8.Appearance.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(231)))), ((int)(((byte)(233)))), ((int)(((byte)(237)))));
+            this.panelWyn8.Appearance.Options.UseBackColor = true;
+            this.panelWyn8.CardCornerRadius = 0;
             this.panelWyn8.Controls.Add(this.grd1);
             this.panelWyn8.Controls.Add(this.panelWyn2);
             this.panelWyn8.Dock = System.Windows.Forms.DockStyle.Fill;
             this.panelWyn8.EdgeLineColor = System.Drawing.Color.FromArgb(((int)(((byte)(228)))), ((int)(((byte)(229)))), ((int)(((byte)(232)))));
-            this.panelWyn8.Location = new System.Drawing.Point(3, 0);
+            this.panelWyn8.Location = new System.Drawing.Point(0, 3);
             this.panelWyn8.Name = "panelWyn8";
-            this.panelWyn8.Size = new System.Drawing.Size(984, 739);
+            this.panelWyn8.Padding = new System.Windows.Forms.Padding(8, 4, 8, 8);
+            this.panelWyn8.Size = new System.Drawing.Size(943, 733);
+            this.panelWyn8.Style = WYNLAB.Base.Controls.PanelWynStyle.Card;
             this.panelWyn8.TabIndex = 12;
             // 
             // grd1
@@ -255,7 +264,7 @@ public partial class frmEMP
             this.grd1.EmbeddedNavigator.Buttons.Edit.Visible = false;
             this.grd1.EmbeddedNavigator.Buttons.EndEdit.Visible = false;
             this.grd1.EmbeddedNavigator.Buttons.Remove.Visible = false;
-            this.grd1.Location = new System.Drawing.Point(0, 27);
+            this.grd1.Location = new System.Drawing.Point(8, 31);
             this.grd1.MainView = this.gvw1;
             this.grd1.Name = "grd1";
             this.grd1.RepositoryItems.AddRange(new DevExpress.XtraEditors.Repository.RepositoryItem[] {
@@ -267,7 +276,7 @@ public partial class frmEMP
             this.dateColumnEdit2,
             this.dateColumnEdit3,
             this.lookUpColumnEdit2});
-            this.grd1.Size = new System.Drawing.Size(984, 712);
+            this.grd1.Size = new System.Drawing.Size(927, 694);
             this.grd1.TabIndex = 10;
             this.grd1.ViewCollection.AddRange(new DevExpress.XtraGrid.Views.Base.BaseView[] {
             this.gvw1});
@@ -316,7 +325,7 @@ public partial class frmEMP
             // 
             // colMAccId
             // 
-            this.colMAccId.Caption = "사업장";
+            this.colMAccId.Caption = "?ъ뾽??";
             this.colMAccId.ColumnEdit = this.lookUpColumnEdit1;
             this.colMAccId.FieldName = "acc_id";
             this.colMAccId.Name = "colMAccId";
@@ -334,7 +343,7 @@ public partial class frmEMP
             // 
             // colMEmpNo
             // 
-            this.colMEmpNo.Caption = "사번";
+            this.colMEmpNo.Caption = "?щ쾲";
             this.colMEmpNo.FieldName = "emp_no";
             this.colMEmpNo.Name = "colMEmpNo";
             this.colMEmpNo.OptionsColumn.AllowEdit = false;
@@ -344,7 +353,7 @@ public partial class frmEMP
             // 
             // colMEmpNm
             // 
-            this.colMEmpNm.Caption = "사원명";
+            this.colMEmpNm.Caption = "?ъ썝紐?";
             this.colMEmpNm.FieldName = "emp_nm";
             this.colMEmpNm.Name = "colMEmpNm";
             this.colMEmpNm.Visible = true;
@@ -353,14 +362,14 @@ public partial class frmEMP
             // 
             // colMEmpNmEng
             // 
-            this.colMEmpNmEng.Caption = "사원명(영문)";
+            this.colMEmpNmEng.Caption = "?ъ썝紐??곷Ц)";
             this.colMEmpNmEng.FieldName = "emp_nm_eng";
             this.colMEmpNmEng.Name = "colMEmpNmEng";
             this.colMEmpNmEng.Width = 100;
             // 
             // colMDeptId
             // 
-            this.colMDeptId.Caption = "부서ID";
+            this.colMDeptId.Caption = "遺?쏧D";
             this.colMDeptId.ColumnEdit = this.spinEditcolM;
             this.colMDeptId.FieldName = "DEPT_ID";
             this.colMDeptId.Name = "colMDeptId";
@@ -374,7 +383,7 @@ public partial class frmEMP
             // 
             // colMDeptNm
             // 
-            this.colMDeptNm.Caption = "부서";
+            this.colMDeptNm.Caption = "遺??";
             this.colMDeptNm.FieldName = "dept_nm";
             this.colMDeptNm.Name = "colMDeptNm";
             this.colMDeptNm.Visible = true;
@@ -383,7 +392,7 @@ public partial class frmEMP
             // 
             // colMEntDate
             // 
-            this.colMEntDate.Caption = "입사일자";
+            this.colMEntDate.Caption = "?낆궗?쇱옄";
             this.colMEntDate.ColumnEdit = this.dateColumnEdit1;
             this.colMEntDate.FieldName = "ent_date";
             this.colMEntDate.Name = "colMEntDate";
@@ -403,7 +412,7 @@ public partial class frmEMP
             // 
             // colMGrpEntDate
             // 
-            this.colMGrpEntDate.Caption = "그룹입사일자";
+            this.colMGrpEntDate.Caption = "洹몃９?낆궗?쇱옄";
             this.colMGrpEntDate.ColumnEdit = this.dateColumnEdit2;
             this.colMGrpEntDate.FieldName = "grp_ent_date";
             this.colMGrpEntDate.Name = "colMGrpEntDate";
@@ -423,7 +432,7 @@ public partial class frmEMP
             // 
             // colMJobGrade
             // 
-            this.colMJobGrade.Caption = "직잭";
+            this.colMJobGrade.Caption = "吏곸옲";
             this.colMJobGrade.FieldName = "job_grade";
             this.colMJobGrade.Name = "colMJobGrade";
             this.colMJobGrade.Visible = true;
@@ -432,7 +441,7 @@ public partial class frmEMP
             // 
             // colMJobType
             // 
-            this.colMJobType.Caption = "직무";
+            this.colMJobType.Caption = "吏곷Т";
             this.colMJobType.FieldName = "job_type";
             this.colMJobType.Name = "colMJobType";
             this.colMJobType.Visible = true;
@@ -441,7 +450,7 @@ public partial class frmEMP
             // 
             // colMRetYn
             // 
-            this.colMRetYn.Caption = "퇴사";
+            this.colMRetYn.Caption = "?댁궗";
             this.colMRetYn.ColumnEdit = this.chkEditcolM;
             this.colMRetYn.FieldName = "ret_yn";
             this.colMRetYn.Name = "colMRetYn";
@@ -452,10 +461,12 @@ public partial class frmEMP
             // chkEditcolM
             // 
             this.chkEditcolM.Name = "chkEditcolM";
+            this.chkEditcolM.ValueChecked = "Y";
+            this.chkEditcolM.ValueUnchecked = "N";
             // 
             // colMRetDate
             // 
-            this.colMRetDate.Caption = "퇴사일자";
+            this.colMRetDate.Caption = "?댁궗?쇱옄";
             this.colMRetDate.ColumnEdit = this.dateColumnEdit3;
             this.colMRetDate.FieldName = "ret_date";
             this.colMRetDate.Name = "colMRetDate";
@@ -475,7 +486,7 @@ public partial class frmEMP
             // 
             // colMSexCd
             // 
-            this.colMSexCd.Caption = "성별";
+            this.colMSexCd.Caption = "?깅퀎";
             this.colMSexCd.ColumnEdit = this.lookUpColumnEdit2;
             this.colMSexCd.FieldName = "sex_cd";
             this.colMSexCd.Name = "colMSexCd";
@@ -495,7 +506,7 @@ public partial class frmEMP
             // 
             // colMTel
             // 
-            this.colMTel.Caption = "연락처";
+            this.colMTel.Caption = "?곕씫泥?";
             this.colMTel.FieldName = "tel";
             this.colMTel.Name = "colMTel";
             this.colMTel.Visible = true;
@@ -522,7 +533,7 @@ public partial class frmEMP
             // 
             // colMNatCd
             // 
-            this.colMNatCd.Caption = "국가";
+            this.colMNatCd.Caption = "援??";
             this.colMNatCd.FieldName = "nat_cd";
             this.colMNatCd.Name = "colMNatCd";
             this.colMNatCd.Visible = true;
@@ -531,7 +542,7 @@ public partial class frmEMP
             // 
             // colMZipCode
             // 
-            this.colMZipCode.Caption = "우편번호";
+            this.colMZipCode.Caption = "?고렪踰덊샇";
             this.colMZipCode.FieldName = "zip_code";
             this.colMZipCode.Name = "colMZipCode";
             this.colMZipCode.Visible = true;
@@ -540,7 +551,7 @@ public partial class frmEMP
             // 
             // colMAddr1
             // 
-            this.colMAddr1.Caption = "주소1";
+            this.colMAddr1.Caption = "二쇱냼1";
             this.colMAddr1.FieldName = "addr1";
             this.colMAddr1.Name = "colMAddr1";
             this.colMAddr1.Visible = true;
@@ -549,7 +560,7 @@ public partial class frmEMP
             // 
             // colMAddr2
             // 
-            this.colMAddr2.Caption = "주소2";
+            this.colMAddr2.Caption = "二쇱냼2";
             this.colMAddr2.FieldName = "addr2";
             this.colMAddr2.Name = "colMAddr2";
             this.colMAddr2.Visible = true;
@@ -558,7 +569,7 @@ public partial class frmEMP
             // 
             // colMHoliYn
             // 
-            this.colMHoliYn.Caption = "연차대상";
+            this.colMHoliYn.Caption = "?곗감???";
             this.colMHoliYn.ColumnEdit = this.chkEditcolM;
             this.colMHoliYn.FieldName = "holi_yn";
             this.colMHoliYn.Name = "colMHoliYn";
@@ -568,7 +579,7 @@ public partial class frmEMP
             // 
             // colMDiligYn
             // 
-            this.colMDiligYn.Caption = "근태대상";
+            this.colMDiligYn.Caption = "洹쇳깭???";
             this.colMDiligYn.ColumnEdit = this.chkEditcolM;
             this.colMDiligYn.FieldName = "dilig_yn";
             this.colMDiligYn.Name = "colMDiligYn";
@@ -578,7 +589,7 @@ public partial class frmEMP
             // 
             // colMPayYn
             // 
-            this.colMPayYn.Caption = "급여대상";
+            this.colMPayYn.Caption = "湲됱뿬???";
             this.colMPayYn.ColumnEdit = this.chkEditcolM;
             this.colMPayYn.FieldName = "pay_yn";
             this.colMPayYn.Name = "colMPayYn";
@@ -588,7 +599,7 @@ public partial class frmEMP
             // 
             // colMPhoto
             // 
-            this.colMPhoto.Caption = "사진";
+            this.colMPhoto.Caption = "?ъ쭊";
             this.colMPhoto.FieldName = "photo";
             this.colMPhoto.Name = "colMPhoto";
             this.colMPhoto.Visible = true;
@@ -606,13 +617,15 @@ public partial class frmEMP
             // 
             // panelWyn2
             // 
+            this.panelWyn2.Appearance.BackColor = System.Drawing.Color.White;
+            this.panelWyn2.Appearance.Options.UseBackColor = true;
             this.panelWyn2.Controls.Add(this.sectionHeaderWyn4);
             this.panelWyn2.Dock = System.Windows.Forms.DockStyle.Top;
             this.panelWyn2.EdgeLineColor = System.Drawing.Color.FromArgb(((int)(((byte)(228)))), ((int)(((byte)(229)))), ((int)(((byte)(232)))));
-            this.panelWyn2.Location = new System.Drawing.Point(0, 0);
+            this.panelWyn2.Location = new System.Drawing.Point(8, 4);
             this.panelWyn2.Name = "panelWyn2";
             this.panelWyn2.Padding = new System.Windows.Forms.Padding(5, 0, 0, 2);
-            this.panelWyn2.Size = new System.Drawing.Size(984, 27);
+            this.panelWyn2.Size = new System.Drawing.Size(927, 27);
             this.panelWyn2.TabIndex = 11;
             // 
             // sectionHeaderWyn4
@@ -623,34 +636,41 @@ public partial class frmEMP
             this.sectionHeaderWyn4.Icon = WYNLAB.Base.Controls.SectionHeaderIcon.Folder;
             this.sectionHeaderWyn4.Location = new System.Drawing.Point(5, 0);
             this.sectionHeaderWyn4.Name = "sectionHeaderWyn4";
-            this.sectionHeaderWyn4.Size = new System.Drawing.Size(979, 25);
+            this.sectionHeaderWyn4.Size = new System.Drawing.Size(922, 25);
             this.sectionHeaderWyn4.SvgIcon = ((DevExpress.Utils.Svg.SvgImage)(resources.GetObject("sectionHeaderWyn4.SvgIcon")));
             this.sectionHeaderWyn4.TabIndex = 9;
-            this.sectionHeaderWyn4.Text = "사원 LIST";
+            this.sectionHeaderWyn4.Text = "?ъ썝 LIST";
             // 
             // splitterWyn1
             // 
-            this.splitterWyn1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(255)))), ((int)(((byte)(255)))));
+            this.splitterWyn1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(231)))), ((int)(((byte)(233)))), ((int)(((byte)(237)))));
             this.splitterWyn1.Dock = System.Windows.Forms.DockStyle.Right;
-            this.splitterWyn1.Location = new System.Drawing.Point(987, 0);
+            this.splitterWyn1.Location = new System.Drawing.Point(943, 3);
             this.splitterWyn1.Name = "splitterWyn1";
-            this.splitterWyn1.Size = new System.Drawing.Size(10, 739);
+            this.splitterWyn1.Size = new System.Drawing.Size(10, 733);
             this.splitterWyn1.TabIndex = 10;
             this.splitterWyn1.TabStop = false;
             // 
             // panelWyn5
             // 
+            this.panelWyn5.Appearance.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(231)))), ((int)(((byte)(233)))), ((int)(((byte)(237)))));
+            this.panelWyn5.Appearance.Options.UseBackColor = true;
+            this.panelWyn5.CardCornerRadius = 0;
             this.panelWyn5.Controls.Add(this.panData);
             this.panelWyn5.Controls.Add(this.panelWyn6);
             this.panelWyn5.Dock = System.Windows.Forms.DockStyle.Right;
             this.panelWyn5.EdgeLineColor = System.Drawing.Color.FromArgb(((int)(((byte)(228)))), ((int)(((byte)(229)))), ((int)(((byte)(232)))));
-            this.panelWyn5.Location = new System.Drawing.Point(997, 0);
+            this.panelWyn5.Location = new System.Drawing.Point(953, 3);
             this.panelWyn5.Name = "panelWyn5";
-            this.panelWyn5.Size = new System.Drawing.Size(681, 739);
+            this.panelWyn5.Padding = new System.Windows.Forms.Padding(8, 4, 8, 8);
+            this.panelWyn5.Size = new System.Drawing.Size(725, 733);
+            this.panelWyn5.Style = WYNLAB.Base.Controls.PanelWynStyle.Card;
             this.panelWyn5.TabIndex = 6;
             // 
             // panData
             // 
+            this.panData.Appearance.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(240)))), ((int)(((byte)(240)))), ((int)(((byte)(240)))));
+            this.panData.Appearance.Options.UseBackColor = true;
             this.panData.BorderStyle = DevExpress.XtraEditors.Controls.BorderStyles.Default;
             this.panData.Controls.Add(this.groupBox1);
             this.panData.Controls.Add(this.txtDetailDeptNm);
@@ -696,9 +716,9 @@ public partial class frmEMP
             this.panData.Controls.Add(this.txtDetailAddr2);
             this.panData.Dock = System.Windows.Forms.DockStyle.Top;
             this.panData.EdgeLineColor = System.Drawing.Color.FromArgb(((int)(((byte)(228)))), ((int)(((byte)(229)))), ((int)(((byte)(232)))));
-            this.panData.Location = new System.Drawing.Point(0, 27);
+            this.panData.Location = new System.Drawing.Point(8, 31);
             this.panData.Name = "panData";
-            this.panData.Size = new System.Drawing.Size(681, 321);
+            this.panData.Size = new System.Drawing.Size(709, 331);
             this.panData.TabIndex = 8;
             // 
             // groupBox1
@@ -709,6 +729,7 @@ public partial class frmEMP
             this.groupBox1.Controls.Add(this.chkDetailDiligYn);
             this.groupBox1.Controls.Add(this.lblDetailDiligYn);
             this.groupBox1.Controls.Add(this.chkDetailHoliYn);
+            this.groupBox1.Font = new System.Drawing.Font("맑은 고딕", 9F);
             this.groupBox1.Location = new System.Drawing.Point(13, 213);
             this.groupBox1.Name = "groupBox1";
             this.groupBox1.Size = new System.Drawing.Size(149, 88);
@@ -724,7 +745,7 @@ public partial class frmEMP
             this.lblDetailHoliYn.Name = "lblDetailHoliYn";
             this.lblDetailHoliYn.Size = new System.Drawing.Size(48, 15);
             this.lblDetailHoliYn.TabIndex = 40;
-            this.lblDetailHoliYn.Text = "연차대상";
+            this.lblDetailHoliYn.Text = "?곗감???";
             // 
             // chkDetailPayYn
             // 
@@ -742,7 +763,7 @@ public partial class frmEMP
             this.lblDetailPayYn.Name = "lblDetailPayYn";
             this.lblDetailPayYn.Size = new System.Drawing.Size(48, 15);
             this.lblDetailPayYn.TabIndex = 44;
-            this.lblDetailPayYn.Text = "급여대상";
+            this.lblDetailPayYn.Text = "湲됱뿬???";
             // 
             // chkDetailDiligYn
             // 
@@ -760,7 +781,7 @@ public partial class frmEMP
             this.lblDetailDiligYn.Name = "lblDetailDiligYn";
             this.lblDetailDiligYn.Size = new System.Drawing.Size(48, 15);
             this.lblDetailDiligYn.TabIndex = 42;
-            this.lblDetailDiligYn.Text = "근태대상";
+            this.lblDetailDiligYn.Text = "洹쇳깭???";
             // 
             // chkDetailHoliYn
             // 
@@ -793,10 +814,6 @@ public partial class frmEMP
             this.cboDetailSexCd.Location = new System.Drawing.Point(493, 15);
             this.cboDetailSexCd.LookupKey = "L_CM0005";
             this.cboDetailSexCd.Name = "cboDetailSexCd";
-            this.cboDetailSexCd.Properties.Appearance.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(249)))), ((int)(((byte)(219)))));
-            this.cboDetailSexCd.Properties.Appearance.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))));
-            this.cboDetailSexCd.Properties.Appearance.Options.UseBackColor = true;
-            this.cboDetailSexCd.Properties.Appearance.Options.UseForeColor = true;
             this.cboDetailSexCd.Properties.Buttons.AddRange(new DevExpress.XtraEditors.Controls.EditorButton[] {
             new DevExpress.XtraEditors.Controls.EditorButton(DevExpress.XtraEditors.Controls.ButtonPredefines.Combo)});
             this.cboDetailSexCd.Properties.NullText = "";
@@ -839,7 +856,7 @@ public partial class frmEMP
             this.lblDetailAccId.Name = "lblDetailAccId";
             this.lblDetailAccId.Size = new System.Drawing.Size(36, 15);
             this.lblDetailAccId.TabIndex = 0;
-            this.lblDetailAccId.Text = "사업장";
+            this.lblDetailAccId.Text = "?ъ뾽??";
             // 
             // lblDetailEmpNo
             // 
@@ -849,7 +866,7 @@ public partial class frmEMP
             this.lblDetailEmpNo.Name = "lblDetailEmpNo";
             this.lblDetailEmpNo.Size = new System.Drawing.Size(24, 15);
             this.lblDetailEmpNo.TabIndex = 2;
-            this.lblDetailEmpNo.Text = "사번";
+            this.lblDetailEmpNo.Text = "?щ쾲";
             // 
             // txtDetailEmpNo
             // 
@@ -871,7 +888,7 @@ public partial class frmEMP
             this.lblDetailEmpNm.Name = "lblDetailEmpNm";
             this.lblDetailEmpNm.Size = new System.Drawing.Size(36, 15);
             this.lblDetailEmpNm.TabIndex = 4;
-            this.lblDetailEmpNm.Text = "사원명";
+            this.lblDetailEmpNm.Text = "?ъ썝紐?";
             // 
             // txtDetailEmpNm
             // 
@@ -893,7 +910,7 @@ public partial class frmEMP
             this.lblDetailEmpNmEng.Name = "lblDetailEmpNmEng";
             this.lblDetailEmpNmEng.Size = new System.Drawing.Size(68, 15);
             this.lblDetailEmpNmEng.TabIndex = 6;
-            this.lblDetailEmpNmEng.Text = "사원명(영문)";
+            this.lblDetailEmpNmEng.Text = "?ъ썝紐??곷Ц)";
             // 
             // txtDetailDeptId
             // 
@@ -914,11 +931,11 @@ public partial class frmEMP
             // 
             this.lblDetailDeptId.Appearance.Font = new System.Drawing.Font("맑은 고딕", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
             this.lblDetailDeptId.Appearance.Options.UseFont = true;
-            this.lblDetailDeptId.Location = new System.Drawing.Point(436, 383);
+            this.lblDetailDeptId.Location = new System.Drawing.Point(451, 383);
             this.lblDetailDeptId.Name = "lblDetailDeptId";
             this.lblDetailDeptId.Size = new System.Drawing.Size(36, 15);
             this.lblDetailDeptId.TabIndex = 8;
-            this.lblDetailDeptId.Text = "부서ID";
+            this.lblDetailDeptId.Text = "遺?쏧D";
             this.lblDetailDeptId.Visible = false;
             // 
             // lblDetailDeptNm
@@ -929,7 +946,7 @@ public partial class frmEMP
             this.lblDetailDeptNm.Name = "lblDetailDeptNm";
             this.lblDetailDeptNm.Size = new System.Drawing.Size(24, 15);
             this.lblDetailDeptNm.TabIndex = 10;
-            this.lblDetailDeptNm.Text = "부서";
+            this.lblDetailDeptNm.Text = "遺??";
             // 
             // lblDetailEntDate
             // 
@@ -939,7 +956,7 @@ public partial class frmEMP
             this.lblDetailEntDate.Name = "lblDetailEntDate";
             this.lblDetailEntDate.Size = new System.Drawing.Size(48, 15);
             this.lblDetailEntDate.TabIndex = 12;
-            this.lblDetailEntDate.Text = "입사일자";
+            this.lblDetailEntDate.Text = "?낆궗?쇱옄";
             // 
             // dteDetailEntDate
             // 
@@ -963,7 +980,7 @@ public partial class frmEMP
             this.lblDetailGrpEntDate.Name = "lblDetailGrpEntDate";
             this.lblDetailGrpEntDate.Size = new System.Drawing.Size(72, 15);
             this.lblDetailGrpEntDate.TabIndex = 14;
-            this.lblDetailGrpEntDate.Text = "그룹입사일자";
+            this.lblDetailGrpEntDate.Text = "洹몃９?낆궗?쇱옄";
             // 
             // dteDetailGrpEntDate
             // 
@@ -987,7 +1004,7 @@ public partial class frmEMP
             this.lblDetailJobGrade.Name = "lblDetailJobGrade";
             this.lblDetailJobGrade.Size = new System.Drawing.Size(24, 15);
             this.lblDetailJobGrade.TabIndex = 16;
-            this.lblDetailJobGrade.Text = "직잭";
+            this.lblDetailJobGrade.Text = "吏곸옲";
             // 
             // txtDetailJobGrade
             // 
@@ -1004,7 +1021,7 @@ public partial class frmEMP
             this.lblDetailJobType.Name = "lblDetailJobType";
             this.lblDetailJobType.Size = new System.Drawing.Size(24, 15);
             this.lblDetailJobType.TabIndex = 18;
-            this.lblDetailJobType.Text = "직무";
+            this.lblDetailJobType.Text = "吏곷Т";
             // 
             // txtDetailJobType
             // 
@@ -1017,34 +1034,34 @@ public partial class frmEMP
             // 
             this.lblDetailRetYn.Appearance.Font = new System.Drawing.Font("맑은 고딕", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
             this.lblDetailRetYn.Appearance.Options.UseFont = true;
-            this.lblDetailRetYn.Location = new System.Drawing.Point(457, 130);
+            this.lblDetailRetYn.Location = new System.Drawing.Point(463, 132);
             this.lblDetailRetYn.Name = "lblDetailRetYn";
             this.lblDetailRetYn.Size = new System.Drawing.Size(24, 15);
             this.lblDetailRetYn.TabIndex = 20;
-            this.lblDetailRetYn.Text = "퇴사";
+            this.lblDetailRetYn.Text = "?댁궗";
             // 
             // chkDetailRetYn
             // 
-            this.chkDetailRetYn.Location = new System.Drawing.Point(487, 127);
+            this.chkDetailRetYn.Location = new System.Drawing.Point(492, 129);
             this.chkDetailRetYn.Name = "chkDetailRetYn";
             this.chkDetailRetYn.Properties.Caption = "";
-            this.chkDetailRetYn.Size = new System.Drawing.Size(26, 20);
+            this.chkDetailRetYn.Size = new System.Drawing.Size(17, 20);
             this.chkDetailRetYn.TabIndex = 11;
             // 
             // lblDetailRetDate
             // 
             this.lblDetailRetDate.Appearance.Font = new System.Drawing.Font("맑은 고딕", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
             this.lblDetailRetDate.Appearance.Options.UseFont = true;
-            this.lblDetailRetDate.Location = new System.Drawing.Point(514, 130);
+            this.lblDetailRetDate.Location = new System.Drawing.Point(517, 132);
             this.lblDetailRetDate.Name = "lblDetailRetDate";
             this.lblDetailRetDate.Size = new System.Drawing.Size(48, 15);
             this.lblDetailRetDate.TabIndex = 22;
-            this.lblDetailRetDate.Text = "퇴사일자";
+            this.lblDetailRetDate.Text = "?댁궗?쇱옄";
             // 
             // dteDetailRetDate
             // 
             this.dteDetailRetDate.EditValue = new System.DateTime(2026, 9, 9, 0, 0, 0, 0);
-            this.dteDetailRetDate.Location = new System.Drawing.Point(568, 125);
+            this.dteDetailRetDate.Location = new System.Drawing.Point(568, 127);
             this.dteDetailRetDate.Name = "dteDetailRetDate";
             this.dteDetailRetDate.Properties.Buttons.AddRange(new DevExpress.XtraEditors.Controls.EditorButton[] {
             new DevExpress.XtraEditors.Controls.EditorButton(DevExpress.XtraEditors.Controls.ButtonPredefines.Combo)});
@@ -1063,7 +1080,7 @@ public partial class frmEMP
             this.lblDetailSexCd.Name = "lblDetailSexCd";
             this.lblDetailSexCd.Size = new System.Drawing.Size(24, 15);
             this.lblDetailSexCd.TabIndex = 24;
-            this.lblDetailSexCd.Text = "성별";
+            this.lblDetailSexCd.Text = "?깅퀎";
             // 
             // lblDetailTel
             // 
@@ -1073,7 +1090,7 @@ public partial class frmEMP
             this.lblDetailTel.Name = "lblDetailTel";
             this.lblDetailTel.Size = new System.Drawing.Size(36, 15);
             this.lblDetailTel.TabIndex = 26;
-            this.lblDetailTel.Text = "연락처";
+            this.lblDetailTel.Text = "?곕씫泥?";
             // 
             // txtDetailTel
             // 
@@ -1120,11 +1137,11 @@ public partial class frmEMP
             // 
             this.lblDetailNatCd.Appearance.Font = new System.Drawing.Font("맑은 고딕", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
             this.lblDetailNatCd.Appearance.Options.UseFont = true;
-            this.lblDetailNatCd.Location = new System.Drawing.Point(508, 361);
+            this.lblDetailNatCd.Location = new System.Drawing.Point(541, 361);
             this.lblDetailNatCd.Name = "lblDetailNatCd";
             this.lblDetailNatCd.Size = new System.Drawing.Size(24, 15);
             this.lblDetailNatCd.TabIndex = 32;
-            this.lblDetailNatCd.Text = "국가";
+            this.lblDetailNatCd.Text = "援??";
             this.lblDetailNatCd.Visible = false;
             // 
             // txtDetailNatCd
@@ -1143,7 +1160,7 @@ public partial class frmEMP
             this.lblDetailZipCode.Name = "lblDetailZipCode";
             this.lblDetailZipCode.Size = new System.Drawing.Size(48, 15);
             this.lblDetailZipCode.TabIndex = 34;
-            this.lblDetailZipCode.Text = "우편번호";
+            this.lblDetailZipCode.Text = "?고렪踰덊샇";
             // 
             // txtDetailZipCode
             // 
@@ -1160,7 +1177,7 @@ public partial class frmEMP
             this.lblDetailAddr1.Name = "lblDetailAddr1";
             this.lblDetailAddr1.Size = new System.Drawing.Size(31, 15);
             this.lblDetailAddr1.TabIndex = 36;
-            this.lblDetailAddr1.Text = "주소1";
+            this.lblDetailAddr1.Text = "二쇱냼1";
             // 
             // txtDetailAddr1
             // 
@@ -1177,7 +1194,7 @@ public partial class frmEMP
             this.lblDetailAddr2.Name = "lblDetailAddr2";
             this.lblDetailAddr2.Size = new System.Drawing.Size(31, 15);
             this.lblDetailAddr2.TabIndex = 38;
-            this.lblDetailAddr2.Text = "주소2";
+            this.lblDetailAddr2.Text = "二쇱냼2";
             // 
             // txtDetailAddr2
             // 
@@ -1188,13 +1205,15 @@ public partial class frmEMP
             // 
             // panelWyn6
             // 
+            this.panelWyn6.Appearance.BackColor = System.Drawing.Color.White;
+            this.panelWyn6.Appearance.Options.UseBackColor = true;
             this.panelWyn6.Controls.Add(this.sectionHeaderWyn3);
             this.panelWyn6.Dock = System.Windows.Forms.DockStyle.Top;
             this.panelWyn6.EdgeLineColor = System.Drawing.Color.FromArgb(((int)(((byte)(228)))), ((int)(((byte)(229)))), ((int)(((byte)(232)))));
-            this.panelWyn6.Location = new System.Drawing.Point(0, 0);
+            this.panelWyn6.Location = new System.Drawing.Point(8, 4);
             this.panelWyn6.Name = "panelWyn6";
             this.panelWyn6.Padding = new System.Windows.Forms.Padding(5, 0, 0, 2);
-            this.panelWyn6.Size = new System.Drawing.Size(681, 27);
+            this.panelWyn6.Size = new System.Drawing.Size(709, 27);
             this.panelWyn6.TabIndex = 7;
             // 
             // sectionHeaderWyn3
@@ -1206,16 +1225,15 @@ public partial class frmEMP
             this.sectionHeaderWyn3.Location = new System.Drawing.Point(5, 0);
             this.sectionHeaderWyn3.Name = "sectionHeaderWyn3";
             this.sectionHeaderWyn3.Padding = new System.Windows.Forms.Padding(0, 0, 3, 0);
-            this.sectionHeaderWyn3.Size = new System.Drawing.Size(676, 25);
+            this.sectionHeaderWyn3.Size = new System.Drawing.Size(704, 25);
             this.sectionHeaderWyn3.SvgIcon = ((DevExpress.Utils.Svg.SvgImage)(resources.GetObject("sectionHeaderWyn3.SvgIcon")));
             this.sectionHeaderWyn3.TabIndex = 9;
-            this.sectionHeaderWyn3.Text = "사원정보 등록";
+            this.sectionHeaderWyn3.Text = "?ъ썝?뺣낫 ?깅줉";
             // 
             // panHeader
             // 
-            this.panHeader.Appearance.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(240)))), ((int)(((byte)(240)))), ((int)(((byte)(240)))));
+            this.panHeader.Appearance.BackColor = System.Drawing.Color.White;
             this.panHeader.Appearance.Options.UseBackColor = true;
-            this.panHeader.BorderStyle = DevExpress.XtraEditors.Controls.BorderStyles.Default;
             this.panHeader.Controls.Add(this.lblSearchEmpNo);
             this.panHeader.Controls.Add(this.txtDeptNm);
             this.panHeader.Controls.Add(this.txtEmpNo);
@@ -1234,15 +1252,13 @@ public partial class frmEMP
             this.lblSearchEmpNo.Name = "lblSearchEmpNo";
             this.lblSearchEmpNo.Size = new System.Drawing.Size(55, 14);
             this.lblSearchEmpNo.TabIndex = 1;
-            this.lblSearchEmpNo.Text = "사번/사원명";
+            this.lblSearchEmpNo.Text = "?щ쾲/?ъ썝紐?";
             // 
             // txtDeptNm
             // 
-            this.txtDeptNm.Location = new System.Drawing.Point(288, 17);
+            this.txtDeptNm.Location = new System.Drawing.Point(322, 17);
             this.txtDeptNm.LookupKey = "P_DEPT";
             this.txtDeptNm.Name = "txtDeptNm";
-            this.txtDeptNm.Properties.Appearance.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(249)))), ((int)(((byte)(219)))));
-            this.txtDeptNm.Properties.Appearance.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))));
             this.txtDeptNm.Properties.Buttons.AddRange(new DevExpress.XtraEditors.Controls.EditorButton[] {
             new DevExpress.XtraEditors.Controls.EditorButton(DevExpress.XtraEditors.Controls.ButtonPredefines.Ellipsis, "", 24, true, true, false, editorButtonImageOptions2, new DevExpress.Utils.KeyShortcut(System.Windows.Forms.Keys.None), serializableAppearanceObject5, serializableAppearanceObject6, serializableAppearanceObject7, serializableAppearanceObject8, "", null, null, DevExpress.Utils.ToolTipAnchor.Default)});
             this.txtDeptNm.Size = new System.Drawing.Size(175, 20);
@@ -1251,18 +1267,18 @@ public partial class frmEMP
             // 
             // txtEmpNo
             // 
-            this.txtEmpNo.Location = new System.Drawing.Point(79, 17);
+            this.txtEmpNo.Location = new System.Drawing.Point(87, 17);
             this.txtEmpNo.Name = "txtEmpNo";
             this.txtEmpNo.Size = new System.Drawing.Size(150, 20);
             this.txtEmpNo.TabIndex = 0;
             // 
             // lblSearchDeptId
             // 
-            this.lblSearchDeptId.Location = new System.Drawing.Point(262, 20);
+            this.lblSearchDeptId.Location = new System.Drawing.Point(292, 20);
             this.lblSearchDeptId.Name = "lblSearchDeptId";
             this.lblSearchDeptId.Size = new System.Drawing.Size(20, 14);
             this.lblSearchDeptId.TabIndex = 3;
-            this.lblSearchDeptId.Text = "부서";
+            this.lblSearchDeptId.Text = "遺??";
             // 
             // txtDeptId
             // 
@@ -1274,6 +1290,8 @@ public partial class frmEMP
             // 
             // paTitleH
             // 
+            this.paTitleH.Appearance.BackColor = System.Drawing.Color.White;
+            this.paTitleH.Appearance.Options.UseBackColor = true;
             this.paTitleH.Controls.Add(this.sectionHeaderWyn1);
             this.paTitleH.Dock = System.Windows.Forms.DockStyle.Top;
             this.paTitleH.EdgeLineColor = System.Drawing.Color.FromArgb(((int)(((byte)(228)))), ((int)(((byte)(229)))), ((int)(((byte)(232)))));
@@ -1294,7 +1312,7 @@ public partial class frmEMP
             this.sectionHeaderWyn1.Size = new System.Drawing.Size(1673, 25);
             this.sectionHeaderWyn1.SvgIcon = ((DevExpress.Utils.Svg.SvgImage)(resources.GetObject("sectionHeaderWyn1.SvgIcon")));
             this.sectionHeaderWyn1.TabIndex = 14;
-            this.sectionHeaderWyn1.Text = "사원등록 [frmEmp]";
+            this.sectionHeaderWyn1.Text = "?ъ썝?깅줉 [frmEmp]";
             // 
             // frmEMP
             // 
@@ -1464,7 +1482,7 @@ public partial class frmEMP
     private PictureEditWyn picEmpPhoto;
     private LookUpEditWyn cboDetailAccCd;
     private PopupLookupEditWyn txtDetailDeptNm;
-    private GroupBox groupBox1;
+    private WYNLAB.Base.Controls.GroupBoxWyn groupBox1;
     private TextEditWyn txtDetailDeptId;
     private LookUpEditWyn cboDetailSexCd;
     private LookUpColumnEdit lookUpColumnEdit1;

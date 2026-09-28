@@ -99,6 +99,50 @@ public class BaseForm : XtraForm
     protected Task<System.Data.DataTable> QueryAsync(string procName, object? parameters = null) =>
         ProcData.QueryAsync(MenuId, procName, parameters);
 
+    /// <summary>팝업 정의(popup_key)의 프로시저를 조건 없이(전부 빈 값) 돌려 전체 행을 받는다 - 화면이 타이핑/붙여넣기
+    /// 값을 검증하려고 들고 있는 "품목/거래처 캐시"용. QueryAsync로 SSP_POP_*_Q를 직접 부르면 안 된다: 그건
+    /// 메뉴의 PROC_PREFIX(예: USP_MA_) 화이트리스트에 걸려 403이 나고, 캐시가 조용히 비어 팝업으로 방금 고른 값도
+    /// "등록되지 않은 품번"이 된다. 팝업이 쓰는 api/lookups/* 경로는 그 제한이 없다. 컬럼은 문자열이되, *_id 컬럼은
+    /// 값이 전부 정수면 long이다(QueryAsync 결과와 같게 - 이 값이 그리드 셀/저장 파라미터로 그대로 들어간다).</summary>
+    protected static async Task<System.Data.DataTable> LoadPopupRowsAsync(string popupKey)
+    {
+        var rows = PopupLookupProvider.SearchExact != null
+            ? await PopupLookupProvider.SearchExact(popupKey, string.Empty)
+            : new List<PopupLookupResult>();
+
+        var table = new System.Data.DataTable();
+        foreach (var name in rows.SelectMany(r => r.Row.Keys).Distinct(StringComparer.OrdinalIgnoreCase))
+        {
+            var isId = name.EndsWith("_id", StringComparison.OrdinalIgnoreCase)
+                && rows.All(r => !r.Row.TryGetValue(name, out var v) || string.IsNullOrEmpty(v) || long.TryParse(v, out _));
+            table.Columns.Add(name, isId ? typeof(long) : typeof(string));
+        }
+
+        foreach (var row in rows)
+        {
+            var dataRow = table.NewRow();
+            foreach (var kv in row.Row)
+            {
+                if (string.IsNullOrEmpty(kv.Value)) continue;
+                var column = table.Columns[kv.Key];
+                if (column == null) continue;
+                dataRow[column] = column.DataType == typeof(long) ? long.Parse(kv.Value) : kv.Value;
+            }
+            table.Rows.Add(dataRow);
+        }
+
+        // 컬럼은 받은 행에서 모으므로 모든 행이 NULL인 컬럼(예: 규격이 전부 비어 있음)은 테이블에 없다 - 그러면 화면의 row["item_spec"]이
+        // 예외를 던진다. 팝업 정의(sysPopUpD)의 컬럼은 빈 문자열 컬럼으로라도 항상 있게 채운다.
+        try
+        {
+            var def = await ApiClient.GetAsync<PopupDefinitionDto>($"api/lookups/{Uri.EscapeDataString(popupKey)}/definition");
+            foreach (var col in def?.Columns ?? new List<PopupColumnDto>())
+                if (!table.Columns.Contains(col.ColumnNm)) table.Columns.Add(col.ColumnNm, typeof(string));
+        }
+        catch { /* 정의를 못 받아도 행에서 모은 컬럼으로 계속한다 */ }
+        return table;
+    }
+
     /// <summary>조회 - 결과셋을 여러 개 돌려주는 프로시저용.</summary>
     protected Task<List<System.Data.DataTable>> QueryMultiAsync(string procName, object? parameters = null) =>
         ProcData.QueryMultiAsync(MenuId, procName, parameters);
@@ -192,6 +236,31 @@ public class BaseForm : XtraForm
         }
     }
 
+    /// <summary>신규입력(NewClick) 직후 입력영역(panData)에서 "사업장 다음 첫 탭오더" 컨트롤에 커서를 둔다
+    /// (2026-09-26 표준 - 모든 화면 NewClick에서 EnterNewMode() 뒤에 이걸 부른다). 사업장 콤보(Tag의
+    /// BindingFieldTag가 acc_id/acc_cd)는 세션 값이 기본으로 채워져 있으니 건너뛰고, 읽기전용/비활성/
+    /// 숨김 컨트롤도 건너뛴다(TabStop은 안 본다 - DevExpress TextEdit/DateEdit는 컨트롤 TabStop이 항상 false로 나온다, 2026-09-26 실제 로그로 확인). 컨테이너 안쪽(GroupBox 등)도 TabIndex 순서로 깊이 탐색한다.
+    /// 툴바 클릭이 포커스를 되가져가지 않도록 BeginInvoke로 한 박자 늦춘다.</summary>
+    protected void FocusFirstEntryField(Control container)
+    {
+        static bool IsAcc(Control c) => c.Tag is BindingFieldTag t &&
+            (t.Field.Equals("acc_id", StringComparison.OrdinalIgnoreCase) || t.Field.Equals("acc_cd", StringComparison.OrdinalIgnoreCase));
+
+        Control? Find(Control parent)
+        {
+            foreach (var c in parent.Controls.Cast<Control>().OrderBy(x => x.TabIndex))
+            {
+                if (c is BaseEdit e && c.Enabled && c.Visible && !e.Properties.ReadOnly && !IsAcc(c)) return c;
+                if (c is not BaseEdit && Find(c) is { } inner) return inner;
+            }
+            return null;
+        }
+
+        var target = Find(container);
+        if (target == null) return;
+        BeginInvoke(new Action(() => target.Focus()));
+    }
+
     /// <summary>SuppressDirtyTracking의 비동기 버전 - 코드가 값을 채우는 구간에 await가 섞여
     /// 있을 때 쓴다(예: 서버에서 받아온 이미지를 PictureEdit.Image에 채우는 것처럼, 그 대입도
     /// BaseEdit 계열이라 EditValueChanged가 뜨는 컨트롤을 async 흐름 안에서 채우는 경우 -
@@ -230,7 +299,7 @@ public class BaseForm : XtraForm
 
             if (confirm == DialogResult.Yes)
             {
-                await SafeExecuteAsync(SaveClick, "저장");
+                await SafeExecuteAsync(RunSaveAsync, "저장");
                 if (HasUnsavedChanges) return false; // 저장 실패(또는 필수값 누락 등) - 열어둔 채로 둔다
             }
         }
@@ -297,7 +366,7 @@ public class BaseForm : XtraForm
 
             if (confirm == DialogResult.Yes)
             {
-                await SafeExecuteAsync(SaveClick, "저장");
+                await SafeExecuteAsync(RunSaveAsync, "저장");
                 if (HasUnsavedChanges) return; // 저장 실패 - 되돌린 행에 그대로 머무른다
             }
             else
@@ -367,7 +436,7 @@ public class BaseForm : XtraForm
 
             if (confirm == DialogResult.Yes)
             {
-                await SafeExecuteAsync(SaveClick, "저장");
+                await SafeExecuteAsync(RunSaveAsync, "저장");
                 if (HasUnsavedChanges) return; // 저장 실패 - 되돌린 노드에 그대로 머무른다
             }
             else
@@ -444,6 +513,19 @@ public class BaseForm : XtraForm
         // 실수로 뒷탭이 열린 채 배포되는 사고가 반복됐다 - Designer.cs를 손으로 고치는 대신 여기
         // 한 곳에서 강제로 되돌려 앞으로 디자이너가 다시 틀어놔도 항상 맞다.
         ResetTabsToFirstPage(this);
+
+        // 조회조건 패널(panHeader) 배경/보더를 전 화면 공통으로 맞춘다(2026-09-23 - "wynlab에서
+        // 사용된 모든 판넬의 배경색/보더색을 사원등록 조회조건 패널과 동일하게" 요청). 원래
+        // frmEMP.cs 하나에만 손으로 넣어뒀던 Paint 핸들러였는데(PanelControl의 Appearance.
+        // BackColor/BorderColor + BorderStyle 조합은 WXI 스킨이 자체 테두리를 그려서 반영이
+        // 안 됨 - Designer.cs의 panHeader Appearance 지정이 26개 화면에 이미 있었지만 전부
+        // 똑같이 안 먹히고 있었다), 화면마다 따로 넣는 대신 여기 한 곳으로 옮겨서 panHeader라는
+        // 이름의 패널이 있는 모든 화면에 자동 적용되게 한다 - 새 화면을 만들 때도 이 이름 규칙만
+        // 지키면 별도 코드 없이 항상 맞는 색으로 보인다. panData(입력영역)도 같은 요청으로
+        // 추가(2026-09-23). TEMPLATE 프로젝트(TplMasterOneSheet 등)도 전부 BaseForm 상속 +
+        // panHeader/panData 이름 규칙을 그대로 쓰므로 여기 한 곳만 고치면 새로 만드는 화면까지
+        // 자동으로 맞다 - 템플릿 쪽 Designer.cs를 따로 손댈 필요 없음.
+        ApplySearchPanelStyle(this);
     }
 
     private static void ResetTabsToFirstPage(Control root)
@@ -452,6 +534,30 @@ public class BaseForm : XtraForm
         {
             if (child is XtraTabControl tab && tab.TabPages.Count > 0) tab.SelectedTabPageIndex = 0;
             ResetTabsToFirstPage(child);
+        }
+    }
+
+    private static readonly Color SearchPanelBackColor = Color.FromArgb(241, 245, 249);
+    private static readonly Color SearchPanelBorderColor = Color.FromArgb(203, 213, 225);
+
+    private static void ApplySearchPanelStyle(Control root)
+    {
+        foreach (Control child in root.Controls)
+        {
+            if (child.Name == "panHeader" || child.Name == "panData")
+            {
+                var panel = child;
+                panel.Paint += (s, e) =>
+                {
+                    using var backBrush = new SolidBrush(SearchPanelBackColor);
+                    e.Graphics.FillRectangle(backBrush, panel.ClientRectangle);
+                    using var borderPen = new Pen(SearchPanelBorderColor);
+                    var rect = panel.ClientRectangle;
+                    e.Graphics.DrawRectangle(borderPen, rect.X, rect.Y, rect.Width - 1, rect.Height - 1);
+                };
+                panel.Invalidate();
+            }
+            ApplySearchPanelStyle(child);
         }
     }
 
@@ -697,6 +803,143 @@ public class BaseForm : XtraForm
         {
             HideBusy();
         }
+    }
+
+    // ===== 필수입력 검사(2026-09-25, 사장님 지시) =====
+    // 규칙은 하나다: 컨트롤의 Required 속성이 true인 것만 검사하고, false(기본값)인 컨트롤은 절대 검사하지 않는다.
+    // 화면 코드에서 "이 칸은 필수입니다"를 따로 하드코딩하지 않는다 - 필수 여부는 디자이너의 Required 체크 하나로만 정한다
+    // (그래야 노란 배경 표시와 실제 검사가 항상 같다). DB가 NOT NULL이어도 화면이 Required=false면 컬럼을 NULL 허용으로 맞춘다.
+    //  - 조회(RunQueryAsync): 조회조건 패널(panHeader) 안의 Required 컨트롤만 검사한다.
+    //  - 저장(RunSaveAsync): panHeader 밖(panData 등 입력영역)의 Required 컨트롤만 검사한다.
+    // 툴바/단축키(ShellForm)와 닫을 때 저장 확인이 이 두 메서드를 거치므로 화면마다 따로 부를 필요가 없다.
+    // 그리드 컬럼(MarkRequired)은 Required 속성이 없어 대상이 아니다. 숨김/읽기전용/비활성 컨트롤은 건너뛴다.
+
+    public async Task RunQueryAsync()
+    {
+        if (!ValidateRequired(searchPanel: true)) return;
+        await QueryClick();
+    }
+
+    public async Task RunSaveAsync()
+    {
+        if (!ValidateRequired(searchPanel: false)) return;
+        await SaveClick();
+    }
+
+    /// <summary>필수 컨트롤이 비어 있으면 안내 + 그 컨트롤로 포커스를 옮기고 false를 돌려준다.</summary>
+    protected bool ValidateRequired(bool searchPanel)
+    {
+        var header = Controls.Find("panHeader", true).FirstOrDefault();
+        var targets = new List<Control>();
+        CollectRequired(this, header, searchPanel, targets);
+
+        var first = targets
+            .OrderBy(c => ScreenTop(c)).ThenBy(c => ScreenLeft(c))
+            .FirstOrDefault(IsEmptyRequired);
+        if (first == null) return searchPanel || ValidateRequiredGrids();
+
+        AppMessageBox.Show($"{RequiredCaption(first)}은(는) 필수 입력 항목입니다.", "확인");
+        RevealAndFocus(first);
+        return false;
+    }
+
+    /// <summary>GridViewWyn.RequiredFields로 필수 지정된 그리드 컬럼 검사 - 새로 추가/수정한 행(저장 대상)만, 삭제된 행과
+    /// 그대로인 행은 제외. 첫 번째 위반에서 "N행 ○○은(는) 필수 입력 항목입니다." 안내 후 그 셀로 이동한다.</summary>
+    private bool ValidateRequiredGrids()
+    {
+        foreach (var grid in AllGridControls(this))
+        {
+            if (grid.MainView is not DevExpress.XtraGrid.Views.Grid.GridView view || view is not WYNLAB.Base.Controls.GridViewWyn wyn) continue;
+
+            var columns = view.Columns.Cast<DevExpress.XtraGrid.Columns.GridColumn>().Where(wyn.IsRequiredColumn).OrderBy(c => c.AbsoluteIndex).ToList();
+            if (columns.Count == 0) continue;
+
+            for (var i = 0; i < view.DataRowCount; i++)
+            {
+                if (view.GetDataRow(i) is not { } dataRow) continue;
+                if (dataRow.RowState is DataRowState.Unchanged or DataRowState.Deleted or DataRowState.Detached) continue;
+
+                foreach (var column in columns)
+                {
+                    var value = view.GetRowCellValue(i, column);
+                    if (value != null && value != DBNull.Value && !(value is string s && string.IsNullOrWhiteSpace(s))) continue;
+
+                    AppMessageBox.Show($"{i + 1}행 {(string.IsNullOrWhiteSpace(column.Caption) ? column.FieldName : column.Caption)}은(는) 필수 입력 항목입니다.", "확인");
+                    RevealAndFocus(grid);
+                    view.FocusedRowHandle = i;
+                    view.FocusedColumn = column;
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    private static IEnumerable<DevExpress.XtraGrid.GridControl> AllGridControls(Control root)
+    {
+        foreach (Control c in root.Controls)
+        {
+            if (c is DevExpress.XtraGrid.GridControl g) yield return g;
+            foreach (var inner in AllGridControls(c)) yield return inner;
+        }
+    }
+
+    private static void CollectRequired(Control parent, Control? header, bool searchPanel, List<Control> result)
+    {
+        foreach (Control c in parent.Controls)
+        {
+            var inHeader = header != null && (c == header || IsDescendantOf(c, header));
+            if (inHeader == searchPanel && c.GetType().GetProperty("Required")?.GetValue(c) is true
+                && c.Enabled && !IsReadOnly(c) && (c.Visible || InTabPage(c)))
+                result.Add(c);
+            CollectRequired(c, header, searchPanel, result);
+        }
+    }
+
+    private static bool IsDescendantOf(Control c, Control ancestor)
+    {
+        for (var p = c.Parent; p != null; p = p.Parent)
+            if (p == ancestor) return true;
+        return false;
+    }
+
+    private static bool InTabPage(Control c)
+    {
+        for (var p = c.Parent; p != null; p = p.Parent)
+            if (p is XtraTabPage) return true;
+        return false;
+    }
+
+    private static bool IsReadOnly(Control c) => c is BaseEdit e && e.Properties.ReadOnly;
+
+    private static bool IsEmptyRequired(Control c) => c switch
+    {
+        CheckEdit => false, // 체크박스는 항상 값(체크/해제)이 있다
+        BaseEdit e => e.EditValue == null || e.EditValue == DBNull.Value || (e.EditValue is string s && string.IsNullOrWhiteSpace(s)) || (e.EditValue is DateTime dt && dt == DateTime.MinValue),
+        _ => string.IsNullOrWhiteSpace(c.Text)
+    };
+
+    private static int ScreenTop(Control c) { try { return (c.Parent ?? c).PointToScreen(c.Location).Y; } catch { return c.Top; } }
+    private static int ScreenLeft(Control c) { try { return (c.Parent ?? c).PointToScreen(c.Location).X; } catch { return c.Left; } }
+
+    /// <summary>컨트롤 왼쪽(같은 줄) 또는 바로 위에 있는 가장 가까운 라벨의 글자 - 없으면 컨트롤 이름.</summary>
+    private static string RequiredCaption(Control c)
+    {
+        var label = (c.Parent?.Controls.OfType<LabelControl>() ?? Enumerable.Empty<LabelControl>())
+            .Where(l => !string.IsNullOrWhiteSpace(l.Text)
+                        && ((l.Right <= c.Left + 2 && l.Bottom > c.Top && l.Top < c.Bottom)   // 왼쪽 같은 줄
+                            || (l.Bottom <= c.Top + 2 && l.Left < c.Right && l.Right > c.Left))) // 바로 위
+            .OrderBy(l => Math.Abs(l.Left - c.Left) + Math.Abs(l.Top - c.Top))
+            .FirstOrDefault();
+        return label != null ? label.Text.Trim().TrimEnd(':', '*') : c.Name;
+    }
+
+    /// <summary>다른 탭에 있는 컨트롤이면 그 탭을 먼저 열고 포커스를 준다.</summary>
+    private static void RevealAndFocus(Control c)
+    {
+        for (var p = c.Parent; p != null; p = p.Parent)
+            if (p is XtraTabPage page && page.TabControl != null) page.TabControl.SelectedTabPage = page;
+        c.Focus();
     }
 
     /// <summary>

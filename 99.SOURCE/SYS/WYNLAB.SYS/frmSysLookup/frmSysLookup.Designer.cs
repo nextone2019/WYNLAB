@@ -1,5 +1,5 @@
-// VS 디자이너가 자동 생성하는 필드 선언에는 = null!을 안 붙여서 nullable 경고(CS8618)가
-// 계속 나기 때문에, 이 파일(디자이너 전용)만 nullable 검사를 끈다 - 흔한 관례.
+﻿// VS ?붿옄?대꼫媛 ?먮룞 ?앹꽦?섎뒗 ?꾨뱶 ?좎뼵?먮뒗 = null!????遺숈뿬??nullable 寃쎄퀬(CS8618)媛
+// 怨꾩냽 ?섍린 ?뚮Ц?? ???뚯씪(?붿옄?대꼫 ?꾩슜)留?nullable 寃?щ? ?덈떎 - ?뷀븳 愿濡.
 #nullable disable
 using DevExpress.XtraGrid;
 using WYNLAB.Base.Controls;
@@ -7,10 +7,10 @@ using WYNLAB.Base.Controls;
 namespace WYNLAB.SYS;
 
 /// <summary>
-/// frmSysPopup(팝업관리)을 복사해서 만든 LookUp관리 화면 - 구조는 완전히 같다(제목바 + 검색패널 +
-/// 좌우 스플리터 + 목록그리드(grd1)/상세패널(panData)/하위그리드(grd2)). 팝업과 달리 컬럼 그리드가
-/// 없다 - LookUp은 결과셋 전체를 보여주는 게 아니라 값(코드)/표시값(명칭) 두 필드만 뽑아 쓰기
-/// 때문에, 하위그리드 하나는 파라미터 목록(sysLookupP) 전용이다.
+/// frmSysPopup(?앹뾽愿由???蹂듭궗?댁꽌 留뚮뱺 LookUp愿由??붾㈃ - 援ъ“???꾩쟾??媛숇떎(?쒕ぉ諛?+ 寃?됲뙣??+
+/// 醫뚯슦 ?ㅽ뵆由ы꽣 + 紐⑸줉洹몃━??grd1)/?곸꽭?⑤꼸(panData)/?섏쐞洹몃━??grd2)). ?앹뾽怨??щ━ 而щ읆 洹몃━?쒓?
+/// ?녿떎 - LookUp? 寃곌낵???꾩껜瑜?蹂댁뿬二쇰뒗 寃??꾨땲??媛?肄붾뱶)/?쒖떆媛?紐낆묶) ???꾨뱶留?戮묒븘 ?곌린
+/// ?뚮Ц?? ?섏쐞洹몃━???섎굹???뚮씪誘명꽣 紐⑸줉(sysLookupP) ?꾩슜?대떎.
 /// </summary>
 public partial class frmSysLookup
 {
@@ -213,6 +213,7 @@ public partial class frmSysLookup
             // panelWyn12
             // 
             this.panelWyn12.Controls.Add(this.grd2);
+            this.panelWyn12.Controls.Add(this.panelWyn7);
             this.panelWyn12.Controls.Add(this.panelWyn1);
             this.panelWyn12.Dock = System.Windows.Forms.DockStyle.Fill;
             this.panelWyn12.EdgeLineColor = System.Drawing.Color.FromArgb(((int)(((byte)(228)))), ((int)(((byte)(229)))), ((int)(((byte)(232)))));
@@ -291,7 +292,6 @@ public partial class frmSysLookup
             // 
             // panelWyn1
             // 
-            this.panelWyn1.Controls.Add(this.panelWyn7);
             this.panelWyn1.Controls.Add(this.sectionHeaderWyn2);
             this.panelWyn1.Dock = System.Windows.Forms.DockStyle.Top;
             this.panelWyn1.EdgeLineColor = System.Drawing.Color.FromArgb(((int)(((byte)(228)))), ((int)(((byte)(229)))), ((int)(((byte)(232)))));
@@ -305,17 +305,20 @@ public partial class frmSysLookup
             // 
             this.panelWyn7.Controls.Add(this.btnDeletRow2);
             this.panelWyn7.Controls.Add(this.btnAddRow2);
-            this.panelWyn7.Dock = System.Windows.Forms.DockStyle.Right;
+            this.panelWyn7.Appearance.BackColor = System.Drawing.Color.White;
+            this.panelWyn7.Appearance.Options.UseBackColor = true;
+            this.panelWyn7.Dock = System.Windows.Forms.DockStyle.Top;
             this.panelWyn7.EdgeLineColor = System.Drawing.Color.FromArgb(((int)(((byte)(228)))), ((int)(((byte)(229)))), ((int)(((byte)(232)))));
             this.panelWyn7.Location = new System.Drawing.Point(345, 0);
             this.panelWyn7.Name = "panelWyn7";
-            this.panelWyn7.Size = new System.Drawing.Size(68, 25);
+            this.panelWyn7.Padding = new System.Windows.Forms.Padding(5, 3, 0, 2);
+            this.panelWyn7.Size = new System.Drawing.Size(68, 30);
             this.panelWyn7.TabIndex = 9;
             this.panelWyn7.Visible = false;
             // 
             // btnDeletRow2
             // 
-            this.btnDeletRow2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnDeletRow2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)));
             this.btnDeletRow2.BackColor = System.Drawing.Color.Transparent;
             this.btnDeletRow2.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(245)))), ((int)(((byte)(198)))), ((int)(((byte)(193)))));
             this.btnDeletRow2.Cursor = System.Windows.Forms.Cursors.Hand;
@@ -323,17 +326,18 @@ public partial class frmSysLookup
             this.btnDeletRow2.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(51)))), ((int)(((byte)(51)))), ((int)(((byte)(51)))));
             this.btnDeletRow2.HoverColor = System.Drawing.Color.FromArgb(((int)(((byte)(240)))), ((int)(((byte)(245)))), ((int)(((byte)(255)))));
             this.btnDeletRow2.Image = ((System.Drawing.Image)(resources.GetObject("btnDeletRow2.Image")));
-            this.btnDeletRow2.Location = new System.Drawing.Point(42, 2);
+            this.btnDeletRow2.Location = new System.Drawing.Point(68, 4);
             this.btnDeletRow2.Name = "btnDeletRow2";
             this.btnDeletRow2.PressedColor = System.Drawing.Color.FromArgb(((int)(((byte)(225)))), ((int)(((byte)(235)))), ((int)(((byte)(253)))));
-            this.btnDeletRow2.Size = new System.Drawing.Size(24, 22);
+            this.btnDeletRow2.Size = new System.Drawing.Size(58, 22);
+            this.btnDeletRow2.Text = "?됱궘??";
             this.btnDeletRow2.TabIndex = 0;
             this.btnDeletRow2.ToolTip = "행삭제";
             this.btnDeletRow2.Click += new System.EventHandler(this.btnDeletRow2_Click);
             // 
             // btnAddRow2
             // 
-            this.btnAddRow2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnAddRow2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)));
             this.btnAddRow2.BackColor = System.Drawing.Color.Transparent;
             this.btnAddRow2.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(198)))), ((int)(((byte)(231)))), ((int)(((byte)(203)))));
             this.btnAddRow2.Cursor = System.Windows.Forms.Cursors.Hand;
@@ -341,10 +345,11 @@ public partial class frmSysLookup
             this.btnAddRow2.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(51)))), ((int)(((byte)(51)))), ((int)(((byte)(51)))));
             this.btnAddRow2.HoverColor = System.Drawing.Color.FromArgb(((int)(((byte)(240)))), ((int)(((byte)(245)))), ((int)(((byte)(255)))));
             this.btnAddRow2.Image = ((System.Drawing.Image)(resources.GetObject("btnAddRow2.Image")));
-            this.btnAddRow2.Location = new System.Drawing.Point(10, 2);
+            this.btnAddRow2.Location = new System.Drawing.Point(6, 4);
             this.btnAddRow2.Name = "btnAddRow2";
             this.btnAddRow2.PressedColor = System.Drawing.Color.FromArgb(((int)(((byte)(225)))), ((int)(((byte)(235)))), ((int)(((byte)(253)))));
-            this.btnAddRow2.Size = new System.Drawing.Size(24, 22);
+            this.btnAddRow2.Size = new System.Drawing.Size(58, 22);
+            this.btnAddRow2.Text = "?됱텛媛";
             this.btnAddRow2.TabIndex = 0;
             this.btnAddRow2.ToolTip = "행추가";
             this.btnAddRow2.Click += new System.EventHandler(this.btnAddRow2_Click);
@@ -425,7 +430,7 @@ public partial class frmSysLookup
             // 
             // colColumnCaption
             // 
-            this.colColumnCaption.Caption = "캡션";
+            this.colColumnCaption.Caption = "罹≪뀡";
             this.colColumnCaption.FieldName = "caption";
             this.colColumnCaption.Name = "colColumnCaption";
             this.colColumnCaption.Visible = true;
@@ -463,7 +468,7 @@ public partial class frmSysLookup
             this.sectionHeaderWyn6.Size = new System.Drawing.Size(316, 25);
             this.sectionHeaderWyn6.SvgIcon = ((DevExpress.Utils.Svg.SvgImage)(resources.GetObject("sectionHeaderWyn6.SvgIcon")));
             this.sectionHeaderWyn6.TabIndex = 8;
-            this.sectionHeaderWyn6.Text = "컬럼 목록";
+            this.sectionHeaderWyn6.Text = "而щ읆 紐⑸줉";
             // 
             // splitterWyn2
             // 
@@ -519,7 +524,7 @@ public partial class frmSysLookup
             // 
             this.lblLookupKey.Appearance.Font = new System.Drawing.Font("맑은 고딕", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
             this.lblLookupKey.Appearance.Options.UseFont = true;
-            this.lblLookupKey.Location = new System.Drawing.Point(11, 12);
+            this.lblLookupKey.Location = new System.Drawing.Point(26, 12);
             this.lblLookupKey.Name = "lblLookupKey";
             this.lblLookupKey.Size = new System.Drawing.Size(53, 15);
             this.lblLookupKey.TabIndex = 0;
@@ -536,7 +541,7 @@ public partial class frmSysLookup
             // 
             this.lblLookupNm.Appearance.Font = new System.Drawing.Font("맑은 고딕", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
             this.lblLookupNm.Appearance.Options.UseFont = true;
-            this.lblLookupNm.Location = new System.Drawing.Point(220, 12);
+            this.lblLookupNm.Location = new System.Drawing.Point(247, 12);
             this.lblLookupNm.Name = "lblLookupNm";
             this.lblLookupNm.Size = new System.Drawing.Size(53, 15);
             this.lblLookupNm.TabIndex = 2;
@@ -553,7 +558,7 @@ public partial class frmSysLookup
             // 
             this.lblProcNm.Appearance.Font = new System.Drawing.Font("맑은 고딕", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
             this.lblProcNm.Appearance.Options.UseFont = true;
-            this.lblProcNm.Location = new System.Drawing.Point(11, 40);
+            this.lblProcNm.Location = new System.Drawing.Point(19, 40);
             this.lblProcNm.Name = "lblProcNm";
             this.lblProcNm.Size = new System.Drawing.Size(60, 15);
             this.lblProcNm.TabIndex = 4;
@@ -622,7 +627,7 @@ public partial class frmSysLookup
             // 
             this.lblUseYn.Appearance.Font = new System.Drawing.Font("맑은 고딕", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
             this.lblUseYn.Appearance.Options.UseFont = true;
-            this.lblUseYn.Location = new System.Drawing.Point(11, 96);
+            this.lblUseYn.Location = new System.Drawing.Point(31, 96);
             this.lblUseYn.Name = "lblUseYn";
             this.lblUseYn.Size = new System.Drawing.Size(48, 15);
             this.lblUseYn.TabIndex = 11;
@@ -640,11 +645,11 @@ public partial class frmSysLookup
             // 
             this.lblRemark.Appearance.Font = new System.Drawing.Font("맑은 고딕", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
             this.lblRemark.Appearance.Options.UseFont = true;
-            this.lblRemark.Location = new System.Drawing.Point(220, 96);
+            this.lblRemark.Location = new System.Drawing.Point(276, 96);
             this.lblRemark.Name = "lblRemark";
             this.lblRemark.Size = new System.Drawing.Size(24, 15);
             this.lblRemark.TabIndex = 13;
-            this.lblRemark.Text = "비고";
+            this.lblRemark.Text = "鍮꾧퀬";
             // 
             // txtRemark
             // 
@@ -678,7 +683,7 @@ public partial class frmSysLookup
             // 
             this.lblQueryTxt.Appearance.Font = new System.Drawing.Font("맑은 고딕", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
             this.lblQueryTxt.Appearance.Options.UseFont = true;
-            this.lblQueryTxt.Location = new System.Drawing.Point(11, 123);
+            this.lblQueryTxt.Location = new System.Drawing.Point(43, 123);
             this.lblQueryTxt.Name = "lblQueryTxt";
             this.lblQueryTxt.Size = new System.Drawing.Size(36, 15);
             this.lblQueryTxt.TabIndex = 17;
@@ -937,7 +942,7 @@ public partial class frmSysLookup
             this.sectionHeaderWyn4.Size = new System.Drawing.Size(397, 25);
             this.sectionHeaderWyn4.SvgIcon = ((DevExpress.Utils.Svg.SvgImage)(resources.GetObject("sectionHeaderWyn4.SvgIcon")));
             this.sectionHeaderWyn4.TabIndex = 8;
-            this.sectionHeaderWyn4.Text = "LookUp 목록";
+            this.sectionHeaderWyn4.Text = "LookUp 紐⑸줉";
             // 
             // panHeader
             // 

@@ -53,6 +53,7 @@ public partial class frmEmpMulti
             this.col1DiligYn = new DevExpress.XtraGrid.Columns.GridColumn();
             this.col1PayYn = new DevExpress.XtraGrid.Columns.GridColumn();
             this.col1Photo = new DevExpress.XtraGrid.Columns.GridColumn();
+            this.col1ValidateResult = new DevExpress.XtraGrid.Columns.GridColumn();
             this.paTitle1 = new WYNLAB.Base.Controls.PanelWyn();
             this.sectionHeaderWyn4 = new WYNLAB.Base.Controls.SectionHeaderWyn();
             this.panHeader = new WYNLAB.Base.Controls.PanelWyn();
@@ -148,7 +149,8 @@ public partial class frmEmpMulti
             this.col1HoliYn,
             this.col1DiligYn,
             this.col1PayYn,
-            this.col1Photo});
+            this.col1Photo,
+            this.col1ValidateResult});
             this.gvw1.GridControl = this.grd1;
             this.gvw1.Name = "gvw1";
             this.gvw1.OptionsBehavior.Editable = false;
@@ -161,8 +163,7 @@ public partial class frmEmpMulti
             this.col1EmpId.Caption = "사원ID";
             this.col1EmpId.FieldName = "EMP_ID";
             this.col1EmpId.Name = "col1EmpId";
-            this.col1EmpId.Visible = true;
-            this.col1EmpId.VisibleIndex = 0;
+            this.col1EmpId.Visible = false;
             this.col1EmpId.Width = 55;
             // 
             // col1AccId
@@ -171,8 +172,7 @@ public partial class frmEmpMulti
             this.col1AccId.ColumnEdit = this.lookUpcol1AccId;
             this.col1AccId.FieldName = "acc_id";
             this.col1AccId.Name = "col1AccId";
-            this.col1AccId.Visible = true;
-            this.col1AccId.VisibleIndex = 1;
+            this.col1AccId.Visible = false;
             this.col1AccId.Width = 100;
             // 
             // lookUpcol1AccId
@@ -217,8 +217,7 @@ public partial class frmEmpMulti
             this.col1DeptId.ColumnEdit = this.spinEditcol1;
             this.col1DeptId.FieldName = "dept_id";
             this.col1DeptId.Name = "col1DeptId";
-            this.col1DeptId.Visible = true;
-            this.col1DeptId.VisibleIndex = 5;
+            this.col1DeptId.Visible = false;
             this.col1DeptId.Width = 100;
             // 
             // spinEditcol1
@@ -274,7 +273,7 @@ public partial class frmEmpMulti
             // 
             // col1JobGrade
             // 
-            this.col1JobGrade.Caption = "직잭";
+            this.col1JobGrade.Caption = "직급";
             this.col1JobGrade.FieldName = "job_grade";
             this.col1JobGrade.Name = "col1JobGrade";
             this.col1JobGrade.Visible = true;
@@ -284,7 +283,7 @@ public partial class frmEmpMulti
             // col1JobType
             // 
             this.col1JobType.Caption = "직위";
-            this.col1JobType.ColumnEdit = this.lookUpColumnEdit1;
+            // 직위(job_type)는 자유 입력(VARCHAR 10) - 데이터 없는 빈 LookUp 편집기를 걸어두면 값이 안 보여서 뺐다(2026-09-26).
             this.col1JobType.FieldName = "job_type";
             this.col1JobType.Name = "col1JobType";
             this.col1JobType.Visible = true;
@@ -428,9 +427,18 @@ public partial class frmEmpMulti
             this.col1Photo.Caption = "photo";
             this.col1Photo.FieldName = "photo";
             this.col1Photo.Name = "col1Photo";
-            this.col1Photo.Visible = true;
-            this.col1Photo.VisibleIndex = 24;
+            this.col1Photo.Visible = false;
             this.col1Photo.Width = 100;
+            // 
+            // col1ValidateResult
+            // 
+            this.col1ValidateResult.Caption = "검증결과";
+            this.col1ValidateResult.FieldName = "validate_result";
+            this.col1ValidateResult.Name = "col1ValidateResult";
+            this.col1ValidateResult.OptionsColumn.AllowEdit = false;
+            this.col1ValidateResult.Visible = true;
+            this.col1ValidateResult.VisibleIndex = 24;
+            this.col1ValidateResult.Width = 320;
             // 
             // paTitle1
             // 
@@ -493,7 +501,7 @@ public partial class frmEmpMulti
             this.sectionHeaderWyn1.Size = new System.Drawing.Size(259, 25);
             this.sectionHeaderWyn1.SvgIcon = null;
             this.sectionHeaderWyn1.TabIndex = 8;
-            this.sectionHeaderWyn1.Text = "FormName [frm]";
+            this.sectionHeaderWyn1.Text = "사원정보일괄등록 [frmEmpMulti]";
             // 
             // lookUpColumnEdit1
             // 
@@ -645,6 +653,7 @@ public partial class frmEmpMulti
     private DevExpress.XtraGrid.Columns.GridColumn col1DiligYn;
     private DevExpress.XtraGrid.Columns.GridColumn col1PayYn;
     private DevExpress.XtraGrid.Columns.GridColumn col1Photo;
+    private DevExpress.XtraGrid.Columns.GridColumn col1ValidateResult;
     private DevExpress.XtraEditors.Repository.RepositoryItemCheckEdit chkEdit1;
     private DevExpress.XtraEditors.Repository.RepositoryItemSpinEdit spinEditcol1;
     private WYNLAB.Base.Controls.DateColumnEdit dateEditcol1;

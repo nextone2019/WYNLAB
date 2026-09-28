@@ -28,6 +28,12 @@ public static class PopupLookupProvider
     /// 결과 행들만 돌려준다. 그 popup_key에 정의된 조회조건 전부에 keyword를 넣어 검색한다 -
     /// 조건이 몇 개인지/이름이 뭔지는 이 컨트롤이 몰라도 된다(WYNLAB.BaseForm이 정의를 읽어서 처리).</summary>
     public static Func<string, string, Task<List<PopupLookupResult>>>? SearchExact { get; set; }
+
+    /// <summary>지금 열리는 팝업의 프로시저에 "조회조건 화면 밖에서" 더 넘길 값(예: 구매요청등록이 팝업을 열 때 그 화면
+    /// 헤더의 거래처/요청일자). 팝업을 여는 쪽(PopupLookupColumnEdit.ConditionProvider)이 열기 직전에 채우고 닫힌 뒤 비운다 -
+    /// 팝업은 앱 전체에서 한 번에 하나만 뜨므로(popPopUp._isShowing) 전역 하나로 충분하다. 팝업 엔진은 조회조건에 같은 키가
+    /// 비어 있을 때만 이 값을 넣고, 검색패널에 같은 이름의 컨트롤이 있으면 초기값으로도 채운다.</summary>
+    public static Dictionary<string, string?>? ExtraConditions { get; set; }
 }
 
 /// <summary>
@@ -60,7 +66,23 @@ public class PopupLookupEditWyn : ButtonEdit
     {
         EnsureButton();
         Properties.NullText = string.Empty;
-        ButtonClick += (s, e) => _ = OpenPopupAsync(null);
+        // "..." 버튼 클릭은 async 람다를 그대로 discard(fire-and-forget)해서 호출한다 - 만약
+        // OpenPopupAsync 내부(또는 그 안에서 부르는 popPopUp.ShowAsync)가 await 이후 구간에서
+        // 예외를 던지면, 아무도 그 Task를 기다리지 않으므로 예외가 UI에 전혀 드러나지 않고
+        // 조용히 사라진다 - 사용자에게는 "버튼을 눌러도 아무 반응이 없다"로만 보인다(2026-09-23
+        // 실제 발견 - "그래도 팝업 안떠"). 그 자체를 고치는 대신, 최소한 그 실패가 눈에 보이게
+        // try/catch로 감싼다 - 이러면 다음엔 진짜 원인이 메시지로 드러난다.
+        ButtonClick += async (s, e) =>
+        {
+            try
+            {
+                await OpenPopupAsync(null);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"팝업을 여는 중 오류가 발생했습니다.\n{ex.Message}", "오류");
+            }
+        };
         // 포커스를 얻은 시점의 값을 기억해뒀다가 Leave에서 실제로 바뀌었는지 비교한다(아래
         // OnLeaveAsync 설명 참고) - 사용자가 아무것도 안 고쳤는데도(이미 이름이 겹치는 부서라
         // 원래부터 모호했던 값 등) 그냥 포커스만 지나가도 매번 팝업이 뜨고, 그걸 닫으면 값이
@@ -96,8 +118,7 @@ public class PopupLookupEditWyn : ButtonEdit
         }
         else
         {
-            Properties.Appearance.Options.UseBackColor = false;
-            Properties.Appearance.Options.UseForeColor = false;
+            this.ClearRequired();
         }
     }
 
@@ -199,6 +220,18 @@ public class PopupLookupEditWyn : ButtonEdit
     /// 채워지므로 따로 등록할 필요 없다.</summary>
     public void MapField(string resultColumn, Control target) => _fieldMap[resultColumn] = target;
 
+    /// <summary>이 컨트롤만 비우고, MapField로 연결된 필드는 건드리지 않는다. 일반 Text=""는
+    /// EditValueChanged -> ClearMappedFields로 매핑필드도 같이 지운다(사용자가 직접 지운 경우엔
+    /// 그게 맞는 동작) - 그런데 호출부가 EnterNewMode처럼 매핑필드에 이미 다른 기본값을 정해둔
+    /// 경우엔 그 매핑필드 clear가 자기 자신을 다시 덮어써서 기본값이 사라지는 문제가 있었다
+    /// (frmPo 신규입력 시 거래처를 지우면 부가세율 기본값 "10"이 같이 지워짐, 2026-09-28).</summary>
+    public void ClearSelf()
+    {
+        _syncingPair = true;
+        try { Text = string.Empty; }
+        finally { _syncingPair = false; }
+    }
+
     private void NameControl_TextChanged(object? sender, EventArgs e)
     {
         if (_syncingPair || _nameControl == null || Text.Length == 0) return;
@@ -260,7 +293,19 @@ public class PopupLookupEditWyn : ButtonEdit
 
     private async Task OpenPopupAsync(string? initialKeyword)
     {
-        if (string.IsNullOrEmpty(LookupKey) || PopupLookupProvider.OpenPopup == null) return;
+        // 진단용(2026-09-23) - "..." 버튼을 눌러도 예외 메시지조차 안 뜬다는 보고가 있어서,
+        // 이 두 조기 return이 실제로 원인인지부터 확인한다. 둘 다 정상이면 원인이 다른 곳
+        // (ButtonClick 자체가 아예 안 불림)이라는 뜻이므로 다음 조사 방향이 갈린다.
+        if (PopupLookupProvider.OpenPopup == null)
+        {
+            MessageBox.Show("[진단] PopupLookupProvider.OpenPopup이 등록되어 있지 않습니다.", "진단");
+            return;
+        }
+        if (string.IsNullOrEmpty(LookupKey))
+        {
+            MessageBox.Show($"[진단] LookupKey가 비어 있습니다. (_lookupKey={_lookupKey ?? "null"}, Properties={Properties?.GetType().Name ?? "null"})", "진단");
+            return;
+        }
 
         var result = await PopupLookupProvider.OpenPopup(LookupKey!, this, initialKeyword);
         if (result == null)
@@ -288,7 +333,8 @@ public class PopupLookupEditWyn : ButtonEdit
                 foreach (var kv in _fieldMap)
                 {
                     if (ReferenceEquals(kv.Value, this)) continue;
-                    kv.Value.Text = result.Row.TryGetValue(kv.Key, out var v) ? (v ?? string.Empty) : string.Empty;
+                    var value = result.Row.TryGetValue(kv.Key, out var v) ? v : null;
+                    SetFieldValue(kv.Value, value);
                 }
             }
             else
@@ -314,12 +360,23 @@ public class PopupLookupEditWyn : ButtonEdit
             foreach (var control in _fieldMap.Values)
             {
                 if (ReferenceEquals(control, this)) continue;
-                control.Text = string.Empty;
+                SetFieldValue(control, null);
             }
         }
         finally
         {
             _syncingPair = false;
         }
+    }
+
+    /// <summary>콤보(LookUpEdit 계열, 예: cboVatType)는 .Text로 선택 항목이 안 바뀐다(DevExpress는
+    /// EditValue로 골라야 한다) - 대상이 LookUpEdit이면 EditValue를, 아니면(일반 텍스트박스) 기존대로
+    /// .Text를 쓴다.</summary>
+    private static void SetFieldValue(Control control, string? value)
+    {
+        if (control is DevExpress.XtraEditors.LookUpEdit lookupEdit)
+            lookupEdit.EditValue = string.IsNullOrEmpty(value) ? null : value;
+        else
+            control.Text = value ?? string.Empty;
     }
 }

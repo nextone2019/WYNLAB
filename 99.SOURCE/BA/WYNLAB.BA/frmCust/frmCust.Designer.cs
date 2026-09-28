@@ -57,7 +57,6 @@ public partial class frmCust
             this.colD1Tel2 = new DevExpress.XtraGrid.Columns.GridColumn();
             this.colD1Fax = new DevExpress.XtraGrid.Columns.GridColumn();
             this.colD1Email = new DevExpress.XtraGrid.Columns.GridColumn();
-            this.panelWyn9 = new WYNLAB.Base.Controls.PanelWyn();
             this.panelWyn7 = new WYNLAB.Base.Controls.PanelWyn();
             this.btnDeletRow2 = new WYNLAB.Base.Controls.ButtonWyn();
             this.btnAddRow2 = new WYNLAB.Base.Controls.ButtonWyn();
@@ -68,7 +67,6 @@ public partial class frmCust
             this.colD2BankCd = new DevExpress.XtraGrid.Columns.GridColumn();
             this.colD2AcntNo = new DevExpress.XtraGrid.Columns.GridColumn();
             this.colD2Remark = new DevExpress.XtraGrid.Columns.GridColumn();
-            this.panelWyn10 = new WYNLAB.Base.Controls.PanelWyn();
             this.panelWyn11 = new WYNLAB.Base.Controls.PanelWyn();
             this.btnDeletRow3 = new WYNLAB.Base.Controls.ButtonWyn();
             this.btnAddRow3 = new WYNLAB.Base.Controls.ButtonWyn();
@@ -86,6 +84,7 @@ public partial class frmCust
             this.sectionHeaderWyn2 = new WYNLAB.Base.Controls.SectionHeaderWyn();
             this.panelWyn5 = new WYNLAB.Base.Controls.PanelWyn();
             this.panData = new WYNLAB.Base.Controls.PanelWyn();
+            this.ymdDetailTransOpenDate = new WYNLAB.Base.Controls.DateEditWyn();
             this.cboDetailVatType = new WYNLAB.Base.Controls.LookUpEditWyn();
             this.memoEditWyn1 = new WYNLAB.Base.Controls.MemoEditWyn();
             this.lblDetailCustCd = new DevExpress.XtraEditors.LabelControl();
@@ -132,7 +131,6 @@ public partial class frmCust
             this.txtCustNm = new WYNLAB.Base.Controls.TextEditWyn();
             this.paTitle = new WYNLAB.Base.Controls.PanelWyn();
             this.sectionHeaderWyn1 = new WYNLAB.Base.Controls.SectionHeaderWyn();
-            this.ymdDetailTransOpenDate = new WYNLAB.Base.Controls.DateEditWyn();
             ((System.ComponentModel.ISupportInitialize)(this.panBase)).BeginInit();
             this.panBase.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.panelWyn3)).BeginInit();
@@ -150,15 +148,11 @@ public partial class frmCust
             this.tabDetail1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.grd2)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.gvw2)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.panelWyn9)).BeginInit();
-            this.panelWyn9.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.panelWyn7)).BeginInit();
             this.panelWyn7.SuspendLayout();
             this.tabDetail2.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.grd3)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.gvw3)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.panelWyn10)).BeginInit();
-            this.panelWyn10.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.panelWyn11)).BeginInit();
             this.panelWyn11.SuspendLayout();
             this.tabDetail3.SuspendLayout();
@@ -174,6 +168,8 @@ public partial class frmCust
             this.panelWyn5.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.panData)).BeginInit();
             this.panData.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.ymdDetailTransOpenDate.Properties.CalendarTimeProperties)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.ymdDetailTransOpenDate.Properties)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.cboDetailVatType.Properties)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.memoEditWyn1.Properties)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.txtDetailCustId.Properties)).BeginInit();
@@ -200,8 +196,6 @@ public partial class frmCust
             ((System.ComponentModel.ISupportInitialize)(this.txtCustNm.Properties)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.paTitle)).BeginInit();
             this.paTitle.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.ymdDetailTransOpenDate.Properties.CalendarTimeProperties)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.ymdDetailTransOpenDate.Properties)).BeginInit();
             this.SuspendLayout();
             // 
             // panBase
@@ -221,6 +215,8 @@ public partial class frmCust
             // 
             // panelWyn3
             // 
+            this.panelWyn3.Appearance.BackColor = System.Drawing.Color.White;
+            this.panelWyn3.Appearance.Options.UseBackColor = true;
             this.panelWyn3.Controls.Add(this.panelWyn8);
             this.panelWyn3.Controls.Add(this.splitterWyn1);
             this.panelWyn3.Controls.Add(this.panelWyn4);
@@ -233,6 +229,8 @@ public partial class frmCust
             // 
             // panelWyn8
             // 
+            this.panelWyn8.Appearance.BackColor = System.Drawing.Color.White;
+            this.panelWyn8.Appearance.Options.UseBackColor = true;
             this.panelWyn8.Controls.Add(this.grd1);
             this.panelWyn8.Controls.Add(this.panelWyn2);
             this.panelWyn8.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -462,6 +460,8 @@ public partial class frmCust
             // 
             // panelWyn2
             // 
+            this.panelWyn2.Appearance.BackColor = System.Drawing.Color.White;
+            this.panelWyn2.Appearance.Options.UseBackColor = true;
             this.panelWyn2.Controls.Add(this.sectionHeaderWyn4);
             this.panelWyn2.Dock = System.Windows.Forms.DockStyle.Top;
             this.panelWyn2.EdgeLineColor = System.Drawing.Color.FromArgb(((int)(((byte)(228)))), ((int)(((byte)(229)))), ((int)(((byte)(232)))));
@@ -496,6 +496,8 @@ public partial class frmCust
             // 
             // panelWyn4
             // 
+            this.panelWyn4.Appearance.BackColor = System.Drawing.Color.White;
+            this.panelWyn4.Appearance.Options.UseBackColor = true;
             this.panelWyn4.Controls.Add(this.tabDetailGrids);
             this.panelWyn4.Controls.Add(this.panelWyn1);
             this.panelWyn4.Controls.Add(this.panelWyn5);
@@ -523,7 +525,7 @@ public partial class frmCust
             // tabDetail1
             // 
             this.tabDetail1.Controls.Add(this.grd2);
-            this.tabDetail1.Controls.Add(this.panelWyn9);
+            this.tabDetail1.Controls.Add(this.panelWyn7);
             this.tabDetail1.Name = "tabDetail1";
             this.tabDetail1.Size = new System.Drawing.Size(641, 217);
             this.tabDetail1.Text = "거래처별 담당자    ";
@@ -625,28 +627,18 @@ public partial class frmCust
             this.colD1Email.VisibleIndex = 6;
             this.colD1Email.Width = 100;
             // 
-            // panelWyn9
-            // 
-            this.panelWyn9.Appearance.BackColor = System.Drawing.Color.White;
-            this.panelWyn9.Appearance.Options.UseBackColor = true;
-            this.panelWyn9.Controls.Add(this.panelWyn7);
-            this.panelWyn9.Dock = System.Windows.Forms.DockStyle.Top;
-            this.panelWyn9.EdgeLineColor = System.Drawing.Color.FromArgb(((int)(((byte)(228)))), ((int)(((byte)(229)))), ((int)(((byte)(232)))));
-            this.panelWyn9.Location = new System.Drawing.Point(0, 0);
-            this.panelWyn9.Name = "panelWyn9";
-            this.panelWyn9.Padding = new System.Windows.Forms.Padding(5, 0, 0, 2);
-            this.panelWyn9.Size = new System.Drawing.Size(641, 30);
-            this.panelWyn9.TabIndex = 9;
-            // 
             // panelWyn7
             // 
+            this.panelWyn7.Appearance.BackColor = System.Drawing.Color.White;
+            this.panelWyn7.Appearance.Options.UseBackColor = true;
             this.panelWyn7.Controls.Add(this.btnDeletRow2);
             this.panelWyn7.Controls.Add(this.btnAddRow2);
-            this.panelWyn7.Dock = System.Windows.Forms.DockStyle.Left;
+            this.panelWyn7.Dock = System.Windows.Forms.DockStyle.Top;
             this.panelWyn7.EdgeLineColor = System.Drawing.Color.FromArgb(((int)(((byte)(228)))), ((int)(((byte)(229)))), ((int)(((byte)(232)))));
-            this.panelWyn7.Location = new System.Drawing.Point(5, 0);
+            this.panelWyn7.Location = new System.Drawing.Point(0, 0);
             this.panelWyn7.Name = "panelWyn7";
-            this.panelWyn7.Size = new System.Drawing.Size(68, 28);
+            this.panelWyn7.Padding = new System.Windows.Forms.Padding(5, 3, 0, 2);
+            this.panelWyn7.Size = new System.Drawing.Size(641, 30);
             this.panelWyn7.TabIndex = 11;
             // 
             // btnDeletRow2
@@ -657,13 +649,13 @@ public partial class frmCust
             this.btnDeletRow2.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(253)))), ((int)(((byte)(236)))), ((int)(((byte)(234)))));
             this.btnDeletRow2.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(51)))), ((int)(((byte)(51)))), ((int)(((byte)(51)))));
             this.btnDeletRow2.HoverColor = System.Drawing.Color.FromArgb(((int)(((byte)(240)))), ((int)(((byte)(245)))), ((int)(((byte)(255)))));
-            this.btnDeletRow2.Image = ((System.Drawing.Image)(resources.GetObject("btnDeletRow2.Image")));
-            this.btnDeletRow2.Location = new System.Drawing.Point(37, 4);
+            this.btnDeletRow2.Image = null;
+            this.btnDeletRow2.Location = new System.Drawing.Point(68, 3);
             this.btnDeletRow2.Name = "btnDeletRow2";
             this.btnDeletRow2.PressedColor = System.Drawing.Color.FromArgb(((int)(((byte)(225)))), ((int)(((byte)(235)))), ((int)(((byte)(253)))));
-            this.btnDeletRow2.Size = new System.Drawing.Size(24, 22);
+            this.btnDeletRow2.Size = new System.Drawing.Size(58, 24);
             this.btnDeletRow2.TabIndex = 0;
-            this.btnDeletRow2.Text = "";
+            this.btnDeletRow2.Text = "행삭제";
             this.btnDeletRow2.ToolTip = "행삭제";
             // 
             // btnAddRow2
@@ -674,19 +666,19 @@ public partial class frmCust
             this.btnAddRow2.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(228)))), ((int)(((byte)(245)))), ((int)(((byte)(231)))));
             this.btnAddRow2.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(51)))), ((int)(((byte)(51)))), ((int)(((byte)(51)))));
             this.btnAddRow2.HoverColor = System.Drawing.Color.FromArgb(((int)(((byte)(240)))), ((int)(((byte)(245)))), ((int)(((byte)(255)))));
-            this.btnAddRow2.Image = ((System.Drawing.Image)(resources.GetObject("btnAddRow2.Image")));
-            this.btnAddRow2.Location = new System.Drawing.Point(7, 4);
+            this.btnAddRow2.Image = null;
+            this.btnAddRow2.Location = new System.Drawing.Point(6, 3);
             this.btnAddRow2.Name = "btnAddRow2";
             this.btnAddRow2.PressedColor = System.Drawing.Color.FromArgb(((int)(((byte)(225)))), ((int)(((byte)(235)))), ((int)(((byte)(253)))));
-            this.btnAddRow2.Size = new System.Drawing.Size(24, 22);
+            this.btnAddRow2.Size = new System.Drawing.Size(58, 24);
             this.btnAddRow2.TabIndex = 0;
-            this.btnAddRow2.Text = "";
+            this.btnAddRow2.Text = "행추가";
             this.btnAddRow2.ToolTip = "행추가";
             // 
             // tabDetail2
             // 
             this.tabDetail2.Controls.Add(this.grd3);
-            this.tabDetail2.Controls.Add(this.panelWyn10);
+            this.tabDetail2.Controls.Add(this.panelWyn11);
             this.tabDetail2.Name = "tabDetail2";
             this.tabDetail2.Size = new System.Drawing.Size(641, 217);
             this.tabDetail2.Text = "거래처별 계좌정보     ";
@@ -758,28 +750,18 @@ public partial class frmCust
             this.colD2Remark.VisibleIndex = 3;
             this.colD2Remark.Width = 241;
             // 
-            // panelWyn10
-            // 
-            this.panelWyn10.Appearance.BackColor = System.Drawing.Color.White;
-            this.panelWyn10.Appearance.Options.UseBackColor = true;
-            this.panelWyn10.Controls.Add(this.panelWyn11);
-            this.panelWyn10.Dock = System.Windows.Forms.DockStyle.Top;
-            this.panelWyn10.EdgeLineColor = System.Drawing.Color.FromArgb(((int)(((byte)(228)))), ((int)(((byte)(229)))), ((int)(((byte)(232)))));
-            this.panelWyn10.Location = new System.Drawing.Point(0, 0);
-            this.panelWyn10.Name = "panelWyn10";
-            this.panelWyn10.Padding = new System.Windows.Forms.Padding(5, 0, 0, 2);
-            this.panelWyn10.Size = new System.Drawing.Size(641, 30);
-            this.panelWyn10.TabIndex = 10;
-            // 
             // panelWyn11
             // 
+            this.panelWyn11.Appearance.BackColor = System.Drawing.Color.White;
+            this.panelWyn11.Appearance.Options.UseBackColor = true;
             this.panelWyn11.Controls.Add(this.btnDeletRow3);
             this.panelWyn11.Controls.Add(this.btnAddRow3);
-            this.panelWyn11.Dock = System.Windows.Forms.DockStyle.Left;
+            this.panelWyn11.Dock = System.Windows.Forms.DockStyle.Top;
             this.panelWyn11.EdgeLineColor = System.Drawing.Color.FromArgb(((int)(((byte)(228)))), ((int)(((byte)(229)))), ((int)(((byte)(232)))));
-            this.panelWyn11.Location = new System.Drawing.Point(5, 0);
+            this.panelWyn11.Location = new System.Drawing.Point(0, 0);
             this.panelWyn11.Name = "panelWyn11";
-            this.panelWyn11.Size = new System.Drawing.Size(68, 28);
+            this.panelWyn11.Padding = new System.Windows.Forms.Padding(5, 3, 0, 2);
+            this.panelWyn11.Size = new System.Drawing.Size(641, 30);
             this.panelWyn11.TabIndex = 11;
             // 
             // btnDeletRow3
@@ -790,13 +772,13 @@ public partial class frmCust
             this.btnDeletRow3.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(253)))), ((int)(((byte)(236)))), ((int)(((byte)(234)))));
             this.btnDeletRow3.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(51)))), ((int)(((byte)(51)))), ((int)(((byte)(51)))));
             this.btnDeletRow3.HoverColor = System.Drawing.Color.FromArgb(((int)(((byte)(240)))), ((int)(((byte)(245)))), ((int)(((byte)(255)))));
-            this.btnDeletRow3.Image = ((System.Drawing.Image)(resources.GetObject("btnDeletRow3.Image")));
-            this.btnDeletRow3.Location = new System.Drawing.Point(37, 4);
+            this.btnDeletRow3.Image = null;
+            this.btnDeletRow3.Location = new System.Drawing.Point(68, 3);
             this.btnDeletRow3.Name = "btnDeletRow3";
             this.btnDeletRow3.PressedColor = System.Drawing.Color.FromArgb(((int)(((byte)(225)))), ((int)(((byte)(235)))), ((int)(((byte)(253)))));
-            this.btnDeletRow3.Size = new System.Drawing.Size(24, 22);
+            this.btnDeletRow3.Size = new System.Drawing.Size(58, 24);
             this.btnDeletRow3.TabIndex = 0;
-            this.btnDeletRow3.Text = "";
+            this.btnDeletRow3.Text = "행삭제";
             this.btnDeletRow3.ToolTip = "행삭제";
             // 
             // btnAddRow3
@@ -807,13 +789,13 @@ public partial class frmCust
             this.btnAddRow3.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(228)))), ((int)(((byte)(245)))), ((int)(((byte)(231)))));
             this.btnAddRow3.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(51)))), ((int)(((byte)(51)))), ((int)(((byte)(51)))));
             this.btnAddRow3.HoverColor = System.Drawing.Color.FromArgb(((int)(((byte)(240)))), ((int)(((byte)(245)))), ((int)(((byte)(255)))));
-            this.btnAddRow3.Image = ((System.Drawing.Image)(resources.GetObject("btnAddRow3.Image")));
-            this.btnAddRow3.Location = new System.Drawing.Point(7, 4);
+            this.btnAddRow3.Image = null;
+            this.btnAddRow3.Location = new System.Drawing.Point(6, 3);
             this.btnAddRow3.Name = "btnAddRow3";
             this.btnAddRow3.PressedColor = System.Drawing.Color.FromArgb(((int)(((byte)(225)))), ((int)(((byte)(235)))), ((int)(((byte)(253)))));
-            this.btnAddRow3.Size = new System.Drawing.Size(24, 22);
+            this.btnAddRow3.Size = new System.Drawing.Size(58, 24);
             this.btnAddRow3.TabIndex = 0;
-            this.btnAddRow3.Text = "";
+            this.btnAddRow3.Text = "행추가";
             this.btnAddRow3.ToolTip = "행추가";
             // 
             // tabDetail3
@@ -825,6 +807,8 @@ public partial class frmCust
             // 
             // panFile
             // 
+            this.panFile.Appearance.BackColor = System.Drawing.SystemColors.Control;
+            this.panFile.Appearance.Options.UseBackColor = true;
             this.panFile.Controls.Add(this.grdFile);
             this.panFile.Controls.Add(this.panelWyn13);
             this.panFile.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -917,22 +901,24 @@ public partial class frmCust
             // btnFileAttach
             // 
             this.btnFileAttach.BackColor = System.Drawing.Color.Transparent;
-            this.btnFileAttach.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(74)))), ((int)(((byte)(134)))), ((int)(((byte)(232)))));
+            this.btnFileAttach.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(198)))), ((int)(((byte)(231)))), ((int)(((byte)(203)))));
             this.btnFileAttach.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.btnFileAttach.FillColor = System.Drawing.Color.White;
+            this.btnFileAttach.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(228)))), ((int)(((byte)(245)))), ((int)(((byte)(231)))));
             this.btnFileAttach.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(51)))), ((int)(((byte)(51)))), ((int)(((byte)(51)))));
             this.btnFileAttach.HoverColor = System.Drawing.Color.FromArgb(((int)(((byte)(240)))), ((int)(((byte)(245)))), ((int)(((byte)(255)))));
             this.btnFileAttach.Image = null;
-            this.btnFileAttach.Location = new System.Drawing.Point(5, 2);
+            this.btnFileAttach.Location = new System.Drawing.Point(5, 3);
             this.btnFileAttach.Name = "btnFileAttach";
             this.btnFileAttach.PressedColor = System.Drawing.Color.FromArgb(((int)(((byte)(225)))), ((int)(((byte)(235)))), ((int)(((byte)(253)))));
-            this.btnFileAttach.Size = new System.Drawing.Size(95, 26);
+            this.btnFileAttach.Size = new System.Drawing.Size(95, 24);
             this.btnFileAttach.TabIndex = 0;
             this.btnFileAttach.Text = "FILE첨부";
             this.btnFileAttach.ToolTip = null;
             // 
             // panelWyn1
             // 
+            this.panelWyn1.Appearance.BackColor = System.Drawing.Color.White;
+            this.panelWyn1.Appearance.Options.UseBackColor = true;
             this.panelWyn1.Controls.Add(this.sectionHeaderWyn2);
             this.panelWyn1.Dock = System.Windows.Forms.DockStyle.Top;
             this.panelWyn1.EdgeLineColor = System.Drawing.Color.FromArgb(((int)(((byte)(228)))), ((int)(((byte)(229)))), ((int)(((byte)(232)))));
@@ -957,6 +943,8 @@ public partial class frmCust
             // 
             // panelWyn5
             // 
+            this.panelWyn5.Appearance.BackColor = System.Drawing.Color.White;
+            this.panelWyn5.Appearance.Options.UseBackColor = true;
             this.panelWyn5.Controls.Add(this.panData);
             this.panelWyn5.Controls.Add(this.panelWyn6);
             this.panelWyn5.Dock = System.Windows.Forms.DockStyle.Top;
@@ -968,6 +956,8 @@ public partial class frmCust
             // 
             // panData
             // 
+            this.panData.Appearance.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(240)))), ((int)(((byte)(240)))), ((int)(((byte)(240)))));
+            this.panData.Appearance.Options.UseBackColor = true;
             this.panData.BorderStyle = DevExpress.XtraEditors.Controls.BorderStyles.Default;
             this.panData.Controls.Add(this.ymdDetailTransOpenDate);
             this.panData.Controls.Add(this.cboDetailVatType);
@@ -1015,6 +1005,20 @@ public partial class frmCust
             this.panData.Name = "panData";
             this.panData.Size = new System.Drawing.Size(643, 449);
             this.panData.TabIndex = 8;
+            // 
+            // ymdDetailTransOpenDate
+            // 
+            this.ymdDetailTransOpenDate.EditValue = null;
+            this.ymdDetailTransOpenDate.Location = new System.Drawing.Point(120, 199);
+            this.ymdDetailTransOpenDate.Name = "ymdDetailTransOpenDate";
+            this.ymdDetailTransOpenDate.Properties.Buttons.AddRange(new DevExpress.XtraEditors.Controls.EditorButton[] {
+            new DevExpress.XtraEditors.Controls.EditorButton(DevExpress.XtraEditors.Controls.ButtonPredefines.Combo)});
+            this.ymdDetailTransOpenDate.Properties.CalendarTimeProperties.Buttons.AddRange(new DevExpress.XtraEditors.Controls.EditorButton[] {
+            new DevExpress.XtraEditors.Controls.EditorButton(DevExpress.XtraEditors.Controls.ButtonPredefines.Combo)});
+            this.ymdDetailTransOpenDate.Properties.Mask.MaskType = DevExpress.XtraEditors.Mask.MaskType.None;
+            this.ymdDetailTransOpenDate.Size = new System.Drawing.Size(150, 20);
+            this.ymdDetailTransOpenDate.TabIndex = 12;
+            this.ymdDetailTransOpenDate.YyyyMmDd = null;
             // 
             // cboDetailVatType
             // 
@@ -1376,6 +1380,8 @@ public partial class frmCust
             // 
             // panelWyn6
             // 
+            this.panelWyn6.Appearance.BackColor = System.Drawing.Color.White;
+            this.panelWyn6.Appearance.Options.UseBackColor = true;
             this.panelWyn6.Controls.Add(this.sectionHeaderWyn3);
             this.panelWyn6.Dock = System.Windows.Forms.DockStyle.Top;
             this.panelWyn6.EdgeLineColor = System.Drawing.Color.FromArgb(((int)(((byte)(228)))), ((int)(((byte)(229)))), ((int)(((byte)(232)))));
@@ -1432,6 +1438,8 @@ public partial class frmCust
             // 
             // paTitle
             // 
+            this.paTitle.Appearance.BackColor = System.Drawing.Color.White;
+            this.paTitle.Appearance.Options.UseBackColor = true;
             this.paTitle.Controls.Add(this.sectionHeaderWyn1);
             this.paTitle.Dock = System.Windows.Forms.DockStyle.Top;
             this.paTitle.EdgeLineColor = System.Drawing.Color.FromArgb(((int)(((byte)(228)))), ((int)(((byte)(229)))), ((int)(((byte)(232)))));
@@ -1452,18 +1460,6 @@ public partial class frmCust
             this.sectionHeaderWyn1.SvgIcon = ((DevExpress.Utils.Svg.SvgImage)(resources.GetObject("sectionHeaderWyn1.SvgIcon")));
             this.sectionHeaderWyn1.TabIndex = 9;
             this.sectionHeaderWyn1.Text = "거래처등록 [frmCust]";
-            // 
-            // ymdDetailTransOpenDate
-            // 
-            this.ymdDetailTransOpenDate.EditValue = null;
-            this.ymdDetailTransOpenDate.Location = new System.Drawing.Point(120, 199);
-            this.ymdDetailTransOpenDate.Name = "ymdDetailTransOpenDate";
-            this.ymdDetailTransOpenDate.Properties.Buttons.AddRange(new DevExpress.XtraEditors.Controls.EditorButton[] {
-            new DevExpress.XtraEditors.Controls.EditorButton(DevExpress.XtraEditors.Controls.ButtonPredefines.Combo)});
-            this.ymdDetailTransOpenDate.Properties.CalendarTimeProperties.Buttons.AddRange(new DevExpress.XtraEditors.Controls.EditorButton[] {
-            new DevExpress.XtraEditors.Controls.EditorButton(DevExpress.XtraEditors.Controls.ButtonPredefines.Combo)});
-            this.ymdDetailTransOpenDate.Size = new System.Drawing.Size(150, 20);
-            this.ymdDetailTransOpenDate.TabIndex = 12;
             // 
             // frmCust
             // 
@@ -1488,15 +1484,11 @@ public partial class frmCust
             this.tabDetail1.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.grd2)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.gvw2)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.panelWyn9)).EndInit();
-            this.panelWyn9.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.panelWyn7)).EndInit();
             this.panelWyn7.ResumeLayout(false);
             this.tabDetail2.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.grd3)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.gvw3)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.panelWyn10)).EndInit();
-            this.panelWyn10.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.panelWyn11)).EndInit();
             this.panelWyn11.ResumeLayout(false);
             this.tabDetail3.ResumeLayout(false);
@@ -1513,6 +1505,8 @@ public partial class frmCust
             ((System.ComponentModel.ISupportInitialize)(this.panData)).EndInit();
             this.panData.ResumeLayout(false);
             this.panData.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.ymdDetailTransOpenDate.Properties.CalendarTimeProperties)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.ymdDetailTransOpenDate.Properties)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.cboDetailVatType.Properties)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.memoEditWyn1.Properties)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.txtDetailCustId.Properties)).EndInit();
@@ -1540,8 +1534,6 @@ public partial class frmCust
             ((System.ComponentModel.ISupportInitialize)(this.txtCustNm.Properties)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.paTitle)).EndInit();
             this.paTitle.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.ymdDetailTransOpenDate.Properties.CalendarTimeProperties)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.ymdDetailTransOpenDate.Properties)).EndInit();
             this.ResumeLayout(false);
 
     }
@@ -1652,8 +1644,6 @@ public partial class frmCust
     private PanelWyn panelWyn7;
     private ButtonWyn btnDeletRow2;
     private ButtonWyn btnAddRow2;
-    private PanelWyn panelWyn9;
-    private PanelWyn panelWyn10;
     private PanelWyn panelWyn11;
     private ButtonWyn btnDeletRow3;
     private ButtonWyn btnAddRow3;

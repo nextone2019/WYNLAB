@@ -30,6 +30,19 @@ public static class UiTheme
     public static Color CardBackColor { get; set; } = ColorHelper.FromHex("#FFFFFF");
     public static Color CardBorderColor { get; set; } = ColorHelper.FromHex("#E1E1E1");
 
+    /// <summary>카드(흰색)들을 띄워 놓는 옅은 회색 캔버스 배경 - 카드가 흰 배경 위에 흰 카드로
+    /// 놓이면 테두리 1px 말고는 구분이 안 돼(2026-09-22 frmEMP 개편 중 실제로 겪음) 카드 바깥
+    /// 영역에 이 색을 깔아 대비를 만든다. 처음엔 #F1F2F4(흰색과 거의 구분 안 됨)를 썼다가
+    /// 원색 진단 테스트로 카드 자체는 정상 렌더링된다는 게 확인된 뒤, 대비를 확실히 주려고
+    /// 더 짙은 값으로 조정했다. PanelWyn.Style=Card인 자식은 자기 부모의 BackColor를 그대로
+    /// 캔버스색으로 읽어 그 바깥을 채우므로(PanelWyn.PaintCard 참고), 카드를 담는 부모 패널의
+    /// BackColor를 이 값으로 맞추면 된다.</summary>
+    public static Color CanvasBackColor { get; set; } = ColorHelper.FromHex("#E7E9ED");
+
+    /// <summary>흰 카드 안에 중첩되는 보조 그룹(GroupBoxWyn)의 배경색 - 부모 카드와 같은 흰색을
+    /// 쓰면(처음에 실제로 그렇게 했다가) 경계가 거의 안 보인다. 카드보다 한 톤 낮춰 눈에 띄게 한다.</summary>
+    public static Color SubCardBackColor { get; set; } = ColorHelper.FromHex("#F5F6F8");
+
     /// <summary>SectionHeaderWyn(그리드/패널 상단 아이콘+제목) 아이콘/글자 색상.</summary>
     public static Color SectionHeaderIconColor { get; set; } = ColorHelper.FromHex("#5A5D64");
     public static Color SectionHeaderTextColor { get; set; } = ColorHelper.FromHex("#3C3C3C");

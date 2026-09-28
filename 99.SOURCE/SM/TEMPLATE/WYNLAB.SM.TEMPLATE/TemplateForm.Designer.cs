@@ -122,6 +122,7 @@ public partial class TemplateForm
             // panelWyn4
             //
             this.panelWyn4.Controls.Add(this.grd2);
+            this.panelWyn4.Controls.Add(this.panelWyn7);
             this.panelWyn4.Controls.Add(this.panelWyn1);
             this.panelWyn4.Controls.Add(this.panelWyn5);
             this.panelWyn4.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -153,7 +154,6 @@ public partial class TemplateForm
             //
             // panelWyn1
             //
-            this.panelWyn1.Controls.Add(this.panelWyn7);
             this.panelWyn1.Controls.Add(this.sectionHeaderWyn2);
             this.panelWyn1.Dock = System.Windows.Forms.DockStyle.Top;
             this.panelWyn1.EdgeLineColor = System.Drawing.Color.FromArgb(((int)(((byte)(228)))), ((int)(((byte)(229)))), ((int)(((byte)(232)))));
@@ -167,38 +167,41 @@ public partial class TemplateForm
             //
             this.panelWyn7.Controls.Add(this.btnDeletRow2);
             this.panelWyn7.Controls.Add(this.btnAddRow2);
-            this.panelWyn7.Dock = System.Windows.Forms.DockStyle.Right;
+            this.panelWyn7.Appearance.BackColor = System.Drawing.Color.White;
+            this.panelWyn7.Appearance.Options.UseBackColor = true;
+            this.panelWyn7.Dock = System.Windows.Forms.DockStyle.Top;
             this.panelWyn7.EdgeLineColor = System.Drawing.Color.FromArgb(((int)(((byte)(228)))), ((int)(((byte)(229)))), ((int)(((byte)(232)))));
             this.panelWyn7.Location = new System.Drawing.Point(676, 0);
             this.panelWyn7.Name = "panelWyn7";
-            this.panelWyn7.Size = new System.Drawing.Size(68, 25);
+            this.panelWyn7.Padding = new System.Windows.Forms.Padding(5, 3, 0, 2);
+            this.panelWyn7.Size = new System.Drawing.Size(68, 30);
             this.panelWyn7.TabIndex = 9;
             //
             // btnDeletRow2
             //
-            this.btnDeletRow2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnDeletRow2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)));
             this.btnDeletRow2.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(253)))), ((int)(((byte)(236)))), ((int)(((byte)(234)))));
             this.btnDeletRow2.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(245)))), ((int)(((byte)(198)))), ((int)(((byte)(193)))));
             this.btnDeletRow2.Image = ((System.Drawing.Image)(resources.GetObject("btnDeletRow2.ImageOptions.Image")));
-            this.btnDeletRow2.Location = new System.Drawing.Point(42, 2);
+            this.btnDeletRow2.Location = new System.Drawing.Point(68, 4);
             this.btnDeletRow2.Name = "btnDeletRow2";
-            this.btnDeletRow2.Size = new System.Drawing.Size(24, 22);
+            this.btnDeletRow2.Size = new System.Drawing.Size(58, 22);
             this.btnDeletRow2.TabIndex = 0;
-            this.btnDeletRow2.Text = "";
+            this.btnDeletRow2.Text = "행삭제";
             this.btnDeletRow2.ToolTip = "행삭제";
             this.btnDeletRow2.Click += new System.EventHandler(this.btnDeletRow2_Click);
             //
             // btnAddRow2
             //
-            this.btnAddRow2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnAddRow2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)));
             this.btnAddRow2.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(228)))), ((int)(((byte)(245)))), ((int)(((byte)(231)))));
             this.btnAddRow2.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(198)))), ((int)(((byte)(231)))), ((int)(((byte)(203)))));
             this.btnAddRow2.Image = ((System.Drawing.Image)(resources.GetObject("btnAddRow2.ImageOptions.Image")));
-            this.btnAddRow2.Location = new System.Drawing.Point(10, 2);
+            this.btnAddRow2.Location = new System.Drawing.Point(6, 4);
             this.btnAddRow2.Name = "btnAddRow2";
-            this.btnAddRow2.Size = new System.Drawing.Size(24, 22);
+            this.btnAddRow2.Size = new System.Drawing.Size(58, 22);
             this.btnAddRow2.TabIndex = 0;
-            this.btnAddRow2.Text = "";
+            this.btnAddRow2.Text = "행추가";
             this.btnAddRow2.ToolTip = "행추가";
             this.btnAddRow2.Click += new System.EventHandler(this.btnAddRow2_Click);
             //
@@ -362,12 +365,14 @@ public partial class TemplateForm
             this.paTitle.EdgeLineColor = System.Drawing.Color.FromArgb(((int)(((byte)(228)))), ((int)(((byte)(229)))), ((int)(((byte)(232)))));
             this.paTitle.Location = new System.Drawing.Point(3, 0);
             this.paTitle.Name = "paTitle";
-            this.paTitle.Size = new System.Drawing.Size(1159, 33);
+            this.paTitle.Padding = new System.Windows.Forms.Padding(5, 0, 0, 0);
+            this.paTitle.Size = new System.Drawing.Size(1159, 25);
             this.paTitle.TabIndex = 5;
             //
             // sectionHeaderWyn1
             //
             this.sectionHeaderWyn1.BackColor = System.Drawing.Color.White;
+            this.sectionHeaderWyn1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.sectionHeaderWyn1.Font = new System.Drawing.Font("맑은 고딕", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
             this.sectionHeaderWyn1.Icon = WYNLAB.Base.Controls.SectionHeaderIcon.Folder;
             this.sectionHeaderWyn1.Location = new System.Drawing.Point(5, 6);

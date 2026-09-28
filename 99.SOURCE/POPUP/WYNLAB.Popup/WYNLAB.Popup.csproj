@@ -90,4 +90,15 @@
     </EmbeddedResource>
   </ItemGroup>
 
+  <!-- 팝업 전용 검색패널(PopupSearchPanelBase 상속 UserControl, SearchPanels 폴더) - SubType=UserControl이
+       VS가 디자이너로 열지 판단하는 플래그, DependentUpon이 .Designer.cs를 그 밑에 중첩시킨다. -->
+  <ItemGroup>
+    <Compile Update="SearchPanels\pnlItemSearch.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Update="SearchPanels\pnlItemSearch.Designer.cs">
+      <DependentUpon>pnlItemSearch.cs</DependentUpon>
+    </Compile>
+  </ItemGroup>
+
 </Project>

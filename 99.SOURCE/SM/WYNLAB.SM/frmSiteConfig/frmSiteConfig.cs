@@ -24,6 +24,10 @@ namespace WYNLAB.SM;
 /// </summary>
 public class frmSiteConfig : BaseForm
 {
+    /// <summary>색을 항상 "#RRGGBB"로 저장한다 - ColorTranslator.ToHtml은 알려진 색을 이름("LightCyan")으로 돌려줘서 (2026-09-25)
+    /// 읽는 쪽(ColorHelper.FromHex)이 예전엔 예외를 냈다. 이제 읽는 쪽도 이름을 받지만 저장 형식은 16진수로 통일한다.</summary>
+    private static string ToHex(Color color) => $"#{color.R:X2}{color.G:X2}{color.B:X2}";
+
     private const long MaxImagePickBytes = 5 * 1024 * 1024;
 
     private readonly Panel navPanel = new() { Dock = DockStyle.Left, Width = 160 };
@@ -456,12 +460,12 @@ public class frmSiteConfig : BaseForm
             InitPwdPolicy = rdoInitPwdPolicy.EditValue?.ToString() ?? "USER_ID",
             ForceChangeOnFirstLogin = chkForceChangeOnFirstLogin.Checked,
             IdleTimeoutMinutes = (int)spnIdleTimeoutMinutes.Value,
-            RequiredFieldBackColor = ColorTranslator.ToHtml(colRequiredField.Color),
-            GridHeaderBackColor = ColorTranslator.ToHtml(colGridHeader.Color),
-            GridFocusedRowBackColor = ColorTranslator.ToHtml(colGridFocusedRow.Color),
-            BrandColor = ColorTranslator.ToHtml(colBrand.Color),
-            TreeGroupBackColor = ColorTranslator.ToHtml(colTreeGroup.Color),
-            DividerColor = ColorTranslator.ToHtml(colDivider.Color),
+            RequiredFieldBackColor = ToHex(colRequiredField.Color),
+            GridHeaderBackColor = ToHex(colGridHeader.Color),
+            GridFocusedRowBackColor = ToHex(colGridFocusedRow.Color),
+            BrandColor = ToHex(colBrand.Color),
+            TreeGroupBackColor = ToHex(colTreeGroup.Color),
+            DividerColor = ToHex(colDivider.Color),
         };
 
         var result = await ApiClient.PutAsync<SiteConfigDto, ApiResult>("api/site-config", dto);

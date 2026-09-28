@@ -1,4 +1,4 @@
-#nullable disable
+﻿#nullable disable
 using WYNLAB.Base.Controls;
 
 namespace WYNLAB.SM.MENU;
@@ -187,7 +187,7 @@ public partial class frmMenu
             // 
             // colMenuId
             // 
-            this.colMenuId.Caption = "메뉴ID";
+            this.colMenuId.Caption = "硫붾돱ID";
             this.colMenuId.FieldName = "MenuId";
             this.colMenuId.Name = "colMenuId";
             // 
@@ -220,7 +220,7 @@ public partial class frmMenu
             this.lblFormHint.Appearance.ForeColor = System.Drawing.Color.Blue;
             this.lblFormHint.Appearance.Options.UseFont = true;
             this.lblFormHint.Appearance.Options.UseForeColor = true;
-            this.lblFormHint.Location = new System.Drawing.Point(6, 28);
+            this.lblFormHint.Location = new System.Drawing.Point(19, 28);
             this.lblFormHint.Name = "lblFormHint";
             this.lblFormHint.Size = new System.Drawing.Size(72, 15);
             this.lblFormHint.TabIndex = 4;
@@ -832,7 +832,7 @@ public partial class frmMenu
             this.btnCancelEdit.PressedColor = System.Drawing.Color.FromArgb(((int)(((byte)(225)))), ((int)(((byte)(235)))), ((int)(((byte)(253)))));
             this.btnCancelEdit.Size = new System.Drawing.Size(107, 30);
             this.btnCancelEdit.TabIndex = 10;
-            this.btnCancelEdit.Text = "취소";
+            this.btnCancelEdit.Text = "痍⑥냼";
             this.btnCancelEdit.ToolTip = null;
             // 
             // btnCopy
@@ -849,7 +849,7 @@ public partial class frmMenu
             this.btnCopy.PressedColor = System.Drawing.Color.FromArgb(((int)(((byte)(225)))), ((int)(((byte)(235)))), ((int)(((byte)(253)))));
             this.btnCopy.Size = new System.Drawing.Size(107, 30);
             this.btnCopy.TabIndex = 12;
-            this.btnCopy.Text = "복사";
+            this.btnCopy.Text = "蹂듭궗";
             this.btnCopy.ToolTip = null;
             // 
             // svgImageCollection1

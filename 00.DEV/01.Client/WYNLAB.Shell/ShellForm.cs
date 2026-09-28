@@ -44,8 +44,11 @@ public class ShellForm : XtraForm
 
     // 2026-09-17엔 제목줄(titleBarPanel)만 짙은 남색이고 그 아래 헤더(툴바)는 순백색이었는데,
     // "툴바 아이콘 있는 패널의 배경색을 그 위쪽(제목줄) 배경색과 같은 색으로" 요청(2026-09-22)으로
-    // 다시 NavDarkBg를 그대로 쓰도록 되돌렸다 - 제목줄과 툴바가 이제 한 덩어리처럼 이어져 보인다.
-    private Color HeaderBg => NavDarkBg;
+    // NavDarkBg를 그대로 쓰도록 되돌렸다가, 완전히 같은 색이라 한 덩어리로 뭉쳐 보인다는
+    // 지적(2026-09-22)에 SidebarBg와 같은 방식(Adjust)으로 밝혔다. 처음 +10은 여전히 구분이
+    // 안 된다는 재지적(2026-09-22)으로 +28로 더 키웠다. 회사별 ToolbarColor가 바뀌어도 항상
+    // "제목줄보다 한 톤 밝은 같은 계열"을 유지한다.
+    private Color HeaderBg => ColorHelper.Adjust(NavDarkBg, 28);
     private Color HeaderDividerColor => ColorHelper.Adjust(HeaderBg, -22);
     private static readonly Color SqlLogToolbarBg = Color.FromArgb(245, 246, 248);
     private static readonly Color DividerColor = Color.FromArgb(225, 225, 225);
@@ -806,9 +809,12 @@ public class ShellForm : XtraForm
         {
             _sqlLogChip = new IconChipButton
             {
-                IconImage = SvgIcons.Load(SvgIcons.ToolbarSqlLog, 16, NavText),
+                // NavText(어두운 슬레이트)는 라이트 사이드바 트리용 색이라 이 어두운 상태바
+                // 배경 위에서는 거의 안 보였다 - lblStatusRight가 겪었던 것과 같은 문제
+                // (line 833 주석 참고), 같은 해결책(거의-흰색 톤)으로 맞춘다.
+                IconImage = SvgIcons.Load(SvgIcons.ToolbarSqlLog, 16, Color.FromArgb(245, 246, 248)),
                 Height = contentHeight,
-                DefaultTextColor = NavText,
+                DefaultTextColor = Color.FromArgb(245, 246, 248),
                 BorderColor = Color.Transparent,
                 DefaultHoverBg = Color.FromArgb(28, 255, 255, 255),
                 DefaultPressedBg = Color.FromArgb(45, 255, 255, 255)
@@ -1682,7 +1688,7 @@ public class ShellForm : XtraForm
         // 메뉴검색 + 사이드바 접기/펼치기 토글을 조회 버튼 왼쪽에 배치(2026-09-22 요청).
         x = BuildHeaderSearchZone(headerPanel, x);
 
-        btnQuery = AddToolbarButton(headerPanel, ref x, "조회", SvgIcons.ToolbarSearch, f => f.QueryClick(),
+        btnQuery = AddToolbarButton(headerPanel, ref x, "조회", SvgIcons.ToolbarSearch, f => f.RunQueryAsync(),
             IconChipVariant.Accent);
         btnNew = AddToolbarButton(headerPanel, ref x, "입력", SvgIcons.ToolbarNew, f => f.NewClick());
         x += GroupGap;
@@ -1697,7 +1703,7 @@ public class ShellForm : XtraForm
             IconChipVariant.Danger);
         // Primary(꽉 찬 파란 배경) -> Default: "저장도 배경색을 다른 아이콘들과 통일해달라"
         // 요청(2026-09-21) - 나머지 버튼과 같은 평소엔 배경 없는 스타일로 되돌렸다.
-        btnSave = AddToolbarButton(headerPanel, ref x, "저장", SvgIcons.ToolbarSave, f => f.SaveClick());
+        btnSave = AddToolbarButton(headerPanel, ref x, "저장", SvgIcons.ToolbarSave, f => f.RunSaveAsync());
         x += GroupGap;
         AddDivider(ref x);
         x += GroupGap - 12;
@@ -1706,12 +1712,12 @@ public class ShellForm : XtraForm
         // 사용자별 단축키(TSMSHORTCUTDEFAULT/TSMUSERSHORTCUT)가 ACTION_CD로 가리키는 액션 -
         // ProcessCmdKey가 눌린 키를 SessionManager.Current.Shortcuts에서 찾아 ACTION_CD를 얻으면
         // 여기서 같은 버튼/델리게이트를 그대로 재사용한다(클릭한 것과 완전히 동일하게 동작).
-        _toolbarActions["QUERY"] = (btnQuery, "조회", f => f.QueryClick());
+        _toolbarActions["QUERY"] = (btnQuery, "조회", f => f.RunQueryAsync());
         _toolbarActions["NEW"] = (btnNew, "입력", f => f.NewClick());
         _toolbarActions["DELETE"] = (btnDelete, "삭제", f => f.DeleteClick());
         _toolbarActions["ROWADD"] = (btnRowAdd, "행추가", f => f.NewRowClick());
         _toolbarActions["ROWDELETE"] = (btnRowDelete, "행삭제", f => f.DeleteRowClick());
-        _toolbarActions["SAVE"] = (btnSave, "저장", f => f.SaveClick());
+        _toolbarActions["SAVE"] = (btnSave, "저장", f => f.RunSaveAsync());
         _toolbarActions["PRINT"] = (btnPrint, "출력", f => f.PrintClick());
     }
 
@@ -1727,7 +1733,10 @@ public class ShellForm : XtraForm
         {
             IconChipVariant.Accent => ToolbarQueryIconColor,
             IconChipVariant.Danger => Color.FromArgb(220, 38, 38),
-            _ => ToolbarIconColor // 배경이 밝은 블루 틴트라 흰 배경용 슬레이트 톤이 다시 잘 보인다.
+            // ToolbarIconColor(슬레이트, 밝은 배경용)가 아니라 별도 흰색 상수를 쓴다 - 이 버튼들은
+            // 이제 배경 없이 어두운 헤더가 그대로 비치는 위에 얹히므로(IconChipButton 배경 제거,
+            // 2026-09-22) 슬레이트 톤은 거의 안 보였다(2026-09-23 지적).
+            _ => ToolbarDefaultIconColor
         };
         var btn = new IconChipButton
         {
@@ -1766,6 +1775,10 @@ public class ShellForm : XtraForm
     // 요청으로 나머지 툴바 버튼들도 이제 옅은 블루 칩(Accent, 밝은 배경) 위에 올라가게 되면서
     // 다시 이 슬레이트 톤이 잘 어울리게 됐다 - NewChipButton도 그대로 재사용한다.
     private static readonly Color ToolbarIconColor = Color.FromArgb(51, 65, 85);
+    // 조회/삭제/로그아웃 이외(입력/행추가/행삭제/저장/출력)의 기본 툴바 아이콘 색 - 어두운
+    // 헤더 위에 배경 없이 얹히므로(2026-09-22) ToolbarIconColor(밝은 배경용 슬레이트)가 아니라
+    // 흰색을 쓴다(2026-09-23, IconChipButton.DefaultTextColor와 짝 맞춤).
+    private static readonly Color ToolbarDefaultIconColor = Color.White;
     private static readonly Color ToolbarQueryIconColor = Color.FromArgb(29, 78, 216);
 
     /// <summary>툴바 아이콘 묶음 사이 여백(BuildHeaderToolbar 주석의 3개 묶음 참고).

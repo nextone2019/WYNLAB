@@ -147,6 +147,7 @@ public partial class TplSingleGrid
             this.sectionHeaderWyn1.Location = new System.Drawing.Point(5, 0);
             this.sectionHeaderWyn1.Name = "sectionHeaderWyn1";
             this.sectionHeaderWyn1.Size = new System.Drawing.Size(259, 25);
+            this.sectionHeaderWyn1.SvgIcon = ((DevExpress.Utils.Svg.SvgImage)(resources.GetObject("sectionHeaderWyn1.SvgIcon")));
             this.sectionHeaderWyn1.TabIndex = 8;
             this.sectionHeaderWyn1.Text = "FormName [frm]";
             // 

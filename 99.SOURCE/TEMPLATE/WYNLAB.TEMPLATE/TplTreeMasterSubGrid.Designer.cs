@@ -153,6 +153,7 @@ public partial class TplTreeMasterSubGrid
             // panelWyn4
             //
             this.panelWyn4.Controls.Add(this.tabDetailGrids);
+            this.panelWyn4.Controls.Add(this.panelWyn7);
             this.panelWyn4.Controls.Add(this.panelWyn1);
             this.panelWyn4.Controls.Add(this.panelWyn5);
             this.panelWyn4.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -360,7 +361,6 @@ public partial class TplTreeMasterSubGrid
             // panelWyn1
             //
             this.panelWyn1.Controls.Add(this.sectionHeaderWyn2);
-            this.panelWyn1.Controls.Add(this.panelWyn7);
             this.panelWyn1.Dock = System.Windows.Forms.DockStyle.Top;
             this.panelWyn1.EdgeLineColor = System.Drawing.Color.FromArgb(((int)(((byte)(228)))), ((int)(((byte)(229)))), ((int)(((byte)(232)))));
             this.panelWyn1.Location = new System.Drawing.Point(3, 218);
@@ -373,42 +373,47 @@ public partial class TplTreeMasterSubGrid
             //
             this.panelWyn7.Controls.Add(this.btnDeletRow2);
             this.panelWyn7.Controls.Add(this.btnAddRow2);
-            this.panelWyn7.Dock = System.Windows.Forms.DockStyle.Right;
+            this.panelWyn7.Appearance.BackColor = System.Drawing.Color.White;
+            this.panelWyn7.Appearance.Options.UseBackColor = true;
+            this.panelWyn7.Dock = System.Windows.Forms.DockStyle.Top;
             this.panelWyn7.EdgeLineColor = System.Drawing.Color.FromArgb(((int)(((byte)(228)))), ((int)(((byte)(229)))), ((int)(((byte)(232)))));
             this.panelWyn7.Location = new System.Drawing.Point(752, 0);
             this.panelWyn7.Name = "panelWyn7";
-            this.panelWyn7.Size = new System.Drawing.Size(68, 25);
+            this.panelWyn7.Padding = new System.Windows.Forms.Padding(5, 3, 0, 2);
+            this.panelWyn7.Size = new System.Drawing.Size(68, 30);
             this.panelWyn7.TabIndex = 9;
             //
             // btnDeletRow2
             //
-            this.btnDeletRow2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnDeletRow2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)));
             this.btnDeletRow2.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(245)))), ((int)(((byte)(198)))), ((int)(((byte)(193)))));
             this.btnDeletRow2.Cursor = System.Windows.Forms.Cursors.Hand;
             this.btnDeletRow2.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(253)))), ((int)(((byte)(236)))), ((int)(((byte)(234)))));
             this.btnDeletRow2.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(51)))), ((int)(((byte)(51)))), ((int)(((byte)(51)))));
             this.btnDeletRow2.HoverColor = System.Drawing.Color.FromArgb(((int)(((byte)(240)))), ((int)(((byte)(245)))), ((int)(((byte)(255)))));
             this.btnDeletRow2.Image = null;
-            this.btnDeletRow2.Location = new System.Drawing.Point(42, 2);
+            this.btnDeletRow2.Location = new System.Drawing.Point(68, 4);
             this.btnDeletRow2.Name = "btnDeletRow2";
             this.btnDeletRow2.PressedColor = System.Drawing.Color.FromArgb(((int)(((byte)(225)))), ((int)(((byte)(235)))), ((int)(((byte)(253)))));
-            this.btnDeletRow2.Size = new System.Drawing.Size(24, 22);
+            this.btnDeletRow2.Size = new System.Drawing.Size(58, 22);
+            this.btnDeletRow2.Text = "행삭제";
             this.btnDeletRow2.TabIndex = 0;
             this.btnDeletRow2.ToolTip = "행삭제(현재 탭)";
             //
             // btnAddRow2
             //
-            this.btnAddRow2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnAddRow2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)));
             this.btnAddRow2.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(198)))), ((int)(((byte)(231)))), ((int)(((byte)(203)))));
             this.btnAddRow2.Cursor = System.Windows.Forms.Cursors.Hand;
             this.btnAddRow2.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(228)))), ((int)(((byte)(245)))), ((int)(((byte)(231)))));
             this.btnAddRow2.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(51)))), ((int)(((byte)(51)))), ((int)(((byte)(51)))));
             this.btnAddRow2.HoverColor = System.Drawing.Color.FromArgb(((int)(((byte)(240)))), ((int)(((byte)(245)))), ((int)(((byte)(255)))));
             this.btnAddRow2.Image = null;
-            this.btnAddRow2.Location = new System.Drawing.Point(10, 2);
+            this.btnAddRow2.Location = new System.Drawing.Point(6, 4);
             this.btnAddRow2.Name = "btnAddRow2";
             this.btnAddRow2.PressedColor = System.Drawing.Color.FromArgb(((int)(((byte)(225)))), ((int)(((byte)(235)))), ((int)(((byte)(253)))));
-            this.btnAddRow2.Size = new System.Drawing.Size(24, 22);
+            this.btnAddRow2.Size = new System.Drawing.Size(58, 22);
+            this.btnAddRow2.Text = "행추가";
             this.btnAddRow2.TabIndex = 0;
             this.btnAddRow2.ToolTip = "행추가(현재 탭)";
             //
@@ -557,7 +562,8 @@ public partial class TplTreeMasterSubGrid
             this.paTitle.EdgeLineColor = System.Drawing.Color.FromArgb(((int)(((byte)(228)))), ((int)(((byte)(229)))), ((int)(((byte)(232)))));
             this.paTitle.Location = new System.Drawing.Point(5, 0);
             this.paTitle.Name = "paTitle";
-            this.paTitle.Size = new System.Drawing.Size(1235, 33);
+            this.paTitle.Padding = new System.Windows.Forms.Padding(5, 0, 0, 0);
+            this.paTitle.Size = new System.Drawing.Size(1235, 25);
             this.paTitle.TabIndex = 5;
             //
             // sectionHeaderWyn1
@@ -568,7 +574,7 @@ public partial class TplTreeMasterSubGrid
             this.sectionHeaderWyn1.Icon = WYNLAB.Base.Controls.SectionHeaderIcon.Folder;
             this.sectionHeaderWyn1.Location = new System.Drawing.Point(0, 0);
             this.sectionHeaderWyn1.Name = "sectionHeaderWyn1";
-            this.sectionHeaderWyn1.Size = new System.Drawing.Size(1235, 33);
+            this.sectionHeaderWyn1.Size = new System.Drawing.Size(1235, 25);
             this.sectionHeaderWyn1.SvgIcon = ((DevExpress.Utils.Svg.SvgImage)(resources.GetObject("sectionHeaderWyn1.SvgIcon")));
             this.sectionHeaderWyn1.TabIndex = 9;
             this.sectionHeaderWyn1.Text = "__MENU_CAPTION__ [TplTreeMasterSubGrid]";

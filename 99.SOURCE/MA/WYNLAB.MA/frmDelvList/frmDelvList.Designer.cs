@@ -1,0 +1,645 @@
+// 납품현황(frmDelvList) - Master-SubGrid 조회 화면. 납품번호를 더블클릭하면 frmDelv가 그 건으로 열린다(2026-09-25).
+#nullable disable
+using WYNLAB.Base;
+using WYNLAB.Base.Controls;
+
+namespace WYNLAB.MA;
+
+public partial class frmDelvList
+{
+    private System.ComponentModel.IContainer components = null;
+
+    protected override void Dispose(bool disposing)
+    {
+        if (disposing && components != null) { components.Dispose(); }
+        base.Dispose(disposing);
+    }
+
+    private void InitializeComponent()
+    {
+        this.panBase = new WYNLAB.Base.Controls.PanelWyn();
+        this.panelSplit = new WYNLAB.Base.Controls.PanelWyn();
+        this.panelTop = new WYNLAB.Base.Controls.PanelWyn();
+        this.grd1 = new WYNLAB.Base.Controls.GridControlWyn();
+        this.gvw1 = new WYNLAB.Base.Controls.GridViewWyn();
+        this.hyperlinkDelvNo = new DevExpress.XtraEditors.Repository.RepositoryItemHyperLinkEdit();
+        this.lookupcolStatCd = new WYNLAB.Base.Controls.LookUpColumnEdit();
+        this.colDelvNo = new DevExpress.XtraGrid.Columns.GridColumn();
+        this.colDelvDate = new DevExpress.XtraGrid.Columns.GridColumn();
+        this.colStatCd = new DevExpress.XtraGrid.Columns.GridColumn();
+        this.colCustNm = new DevExpress.XtraGrid.Columns.GridColumn();
+        this.colVendorDocNo = new DevExpress.XtraGrid.Columns.GridColumn();
+        this.colDeptNm = new DevExpress.XtraGrid.Columns.GridColumn();
+        this.colEmpNm = new DevExpress.XtraGrid.Columns.GridColumn();
+        this.colLineCnt = new DevExpress.XtraGrid.Columns.GridColumn();
+        this.colCfmDt = new DevExpress.XtraGrid.Columns.GridColumn();
+        this.sectionHeaderMaster = new WYNLAB.Base.Controls.SectionHeaderWyn();
+        this.splitterWyn1 = new WYNLAB.Base.Controls.SplitterWyn();
+        this.panelBottom = new WYNLAB.Base.Controls.PanelWyn();
+        this.grd2 = new WYNLAB.Base.Controls.GridControlWyn();
+        this.gvw2 = new WYNLAB.Base.Controls.GridViewWyn();
+        this.colDetSerl = new DevExpress.XtraGrid.Columns.GridColumn();
+        this.colDetItemNo = new DevExpress.XtraGrid.Columns.GridColumn();
+        this.colDetItemNm = new DevExpress.XtraGrid.Columns.GridColumn();
+        this.colDetItemSpec = new DevExpress.XtraGrid.Columns.GridColumn();
+        this.colDetUnitCd = new DevExpress.XtraGrid.Columns.GridColumn();
+        this.colDetDelvQty = new DevExpress.XtraGrid.Columns.GridColumn();
+        this.colDetNextQty = new DevExpress.XtraGrid.Columns.GridColumn();
+        this.colDetQcStat = new DevExpress.XtraGrid.Columns.GridColumn();
+        this.colDetLotNo = new DevExpress.XtraGrid.Columns.GridColumn();
+        this.colDetPoNo = new DevExpress.XtraGrid.Columns.GridColumn();
+        this.colDetWhNm = new DevExpress.XtraGrid.Columns.GridColumn();
+        this.colDetLocNm = new DevExpress.XtraGrid.Columns.GridColumn();
+        this.colDetRemark = new DevExpress.XtraGrid.Columns.GridColumn();
+        this.sectionHeaderSub = new WYNLAB.Base.Controls.SectionHeaderWyn();
+        this.lblSearchDelvNo = new DevExpress.XtraEditors.LabelControl();
+        this.txtSearchDelvNo = new WYNLAB.Base.Controls.TextEditWyn();
+        this.lblSearchKeyword = new DevExpress.XtraEditors.LabelControl();
+        this.txtSearchKeyword = new WYNLAB.Base.Controls.TextEditWyn();
+        this.lblSearchFrom = new DevExpress.XtraEditors.LabelControl();
+        this.dteSearchFrom = new WYNLAB.Base.Controls.DateEditWyn();
+        this.lblSearchTo = new DevExpress.XtraEditors.LabelControl();
+        this.dteSearchTo = new WYNLAB.Base.Controls.DateEditWyn();
+        this.panHeader = new WYNLAB.Base.Controls.PanelWyn();
+        ((System.ComponentModel.ISupportInitialize)(this.panBase)).BeginInit();
+        this.panBase.SuspendLayout();
+        ((System.ComponentModel.ISupportInitialize)(this.panelSplit)).BeginInit();
+        this.panelSplit.SuspendLayout();
+        ((System.ComponentModel.ISupportInitialize)(this.panelTop)).BeginInit();
+        this.panelTop.SuspendLayout();
+        ((System.ComponentModel.ISupportInitialize)(this.grd1)).BeginInit();
+        ((System.ComponentModel.ISupportInitialize)(this.gvw1)).BeginInit();
+        ((System.ComponentModel.ISupportInitialize)(this.hyperlinkDelvNo)).BeginInit();
+        ((System.ComponentModel.ISupportInitialize)(this.lookupcolStatCd)).BeginInit();
+        ((System.ComponentModel.ISupportInitialize)(this.panelBottom)).BeginInit();
+        this.panelBottom.SuspendLayout();
+        ((System.ComponentModel.ISupportInitialize)(this.grd2)).BeginInit();
+        ((System.ComponentModel.ISupportInitialize)(this.gvw2)).BeginInit();
+        ((System.ComponentModel.ISupportInitialize)(this.txtSearchDelvNo.Properties)).BeginInit();
+        ((System.ComponentModel.ISupportInitialize)(this.txtSearchKeyword.Properties)).BeginInit();
+        ((System.ComponentModel.ISupportInitialize)(this.dteSearchFrom.Properties.CalendarTimeProperties)).BeginInit();
+        ((System.ComponentModel.ISupportInitialize)(this.dteSearchFrom.Properties)).BeginInit();
+        ((System.ComponentModel.ISupportInitialize)(this.dteSearchTo.Properties.CalendarTimeProperties)).BeginInit();
+        ((System.ComponentModel.ISupportInitialize)(this.dteSearchTo.Properties)).BeginInit();
+        ((System.ComponentModel.ISupportInitialize)(this.panHeader)).BeginInit();
+        this.panHeader.SuspendLayout();
+        this.SuspendLayout();
+        //
+        // panBase
+        //
+        this.panBase.Appearance.BackColor = System.Drawing.Color.White;
+        this.panBase.Appearance.Options.UseBackColor = true;
+        this.panBase.Controls.Add(this.panelSplit);
+        this.panBase.Controls.Add(this.panHeader);
+        this.panBase.Dock = System.Windows.Forms.DockStyle.Fill;
+        this.panBase.Location = new System.Drawing.Point(0, 0);
+        this.panBase.Name = "panBase";
+        this.panBase.Padding = new System.Windows.Forms.Padding(5, 0, 5, 5);
+        this.panBase.Size = new System.Drawing.Size(1680, 760);
+        this.panBase.TabIndex = 6;
+        //
+        // panelSplit
+        //
+        this.panelSplit.Controls.Add(this.panelBottom);
+        this.panelSplit.Controls.Add(this.splitterWyn1);
+        this.panelSplit.Controls.Add(this.panelTop);
+        this.panelSplit.Dock = System.Windows.Forms.DockStyle.Fill;
+        this.panelSplit.Location = new System.Drawing.Point(5, 49);
+        this.panelSplit.Name = "panelSplit";
+        this.panelSplit.Padding = new System.Windows.Forms.Padding(3, 0, 3, 0);
+        this.panelSplit.Size = new System.Drawing.Size(1670, 706);
+        this.panelSplit.TabIndex = 7;
+        //
+        // panelTop
+        //
+        this.panelTop.Controls.Add(this.grd1);
+        this.panelTop.Controls.Add(this.sectionHeaderMaster);
+        this.panelTop.Dock = System.Windows.Forms.DockStyle.Top;
+        this.panelTop.Location = new System.Drawing.Point(3, 0);
+        this.panelTop.Name = "panelTop";
+        this.panelTop.Padding = new System.Windows.Forms.Padding(0, 8, 0, 0);
+        this.panelTop.Size = new System.Drawing.Size(1664, 380);
+        this.panelTop.TabIndex = 0;
+        this.panelTop.Height = 380;
+        //
+        // hyperlinkDelvNo
+        //
+        this.hyperlinkDelvNo.Name = "hyperlinkDelvNo";
+        this.hyperlinkDelvNo.SingleClick = false;
+        //
+        // lookupcolStatCd
+        //
+        this.lookupcolStatCd.AutoHeight = false;
+        this.lookupcolStatCd.Buttons.AddRange(new DevExpress.XtraEditors.Controls.EditorButton[] {
+        new DevExpress.XtraEditors.Controls.EditorButton(DevExpress.XtraEditors.Controls.ButtonPredefines.Combo)});
+        this.lookupcolStatCd.LookupKey = "L_MA0005";
+        this.lookupcolStatCd.Name = "lookupcolStatCd";
+        this.lookupcolStatCd.NullText = "";
+        this.lookupcolStatCd.PopupFilterMode = DevExpress.XtraEditors.PopupFilterMode.Contains;
+        //
+        // grd1
+        //
+        this.grd1.Dock = System.Windows.Forms.DockStyle.Fill;
+        this.grd1.EmbeddedNavigator.Buttons.Append.Visible = false;
+        this.grd1.EmbeddedNavigator.Buttons.CancelEdit.Visible = false;
+        this.grd1.EmbeddedNavigator.Buttons.Edit.Visible = false;
+        this.grd1.EmbeddedNavigator.Buttons.EndEdit.Visible = false;
+        this.grd1.EmbeddedNavigator.Buttons.Remove.Visible = false;
+        this.grd1.Location = new System.Drawing.Point(0, 36);
+        this.grd1.MainView = this.gvw1;
+        this.grd1.Name = "grd1";
+        this.grd1.RepositoryItems.AddRange(new DevExpress.XtraEditors.Repository.RepositoryItem[] {
+        this.hyperlinkDelvNo,
+                this.lookupcolStatCd});
+        this.grd1.Size = new System.Drawing.Size(1664, 344);
+        this.grd1.TabIndex = 1;
+        this.grd1.UseEmbeddedNavigator = false;
+        this.grd1.ViewCollection.AddRange(new DevExpress.XtraGrid.Views.Base.BaseView[] {
+        this.gvw1});
+        //
+        // gvw1
+        //
+        this.gvw1.Columns.AddRange(new DevExpress.XtraGrid.Columns.GridColumn[] {
+        this.colDelvNo,
+                this.colDelvDate,
+                this.colStatCd,
+                this.colCustNm,
+                this.colVendorDocNo,
+                this.colDeptNm,
+                this.colEmpNm,
+                this.colLineCnt,
+                this.colCfmDt});
+        this.gvw1.GridControl = this.grd1;
+        this.gvw1.HighlightFocusedRow = true;
+        this.gvw1.Name = "gvw1";
+        this.gvw1.OptionsBehavior.Editable = false;
+        this.gvw1.OptionsView.ColumnAutoWidth = false;
+        this.gvw1.OptionsView.ShowGroupPanel = false;
+        //
+        // colDelvNo
+        //
+        this.colDelvNo.Caption = "납품번호";
+        this.colDelvNo.ColumnEdit = this.hyperlinkDelvNo;
+        this.colDelvNo.FieldName = "delv_no";
+        this.colDelvNo.Name = "colDelvNo";
+        this.colDelvNo.OptionsColumn.AllowEdit = false;
+        this.colDelvNo.Visible = true;
+        this.colDelvNo.VisibleIndex = 0;
+        this.colDelvNo.Width = 110;
+        //
+        // colDelvDate
+        //
+        this.colDelvDate.Caption = "납품일자";
+        this.colDelvDate.FieldName = "delv_date";
+        this.colDelvDate.Name = "colDelvDate";
+        this.colDelvDate.OptionsColumn.AllowEdit = false;
+        this.colDelvDate.Visible = true;
+        this.colDelvDate.VisibleIndex = 1;
+        this.colDelvDate.Width = 90;
+        //
+        // colStatCd
+        //
+        this.colStatCd.Caption = "진행상태";
+        this.colStatCd.ColumnEdit = this.lookupcolStatCd;
+        this.colStatCd.FieldName = "stat_cd";
+        this.colStatCd.Name = "colStatCd";
+        this.colStatCd.OptionsColumn.AllowEdit = false;
+        this.colStatCd.Visible = true;
+        this.colStatCd.VisibleIndex = 2;
+        this.colStatCd.Width = 80;
+        //
+        // colCustNm
+        //
+        this.colCustNm.Caption = "거래처";
+        this.colCustNm.FieldName = "cust_nm";
+        this.colCustNm.Name = "colCustNm";
+        this.colCustNm.OptionsColumn.AllowEdit = false;
+        this.colCustNm.Visible = true;
+        this.colCustNm.VisibleIndex = 3;
+        this.colCustNm.Width = 140;
+        //
+        // colVendorDocNo
+        //
+        this.colVendorDocNo.Caption = "협력사납품서";
+        this.colVendorDocNo.FieldName = "vendor_doc_no";
+        this.colVendorDocNo.Name = "colVendorDocNo";
+        this.colVendorDocNo.OptionsColumn.AllowEdit = false;
+        this.colVendorDocNo.Visible = true;
+        this.colVendorDocNo.VisibleIndex = 4;
+        this.colVendorDocNo.Width = 120;
+        //
+        // colDeptNm
+        //
+        this.colDeptNm.Caption = "부서";
+        this.colDeptNm.FieldName = "dept_nm";
+        this.colDeptNm.Name = "colDeptNm";
+        this.colDeptNm.OptionsColumn.AllowEdit = false;
+        this.colDeptNm.Visible = true;
+        this.colDeptNm.VisibleIndex = 5;
+        this.colDeptNm.Width = 100;
+        //
+        // colEmpNm
+        //
+        this.colEmpNm.Caption = "담당자";
+        this.colEmpNm.FieldName = "emp_nm";
+        this.colEmpNm.Name = "colEmpNm";
+        this.colEmpNm.OptionsColumn.AllowEdit = false;
+        this.colEmpNm.Visible = true;
+        this.colEmpNm.VisibleIndex = 6;
+        this.colEmpNm.Width = 90;
+        //
+        // colLineCnt
+        //
+        this.colLineCnt.Caption = "품목수";
+        this.colLineCnt.FieldName = "line_cnt";
+        this.colLineCnt.Name = "colLineCnt";
+        this.colLineCnt.OptionsColumn.AllowEdit = false;
+        this.colLineCnt.Visible = true;
+        this.colLineCnt.VisibleIndex = 7;
+        this.colLineCnt.Width = 60;
+        //
+        // colCfmDt
+        //
+        this.colCfmDt.Caption = "확정일시";
+        this.colCfmDt.DisplayFormat.FormatString = "yyyy-MM-dd HH:mm";
+        this.colCfmDt.DisplayFormat.FormatType = DevExpress.Utils.FormatType.DateTime;
+        this.colCfmDt.FieldName = "cfm_dt";
+        this.colCfmDt.Name = "colCfmDt";
+        this.colCfmDt.OptionsColumn.AllowEdit = false;
+        this.colCfmDt.Visible = true;
+        this.colCfmDt.VisibleIndex = 8;
+        this.colCfmDt.Width = 120;
+        //
+        // sectionHeaderMaster
+        //
+        this.sectionHeaderMaster.BackColor = System.Drawing.Color.White;
+        this.sectionHeaderMaster.Dock = System.Windows.Forms.DockStyle.Top;
+        this.sectionHeaderMaster.Font = new System.Drawing.Font("맑은 고딕", 9F, ((System.Drawing.FontStyle)((System.Drawing.FontStyle.Bold | System.Drawing.FontStyle.Underline))), System.Drawing.GraphicsUnit.Point, ((byte)(129)));
+        this.sectionHeaderMaster.Icon = WYNLAB.Base.Controls.SectionHeaderIcon.Folder;
+        this.sectionHeaderMaster.Location = new System.Drawing.Point(0, 8);
+        this.sectionHeaderMaster.Name = "sectionHeaderMaster";
+        this.sectionHeaderMaster.Size = new System.Drawing.Size(1664, 28);
+        this.sectionHeaderMaster.TabIndex = 0;
+        this.sectionHeaderMaster.Text = "납품 목록";
+        //
+        // splitterWyn1
+        //
+        this.splitterWyn1.Dock = System.Windows.Forms.DockStyle.Top;
+        this.splitterWyn1.Location = new System.Drawing.Point(3, 380);
+        this.splitterWyn1.Name = "splitterWyn1";
+        this.splitterWyn1.Size = new System.Drawing.Size(1664, 10);
+        this.splitterWyn1.TabIndex = 1;
+        this.splitterWyn1.TabStop = false;
+        //
+        // panelBottom
+        //
+        this.panelBottom.Controls.Add(this.grd2);
+        this.panelBottom.Controls.Add(this.sectionHeaderSub);
+        this.panelBottom.Dock = System.Windows.Forms.DockStyle.Fill;
+        this.panelBottom.Location = new System.Drawing.Point(3, 390);
+        this.panelBottom.Name = "panelBottom";
+        this.panelBottom.Padding = new System.Windows.Forms.Padding(0, 8, 0, 0);
+        this.panelBottom.Size = new System.Drawing.Size(1664, 316);
+        this.panelBottom.TabIndex = 2;
+        //
+        // grd2
+        //
+        this.grd2.Dock = System.Windows.Forms.DockStyle.Fill;
+        this.grd2.EmbeddedNavigator.Buttons.Append.Visible = false;
+        this.grd2.EmbeddedNavigator.Buttons.CancelEdit.Visible = false;
+        this.grd2.EmbeddedNavigator.Buttons.Edit.Visible = false;
+        this.grd2.EmbeddedNavigator.Buttons.EndEdit.Visible = false;
+        this.grd2.EmbeddedNavigator.Buttons.Remove.Visible = false;
+        this.grd2.Location = new System.Drawing.Point(0, 36);
+        this.grd2.MainView = this.gvw2;
+        this.grd2.Name = "grd2";
+        this.grd2.Size = new System.Drawing.Size(1664, 280);
+        this.grd2.TabIndex = 1;
+        this.grd2.UseEmbeddedNavigator = false;
+        this.grd2.ViewCollection.AddRange(new DevExpress.XtraGrid.Views.Base.BaseView[] {
+        this.gvw2});
+        //
+        // gvw2
+        //
+        this.gvw2.Columns.AddRange(new DevExpress.XtraGrid.Columns.GridColumn[] {
+        this.colDetSerl,
+                this.colDetItemNo,
+                this.colDetItemNm,
+                this.colDetItemSpec,
+                this.colDetUnitCd,
+                this.colDetDelvQty,
+                this.colDetNextQty,
+                this.colDetQcStat,
+                this.colDetLotNo,
+                this.colDetPoNo,
+                this.colDetWhNm,
+                this.colDetLocNm,
+                this.colDetRemark});
+        this.gvw2.GridControl = this.grd2;
+        this.gvw2.HighlightFocusedRow = true;
+        this.gvw2.Name = "gvw2";
+        this.gvw2.OptionsBehavior.Editable = false;
+        this.gvw2.OptionsView.ColumnAutoWidth = false;
+        this.gvw2.OptionsView.ShowGroupPanel = false;
+        //
+        // colDetSerl
+        //
+        this.colDetSerl.Caption = "순번";
+        this.colDetSerl.FieldName = "serl";
+        this.colDetSerl.Name = "colDetSerl";
+        this.colDetSerl.OptionsColumn.AllowEdit = false;
+        this.colDetSerl.Visible = true;
+        this.colDetSerl.VisibleIndex = 0;
+        this.colDetSerl.Width = 50;
+        //
+        // colDetItemNo
+        //
+        this.colDetItemNo.Caption = "품번";
+        this.colDetItemNo.FieldName = "item_no";
+        this.colDetItemNo.Name = "colDetItemNo";
+        this.colDetItemNo.OptionsColumn.AllowEdit = false;
+        this.colDetItemNo.Visible = true;
+        this.colDetItemNo.VisibleIndex = 1;
+        this.colDetItemNo.Width = 100;
+        //
+        // colDetItemNm
+        //
+        this.colDetItemNm.Caption = "품명";
+        this.colDetItemNm.FieldName = "item_nm";
+        this.colDetItemNm.Name = "colDetItemNm";
+        this.colDetItemNm.OptionsColumn.AllowEdit = false;
+        this.colDetItemNm.Visible = true;
+        this.colDetItemNm.VisibleIndex = 2;
+        this.colDetItemNm.Width = 140;
+        //
+        // colDetItemSpec
+        //
+        this.colDetItemSpec.Caption = "규격";
+        this.colDetItemSpec.FieldName = "item_spec";
+        this.colDetItemSpec.Name = "colDetItemSpec";
+        this.colDetItemSpec.OptionsColumn.AllowEdit = false;
+        this.colDetItemSpec.Visible = true;
+        this.colDetItemSpec.VisibleIndex = 3;
+        this.colDetItemSpec.Width = 110;
+        //
+        // colDetUnitCd
+        //
+        this.colDetUnitCd.Caption = "단위";
+        this.colDetUnitCd.FieldName = "unit_cd";
+        this.colDetUnitCd.Name = "colDetUnitCd";
+        this.colDetUnitCd.OptionsColumn.AllowEdit = false;
+        this.colDetUnitCd.Visible = true;
+        this.colDetUnitCd.VisibleIndex = 4;
+        this.colDetUnitCd.Width = 50;
+        //
+        // colDetDelvQty
+        //
+        this.colDetDelvQty.Caption = "납품수량";
+        this.colDetDelvQty.DisplayFormat.FormatString = "#,##0.####";
+        this.colDetDelvQty.DisplayFormat.FormatType = DevExpress.Utils.FormatType.Numeric;
+        this.colDetDelvQty.FieldName = "delv_qty";
+        this.colDetDelvQty.Name = "colDetDelvQty";
+        this.colDetDelvQty.OptionsColumn.AllowEdit = false;
+        this.colDetDelvQty.Visible = true;
+        this.colDetDelvQty.VisibleIndex = 5;
+        this.colDetDelvQty.Width = 90;
+        //
+        // colDetNextQty
+        //
+        this.colDetNextQty.Caption = "검사/입고처리";
+        this.colDetNextQty.DisplayFormat.FormatString = "#,##0.####";
+        this.colDetNextQty.DisplayFormat.FormatType = DevExpress.Utils.FormatType.Numeric;
+        this.colDetNextQty.FieldName = "next_qty";
+        this.colDetNextQty.Name = "colDetNextQty";
+        this.colDetNextQty.OptionsColumn.AllowEdit = false;
+        this.colDetNextQty.Visible = true;
+        this.colDetNextQty.VisibleIndex = 6;
+        this.colDetNextQty.Width = 90;
+        //
+        // colDetQcStat
+        //
+        this.colDetQcStat.Caption = "검사상태";
+        this.colDetQcStat.FieldName = "qc_stat_nm";
+        this.colDetQcStat.Name = "colDetQcStat";
+        this.colDetQcStat.OptionsColumn.AllowEdit = false;
+        this.colDetQcStat.Visible = true;
+        this.colDetQcStat.VisibleIndex = 7;
+        this.colDetQcStat.Width = 80;
+        //
+        // colDetLotNo
+        //
+        this.colDetLotNo.Caption = "LOT";
+        this.colDetLotNo.FieldName = "lot_no";
+        this.colDetLotNo.Name = "colDetLotNo";
+        this.colDetLotNo.OptionsColumn.AllowEdit = false;
+        this.colDetLotNo.Visible = true;
+        this.colDetLotNo.VisibleIndex = 8;
+        this.colDetLotNo.Width = 100;
+        //
+        // colDetPoNo
+        //
+        this.colDetPoNo.Caption = "발주번호";
+        this.colDetPoNo.FieldName = "po_no";
+        this.colDetPoNo.Name = "colDetPoNo";
+        this.colDetPoNo.OptionsColumn.AllowEdit = false;
+        this.colDetPoNo.Visible = true;
+        this.colDetPoNo.VisibleIndex = 9;
+        this.colDetPoNo.Width = 110;
+        //
+        // colDetWhNm
+        //
+        this.colDetWhNm.Caption = "창고";
+        this.colDetWhNm.FieldName = "wh_nm";
+        this.colDetWhNm.Name = "colDetWhNm";
+        this.colDetWhNm.OptionsColumn.AllowEdit = false;
+        this.colDetWhNm.Visible = true;
+        this.colDetWhNm.VisibleIndex = 10;
+        this.colDetWhNm.Width = 90;
+        //
+        // colDetLocNm
+        //
+        this.colDetLocNm.Caption = "위치";
+        this.colDetLocNm.FieldName = "loc_nm";
+        this.colDetLocNm.Name = "colDetLocNm";
+        this.colDetLocNm.OptionsColumn.AllowEdit = false;
+        this.colDetLocNm.Visible = true;
+        this.colDetLocNm.VisibleIndex = 11;
+        this.colDetLocNm.Width = 90;
+        //
+        // colDetRemark
+        //
+        this.colDetRemark.Caption = "비고";
+        this.colDetRemark.FieldName = "remark";
+        this.colDetRemark.Name = "colDetRemark";
+        this.colDetRemark.OptionsColumn.AllowEdit = false;
+        this.colDetRemark.Visible = true;
+        this.colDetRemark.VisibleIndex = 12;
+        this.colDetRemark.Width = 160;
+        //
+        // sectionHeaderSub
+        //
+        this.sectionHeaderSub.BackColor = System.Drawing.Color.White;
+        this.sectionHeaderSub.Dock = System.Windows.Forms.DockStyle.Top;
+        this.sectionHeaderSub.Font = new System.Drawing.Font("맑은 고딕", 9F, ((System.Drawing.FontStyle)((System.Drawing.FontStyle.Bold | System.Drawing.FontStyle.Underline))), System.Drawing.GraphicsUnit.Point, ((byte)(129)));
+        this.sectionHeaderSub.Icon = WYNLAB.Base.Controls.SectionHeaderIcon.Folder;
+        this.sectionHeaderSub.Location = new System.Drawing.Point(0, 8);
+        this.sectionHeaderSub.Name = "sectionHeaderSub";
+        this.sectionHeaderSub.Size = new System.Drawing.Size(1664, 28);
+        this.sectionHeaderSub.TabIndex = 0;
+        this.sectionHeaderSub.Text = "납품 품목 상세";
+        //
+        // lblSearchDelvNo
+        //
+        this.lblSearchDelvNo.Location = new System.Drawing.Point(25, 18);
+        this.lblSearchDelvNo.Name = "lblSearchDelvNo";
+        this.lblSearchDelvNo.Size = new System.Drawing.Size(48, 15);
+        this.lblSearchDelvNo.TabIndex = 0;
+        this.lblSearchDelvNo.Text = "납품번호";
+        //
+        // txtSearchDelvNo
+        //
+        this.txtSearchDelvNo.Location = new System.Drawing.Point(81, 15);
+        this.txtSearchDelvNo.Name = "txtSearchDelvNo";
+        this.txtSearchDelvNo.Size = new System.Drawing.Size(130, 20);
+        this.txtSearchDelvNo.TabIndex = 1;
+        //
+        // lblSearchKeyword
+        //
+        this.lblSearchKeyword.Location = new System.Drawing.Point(233, 18);
+        this.lblSearchKeyword.Name = "lblSearchKeyword";
+        this.lblSearchKeyword.Size = new System.Drawing.Size(72, 15);
+        this.lblSearchKeyword.TabIndex = 2;
+        this.lblSearchKeyword.Text = "거래처/품목";
+        //
+        // txtSearchKeyword
+        //
+        this.txtSearchKeyword.Location = new System.Drawing.Point(313, 15);
+        this.txtSearchKeyword.Name = "txtSearchKeyword";
+        this.txtSearchKeyword.Size = new System.Drawing.Size(160, 20);
+        this.txtSearchKeyword.TabIndex = 3;
+        //
+        // lblSearchFrom
+        //
+        this.lblSearchFrom.Location = new System.Drawing.Point(495, 18);
+        this.lblSearchFrom.Name = "lblSearchFrom";
+        this.lblSearchFrom.Size = new System.Drawing.Size(48, 15);
+        this.lblSearchFrom.TabIndex = 4;
+        this.lblSearchFrom.Text = "납품일자";
+        //
+        // dteSearchFrom
+        //
+        this.dteSearchFrom.Location = new System.Drawing.Point(551, 15);
+        this.dteSearchFrom.Name = "dteSearchFrom";
+        this.dteSearchFrom.Size = new System.Drawing.Size(110, 20);
+        this.dteSearchFrom.TabIndex = 5;
+        //
+        // lblSearchTo
+        //
+        this.lblSearchTo.Location = new System.Drawing.Point(683, 18);
+        this.lblSearchTo.Name = "lblSearchTo";
+        this.lblSearchTo.Size = new System.Drawing.Size(24, 15);
+        this.lblSearchTo.TabIndex = 6;
+        this.lblSearchTo.Text = "~";
+        //
+        // dteSearchTo
+        //
+        this.dteSearchTo.Location = new System.Drawing.Point(715, 15);
+        this.dteSearchTo.Name = "dteSearchTo";
+        this.dteSearchTo.Size = new System.Drawing.Size(110, 20);
+        this.dteSearchTo.TabIndex = 7;
+        //
+        // panHeader
+        //
+        this.panHeader.Appearance.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(241)))), ((int)(((byte)(245)))), ((int)(((byte)(249)))));
+        this.panHeader.Appearance.Options.UseBackColor = true;
+        this.panHeader.BorderStyle = DevExpress.XtraEditors.Controls.BorderStyles.NoBorder;
+        this.panHeader.Controls.Add(this.lblSearchDelvNo);
+        this.panHeader.Controls.Add(this.txtSearchDelvNo);
+        this.panHeader.Controls.Add(this.lblSearchKeyword);
+        this.panHeader.Controls.Add(this.txtSearchKeyword);
+        this.panHeader.Controls.Add(this.lblSearchFrom);
+        this.panHeader.Controls.Add(this.dteSearchFrom);
+        this.panHeader.Controls.Add(this.lblSearchTo);
+        this.panHeader.Controls.Add(this.dteSearchTo);
+        this.panHeader.Dock = System.Windows.Forms.DockStyle.Top;
+        this.panHeader.Location = new System.Drawing.Point(5, 0);
+        this.panHeader.Name = "panHeader";
+        this.panHeader.Size = new System.Drawing.Size(1670, 49);
+        this.panHeader.TabIndex = 8;
+        //
+        // frmDelvList
+        //
+        this.Appearance.Options.UseFont = true;
+        this.ClientSize = new System.Drawing.Size(1680, 760);
+        this.Controls.Add(this.panBase);
+        this.Name = "frmDelvList";
+        ((System.ComponentModel.ISupportInitialize)(this.panBase)).EndInit();
+        this.panBase.ResumeLayout(false);
+        ((System.ComponentModel.ISupportInitialize)(this.panelSplit)).EndInit();
+        this.panelSplit.ResumeLayout(false);
+        ((System.ComponentModel.ISupportInitialize)(this.panelTop)).EndInit();
+        this.panelTop.ResumeLayout(false);
+        ((System.ComponentModel.ISupportInitialize)(this.grd1)).EndInit();
+        ((System.ComponentModel.ISupportInitialize)(this.gvw1)).EndInit();
+        ((System.ComponentModel.ISupportInitialize)(this.hyperlinkDelvNo)).EndInit();
+        ((System.ComponentModel.ISupportInitialize)(this.lookupcolStatCd)).EndInit();
+        ((System.ComponentModel.ISupportInitialize)(this.panelBottom)).EndInit();
+        this.panelBottom.ResumeLayout(false);
+        ((System.ComponentModel.ISupportInitialize)(this.grd2)).EndInit();
+        ((System.ComponentModel.ISupportInitialize)(this.gvw2)).EndInit();
+        ((System.ComponentModel.ISupportInitialize)(this.txtSearchDelvNo.Properties)).EndInit();
+        ((System.ComponentModel.ISupportInitialize)(this.txtSearchKeyword.Properties)).EndInit();
+        ((System.ComponentModel.ISupportInitialize)(this.dteSearchFrom.Properties.CalendarTimeProperties)).EndInit();
+        ((System.ComponentModel.ISupportInitialize)(this.dteSearchFrom.Properties)).EndInit();
+        ((System.ComponentModel.ISupportInitialize)(this.dteSearchTo.Properties.CalendarTimeProperties)).EndInit();
+        ((System.ComponentModel.ISupportInitialize)(this.dteSearchTo.Properties)).EndInit();
+        ((System.ComponentModel.ISupportInitialize)(this.panHeader)).EndInit();
+        this.panHeader.ResumeLayout(false);
+        this.ResumeLayout(false);
+    }
+
+    private PanelWyn panBase;
+    private PanelWyn panelSplit;
+    private PanelWyn panelTop;
+    private GridControlWyn grd1;
+    private GridViewWyn gvw1;
+    private DevExpress.XtraEditors.Repository.RepositoryItemHyperLinkEdit hyperlinkDelvNo;
+    private LookUpColumnEdit lookupcolStatCd;
+    private DevExpress.XtraGrid.Columns.GridColumn colDelvNo;
+    private DevExpress.XtraGrid.Columns.GridColumn colDelvDate;
+    private DevExpress.XtraGrid.Columns.GridColumn colStatCd;
+    private DevExpress.XtraGrid.Columns.GridColumn colCustNm;
+    private DevExpress.XtraGrid.Columns.GridColumn colVendorDocNo;
+    private DevExpress.XtraGrid.Columns.GridColumn colDeptNm;
+    private DevExpress.XtraGrid.Columns.GridColumn colEmpNm;
+    private DevExpress.XtraGrid.Columns.GridColumn colLineCnt;
+    private DevExpress.XtraGrid.Columns.GridColumn colCfmDt;
+    private SectionHeaderWyn sectionHeaderMaster;
+    private SplitterWyn splitterWyn1;
+    private PanelWyn panelBottom;
+    private GridControlWyn grd2;
+    private GridViewWyn gvw2;
+    private DevExpress.XtraGrid.Columns.GridColumn colDetSerl;
+    private DevExpress.XtraGrid.Columns.GridColumn colDetItemNo;
+    private DevExpress.XtraGrid.Columns.GridColumn colDetItemNm;
+    private DevExpress.XtraGrid.Columns.GridColumn colDetItemSpec;
+    private DevExpress.XtraGrid.Columns.GridColumn colDetUnitCd;
+    private DevExpress.XtraGrid.Columns.GridColumn colDetDelvQty;
+    private DevExpress.XtraGrid.Columns.GridColumn colDetNextQty;
+    private DevExpress.XtraGrid.Columns.GridColumn colDetQcStat;
+    private DevExpress.XtraGrid.Columns.GridColumn colDetLotNo;
+    private DevExpress.XtraGrid.Columns.GridColumn colDetPoNo;
+    private DevExpress.XtraGrid.Columns.GridColumn colDetWhNm;
+    private DevExpress.XtraGrid.Columns.GridColumn colDetLocNm;
+    private DevExpress.XtraGrid.Columns.GridColumn colDetRemark;
+    private SectionHeaderWyn sectionHeaderSub;
+    private DevExpress.XtraEditors.LabelControl lblSearchDelvNo;
+    private TextEditWyn txtSearchDelvNo;
+    private DevExpress.XtraEditors.LabelControl lblSearchKeyword;
+    private TextEditWyn txtSearchKeyword;
+    private DevExpress.XtraEditors.LabelControl lblSearchFrom;
+    private DateEditWyn dteSearchFrom;
+    private DevExpress.XtraEditors.LabelControl lblSearchTo;
+    private DateEditWyn dteSearchTo;
+    private PanelWyn panHeader;
+}

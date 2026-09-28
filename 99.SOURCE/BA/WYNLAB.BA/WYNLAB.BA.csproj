@@ -331,6 +331,9 @@
     <Compile Update="frmWh\frmWh.Designer.cs">
       <DependentUpon>frmWh.cs</DependentUpon>
     </Compile>
+    <EmbeddedResource Update="frmWh\frmWh.resx">
+      <DependentUpon>frmWh.cs</DependentUpon>
+    </EmbeddedResource>
   </ItemGroup>
 
   <ItemGroup>
@@ -340,6 +343,9 @@
     <Compile Update="frmItemMulti\frmItemMulti.Designer.cs">
       <DependentUpon>frmItemMulti.cs</DependentUpon>
     </Compile>
+    <EmbeddedResource Update="frmItemMulti\frmItemMulti.resx">
+      <DependentUpon>frmItemMulti.cs</DependentUpon>
+    </EmbeddedResource>
   </ItemGroup>
 
   <ItemGroup>
@@ -351,6 +357,20 @@
     </Compile>
     <EmbeddedResource Update="frmItemList\frmItemList.resx">
       <DependentUpon>frmItemList.cs</DependentUpon>
+    </EmbeddedResource>
+  </ItemGroup>
+
+  <!-- frmEmp는 파일명 대소문자가 섞여 있다(frmEmp.cs / frmEMP.Designer.cs / frmEMP.resx) - DependentUpon으로 클래스(frmEmp)에 묶어야
+       리소스 이름이 WYNLAB.BA.frmEmp.resources로 맞는다(안 그러면 MissingManifestResourceException). -->
+  <ItemGroup>
+    <Compile Update="frmEmp\frmEmp.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="frmEmp\frmEMP.Designer.cs">
+      <DependentUpon>frmEmp.cs</DependentUpon>
+    </Compile>
+    <EmbeddedResource Update="frmEmp\frmEMP.resx">
+      <DependentUpon>frmEmp.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
 

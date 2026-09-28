@@ -37,8 +37,8 @@ public partial class frmItemList : BaseForm
         {
             ["p_work_type"] = "Q",
             ["p_item_no"] = txtItemNo_Q.Text,
-            ["p_item_nm"] = txtItemNm_Q.Text,
-            ["p_item_spec"] = txtItemNm_Q.Text,
+            //["p_item_nm"] = txtItemNm_Q.Text,
+            //["p_item_spec"] = txtItemNm_Q.Text,
             ["p_stat_cd"] = cboStatCd_Q.EditValue.ToString(),
             ["p_asset_type"] = cboAssetType_Q.EditValue.ToString(),
         };

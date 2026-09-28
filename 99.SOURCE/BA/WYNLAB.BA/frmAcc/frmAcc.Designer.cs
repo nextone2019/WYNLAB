@@ -1,5 +1,5 @@
-// VS 디자이너가 자동 생성하는 필드 선언에는 = null!을 안 붙여서 nullable 경고(CS8618)가
-// 계속 나기 때문에, 이 파일(디자이너 전용)만 nullable 검사를 끈다 - 흔한 관례.
+﻿// VS ?붿옄?대꼫媛 ?먮룞 ?앹꽦?섎뒗 ?꾨뱶 ?좎뼵?먮뒗 = null!????遺숈뿬??nullable 寃쎄퀬(CS8618)媛
+// 怨꾩냽 ?섍린 ?뚮Ц?? ???뚯씪(?붿옄?대꼫 ?꾩슜)留?nullable 寃?щ? ?덈떎 - ?뷀븳 愿濡.
 #nullable disable
 using DevExpress.XtraGrid;
 using WYNLAB.Base.Controls;
@@ -7,10 +7,10 @@ using WYNLAB.Base.Controls;
 namespace WYNLAB.BA;
 
 /// <summary>
-/// 사업장등록 화면 - TEMPLATE(frmMinorCode 표준 레이아웃)에서 하위목록(grd2) 없이 grd1(목록) +
-/// panData(상세 등록)만 남긴 버전. 자세한 컬럼정의는 나중에 추가 예정이라 지금은 사업장코드/
-/// 사업장명 2개 필드만 배치한다 - 필드를 더 늘릴 때는 panData에 라벨+입력컨트롤 쌍을 그대로
-/// 이어 붙이면 된다(다음 Y좌표는 기존 필드보다 30만큼 아래).
+/// ?ъ뾽?λ벑濡??붾㈃ - TEMPLATE(frmMinorCode ?쒖? ?덉씠?꾩썐)?먯꽌 ?섏쐞紐⑸줉(grd2) ?놁씠 grd1(紐⑸줉) +
+/// panData(?곸꽭 ?깅줉)留??④릿 踰꾩쟾. ?먯꽭??而щ읆?뺤쓽???섏쨷??異붽? ?덉젙?대씪 吏湲덉? ?ъ뾽?μ퐫??
+/// ?ъ뾽?λ챸 2媛??꾨뱶留?諛곗튂?쒕떎 - ?꾨뱶瑜????섎┫ ?뚮뒗 panData???쇰꺼+?낅젰而⑦듃濡??띿쓣 洹몃?濡?
+/// ?댁뼱 遺숈씠硫??쒕떎(?ㅼ쓬 Y醫뚰몴??湲곗〈 ?꾨뱶蹂대떎 30留뚰겮 ?꾨옒).
 /// </summary>
 public partial class frmAcc
 {
@@ -292,7 +292,7 @@ public partial class frmAcc
             // 
             // gridColumn6
             // 
-            this.gridColumn6.Caption = "비고";
+            this.gridColumn6.Caption = "鍮꾧퀬";
             this.gridColumn6.FieldName = "Remark";
             this.gridColumn6.Name = "gridColumn6";
             this.gridColumn6.Visible = true;
@@ -559,7 +559,7 @@ public partial class frmAcc
             // 
             this.labelControl6.Appearance.Font = new System.Drawing.Font("맑은 고딕", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
             this.labelControl6.Appearance.Options.UseFont = true;
-            this.labelControl6.Location = new System.Drawing.Point(347, 331);
+            this.labelControl6.Location = new System.Drawing.Point(357, 331);
             this.labelControl6.Name = "labelControl6";
             this.labelControl6.Size = new System.Drawing.Size(39, 15);
             this.labelControl6.TabIndex = 2;
@@ -577,7 +577,7 @@ public partial class frmAcc
             // 
             this.labelControl5.Appearance.Font = new System.Drawing.Font("맑은 고딕", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
             this.labelControl5.Appearance.Options.UseFont = true;
-            this.labelControl5.Location = new System.Drawing.Point(51, 331);
+            this.labelControl5.Location = new System.Drawing.Point(56, 331);
             this.labelControl5.Name = "labelControl5";
             this.labelControl5.Size = new System.Drawing.Size(32, 15);
             this.labelControl5.TabIndex = 2;
@@ -587,7 +587,7 @@ public partial class frmAcc
             // 
             this.labelControl13.Appearance.Font = new System.Drawing.Font("맑은 고딕", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
             this.labelControl13.Appearance.Options.UseFont = true;
-            this.labelControl13.Location = new System.Drawing.Point(28, 304);
+            this.labelControl13.Location = new System.Drawing.Point(33, 304);
             this.labelControl13.Name = "labelControl13";
             this.labelControl13.Size = new System.Drawing.Size(55, 15);
             this.labelControl13.TabIndex = 2;
@@ -597,17 +597,17 @@ public partial class frmAcc
             // 
             this.labelControl4.Appearance.Font = new System.Drawing.Font("맑은 고딕", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
             this.labelControl4.Appearance.Options.UseFont = true;
-            this.labelControl4.Location = new System.Drawing.Point(52, 253);
+            this.labelControl4.Location = new System.Drawing.Point(57, 253);
             this.labelControl4.Name = "labelControl4";
             this.labelControl4.Size = new System.Drawing.Size(31, 15);
             this.labelControl4.TabIndex = 2;
-            this.labelControl4.Text = "주소2";
+            this.labelControl4.Text = "二쇱냼2";
             // 
             // labelControl12
             // 
             this.labelControl12.Appearance.Font = new System.Drawing.Font("맑은 고딕", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
             this.labelControl12.Appearance.Options.UseFont = true;
-            this.labelControl12.Location = new System.Drawing.Point(28, 280);
+            this.labelControl12.Location = new System.Drawing.Point(33, 280);
             this.labelControl12.Name = "labelControl12";
             this.labelControl12.Size = new System.Drawing.Size(55, 15);
             this.labelControl12.TabIndex = 2;
@@ -617,17 +617,17 @@ public partial class frmAcc
             // 
             this.labelControl3.Appearance.Font = new System.Drawing.Font("맑은 고딕", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
             this.labelControl3.Appearance.Options.UseFont = true;
-            this.labelControl3.Location = new System.Drawing.Point(52, 228);
+            this.labelControl3.Location = new System.Drawing.Point(57, 228);
             this.labelControl3.Name = "labelControl3";
             this.labelControl3.Size = new System.Drawing.Size(31, 15);
             this.labelControl3.TabIndex = 2;
-            this.labelControl3.Text = "주소1";
+            this.labelControl3.Text = "二쇱냼1";
             // 
             // labelControl2
             // 
             this.labelControl2.Appearance.Font = new System.Drawing.Font("맑은 고딕", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
             this.labelControl2.Appearance.Options.UseFont = true;
-            this.labelControl2.Location = new System.Drawing.Point(35, 203);
+            this.labelControl2.Location = new System.Drawing.Point(40, 203);
             this.labelControl2.Name = "labelControl2";
             this.labelControl2.Size = new System.Drawing.Size(48, 15);
             this.labelControl2.TabIndex = 2;
@@ -657,7 +657,7 @@ public partial class frmAcc
             // 
             this.labelControl14.Appearance.Font = new System.Drawing.Font("맑은 고딕", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
             this.labelControl14.Appearance.Options.UseFont = true;
-            this.labelControl14.Location = new System.Drawing.Point(24, 118);
+            this.labelControl14.Location = new System.Drawing.Point(29, 118);
             this.labelControl14.Name = "labelControl14";
             this.labelControl14.Size = new System.Drawing.Size(59, 15);
             this.labelControl14.TabIndex = 2;
@@ -687,7 +687,7 @@ public partial class frmAcc
             // 
             this.labelControl9.Appearance.Font = new System.Drawing.Font("맑은 고딕", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
             this.labelControl9.Appearance.Options.UseFont = true;
-            this.labelControl9.Location = new System.Drawing.Point(35, 67);
+            this.labelControl9.Location = new System.Drawing.Point(40, 67);
             this.labelControl9.Name = "labelControl9";
             this.labelControl9.Size = new System.Drawing.Size(48, 15);
             this.labelControl9.TabIndex = 2;
@@ -707,7 +707,7 @@ public partial class frmAcc
             // 
             this.labelControl8.Appearance.Font = new System.Drawing.Font("맑은 고딕", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
             this.labelControl8.Appearance.Options.UseFont = true;
-            this.labelControl8.Location = new System.Drawing.Point(35, 93);
+            this.labelControl8.Location = new System.Drawing.Point(40, 93);
             this.labelControl8.Name = "labelControl8";
             this.labelControl8.Size = new System.Drawing.Size(48, 15);
             this.labelControl8.TabIndex = 2;
@@ -717,7 +717,7 @@ public partial class frmAcc
             // 
             this.labelControl7.Appearance.Font = new System.Drawing.Font("맑은 고딕", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
             this.labelControl7.Appearance.Options.UseFont = true;
-            this.labelControl7.Location = new System.Drawing.Point(23, 42);
+            this.labelControl7.Location = new System.Drawing.Point(28, 42);
             this.labelControl7.Name = "labelControl7";
             this.labelControl7.Size = new System.Drawing.Size(60, 15);
             this.labelControl7.TabIndex = 2;
@@ -727,7 +727,7 @@ public partial class frmAcc
             // 
             this.lblAccNm.Appearance.Font = new System.Drawing.Font("맑은 고딕", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
             this.lblAccNm.Appearance.Options.UseFont = true;
-            this.lblAccNm.Location = new System.Drawing.Point(35, 17);
+            this.lblAccNm.Location = new System.Drawing.Point(40, 17);
             this.lblAccNm.Name = "lblAccNm";
             this.lblAccNm.Size = new System.Drawing.Size(48, 15);
             this.lblAccNm.TabIndex = 2;
@@ -737,10 +737,6 @@ public partial class frmAcc
             // 
             this.txtAddr2.Location = new System.Drawing.Point(91, 249);
             this.txtAddr2.Name = "txtAddr2";
-            this.txtAddr2.Properties.Appearance.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(249)))), ((int)(((byte)(219)))));
-            this.txtAddr2.Properties.Appearance.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))));
-            this.txtAddr2.Properties.Appearance.Options.UseBackColor = true;
-            this.txtAddr2.Properties.Appearance.Options.UseForeColor = true;
             this.txtAddr2.Size = new System.Drawing.Size(465, 20);
             this.txtAddr2.TabIndex = 12;
             // 
@@ -748,10 +744,6 @@ public partial class frmAcc
             // 
             this.txtAddr1.Location = new System.Drawing.Point(91, 225);
             this.txtAddr1.Name = "txtAddr1";
-            this.txtAddr1.Properties.Appearance.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(249)))), ((int)(((byte)(219)))));
-            this.txtAddr1.Properties.Appearance.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))));
-            this.txtAddr1.Properties.Appearance.Options.UseBackColor = true;
-            this.txtAddr1.Properties.Appearance.Options.UseForeColor = true;
             this.txtAddr1.Size = new System.Drawing.Size(465, 20);
             this.txtAddr1.TabIndex = 11;
             // 
@@ -759,10 +751,6 @@ public partial class frmAcc
             // 
             this.txtZipCode.Location = new System.Drawing.Point(91, 200);
             this.txtZipCode.Name = "txtZipCode";
-            this.txtZipCode.Properties.Appearance.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(249)))), ((int)(((byte)(219)))));
-            this.txtZipCode.Properties.Appearance.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))));
-            this.txtZipCode.Properties.Appearance.Options.UseBackColor = true;
-            this.txtZipCode.Properties.Appearance.Options.UseForeColor = true;
             this.txtZipCode.Size = new System.Drawing.Size(85, 20);
             this.txtZipCode.TabIndex = 10;
             // 
@@ -814,10 +802,6 @@ public partial class frmAcc
             // 
             this.txtOwnerNm.Location = new System.Drawing.Point(91, 64);
             this.txtOwnerNm.Name = "txtOwnerNm";
-            this.txtOwnerNm.Properties.Appearance.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(249)))), ((int)(((byte)(219)))));
-            this.txtOwnerNm.Properties.Appearance.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))));
-            this.txtOwnerNm.Properties.Appearance.Options.UseBackColor = true;
-            this.txtOwnerNm.Properties.Appearance.Options.UseForeColor = true;
             this.txtOwnerNm.Size = new System.Drawing.Size(203, 20);
             this.txtOwnerNm.TabIndex = 4;
             // 
@@ -825,10 +809,6 @@ public partial class frmAcc
             // 
             this.txtTel.Location = new System.Drawing.Point(91, 90);
             this.txtTel.Name = "txtTel";
-            this.txtTel.Properties.Appearance.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(249)))), ((int)(((byte)(219)))));
-            this.txtTel.Properties.Appearance.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))));
-            this.txtTel.Properties.Appearance.Options.UseBackColor = true;
-            this.txtTel.Properties.Appearance.Options.UseForeColor = true;
             this.txtTel.Size = new System.Drawing.Size(203, 20);
             this.txtTel.TabIndex = 6;
             // 
@@ -836,10 +816,6 @@ public partial class frmAcc
             // 
             this.txtBizNo.Location = new System.Drawing.Point(91, 39);
             this.txtBizNo.Name = "txtBizNo";
-            this.txtBizNo.Properties.Appearance.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(249)))), ((int)(((byte)(219)))));
-            this.txtBizNo.Properties.Appearance.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))));
-            this.txtBizNo.Properties.Appearance.Options.UseBackColor = true;
-            this.txtBizNo.Properties.Appearance.Options.UseForeColor = true;
             this.txtBizNo.Size = new System.Drawing.Size(203, 20);
             this.txtBizNo.TabIndex = 2;
             // 

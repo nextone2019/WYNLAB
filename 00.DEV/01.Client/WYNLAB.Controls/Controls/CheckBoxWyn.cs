@@ -34,8 +34,7 @@ public class CheckBoxWyn : CheckEdit
         }
         else
         {
-            Properties.Appearance.Options.UseBackColor = false;
-            Properties.Appearance.Options.UseForeColor = false;
+            this.ClearRequired();
         }
     }
 }

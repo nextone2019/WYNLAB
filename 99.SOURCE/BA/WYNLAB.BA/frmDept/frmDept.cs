@@ -23,7 +23,7 @@ public partial class frmDept : BaseForm
 
         Text = "부서등록";
 
-        Controls.Add(BuildScreenHeader());
+        // 최상단 공통 타이틀(BuildScreenHeader)은 뺐다(2026-09-26 요청) - 아래 표준 제목 바(paTitleH "부서등록 [frmDept]")만 남긴다.
 
         // tree1은 자기참조 계층 데이터를 그린다 - KeyFieldName은 grd1의 dept_id과
         // 같은 역할(행 식별), ParentFieldName은 이 템플릿에만 있는 값으로 "이 행의 상위 행"을
@@ -93,6 +93,9 @@ public partial class frmDept : BaseForm
         cboDetailAccId.Tag = new BindingFieldTag("acc_id");
         numDetailDeptId.Tag = new BindingFieldTag("dept_id");
         txtDetailDeptNm.Tag = new BindingFieldTag("dept_nm");
+        // 상위부서 팝업: 화면엔 부서명(dept_nm)만 보이고, 실제 FK(par_dept_id)는 numDetailParDeptId에 채워진다
+        // (MatchField는 Designer.cs에 지정) - 이 MapField가 없으면 팝업 선택 시 부서 코드가 이름 칸에 들어가고 par_dept_id는 안 바뀐다.
+        popDetailParDeptNm.MapField("dept_id", numDetailParDeptId);
         numDetailParDeptId.Tag = new BindingFieldTag("par_dept_id");
         popDetailParDeptNm.Tag = new BindingFieldTag("par_dept_nm");
         cboDetailDeptType.Tag = new BindingFieldTag("dept_type");
@@ -289,7 +292,7 @@ public partial class frmDept : BaseForm
             ["p_acc_id"] = cboDetailAccId.EditValue?.ToString() ?? string.Empty,
             ["p_dept_id"] = numDetailDeptId.EditValue?.ToString(),
             ["p_dept_nm"] = txtDetailDeptNm.Text,
-            ["p_par_dept_id"] = numDetailParDeptId.EditValue?.ToString(),
+            ["p_par_dept_id"] = numDetailParDeptId.EditValue is decimal parId && parId > 0 ? parId.ToString() : null, // 0/빈 값 = 상위부서 없음
             ["p_dept_type"] = cboDetailDeptType.EditValue?.ToString() ?? string.Empty,
             ["p_remark"] = txtDetailRemark.Text,
         };

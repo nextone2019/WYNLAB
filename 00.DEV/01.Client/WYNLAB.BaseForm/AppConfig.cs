@@ -364,6 +364,14 @@ public static class AppConfig
         var accent = ColorHelper.FromHex(toolbarColorHex);
         var navDarkBg = ColorHelper.Mix(accent, Color.Black, 0.45f);
         UiTheme.TabActiveBackColor = ColorHelper.Mix(navDarkBg, Color.White, 0.75f);
+
+        // 그리드 헤더 색 - 처음엔 #F7F8FA/#565B62 고정값이었다가, 브랜드 남색 파생으로
+        // 바꿨는데(2026-09-22), 다시 "조회조건 패널(panHeader)과 같은 배경/보더색으로" 요청
+        // (2026-09-22)받아 고정 슬레이트 톤(frmEMP panHeader와 동일한 #F1F5F9/#CBD5E1 계열)으로
+        // 바꿨다 - 브랜드색과 무관하게 항상 같은 톤을 쓴다. 여기서 마지막에 실행되므로 이 값이
+        // 항상 이긴다.
+        UiTheme.GridHeaderBackColor = ColorHelper.FromHex("#F1F5F9");
+        UiTheme.GridHeaderForeColor = ColorHelper.FromHex("#475569");
     }
 
     /// <summary>appsettings.json의 Theme 섹션 값을 WYNLAB.Controls의 UiTheme(기본값만 있는 색상

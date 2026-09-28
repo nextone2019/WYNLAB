@@ -101,7 +101,16 @@ public static class ProcData
         if (!row.Table.Columns.Contains(columnName)) return null;
 
         var value = row[columnName, version];
-        return value == DBNull.Value ? null : Convert.ToString(value);
+        if (value == DBNull.Value) return null;
+
+        // 그리드 날짜 컬럼(DateColumnEdit)의 셀 값은 DateTime으로 들어온다 - 그대로
+        // Convert.ToString에 넘기면 문화권 포맷("2026-09-01 오전 12:00:00")이 되어 WYNLAB
+        // 전체의 VARCHAR(8) "yyyyMMdd" 날짜 저장 관례(DateEditWyn.YyyyMmDd와 동일한 규약,
+        // 그 클래스 주석 참고)를 깨뜨린다(2026-09-26 실제 발견 - TMAPOREQD.delv_date가
+        // "2026-09-01"로 저장됨). 패널 날짜 컨트롤은 이미 YyyyMmDd로 직접 문자열을 만들어
+        // 보내므로 이 문제가 없었지만, 그리드 날짜 컬럼은 전부 DataRow 값을 이 메서드로 읽어
+        // 저장하므로 여기 한 곳만 고치면 모든 화면의 그리드 날짜 컬럼에 동일하게 적용된다.
+        return value is DateTime date ? date.ToString("yyyyMMdd") : Convert.ToString(value);
     }
 
     /// <summary>

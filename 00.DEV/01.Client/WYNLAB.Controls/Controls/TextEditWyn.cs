@@ -36,8 +36,7 @@ public class TextEditWyn : TextEdit
         }
         else
         {
-            Properties.Appearance.Options.UseBackColor = false;
-            Properties.Appearance.Options.UseForeColor = false;
+            this.ClearRequired();
         }
     }
 }

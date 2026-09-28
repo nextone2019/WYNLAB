@@ -25,7 +25,13 @@ public partial class frmEMP : BaseForm
 
         Text = "사원등록";
 
-        Controls.Add(BuildScreenHeader());
+        // BuildScreenHeader()(공통 상단 타이틀 줄, 앱 전체 화면이 같이 씀)는 이 화면(frmEMP)만
+        // 골라서 뺐다(2026-09-22 요청) - 다른 화면엔 영향 없음, 여기 한 줄만 안 붙인다.
+
+        // 조회조건 패널(panHeader) 배경/보더 - 원래 여기 이 화면에만 손으로 넣었던 Paint
+        // 핸들러였는데, 2026-09-23부터 BaseForm.ApplySearchPanelStyle이 panHeader라는 이름의
+        // 패널을 자동으로 찾아 전 화면 공통으로 처리한다(그쪽 주석 참고) - 여기서 또 넣으면
+        // 중복 실행만 될 뿐이라 뺐다.
 
         // txtDetailDeptNm(부서)에 "영업"처럼 이름을 직접 치고 포커스를 벗어나면 자동조회되도록
         // - MatchField는 Designer.cs(LookupKey 옆)에 지정돼 있지만, 실제 채워질 대상(숨겨진
@@ -76,7 +82,8 @@ public partial class frmEMP : BaseForm
         TrackDirty(panData);
 
         EnterNewMode();
-        Load += async (s, e) => await QueryClick();
+        // 화면을 열면 조회하지 않고 바로 신규입력 상태로 시작한다(2026-09-26 요청) - 조회는 사용자가 조회 버튼으로.
+        Shown += (s, e) => FocusFirstEntryField(panData);
     }
 
     public override async Task QueryClick() => await QueryCore(preserveSelection: false);
@@ -254,6 +261,7 @@ public partial class frmEMP : BaseForm
     public override Task NewClick()
     {
         EnterNewMode();
+        FocusFirstEntryField(panData); // 사업장 다음 첫 탭오더 컨트롤에 커서(표준)
         return Task.CompletedTask;
     }
 

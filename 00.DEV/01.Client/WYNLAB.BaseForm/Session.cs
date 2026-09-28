@@ -11,7 +11,14 @@ public static class Session
     public static string UserId => SessionManager.Current.UserInfo?.UserId ?? string.Empty;
     public static string UserNm => SessionManager.Current.UserInfo?.UserNm ?? string.Empty;
     public static string EmpNo => SessionManager.Current.UserInfo?.EmpNo ?? string.Empty;
+    /// <summary>로그인 사용자에 연결된 사원(EmpId)의 이름 - 신규 진입 때 담당자를 채울 땐 UserNm이 아니라 이걸 쓴다(UserNm은 사용자 이름).</summary>
+    public static string EmpNm => SessionManager.Current.UserInfo?.EmpNm ?? string.Empty;
     public static string DeptNm => SessionManager.Current.UserInfo?.DeptNm ?? string.Empty;
+
+    /// <summary>TSMUSER.EMP_ID/그 사원의 DEPT_ID(2026-09-22 추가) - EmpNo/DeptNm(표시용 문자열)과
+    /// 달리 실제 FK 저장이 필요한 화면(구매요청등록 등)에서 신규 진입 시 그대로 쓴다.</summary>
+    public static long? EmpId => SessionManager.Current.UserInfo?.EmpId;
+    public static long? DeptId => SessionManager.Current.UserInfo?.DeptId;
     public static bool IsAdmin => SessionManager.Current.UserInfo?.UserType == "A";
 
     /// <summary>TSMUSER.DEVELOPER_YN - "시스템관리자"(SYS 모듈/개발자 전용 도구 접근) 판단

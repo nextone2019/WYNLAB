@@ -35,11 +35,16 @@ public class popPopUp : XtraForm
     private readonly TreeListWyn tree = new();
     private DataTable _data = new();
 
+    // sysPopUpM.search_panel_class로 지정된 전용 검색패널(PopupSearchPanelBase) - 있으면 자동 생성
+    // 검색창(_searchControls) 대신 이걸로 조건을 읽는다.
+    private readonly PopupSearchPanelBase? _customPanel;
+
     public PopupLookupResult? SelectedResult { get; private set; }
 
-    private popPopUp(PopupDefinitionDto def, string? initialKeyword, DataTable? preloadedData)
+    private popPopUp(PopupDefinitionDto def, string? initialKeyword, DataTable? preloadedData, PopupSearchPanelBase? customPanel)
     {
         _def = def;
+        _customPanel = customPanel;
 
         // 컨트롤 5벌을 한꺼번에 Controls.Add하는 동안 매번 레이아웃을 다시 계산하면, 폼이 아직
         // CenterParent로 자리잡기 전의 위치(또는 크기)로 한 번 그려졌다가 마지막에야 제 위치로
@@ -48,7 +53,15 @@ public class popPopUp : XtraForm
         // 배치가 끝난 뒤 한 번만 레이아웃/페인트가 일어나게 한다.
         SuspendLayout();
 
-        Text = def.PopupNm;
+        // Text를 OS 기본 제목표시줄에 그대로 주면, 바로 아래(BuildTitleBar)에서 아이콘+굵은
+        // 이름+회색 [팝업키]로 사실상 같은 내용을 또 한 번 보여주는 커스텀 헤더가 붙는다 -
+        // 제목표시줄 두 개가 같은 글자를 담고 위아래로 겹쳐 보여서 "팝업이 두 번 뜨는 것처럼
+        // 부자연스럽다"는 지적(2026-09-23)의 실제 원인이었다. 여러 번 타이밍(레이아웃/데이터
+        // 바인딩 순서)을 고쳐봐도 안 없어졌던 이유가 이거였다 - 타이밍 문제가 아니라애초에 헤더가
+        // 시각적으로 두 벌이었다. OS 제목표시줄 자체(드래그로 옮기는 용도)는 남기되 텍스트/버튼은
+        // 비워서 커스텀 헤더 하나만 실제 내용을 보여주게 한다.
+        Text = string.Empty;
+        ControlBox = false;
         Width = def.PopupWidth;
         Height = def.PopupHeight;
         StartPosition = FormStartPosition.CenterParent;
@@ -71,8 +84,15 @@ public class popPopUp : XtraForm
 
         if (preloadedData != null)
         {
+            // Load 이벤트까지 미루지 않고 생성자에서 바로 그리드/트리에 데이터를 채운다.
+            // ShowAsync가 이미 이 데이터를 미리 조회해둔 상태로 폼을 만드는 경우인데(정확히
+            // 1건이면 ShowAsync가 폼 자체를 안 만들고 여기까지 안 옴 - BindData의 "1건이면
+            // 자동선택" 재확인은 그래서 여기선 절대 안 걸린다), Load에서 채우면 ShowDialog가
+            // 창을 화면에 이미 한 번 보여준 뒤(빈 그리드) 그 다음에야 데이터가 채워져 보였다 -
+            // "빈 창이 먼저 뜨고 다시 그려지는 것 같다"는 지적(2026-09-23)과 정확히 일치한다.
+            // 여기서 미리 채워두면 ShowDialog가 창을 처음 그릴 때 이미 완성된 모습이다.
             _data = preloadedData;
-            Load += (s, e) => BindData();
+            BindData();
         }
         else
         {
@@ -95,37 +115,86 @@ public class popPopUp : XtraForm
     /// 못 하고 팝업이 떴었다 - 여기서 한 번 더, 이번엔 문자열 일치가 아니라 "결과가 1건인지"만으로
     /// 판단하므로 그 경우도 잡힌다). 프리페치가 실패하거나 2건 이상/0건이면 평소대로 폼을 띄우고,
     /// 그 안에서도(BindData) 조회조건을 좁혀 다시 1건이 되면 같은 규칙이 한 번 더 적용된다.</summary>
+    // 이 팝업을 여는 진입점은 항상 이 메서드 하나뿐이다(PopupLookupProvider.OpenPopup으로
+    // 등록됨) - ShowDialog()로 실제 모달이 뜨기 전에 definition/프리페치 조회(await) 구간이
+    // 있어서, 더블클릭처럼 짧은 시간 안에 두 번 클릭되면 첫 호출이 아직 그 await 구간(아직
+    // ShowDialog 전이라 모달이 아직 없음)에 있는 사이 두 번째 호출이 또 들어와 팝업이 두 개
+    // 뜨는 문제가 있었다(2026-09-23 실제 발견 - "더블클릭할때 실수로 한번더 누르면 팝업창이
+    // 두개가 떠"). 앱 전체에서 이 팝업은 한 번에 하나만 뜨면 되므로, static 플래그로 이미 진행
+    // 중인 호출이 있으면 새 호출은 조용히 무시한다.
+    private static bool _isShowing;
+
     public static async Task<PopupLookupResult?> ShowAsync(string popupKey, Control owner, string? initialKeyword)
     {
-        var def = await ApiClient.GetAsync<PopupDefinitionDto>($"api/lookups/{Uri.EscapeDataString(popupKey)}/definition");
-        if (def == null)
+        if (_isShowing) return null;
+        _isShowing = true;
+        try
         {
-            AppMessageBox.Show($"등록되지 않은 팝업입니다: {popupKey}", "확인");
+            var def = await ApiClient.GetAsync<PopupDefinitionDto>($"api/lookups/{Uri.EscapeDataString(popupKey)}/definition");
+            if (def == null)
+            {
+                AppMessageBox.Show($"등록되지 않은 팝업입니다: {popupKey}", "확인");
+                return null;
+            }
+
+            // 전용 검색패널이 지정된 팝업이면 패널을 먼저 만들어 초기 검색어를 채우고, 프리페치도 그
+            // 패널이 읽어주는 조건으로 한다(자동 생성 검색창이 아니라서 sysPopUpS로는 조건을 알 수 없다).
+            var customPanel = TryCreateCustomPanel(def);
+            customPanel?.SetInitialKeyword(initialKeyword);
+            customPanel?.ApplyExtraConditions(PopupLookupProvider.ExtraConditions);
+
+            DataTable? preData = null;
+            try
+            {
+                preData = await SearchRowsAsync(def, customPanel != null
+                    ? customPanel.GetConditions()
+                    : BuildInitialConditions(def, initialKeyword));
+            }
+            catch
+            {
+                preData = null; // 프리페치 실패는 무시 - 폼을 정상적으로 띄우면 Load에서 SearchAsync가
+                                 // 같은 조건으로 다시 시도하고, 그래도 실패하면 그 안에서 에러를 보여준다.
+            }
+
+            if (preData != null && preData.Rows.Count == 1)
+            {
+                var result = BuildResult(def, RowToDict(preData, preData.Rows[0]));
+                if (result != null)
+                {
+                    customPanel?.Dispose();
+                    return result;
+                }
+                // key_field 설정 오류 등으로 자동선택을 못 하면 아래로 흘려보내 평소대로 팝업을 띄운다.
+            }
+
+            using var form = new popPopUp(def, initialKeyword, preData, customPanel);
+            var ownerForm = owner.FindForm();
+            var result2 = ownerForm != null ? form.ShowDialog(ownerForm) : form.ShowDialog();
+            return result2 == DialogResult.OK ? form.SelectedResult : null;
+        }
+        finally
+        {
+            _isShowing = false;
+        }
+    }
+
+    /// <summary>sysPopUpM.search_panel_class(예: "WYNLAB.Popup.pnlItemSearch")로 지정된 전용 검색패널을
+    /// 만들고, 조회조건의 컨트롤 연결(sysPopUpS.control_nm)을 넘겨준다. 못 찾거나 만들다 실패하면
+    /// 안내 후 null(자동 생성 검색창으로 계속) - 팝업이 아예 안 열리는 것보다 기본 검색창이라도 뜨는 편이
+    /// 낫다.</summary>
+    private static PopupSearchPanelBase? TryCreateCustomPanel(PopupDefinitionDto def)
+    {
+        var panel = PopupSearchPanelBase.TryCreate(def.SearchPanelClass, out var error);
+        if (panel == null)
+        {
+            if (error != null) AppMessageBox.Show($"{error}\n기본 검색창으로 엽니다.", "확인");
             return null;
         }
 
-        DataTable? preData = null;
-        try
-        {
-            preData = await SearchRowsAsync(def, BuildInitialConditions(def, initialKeyword));
-        }
-        catch
-        {
-            preData = null; // 프리페치 실패는 무시 - 폼을 정상적으로 띄우면 Load에서 SearchAsync가
-                             // 같은 조건으로 다시 시도하고, 그래도 실패하면 그 안에서 에러를 보여준다.
-        }
-
-        if (preData != null && preData.Rows.Count == 1)
-        {
-            var result = BuildResult(def, RowToDict(preData, preData.Rows[0]));
-            if (result != null) return result;
-            // key_field 설정 오류 등으로 자동선택을 못 하면 아래로 흘려보내 평소대로 팝업을 띄운다.
-        }
-
-        using var form = new popPopUp(def, initialKeyword, preData);
-        var ownerForm = owner.FindForm();
-        var result2 = ownerForm != null ? form.ShowDialog(ownerForm) : form.ShowDialog();
-        return result2 == DialogResult.OK ? form.SelectedResult : null;
+        panel.SetMappings(def.SearchFields
+            .Where(f => !string.IsNullOrWhiteSpace(f.ControlNm))
+            .Select(f => new KeyValuePair<string, string>(f.ParamNm, f.ControlNm!.Trim())));
+        return panel;
     }
 
     /// <summary>BuildSearchPanel이 initialKeyword를 채워 넣는 것과 똑같은 규칙(정렬순 첫 번째
@@ -136,7 +205,7 @@ public class popPopUp : XtraForm
         var conditions = fields.ToDictionary(f => f.ParamNm, f => (string?)null);
         if (!string.IsNullOrEmpty(initialKeyword))
         {
-            var firstTextField = fields.FirstOrDefault(f => f.ControlType != "DATE");
+            var firstTextField = fields.FirstOrDefault(f => f.ControlType is not "DATE" and not "LOOKUP");
             if (firstTextField != null) conditions[firstTextField.ParamNm] = initialKeyword;
         }
         return conditions;
@@ -144,13 +213,29 @@ public class popPopUp : XtraForm
 
     private static async Task<DataTable> SearchRowsAsync(PopupDefinitionDto def, Dictionary<string, string?> conditions)
     {
+        // 팝업을 연 화면이 넘긴 추가 조건(PopupLookupProvider.ExtraConditions) - 조회조건에 같은 키가 없거나 비어 있을 때만 넣는다.
+        if (PopupLookupProvider.ExtraConditions is { } extra)
+            foreach (var kv in extra)
+                if (!conditions.TryGetValue(kv.Key, out var current) || string.IsNullOrEmpty(current)) conditions[kv.Key] = kv.Value;
+
         var response = await ApiClient.PostAsync<Dictionary<string, string?>, DataQueryResponse>(
             $"api/lookups/{Uri.EscapeDataString(def.PopupKey)}/search", conditions);
         return response?.Tables.Count > 0 ? ProcData.ToDataTable(response.Tables[0]) : new DataTable();
     }
 
+    // StringComparer.OrdinalIgnoreCase가 핵심이다 - sysPopUpM.key_field에 등록된 대소문자와
+    // 실제 프로시저가 돌려주는 컬럼명의 대소문자가 다르면(예: P_ITEM은 key_field='ITEM_ID'인데
+    // SSP_POP_ITEM_Q는 소스 테이블 그대로 'item_id'로 내려줌) 기본(대소문자 구분) Dictionary는
+    // TryGetValue를 못 찾아 "키 컬럼 값을 찾을 수 없습니다" 오류가 뜨고 선택이 아예 씹힌다
+    // (2026-09-23 실제 발견 - "그리드의 품목 팝업이 연결 되어있지 않아"). 대소문자 무시로
+    // 바꾸면 이 클래스의 정의(key_field/display_field 표기)에 실제 컬럼명이 대소문자까지
+    // 정확히 일치할 필요가 없어져서, 이런 종류의 등록 실수가 이 팝업 하나만이 아니라 전체에서
+    // 재발하지 않는다.
     private static Dictionary<string, string?> RowToDict(DataTable data, DataRow row) =>
-        data.Columns.Cast<DataColumn>().ToDictionary(c => c.ColumnName, c => row[c.ColumnName] == DBNull.Value ? null : Convert.ToString(row[c.ColumnName]));
+        data.Columns.Cast<DataColumn>().ToDictionary(
+            c => c.ColumnName,
+            c => row[c.ColumnName] == DBNull.Value ? null : Convert.ToString(row[c.ColumnName]),
+            StringComparer.OrdinalIgnoreCase);
 
     /// <summary>선택된(또는 자동선택된) 한 행의 전체 컬럼값으로 PopupLookupResult를 만든다 -
     /// code가 비어있으면(sysPopUpM.key_field 설정 오류) 사용자에게 알리고 null을 돌려준다.</summary>
@@ -216,8 +301,45 @@ public class popPopUp : XtraForm
         header.Layout += (s, e) => lblCode.Location = new Point(lblTitle.Right + 8, 8);
         lblCode.Location = new Point(lblTitle.Right + 8, 8);
 
+        // 제목표시줄 오른쪽 끝의 닫기(X) 버튼 - 취소와 같다(2026-09-25 요청). 마우스를 올리면 빨갛게.
+        var btnClose = new Label
+        {
+            Text = "✕",
+            Dock = DockStyle.Right,
+            Width = 40,
+            TextAlign = ContentAlignment.MiddleCenter,
+            Font = new Font("Segoe UI Symbol", 10F),
+            ForeColor = Color.FromArgb(110, 110, 110),
+            BackColor = Color.White,
+            Cursor = Cursors.Hand
+        };
+        btnClose.MouseEnter += (s, e) => { btnClose.BackColor = Color.FromArgb(232, 17, 35); btnClose.ForeColor = Color.White; };
+        btnClose.MouseLeave += (s, e) => { btnClose.BackColor = Color.White; btnClose.ForeColor = Color.FromArgb(110, 110, 110); };
+        btnClose.Click += (s, e) => { DialogResult = DialogResult.Cancel; Close(); };
+        header.Controls.Add(btnClose);
+
+        // OS 제목표시줄은 ControlBox=false + 빈 Text라 잡을 자리가 사실상 없다 - 눈에 보이는 이 커스텀 헤더를
+        // 제목표시줄처럼 끌어서 창을 옮길 수 있게 한다(2026-09-25 요청). 표준 트릭: 마우스를 놓고 "제목표시줄을
+        // 눌렀다"는 메시지(WM_NCLBUTTONDOWN/HTCAPTION)를 폼에 보내면 Windows가 창 이동을 그대로 처리한다.
+        foreach (Control c in new Control[] { header, icon, lblTitle, lblCode })
+            c.MouseDown += (s, e) =>
+            {
+                if (e.Button != MouseButtons.Left) return;
+                ReleaseCapture();
+                SendMessage(Handle, WM_NCLBUTTONDOWN, HTCAPTION, 0);
+            };
+
         return header;
     }
+
+    private const int WM_NCLBUTTONDOWN = 0xA1;
+    private const int HTCAPTION = 2;
+
+    [System.Runtime.InteropServices.DllImport("user32.dll")]
+    private static extern bool ReleaseCapture();
+
+    [System.Runtime.InteropServices.DllImport("user32.dll")]
+    private static extern IntPtr SendMessage(IntPtr hWnd, int msg, int wParam, int lParam);
 
     /// <summary>조회조건 패널과 본문(그리드/트리) 사이의 작은 여백 - frmEmp 같은 업무화면의
     /// "목록" 섹션 제목 자리에 해당하지만, 팝업에는 그 제목까지는 필요 없어서 여백만 둔다.</summary>
@@ -226,54 +348,101 @@ public class popPopUp : XtraForm
     /// <summary>조회조건은 팝업마다 개수/파라미터명이 전부 다르다(sysPopUpS, frmSysPopup의
     /// "컬럼생성"이 프로시저 파라미터를 읽어서 채워준 것을 관리자가 직접 손본 결과) - 그래서
     /// 고정된 검색창 하나가 아니라 정의된 개수만큼 라벨+입력창을 왼쪽부터 순서대로 늘어놓는다.
-    /// DATE 타입은 DateEdit, 그 외는 TextEdit. 조회조건이 하나도 없으면(아직 설정 전) 검색줄
-    /// 자체가 안 보인다.</summary>
+    /// DATE는 DateEdit, LOOKUP은 LookUpEditWyn(field.LookupKey - sysLookupM 콤보 재사용), 그 외는
+    /// TextEdit. 조회조건이 하나도 없으면(아직 설정 전) 검색줄 자체가 안 보인다.
+    ///
+    /// RowNo로 여러 줄에 나눠 배치한다(2026-09-23 요청 - "조회 조건을 한줄로 밖에 표현이
+    /// 안되는데") - 같은 RowNo끼리는 Sort 순으로 왼쪽부터, RowNo가 다르면 줄을 바꾼다. 기존
+    /// 팝업은 전부 row_no=1(기본값)이라 지금까지와 똑같이 한 줄로 보인다.</summary>
     private void BuildSearchPanel(string? initialKeyword)
     {
-        var fields = _def.SearchFields.OrderBy(f => f.Sort).ToList();
+        if (_customPanel != null)
+        {
+            // 전용 패널은 자기 높이 그대로 - 자동 생성 검색창과 같은 테두리 패널 안에 담는다. 초기 검색어는
+            // ShowAsync가 이미 채웠다.
+            // 호스트 테두리가 안쪽 영역을 조금 깎으므로 여유(+6)를 준다 - 안 그러면 마지막 줄이 아래에서 잘린다.
+            var host = new PanelWyn { Dock = DockStyle.Top, Height = _customPanel.Height + 6 };
+            _customPanel.Dock = DockStyle.Fill;
+            _customPanel.Initialize(() => _ = SearchAsync(fromUser: true));
+            host.Controls.Add(_customPanel);                  // Fill이 먼저(맨 앞), 가장자리 도킹은 그 뒤에 추가한다
+            host.Controls.Add(CreateQueryButtonHost(_customPanel.BackColor));
+            Controls.Add(host);
+            return;
+        }
+
+        var fields = _def.SearchFields.OrderBy(f => f.RowNo).ThenBy(f => f.Sort).ToList();
         if (fields.Count == 0) return;
+
+        var rowNumbers = fields.Select(f => f.RowNo).Distinct().OrderBy(r => r).ToList();
+        const int rowHeight = 40;
 
         // PanelWyn 기본 스타일(Style=None)이 곧 DevExpress PanelControl 기본 테두리라, 이거
         // 하나로 본문(흰 배경, 테두리 없음)과 구분되는 경계가 생긴다(2026-09-06 요청 - "조회조건은
         // 판넬의 보더를 default로 해서 구분").
-        var panel = new PanelWyn { Dock = DockStyle.Top, Height = 40 };
-        var x = 10;
+        var panel = new PanelWyn { Dock = DockStyle.Top, Height = rowHeight * rowNumbers.Count };
         var isFirstTextField = true;
 
-        foreach (var field in fields)
+        foreach (var rowNo in rowNumbers)
         {
-            var lbl = new LabelControl { Text = field.Caption, Location = new Point(x, 13), AutoSize = true };
-            panel.Controls.Add(lbl);
-            x += lbl.Width + 6;
+            var y = rowNumbers.IndexOf(rowNo) * rowHeight;
+            var x = 10;
 
-            BaseEdit edit = field.ControlType == "DATE" ? new DateEdit() : new TextEdit();
-            edit.Location = new Point(x, 9);
-            edit.Size = new Size(field.Width > 0 ? field.Width : 120, 20);
-            // PopupLookupEditWyn의 멀티필드 모드가 Leave 시 정확히 하나로 못 좁혔을 때, 방금
-            // 타이핑한 값을 여기 다시 안 치게 미리 채워준다 - 단, sort 순서상 "맨 앞"(대표 조회
-            // 조건, 보통 코드/명 통합검색) 칸 하나에만 채운다. 예전엔 조회조건 전부(부서코드/
-            // 부서명 등)에 같은 값을 채웠는데, 그 필드들은 AND로 묶여서 "이름=박 그리고
-            // 부서코드=박 그리고 부서명=박"이 되어 버려 실제로는 매칭될 리 없는 조건이 되고
-            // 결과가 0건으로 나왔다(P_EMP 팝업에서 실제로 겪음, 2026-08-31). DATE 입력창은
-            // 문자열을 그대로 넣으면 타입이 안 맞으므로 애초에 대상에서 제외.
-            if (isFirstTextField && !string.IsNullOrEmpty(initialKeyword) && edit is TextEdit)
+            foreach (var field in fields.Where(f => f.RowNo == rowNo))
             {
-                edit.EditValue = initialKeyword;
-                isFirstTextField = false;
+                var lbl = new LabelControl { Text = field.Caption, Location = new Point(x, y + 13), AutoSize = true };
+                panel.Controls.Add(lbl);
+                x += lbl.Width + 6;
+
+                BaseEdit edit = field.ControlType switch
+                {
+                    "DATE" => new DateEdit(),
+                    "LOOKUP" => new LookUpEditWyn { LookupKey = field.LookupKey },
+                    _ => new TextEdit()
+                };
+                edit.Location = new Point(x, y + 9);
+                edit.Size = new Size(field.Width > 0 ? field.Width : 120, 20);
+                // PopupLookupEditWyn의 멀티필드 모드가 Leave 시 정확히 하나로 못 좁혔을 때, 방금
+                // 타이핑한 값을 여기 다시 안 치게 미리 채워준다 - 단, sort 순서상 "맨 앞"(대표 조회
+                // 조건, 보통 코드/명 통합검색) 칸 하나에만 채운다. 예전엔 조회조건 전부(부서코드/
+                // 부서명 등)에 같은 값을 채웠는데, 그 필드들은 AND로 묶여서 "이름=박 그리고
+                // 부서코드=박 그리고 부서명=박"이 되어 버려 실제로는 매칭될 리 없는 조건이 되고
+                // 결과가 0건으로 나왔다(P_EMP 팝업에서 실제로 겪음, 2026-08-31). DATE 입력창은
+                // 문자열을 그대로 넣으면 타입이 안 맞으므로 애초에 대상에서 제외.
+                if (isFirstTextField && !string.IsNullOrEmpty(initialKeyword) && edit is TextEdit)
+                {
+                    edit.EditValue = initialKeyword;
+                    isFirstTextField = false;
+                }
+                edit.KeyDown += async (s, e) =>
+                {
+                    if (e.KeyCode != Keys.Enter) return;
+                    e.Handled = true;
+                    await SearchAsync(fromUser: true);
+                };
+                panel.Controls.Add(edit);
+                _searchControls[field.ParamNm] = edit;
+
+                x += edit.Width + 16;
             }
-            edit.KeyDown += async (s, e) =>
-            {
-                if (e.KeyCode != Keys.Enter) return;
-                e.Handled = true;
-                await SearchAsync();
-            };
-            panel.Controls.Add(edit);
-            _searchControls[field.ParamNm] = edit;
-
-            x += edit.Width + 16;
         }
 
+        panel.Controls.Add(CreateQueryButtonHost(Color.Transparent));
         Controls.Add(panel);
+    }
+
+    /// <summary>조회 버튼을 조회조건 영역의 오른쪽 끝(세로 가운데)에 두는 작은 도킹 패널(2026-09-25 요청 - "조회는 위쪽,
+    /// 선택/취소는 아래쪽"). 자동 생성 검색창과 전용 패널 둘 다 이걸 붙인다.</summary>
+    private Panel CreateQueryButtonHost(Color backColor)
+    {
+        var btnQuery = new SimpleButton { Text = "조회", Size = new Size(84, 30) };
+        btnQuery.Click += async (s, e) => await SearchAsync(fromUser: true);
+
+        var host = new Panel { Dock = DockStyle.Right, Width = 104, BackColor = backColor };
+        host.Controls.Add(btnQuery);
+        void Position() => btnQuery.Location = new Point(host.Width - btnQuery.Width - 12, Math.Max(2, (host.Height - btnQuery.Height) / 2));
+        host.Resize += (s, e) => Position();
+        Position();
+        return host;
     }
 
     /// <summary>선택/취소(우측 정렬)는 그대로 두고, 조회(좌측)는 별도로 추가한다 - 지금까지는
@@ -283,11 +452,10 @@ public class popPopUp : XtraForm
     private void BuildFooter()
     {
         var panel = new Panel { Dock = DockStyle.Bottom, Height = 44 };
-        var btnQuery = new SimpleButton { Text = "조회", Size = new Size(84, 30), Location = new Point(12, 7) };
+        // 조회 버튼은 조회조건 영역 오른쪽(BuildSearchPanel/CreateQueryButtonHost)에 있다 - 여기는 선택/취소만.
         var btnCancel = new SimpleButton { Text = "취소", Size = new Size(84, 30) };
         var btnOk = new SimpleButton { Text = "선택", Size = new Size(84, 30) };
 
-        btnQuery.Click += async (s, e) => await SearchAsync();
         btnCancel.Click += (s, e) => { DialogResult = DialogResult.Cancel; Close(); };
         btnOk.Click += (s, e) => Accept();
 
@@ -298,7 +466,6 @@ public class popPopUp : XtraForm
         }
         panel.Resize += (s, e) => Position();
 
-        panel.Controls.Add(btnQuery);
         panel.Controls.Add(btnOk);
         panel.Controls.Add(btnCancel);
         Controls.Add(panel);
@@ -370,6 +537,7 @@ public class popPopUp : XtraForm
             grid.MainView = gridView;
             gridView.OptionsBehavior.Editable = false;
             gridView.OptionsSelection.EnableAppearanceFocusedCell = false;
+            gridView.OptionsView.ColumnAutoWidth = false;
             gridView.OptionsView.ShowGroupPanel = false;
             gridView.RowHeight = 24;
             gridView.Appearance.Row.Font = AppFonts.Body;
@@ -393,7 +561,11 @@ public class popPopUp : XtraForm
                 // 안 보이는 문제가 있다(popPopUp 트리 쪽에서 실제로 겪음) - 그리드도 동일하게 방지.
                 column.VisibleIndex = visibleIndex++;
                 if (col.ControlType == "DATE") column.ColumnEdit = new RepositoryItemDateEdit();
-                // LOOKUP 컬럼(다른 프로시저로 표시값 치환)은 후속 작업 - 지금은 원본 값 그대로 표시.
+                // LOOKUP 컬럼은 코드값(G, EA...)을 sysLookupM의 명칭으로 바꿔 보여준다 - 팝업관리 "컨트롤타입=LOOKUP,
+                // 룩업=L_xxx"로 정의한 것이 검색조건(LookUpEditWyn)에만 적용되고 결과 그리드엔 안 먹던 것을 고쳤다(2026-09-25).
+                // 화면에 보이는 값만 바뀐다 - 선택 결과(RowToDict)는 여전히 원래 코드값이다.
+                else if (col.ControlType == "LOOKUP" && !string.IsNullOrEmpty(col.LookupProcNm))
+                    column.ColumnEdit = new LookUpColumnEdit { LookupKey = col.LookupProcNm };
             }
 
             ((System.ComponentModel.ISupportInitialize)gridView).EndInit();
@@ -407,13 +579,15 @@ public class popPopUp : XtraForm
     /// 비동기 이어달리기 중 예외가 나면 Program.cs의 Application.ThreadException(메인 메시지
     /// 루프 훅)을 안 타고 조용히 사라질 수 있다(실제로 겪음 - 검색이 실패해도 그냥 빈 그리드로
     /// 보였다). 그래서 여기서 직접 잡아 보여준다.</summary>
-    private async Task SearchAsync()
+    private async Task SearchAsync(bool fromUser = false)
     {
         try
         {
-            var conditions = _searchControls.ToDictionary(kv => kv.Key, kv => ExtractValue(kv.Value));
+            var conditions = _customPanel != null
+                ? _customPanel.GetConditions()
+                : _searchControls.ToDictionary(kv => kv.Key, kv => ExtractValue(kv.Value));
             _data = await SearchRowsAsync(_def, conditions);
-            BindData();
+            BindData(autoAcceptSingle: !fromUser);
         }
         catch (Exception ex)
         {
@@ -421,12 +595,11 @@ public class popPopUp : XtraForm
         }
     }
 
-    /// <summary>_data를 그리드/트리에 바인딩한다. 조회 결과가 정확히 1건이면 사용자가 고를 이유가
-    /// 없으므로 그 한 건을 바로 선택된 것으로 처리하고 폼을 닫는다(2026-09-09 요청 - 폼이 이미
-    /// 떠 있는 상태에서 조회조건을 좁혀(Enter/조회버튼) 1건이 되는 경우를 위한 것. 폼을 아예 안
-    /// 띄우는 최초 관문은 ShowAsync 쪽 프리페치이고, 여기는 그걸 통과해 폼이 열린 뒤에 다시
-    /// 좁혀지는 경우를 커버한다).</summary>
-    private void BindData()
+    /// <summary>_data를 그리드/트리에 바인딩한다. 폼이 열리며 하는 자동 조회에서 결과가 정확히 1건이면 사용자가
+    /// 고를 이유가 없으므로 그 한 건을 바로 선택된 것으로 처리하고 폼을 닫는다(2026-09-09 요청). 사용자가 직접
+    /// 조회 버튼/Enter를 눌러 조회한 경우(autoAcceptSingle=false)는 결과가 1건이어도 닫지 않는다 - 조건을 바꿔
+    /// 가며 찾아보는 중에 창이 갑자기 닫히는 것을 막는다(2026-09-25 지적).</summary>
+    private void BindData(bool autoAcceptSingle = true)
     {
         if (_def.HierarchicalYn)
         {
@@ -438,7 +611,7 @@ public class popPopUp : XtraForm
             grid.DataSource = _data;
         }
 
-        if (_data.Rows.Count == 1)
+        if (autoAcceptSingle && _data.Rows.Count == 1)
             AcceptRow(RowToDict(_data, _data.Rows[0]));
     }
 
@@ -465,7 +638,7 @@ public class popPopUp : XtraForm
             var node = tree.FocusedNode;
             if (node == null) return;
             row = _data.Columns.Cast<DataColumn>()
-                .ToDictionary(c => c.ColumnName, c => (string?)Convert.ToString(node.GetValue(c.ColumnName)));
+                .ToDictionary(c => c.ColumnName, c => (string?)Convert.ToString(node.GetValue(c.ColumnName)), StringComparer.OrdinalIgnoreCase); // 그리드 경로(RowToDict)와 같이 대소문자 무시 - 안 그러면 MapField("dept_id")가 실제 컬럼 DEPT_ID를 못 찾는다
         }
         else
         {

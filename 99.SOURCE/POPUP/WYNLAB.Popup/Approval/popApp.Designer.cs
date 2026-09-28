@@ -1,5 +1,5 @@
-// VS 디자이너가 자동 생성하는 필드 선언에는 = null!을 안 붙여서 nullable 경고(CS8618)가
-// 계속 나기 때문에, 이 파일(디자이너 전용)만 nullable 검사를 끈다 - 흔한 관례.
+﻿// VS ?붿옄?대꼫媛 ?먮룞 ?앹꽦?섎뒗 ?꾨뱶 ?좎뼵?먮뒗 = null!????遺숈뿬??nullable 寃쎄퀬(CS8618)媛
+// 怨꾩냽 ?섍린 ?뚮Ц?? ???뚯씪(?붿옄?대꼫 ?꾩슜)留?nullable 寃?щ? ?덈떎 - ?뷀븳 愿濡.
 #nullable disable
 using DevExpress.XtraEditors.Controls;
 using DevExpress.XtraGrid.Columns;
@@ -9,10 +9,10 @@ using WYNLAB.Base.Controls;
 namespace WYNLAB.Popup;
 
 /// <summary>
-/// 전자결재 공용 팝업 - 컨트롤 배치는 여기서 담당(사용자가 VS 디자이너로 시각적으로 다듬을 수
-/// 있게 frmAcc.Designer.cs와 같은 구조로 분리했다). 로직/이벤트 연결은 popApp.cs.
-/// 세로 배치: panHeader(맨 위, 결재기본정보+툴바) - panCompose(작성모드 전용, 부서트리/사원/
-/// 결재경로) - panGrids(결재라인/수신라인 그리드, 나머지 공간) - panBottom(맨 아래, 닫기).
+/// ?꾩옄寃곗옱 怨듭슜 ?앹뾽 - 而⑦듃濡?諛곗튂???ш린???대떦(?ъ슜?먭? VS ?붿옄?대꼫濡??쒓컖?곸쑝濡??ㅻ벉????
+/// ?덇쾶 frmAcc.Designer.cs? 媛숈? 援ъ“濡?遺꾨━?덈떎). 濡쒖쭅/?대깽???곌껐? popApp.cs.
+/// ?몃줈 諛곗튂: panHeader(留??? 寃곗옱湲곕낯?뺣낫+?대컮) - panCompose(?묒꽦紐⑤뱶 ?꾩슜, 遺?쒗듃由??ъ썝/
+/// 寃곗옱寃쎈줈) - panGrids(寃곗옱?쇱씤/?섏떊?쇱씤 洹몃━?? ?섎㉧吏 怨듦컙) - panBottom(留??꾨옒, ?リ린).
 /// </summary>
 public partial class popApp
 {
@@ -31,10 +31,17 @@ public partial class popApp
     {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(popApp));
             this.panHeader = new WYNLAB.Base.Controls.PanelWyn();
+            this.cboDocType = new WYNLAB.Base.Controls.LookUpEditWyn();
+            this.cboAppStatCd = new WYNLAB.Base.Controls.LookUpEditWyn();
+            this.ymdAppDate = new WYNLAB.Base.Controls.DateEditWyn();
             this.lblAppNo = new DevExpress.XtraEditors.LabelControl();
+            this.txtAppId = new WYNLAB.Base.Controls.TextEditWyn();
             this.txtAppNo = new WYNLAB.Base.Controls.TextEditWyn();
             this.lblAppDate = new DevExpress.XtraEditors.LabelControl();
+            this.labelControl2 = new DevExpress.XtraEditors.LabelControl();
             this.lblReqEmpNm = new DevExpress.XtraEditors.LabelControl();
+            this.labelControl1 = new DevExpress.XtraEditors.LabelControl();
+            this.txtDocNo = new WYNLAB.Base.Controls.TextEditWyn();
             this.txtReqEmpNm = new WYNLAB.Base.Controls.TextEditWyn();
             this.lblApprStatCd = new DevExpress.XtraEditors.LabelControl();
             this.lblTitle = new DevExpress.XtraEditors.LabelControl();
@@ -43,12 +50,10 @@ public partial class popApp
             this.memoOpinion = new WYNLAB.Base.Controls.MemoEditWyn();
             this.btnRefresh = new WYNLAB.Base.Controls.ButtonWyn();
             this.btnSubmit = new WYNLAB.Base.Controls.ButtonWyn();
-            this.btnApprove = new WYNLAB.Base.Controls.ButtonWyn();
             this.btnReject = new WYNLAB.Base.Controls.ButtonWyn();
             this.btnCancelApprove = new WYNLAB.Base.Controls.ButtonWyn();
             this.btnAck = new WYNLAB.Base.Controls.ButtonWyn();
             this.lblRoute = new DevExpress.XtraEditors.LabelControl();
-            this.cboRoute = new DevExpress.XtraEditors.ComboBoxEdit();
             this.btnApplyRoute = new WYNLAB.Base.Controls.ButtonWyn();
             this.txtNewRouteNm = new WYNLAB.Base.Controls.TextEditWyn();
             this.btnSaveRoute = new WYNLAB.Base.Controls.ButtonWyn();
@@ -75,31 +80,40 @@ public partial class popApp
             this.btnClose = new WYNLAB.Base.Controls.ButtonWyn();
             this.paTitle = new WYNLAB.Base.Controls.PanelWyn();
             this.sectionHeaderWyn1 = new WYNLAB.Base.Controls.SectionHeaderWyn();
-            this.ymdAppDate = new WYNLAB.Base.Controls.DateEditWyn();
-            this.cboAppStatCd = new WYNLAB.Base.Controls.LookUpEditWyn();
             this.panelWyn13 = new WYNLAB.Base.Controls.PanelWyn();
             this.panelWyn1 = new WYNLAB.Base.Controls.PanelWyn();
-            this.panelWyn4 = new WYNLAB.Base.Controls.PanelWyn();
-            this.sectionHeaderWyn2 = new WYNLAB.Base.Controls.SectionHeaderWyn();
-            this.panelWyn2 = new WYNLAB.Base.Controls.PanelWyn();
+            this.panelWyn12 = new WYNLAB.Base.Controls.PanelWyn();
+            this.panelWyn7 = new WYNLAB.Base.Controls.PanelWyn();
             this.panelWyn3 = new WYNLAB.Base.Controls.PanelWyn();
-            this.panelWyn5 = new WYNLAB.Base.Controls.PanelWyn();
-            this.sectionHeaderWyn3 = new WYNLAB.Base.Controls.SectionHeaderWyn();
             this.panelWyn6 = new WYNLAB.Base.Controls.PanelWyn();
             this.sectionHeaderWyn4 = new WYNLAB.Base.Controls.SectionHeaderWyn();
-            this.panelWyn7 = new WYNLAB.Base.Controls.PanelWyn();
             this.splitterWyn2 = new WYNLAB.Base.Controls.SplitterWyn();
+            this.panelWyn2 = new WYNLAB.Base.Controls.PanelWyn();
+            this.panelWyn5 = new WYNLAB.Base.Controls.PanelWyn();
+            this.sectionHeaderWyn3 = new WYNLAB.Base.Controls.SectionHeaderWyn();
+            this.panelWyn11 = new WYNLAB.Base.Controls.PanelWyn();
+            this.cboRoute = new WYNLAB.Base.Controls.LookUpEditWyn();
+            this.splitterWyn1 = new WYNLAB.Base.Controls.SplitterWyn();
             this.panelWyn8 = new WYNLAB.Base.Controls.PanelWyn();
             this.panelWyn9 = new WYNLAB.Base.Controls.PanelWyn();
-            this.splitterWyn1 = new WYNLAB.Base.Controls.SplitterWyn();
+            this.panelWyn4 = new WYNLAB.Base.Controls.PanelWyn();
+            this.sectionHeaderWyn2 = new WYNLAB.Base.Controls.SectionHeaderWyn();
             this.panelWyn10 = new WYNLAB.Base.Controls.PanelWyn();
+            this.txtCfmEmpNm = new WYNLAB.Base.Controls.TextEditWyn();
+            this.labelControl3 = new DevExpress.XtraEditors.LabelControl();
+            this.txtCfmEmpId = new WYNLAB.Base.Controls.TextEditWyn();
             ((System.ComponentModel.ISupportInitialize)(this.panHeader)).BeginInit();
             this.panHeader.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.cboDocType.Properties)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.cboAppStatCd.Properties)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.ymdAppDate.Properties.CalendarTimeProperties)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.ymdAppDate.Properties)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.txtAppId.Properties)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.txtAppNo.Properties)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.txtDocNo.Properties)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.txtReqEmpNm.Properties)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.txtTitle.Properties)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.memoOpinion.Properties)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.cboRoute.Properties)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.txtNewRouteNm.Properties)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.treeEmp)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.grdRecv)).BeginInit();
@@ -108,42 +122,56 @@ public partial class popApp
             ((System.ComponentModel.ISupportInitialize)(this.gvwLine)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.paTitle)).BeginInit();
             this.paTitle.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.ymdAppDate.Properties.CalendarTimeProperties)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.ymdAppDate.Properties)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.cboAppStatCd.Properties)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.panelWyn13)).BeginInit();
             this.panelWyn13.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.panelWyn1)).BeginInit();
             this.panelWyn1.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.panelWyn4)).BeginInit();
-            this.panelWyn4.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.panelWyn2)).BeginInit();
-            this.panelWyn2.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.panelWyn3)).BeginInit();
-            this.panelWyn3.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.panelWyn5)).BeginInit();
-            this.panelWyn5.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.panelWyn6)).BeginInit();
-            this.panelWyn6.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.panelWyn12)).BeginInit();
+            this.panelWyn12.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.panelWyn7)).BeginInit();
             this.panelWyn7.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.panelWyn3)).BeginInit();
+            this.panelWyn3.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.panelWyn6)).BeginInit();
+            this.panelWyn6.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.panelWyn2)).BeginInit();
+            this.panelWyn2.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.panelWyn5)).BeginInit();
+            this.panelWyn5.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.panelWyn11)).BeginInit();
+            this.panelWyn11.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.cboRoute.Properties)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.panelWyn8)).BeginInit();
             this.panelWyn8.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.panelWyn9)).BeginInit();
             this.panelWyn9.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.panelWyn4)).BeginInit();
+            this.panelWyn4.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.panelWyn10)).BeginInit();
             this.panelWyn10.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.txtCfmEmpNm.Properties)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.txtCfmEmpId.Properties)).BeginInit();
             this.SuspendLayout();
             // 
             // panHeader
             // 
+            this.panHeader.Appearance.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(240)))), ((int)(((byte)(240)))), ((int)(((byte)(240)))));
+            this.panHeader.Appearance.Options.UseBackColor = true;
             this.panHeader.BorderStyle = DevExpress.XtraEditors.Controls.BorderStyles.Default;
+            this.panHeader.Controls.Add(this.cboDocType);
             this.panHeader.Controls.Add(this.cboAppStatCd);
             this.panHeader.Controls.Add(this.ymdAppDate);
             this.panHeader.Controls.Add(this.lblAppNo);
+            this.panHeader.Controls.Add(this.txtAppId);
             this.panHeader.Controls.Add(this.txtAppNo);
             this.panHeader.Controls.Add(this.lblAppDate);
+            this.panHeader.Controls.Add(this.labelControl2);
+            this.panHeader.Controls.Add(this.labelControl3);
             this.panHeader.Controls.Add(this.lblReqEmpNm);
+            this.panHeader.Controls.Add(this.labelControl1);
+            this.panHeader.Controls.Add(this.txtDocNo);
+            this.panHeader.Controls.Add(this.txtCfmEmpId);
+            this.panHeader.Controls.Add(this.txtCfmEmpNm);
             this.panHeader.Controls.Add(this.txtReqEmpNm);
             this.panHeader.Controls.Add(this.lblApprStatCd);
             this.panHeader.Controls.Add(this.lblTitle);
@@ -155,60 +183,137 @@ public partial class popApp
             this.panHeader.Location = new System.Drawing.Point(5, 5);
             this.panHeader.Name = "panHeader";
             this.panHeader.Padding = new System.Windows.Forms.Padding(8);
-            this.panHeader.Size = new System.Drawing.Size(974, 141);
+            this.panHeader.Size = new System.Drawing.Size(974, 165);
             this.panHeader.TabIndex = 0;
+            // 
+            // cboDocType
+            // 
+            this.cboDocType.EditValue = "";
+            this.cboDocType.Location = new System.Drawing.Point(71, 29);
+            this.cboDocType.Name = "cboDocType";
+            this.cboDocType.Properties.Buttons.AddRange(new DevExpress.XtraEditors.Controls.EditorButton[] {
+            new DevExpress.XtraEditors.Controls.EditorButton(DevExpress.XtraEditors.Controls.ButtonPredefines.Combo)});
+            this.cboDocType.Properties.NullText = "";
+            this.cboDocType.Properties.PopupFilterMode = DevExpress.XtraEditors.PopupFilterMode.Contains;
+            this.cboDocType.Properties.ReadOnly = true;
+            this.cboDocType.Size = new System.Drawing.Size(166, 20);
+            this.cboDocType.TabIndex = 19;
+            // 
+            // cboAppStatCd
+            // 
+            this.cboAppStatCd.EditValue = "";
+            this.cboAppStatCd.Location = new System.Drawing.Point(682, 5);
+            this.cboAppStatCd.Name = "cboAppStatCd";
+            this.cboAppStatCd.Properties.Buttons.AddRange(new DevExpress.XtraEditors.Controls.EditorButton[] {
+            new DevExpress.XtraEditors.Controls.EditorButton(DevExpress.XtraEditors.Controls.ButtonPredefines.Combo)});
+            this.cboAppStatCd.Properties.NullText = "";
+            this.cboAppStatCd.Properties.PopupFilterMode = DevExpress.XtraEditors.PopupFilterMode.Contains;
+            this.cboAppStatCd.Properties.ReadOnly = true;
+            this.cboAppStatCd.Size = new System.Drawing.Size(134, 20);
+            this.cboAppStatCd.TabIndex = 19;
+            // 
+            // ymdAppDate
+            // 
+            this.ymdAppDate.EditValue = null;
+            this.ymdAppDate.Enabled = false;
+            this.ymdAppDate.Location = new System.Drawing.Point(334, 5);
+            this.ymdAppDate.Name = "ymdAppDate";
+            this.ymdAppDate.Properties.Buttons.AddRange(new DevExpress.XtraEditors.Controls.EditorButton[] {
+            new DevExpress.XtraEditors.Controls.EditorButton(DevExpress.XtraEditors.Controls.ButtonPredefines.Combo)});
+            this.ymdAppDate.Properties.CalendarTimeProperties.Buttons.AddRange(new DevExpress.XtraEditors.Controls.EditorButton[] {
+            new DevExpress.XtraEditors.Controls.EditorButton(DevExpress.XtraEditors.Controls.ButtonPredefines.Combo)});
+            this.ymdAppDate.Properties.ReadOnly = true;
+            this.ymdAppDate.Size = new System.Drawing.Size(100, 20);
+            this.ymdAppDate.TabIndex = 18;
+            this.ymdAppDate.YyyyMmDd = null;
             // 
             // lblAppNo
             // 
             this.lblAppNo.Appearance.Font = new System.Drawing.Font("맑은 고딕", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.lblAppNo.Appearance.Options.UseFont = true;
-            this.lblAppNo.Location = new System.Drawing.Point(16, 9);
+            this.lblAppNo.Location = new System.Drawing.Point(17, 8);
             this.lblAppNo.Name = "lblAppNo";
             this.lblAppNo.Size = new System.Drawing.Size(48, 15);
             this.lblAppNo.TabIndex = 0;
-            this.lblAppNo.Text = "결재번호";
+            this.lblAppNo.Text = "寃곗옱踰덊샇";
+            // 
+            // txtAppId
+            // 
+            this.txtAppId.Location = new System.Drawing.Point(175, 5);
+            this.txtAppId.Name = "txtAppId";
+            this.txtAppId.Properties.ReadOnly = true;
+            this.txtAppId.Size = new System.Drawing.Size(62, 20);
+            this.txtAppId.TabIndex = 1;
             // 
             // txtAppNo
             // 
-            this.txtAppNo.Location = new System.Drawing.Point(71, 6);
+            this.txtAppNo.Location = new System.Drawing.Point(71, 5);
             this.txtAppNo.Name = "txtAppNo";
             this.txtAppNo.Properties.ReadOnly = true;
-            this.txtAppNo.Size = new System.Drawing.Size(121, 20);
+            this.txtAppNo.Size = new System.Drawing.Size(102, 20);
             this.txtAppNo.TabIndex = 1;
             // 
             // lblAppDate
             // 
             this.lblAppDate.Appearance.Font = new System.Drawing.Font("맑은 고딕", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.lblAppDate.Appearance.Options.UseFont = true;
-            this.lblAppDate.Location = new System.Drawing.Point(215, 9);
+            this.lblAppDate.Location = new System.Drawing.Point(280, 8);
             this.lblAppDate.Name = "lblAppDate";
             this.lblAppDate.Size = new System.Drawing.Size(48, 15);
             this.lblAppDate.TabIndex = 2;
             this.lblAppDate.Text = "상신일자";
             // 
+            // labelControl2
+            // 
+            this.labelControl2.Appearance.Font = new System.Drawing.Font("맑은 고딕", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.labelControl2.Appearance.Options.UseFont = true;
+            this.labelControl2.Location = new System.Drawing.Point(280, 32);
+            this.labelControl2.Name = "labelControl2";
+            this.labelControl2.Size = new System.Drawing.Size(48, 15);
+            this.labelControl2.TabIndex = 4;
+            this.labelControl2.Text = "臾몄꽌踰덊샇";
+            // 
             // lblReqEmpNm
             // 
             this.lblReqEmpNm.Appearance.Font = new System.Drawing.Font("맑은 고딕", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.lblReqEmpNm.Appearance.Options.UseFont = true;
-            this.lblReqEmpNm.Location = new System.Drawing.Point(398, 9);
+            this.lblReqEmpNm.Location = new System.Drawing.Point(463, 8);
             this.lblReqEmpNm.Name = "lblReqEmpNm";
             this.lblReqEmpNm.Size = new System.Drawing.Size(36, 15);
             this.lblReqEmpNm.TabIndex = 4;
             this.lblReqEmpNm.Text = "상신자";
             // 
+            // labelControl1
+            // 
+            this.labelControl1.Appearance.Font = new System.Drawing.Font("맑은 고딕", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.labelControl1.Appearance.Options.UseFont = true;
+            this.labelControl1.Location = new System.Drawing.Point(17, 32);
+            this.labelControl1.Name = "labelControl1";
+            this.labelControl1.Size = new System.Drawing.Size(48, 15);
+            this.labelControl1.TabIndex = 6;
+            this.labelControl1.Text = "臾몄꽌援щ텇";
+            // 
+            // txtDocNo
+            // 
+            this.txtDocNo.Location = new System.Drawing.Point(334, 29);
+            this.txtDocNo.Name = "txtDocNo";
+            this.txtDocNo.Properties.ReadOnly = true;
+            this.txtDocNo.Size = new System.Drawing.Size(100, 20);
+            this.txtDocNo.TabIndex = 5;
+            // 
             // txtReqEmpNm
             // 
-            this.txtReqEmpNm.Location = new System.Drawing.Point(440, 6);
+            this.txtReqEmpNm.Location = new System.Drawing.Point(505, 5);
             this.txtReqEmpNm.Name = "txtReqEmpNm";
             this.txtReqEmpNm.Properties.ReadOnly = true;
-            this.txtReqEmpNm.Size = new System.Drawing.Size(130, 20);
+            this.txtReqEmpNm.Size = new System.Drawing.Size(96, 20);
             this.txtReqEmpNm.TabIndex = 5;
             // 
             // lblApprStatCd
             // 
             this.lblApprStatCd.Appearance.Font = new System.Drawing.Font("맑은 고딕", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.lblApprStatCd.Appearance.Options.UseFont = true;
-            this.lblApprStatCd.Location = new System.Drawing.Point(628, 9);
+            this.lblApprStatCd.Location = new System.Drawing.Point(628, 8);
             this.lblApprStatCd.Name = "lblApprStatCd";
             this.lblApprStatCd.Size = new System.Drawing.Size(48, 15);
             this.lblApprStatCd.TabIndex = 6;
@@ -218,7 +323,7 @@ public partial class popApp
             // 
             this.lblTitle.Appearance.Font = new System.Drawing.Font("맑은 고딕", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.lblTitle.Appearance.Options.UseFont = true;
-            this.lblTitle.Location = new System.Drawing.Point(16, 35);
+            this.lblTitle.Location = new System.Drawing.Point(17, 57);
             this.lblTitle.Name = "lblTitle";
             this.lblTitle.Size = new System.Drawing.Size(48, 15);
             this.lblTitle.TabIndex = 8;
@@ -226,7 +331,7 @@ public partial class popApp
             // 
             // txtTitle
             // 
-            this.txtTitle.Location = new System.Drawing.Point(71, 31);
+            this.txtTitle.Location = new System.Drawing.Point(71, 54);
             this.txtTitle.Name = "txtTitle";
             this.txtTitle.Size = new System.Drawing.Size(745, 20);
             this.txtTitle.TabIndex = 9;
@@ -235,7 +340,7 @@ public partial class popApp
             // 
             this.lblOpinion.Appearance.Font = new System.Drawing.Font("맑은 고딕", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.lblOpinion.Appearance.Options.UseFont = true;
-            this.lblOpinion.Location = new System.Drawing.Point(4, 58);
+            this.lblOpinion.Location = new System.Drawing.Point(5, 79);
             this.lblOpinion.Name = "lblOpinion";
             this.lblOpinion.Size = new System.Drawing.Size(60, 15);
             this.lblOpinion.TabIndex = 10;
@@ -243,7 +348,7 @@ public partial class popApp
             // 
             // memoOpinion
             // 
-            this.memoOpinion.Location = new System.Drawing.Point(71, 56);
+            this.memoOpinion.Location = new System.Drawing.Point(71, 79);
             this.memoOpinion.Name = "memoOpinion";
             this.memoOpinion.Size = new System.Drawing.Size(745, 79);
             this.memoOpinion.TabIndex = 11;
@@ -274,31 +379,14 @@ public partial class popApp
             this.btnSubmit.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(51)))), ((int)(((byte)(51)))), ((int)(((byte)(51)))));
             this.btnSubmit.HoverColor = System.Drawing.Color.FromArgb(((int)(((byte)(240)))), ((int)(((byte)(245)))), ((int)(((byte)(255)))));
             this.btnSubmit.Image = null;
-            this.btnSubmit.Location = new System.Drawing.Point(288, 2);
+            this.btnSubmit.Location = new System.Drawing.Point(99, 2);
             this.btnSubmit.Name = "btnSubmit";
             this.btnSubmit.PressedColor = System.Drawing.Color.FromArgb(((int)(((byte)(225)))), ((int)(((byte)(235)))), ((int)(((byte)(253)))));
             this.btnSubmit.Size = new System.Drawing.Size(90, 26);
             this.btnSubmit.TabIndex = 13;
             this.btnSubmit.Text = "결재상신";
             this.btnSubmit.ToolTip = null;
-            // 
-            // btnApprove
-            // 
-            this.btnApprove.BackColor = System.Drawing.Color.Transparent;
-            this.btnApprove.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(74)))), ((int)(((byte)(134)))), ((int)(((byte)(232)))));
-            this.btnApprove.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.btnApprove.FillColor = System.Drawing.Color.White;
-            this.btnApprove.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(51)))), ((int)(((byte)(51)))), ((int)(((byte)(51)))));
-            this.btnApprove.HoverColor = System.Drawing.Color.FromArgb(((int)(((byte)(240)))), ((int)(((byte)(245)))), ((int)(((byte)(255)))));
-            this.btnApprove.Image = null;
-            this.btnApprove.Location = new System.Drawing.Point(99, 2);
-            this.btnApprove.Name = "btnApprove";
-            this.btnApprove.PressedColor = System.Drawing.Color.FromArgb(((int)(((byte)(225)))), ((int)(((byte)(235)))), ((int)(((byte)(253)))));
-            this.btnApprove.Size = new System.Drawing.Size(90, 26);
-            this.btnApprove.TabIndex = 14;
-            this.btnApprove.Text = "승인";
-            this.btnApprove.ToolTip = null;
-            // 
+            //
             // btnReject
             // 
             this.btnReject.BackColor = System.Drawing.Color.Transparent;
@@ -313,7 +401,7 @@ public partial class popApp
             this.btnReject.PressedColor = System.Drawing.Color.FromArgb(((int)(((byte)(225)))), ((int)(((byte)(235)))), ((int)(((byte)(253)))));
             this.btnReject.Size = new System.Drawing.Size(90, 26);
             this.btnReject.TabIndex = 15;
-            this.btnReject.Text = "반려";
+            this.btnReject.Text = "諛섎젮";
             this.btnReject.ToolTip = null;
             // 
             // btnCancelApprove
@@ -354,19 +442,11 @@ public partial class popApp
             // 
             this.lblRoute.Appearance.Font = new System.Drawing.Font("맑은 고딕", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.lblRoute.Appearance.Options.UseFont = true;
-            this.lblRoute.Location = new System.Drawing.Point(582, 12);
+            this.lblRoute.Location = new System.Drawing.Point(10, 10);
             this.lblRoute.Name = "lblRoute";
             this.lblRoute.Size = new System.Drawing.Size(88, 15);
             this.lblRoute.TabIndex = 0;
             this.lblRoute.Text = "저장된 결재경로";
-            // 
-            // cboRoute
-            // 
-            this.cboRoute.Location = new System.Drawing.Point(679, 10);
-            this.cboRoute.Name = "cboRoute";
-            this.cboRoute.Properties.TextEditStyle = DevExpress.XtraEditors.Controls.TextEditStyles.DisableTextEditor;
-            this.cboRoute.Size = new System.Drawing.Size(200, 20);
-            this.cboRoute.TabIndex = 1;
             // 
             // btnApplyRoute
             // 
@@ -377,20 +457,22 @@ public partial class popApp
             this.btnApplyRoute.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(51)))), ((int)(((byte)(51)))), ((int)(((byte)(51)))));
             this.btnApplyRoute.HoverColor = System.Drawing.Color.FromArgb(((int)(((byte)(240)))), ((int)(((byte)(245)))), ((int)(((byte)(255)))));
             this.btnApplyRoute.Image = null;
-            this.btnApplyRoute.Location = new System.Drawing.Point(883, 7);
+            this.btnApplyRoute.Location = new System.Drawing.Point(443, 4);
             this.btnApplyRoute.Name = "btnApplyRoute";
             this.btnApplyRoute.PressedColor = System.Drawing.Color.FromArgb(((int)(((byte)(225)))), ((int)(((byte)(235)))), ((int)(((byte)(253)))));
             this.btnApplyRoute.Size = new System.Drawing.Size(88, 26);
             this.btnApplyRoute.TabIndex = 2;
             this.btnApplyRoute.Text = "적용";
             this.btnApplyRoute.ToolTip = null;
+            this.btnApplyRoute.Click += new System.EventHandler(this.btnApplyRoute_Click);
             // 
             // txtNewRouteNm
             // 
-            this.txtNewRouteNm.Location = new System.Drawing.Point(127, 1);
+            this.txtNewRouteNm.Location = new System.Drawing.Point(238, 2);
             this.txtNewRouteNm.Name = "txtNewRouteNm";
             this.txtNewRouteNm.Size = new System.Drawing.Size(200, 20);
             this.txtNewRouteNm.TabIndex = 4;
+            this.txtNewRouteNm.Visible = false;
             // 
             // btnSaveRoute
             // 
@@ -401,13 +483,14 @@ public partial class popApp
             this.btnSaveRoute.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(51)))), ((int)(((byte)(51)))), ((int)(((byte)(51)))));
             this.btnSaveRoute.HoverColor = System.Drawing.Color.FromArgb(((int)(((byte)(240)))), ((int)(((byte)(245)))), ((int)(((byte)(255)))));
             this.btnSaveRoute.Image = null;
-            this.btnSaveRoute.Location = new System.Drawing.Point(333, 0);
+            this.btnSaveRoute.Location = new System.Drawing.Point(444, 1);
             this.btnSaveRoute.Name = "btnSaveRoute";
             this.btnSaveRoute.PressedColor = System.Drawing.Color.FromArgb(((int)(((byte)(225)))), ((int)(((byte)(235)))), ((int)(((byte)(253)))));
             this.btnSaveRoute.Size = new System.Drawing.Size(60, 24);
             this.btnSaveRoute.TabIndex = 5;
             this.btnSaveRoute.Text = "저장";
             this.btnSaveRoute.ToolTip = null;
+            this.btnSaveRoute.Visible = false;
             // 
             // btnAddLine
             // 
@@ -449,15 +532,16 @@ public partial class popApp
             this.colTreeNm,
             this.colTreeEmpNo,
             this.colTreeJobGrade});
-            this.treeEmp.Dock = System.Windows.Forms.DockStyle.Left;
+            this.treeEmp.Dock = System.Windows.Forms.DockStyle.Fill;
             this.treeEmp.ImageIndexFieldName = "ImgIdx";
             this.treeEmp.KeyFieldName = "NodeKey";
             this.treeEmp.Location = new System.Drawing.Point(0, 33);
             this.treeEmp.Name = "treeEmp";
             this.treeEmp.OptionsBehavior.Editable = false;
+            this.treeEmp.OptionsView.ShowColumns = false;
             this.treeEmp.ParentFieldName = "ParentKey";
             this.treeEmp.RowHeight = 26;
-            this.treeEmp.Size = new System.Drawing.Size(364, 366);
+            this.treeEmp.Size = new System.Drawing.Size(293, 342);
             this.treeEmp.TabIndex = 0;
             // 
             // colTreeNm
@@ -467,25 +551,21 @@ public partial class popApp
             this.colTreeNm.Name = "colTreeNm";
             this.colTreeNm.Visible = true;
             this.colTreeNm.VisibleIndex = 0;
-            this.colTreeNm.Width = 180;
+            this.colTreeNm.Width = 169;
             // 
             // colTreeEmpNo
             // 
             this.colTreeEmpNo.Caption = "사번";
             this.colTreeEmpNo.FieldName = "EmpNo";
             this.colTreeEmpNo.Name = "colTreeEmpNo";
-            this.colTreeEmpNo.Visible = true;
-            this.colTreeEmpNo.VisibleIndex = 1;
-            this.colTreeEmpNo.Width = 80;
+            this.colTreeEmpNo.Width = 95;
             // 
             // colTreeJobGrade
             // 
-            this.colTreeJobGrade.Caption = "직위";
+            this.colTreeJobGrade.Caption = "吏곸쐞";
             this.colTreeJobGrade.FieldName = "JobGrade";
             this.colTreeJobGrade.Name = "colTreeJobGrade";
-            this.colTreeJobGrade.Visible = true;
-            this.colTreeJobGrade.VisibleIndex = 2;
-            this.colTreeJobGrade.Width = 70;
+            this.colTreeJobGrade.Width = 85;
             // 
             // grdRecv
             // 
@@ -498,7 +578,7 @@ public partial class popApp
             this.grdRecv.Location = new System.Drawing.Point(0, 27);
             this.grdRecv.MainView = this.gvwRecv;
             this.grdRecv.Name = "grdRecv";
-            this.grdRecv.Size = new System.Drawing.Size(604, 194);
+            this.grdRecv.Size = new System.Drawing.Size(675, 170);
             this.grdRecv.TabIndex = 1;
             this.grdRecv.ViewCollection.AddRange(new DevExpress.XtraGrid.Views.Base.BaseView[] {
             this.gvwRecv});
@@ -515,6 +595,7 @@ public partial class popApp
             this.gvwRecv.Name = "gvwRecv";
             this.gvwRecv.OptionsBehavior.Editable = false;
             this.gvwRecv.OptionsClipboard.PasteMode = DevExpress.Export.PasteMode.None;
+            this.gvwRecv.OptionsView.ColumnAutoWidth = false;
             this.gvwRecv.OptionsView.ShowGroupPanel = false;
             // 
             // colRecvSort
@@ -560,7 +641,7 @@ public partial class popApp
             this.colRecvRemark.Name = "colRecvRemark";
             this.colRecvRemark.Visible = true;
             this.colRecvRemark.VisibleIndex = 4;
-            this.colRecvRemark.Width = 150;
+            this.colRecvRemark.Width = 500;
             // 
             // grdLine
             // 
@@ -573,7 +654,7 @@ public partial class popApp
             this.grdLine.Location = new System.Drawing.Point(0, 27);
             this.grdLine.MainView = this.gvwLine;
             this.grdLine.Name = "grdLine";
-            this.grdLine.Size = new System.Drawing.Size(604, 112);
+            this.grdLine.Size = new System.Drawing.Size(675, 112);
             this.grdLine.TabIndex = 1;
             this.grdLine.ViewCollection.AddRange(new DevExpress.XtraGrid.Views.Base.BaseView[] {
             this.gvwLine});
@@ -590,6 +671,7 @@ public partial class popApp
             this.gvwLine.Name = "gvwLine";
             this.gvwLine.OptionsBehavior.Editable = false;
             this.gvwLine.OptionsClipboard.PasteMode = DevExpress.Export.PasteMode.None;
+            this.gvwLine.OptionsView.ColumnAutoWidth = false;
             this.gvwLine.OptionsView.ShowGroupPanel = false;
             // 
             // colLineSort
@@ -635,7 +717,7 @@ public partial class popApp
             this.colLineRemark.Name = "colLineRemark";
             this.colLineRemark.Visible = true;
             this.colLineRemark.VisibleIndex = 4;
-            this.colLineRemark.Width = 150;
+            this.colLineRemark.Width = 500;
             // 
             // btnClose
             // 
@@ -657,11 +739,14 @@ public partial class popApp
             // 
             // paTitle
             // 
+            this.paTitle.Appearance.BackColor = System.Drawing.Color.White;
+            this.paTitle.Appearance.Options.UseBackColor = true;
             this.paTitle.Controls.Add(this.sectionHeaderWyn1);
             this.paTitle.Dock = System.Windows.Forms.DockStyle.Top;
             this.paTitle.EdgeLineColor = System.Drawing.Color.FromArgb(((int)(((byte)(228)))), ((int)(((byte)(229)))), ((int)(((byte)(232)))));
             this.paTitle.Location = new System.Drawing.Point(0, 0);
             this.paTitle.Name = "paTitle";
+            this.paTitle.Padding = new System.Windows.Forms.Padding(5, 0, 0, 0);
             this.paTitle.Size = new System.Drawing.Size(984, 33);
             this.paTitle.TabIndex = 6;
             // 
@@ -671,40 +756,12 @@ public partial class popApp
             this.sectionHeaderWyn1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.sectionHeaderWyn1.Font = new System.Drawing.Font("맑은 고딕", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
             this.sectionHeaderWyn1.Icon = WYNLAB.Base.Controls.SectionHeaderIcon.Folder;
-            this.sectionHeaderWyn1.Location = new System.Drawing.Point(0, 0);
+            this.sectionHeaderWyn1.Location = new System.Drawing.Point(5, 0);
             this.sectionHeaderWyn1.Name = "sectionHeaderWyn1";
-            this.sectionHeaderWyn1.Size = new System.Drawing.Size(984, 33);
+            this.sectionHeaderWyn1.Size = new System.Drawing.Size(979, 33);
             this.sectionHeaderWyn1.SvgIcon = ((DevExpress.Utils.Svg.SvgImage)(resources.GetObject("sectionHeaderWyn1.SvgIcon")));
             this.sectionHeaderWyn1.TabIndex = 12;
             this.sectionHeaderWyn1.Text = "전자결재승인 [frmApp]";
-            // 
-            // ymdAppDate
-            // 
-            this.ymdAppDate.EditValue = null;
-            this.ymdAppDate.Enabled = false;
-            this.ymdAppDate.Location = new System.Drawing.Point(269, 6);
-            this.ymdAppDate.Name = "ymdAppDate";
-            this.ymdAppDate.Properties.Buttons.AddRange(new DevExpress.XtraEditors.Controls.EditorButton[] {
-            new DevExpress.XtraEditors.Controls.EditorButton(DevExpress.XtraEditors.Controls.ButtonPredefines.Combo)});
-            this.ymdAppDate.Properties.CalendarTimeProperties.Buttons.AddRange(new DevExpress.XtraEditors.Controls.EditorButton[] {
-            new DevExpress.XtraEditors.Controls.EditorButton(DevExpress.XtraEditors.Controls.ButtonPredefines.Combo)});
-            this.ymdAppDate.Properties.ReadOnly = true;
-            this.ymdAppDate.Size = new System.Drawing.Size(110, 20);
-            this.ymdAppDate.TabIndex = 18;
-            this.ymdAppDate.YyyyMmDd = null;
-            // 
-            // cboAppStatCd
-            // 
-            this.cboAppStatCd.EditValue = "";
-            this.cboAppStatCd.Location = new System.Drawing.Point(682, 6);
-            this.cboAppStatCd.Name = "cboAppStatCd";
-            this.cboAppStatCd.Properties.Buttons.AddRange(new DevExpress.XtraEditors.Controls.EditorButton[] {
-            new DevExpress.XtraEditors.Controls.EditorButton(DevExpress.XtraEditors.Controls.ButtonPredefines.Combo)});
-            this.cboAppStatCd.Properties.NullText = "";
-            this.cboAppStatCd.Properties.PopupFilterMode = DevExpress.XtraEditors.PopupFilterMode.Contains;
-            this.cboAppStatCd.Properties.ReadOnly = true;
-            this.cboAppStatCd.Size = new System.Drawing.Size(134, 20);
-            this.cboAppStatCd.TabIndex = 19;
             // 
             // panelWyn13
             // 
@@ -712,7 +769,6 @@ public partial class popApp
             this.panelWyn13.Appearance.Options.UseBackColor = true;
             this.panelWyn13.Controls.Add(this.btnClose);
             this.panelWyn13.Controls.Add(this.btnRefresh);
-            this.panelWyn13.Controls.Add(this.btnApprove);
             this.panelWyn13.Controls.Add(this.btnCancelApprove);
             this.panelWyn13.Controls.Add(this.btnSubmit);
             this.panelWyn13.Controls.Add(this.btnReject);
@@ -727,17 +783,203 @@ public partial class popApp
             // 
             // panelWyn1
             // 
+            this.panelWyn1.Appearance.BackColor = System.Drawing.Color.White;
+            this.panelWyn1.Appearance.Options.UseBackColor = true;
+            this.panelWyn1.Controls.Add(this.panelWyn12);
+            this.panelWyn1.Controls.Add(this.splitterWyn1);
             this.panelWyn1.Controls.Add(this.panelWyn8);
             this.panelWyn1.Controls.Add(this.panelWyn4);
             this.panelWyn1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.panelWyn1.EdgeLineColor = System.Drawing.Color.FromArgb(((int)(((byte)(228)))), ((int)(((byte)(229)))), ((int)(((byte)(232)))));
-            this.panelWyn1.Location = new System.Drawing.Point(5, 146);
+            this.panelWyn1.Location = new System.Drawing.Point(5, 170);
             this.panelWyn1.Name = "panelWyn1";
-            this.panelWyn1.Size = new System.Drawing.Size(974, 426);
+            this.panelWyn1.Size = new System.Drawing.Size(974, 402);
             this.panelWyn1.TabIndex = 13;
+            // 
+            // panelWyn12
+            // 
+            this.panelWyn12.Appearance.BackColor = System.Drawing.Color.White;
+            this.panelWyn12.Appearance.Options.UseBackColor = true;
+            this.panelWyn12.Controls.Add(this.panelWyn7);
+            this.panelWyn12.Controls.Add(this.panelWyn11);
+            this.panelWyn12.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.panelWyn12.EdgeLineColor = System.Drawing.Color.FromArgb(((int)(((byte)(228)))), ((int)(((byte)(229)))), ((int)(((byte)(232)))));
+            this.panelWyn12.Location = new System.Drawing.Point(299, 27);
+            this.panelWyn12.Name = "panelWyn12";
+            this.panelWyn12.Size = new System.Drawing.Size(675, 375);
+            this.panelWyn12.TabIndex = 17;
+            // 
+            // panelWyn7
+            // 
+            this.panelWyn7.Appearance.BackColor = System.Drawing.Color.White;
+            this.panelWyn7.Appearance.Options.UseBackColor = true;
+            this.panelWyn7.Controls.Add(this.panelWyn3);
+            this.panelWyn7.Controls.Add(this.splitterWyn2);
+            this.panelWyn7.Controls.Add(this.panelWyn2);
+            this.panelWyn7.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.panelWyn7.EdgeLineColor = System.Drawing.Color.FromArgb(((int)(((byte)(228)))), ((int)(((byte)(229)))), ((int)(((byte)(232)))));
+            this.panelWyn7.Location = new System.Drawing.Point(0, 33);
+            this.panelWyn7.Name = "panelWyn7";
+            this.panelWyn7.Size = new System.Drawing.Size(675, 342);
+            this.panelWyn7.TabIndex = 13;
+            // 
+            // panelWyn3
+            // 
+            this.panelWyn3.Appearance.BackColor = System.Drawing.Color.White;
+            this.panelWyn3.Appearance.Options.UseBackColor = true;
+            this.panelWyn3.Controls.Add(this.grdRecv);
+            this.panelWyn3.Controls.Add(this.panelWyn6);
+            this.panelWyn3.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.panelWyn3.EdgeLineColor = System.Drawing.Color.FromArgb(((int)(((byte)(228)))), ((int)(((byte)(229)))), ((int)(((byte)(232)))));
+            this.panelWyn3.Location = new System.Drawing.Point(0, 145);
+            this.panelWyn3.Name = "panelWyn3";
+            this.panelWyn3.Size = new System.Drawing.Size(675, 197);
+            this.panelWyn3.TabIndex = 12;
+            // 
+            // panelWyn6
+            // 
+            this.panelWyn6.Appearance.BackColor = System.Drawing.Color.White;
+            this.panelWyn6.Appearance.Options.UseBackColor = true;
+            this.panelWyn6.Controls.Add(this.sectionHeaderWyn4);
+            this.panelWyn6.Dock = System.Windows.Forms.DockStyle.Top;
+            this.panelWyn6.EdgeLineColor = System.Drawing.Color.FromArgb(((int)(((byte)(228)))), ((int)(((byte)(229)))), ((int)(((byte)(232)))));
+            this.panelWyn6.Location = new System.Drawing.Point(0, 0);
+            this.panelWyn6.Name = "panelWyn6";
+            this.panelWyn6.Padding = new System.Windows.Forms.Padding(5, 0, 0, 2);
+            this.panelWyn6.Size = new System.Drawing.Size(675, 27);
+            this.panelWyn6.TabIndex = 11;
+            this.panelWyn6.Visible = false;
+            // 
+            // sectionHeaderWyn4
+            // 
+            this.sectionHeaderWyn4.BackColor = System.Drawing.Color.White;
+            this.sectionHeaderWyn4.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.sectionHeaderWyn4.Font = new System.Drawing.Font("맑은 고딕", 9F, ((System.Drawing.FontStyle)((System.Drawing.FontStyle.Bold | System.Drawing.FontStyle.Underline))), System.Drawing.GraphicsUnit.Point, ((byte)(129)));
+            this.sectionHeaderWyn4.Icon = WYNLAB.Base.Controls.SectionHeaderIcon.Folder;
+            this.sectionHeaderWyn4.Location = new System.Drawing.Point(5, 0);
+            this.sectionHeaderWyn4.Name = "sectionHeaderWyn4";
+            this.sectionHeaderWyn4.Size = new System.Drawing.Size(670, 25);
+            this.sectionHeaderWyn4.SvgIcon = ((DevExpress.Utils.Svg.SvgImage)(resources.GetObject("sectionHeaderWyn4.SvgIcon")));
+            this.sectionHeaderWyn4.TabIndex = 10;
+            this.sectionHeaderWyn4.Text = "수신부";
+            // 
+            // splitterWyn2
+            // 
+            this.splitterWyn2.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(255)))), ((int)(((byte)(255)))));
+            this.splitterWyn2.Dock = System.Windows.Forms.DockStyle.Top;
+            this.splitterWyn2.Location = new System.Drawing.Point(0, 139);
+            this.splitterWyn2.Name = "splitterWyn2";
+            this.splitterWyn2.Size = new System.Drawing.Size(675, 6);
+            this.splitterWyn2.TabIndex = 13;
+            this.splitterWyn2.TabStop = false;
+            // 
+            // panelWyn2
+            // 
+            this.panelWyn2.Appearance.BackColor = System.Drawing.Color.White;
+            this.panelWyn2.Appearance.Options.UseBackColor = true;
+            this.panelWyn2.Controls.Add(this.grdLine);
+            this.panelWyn2.Controls.Add(this.panelWyn5);
+            this.panelWyn2.Dock = System.Windows.Forms.DockStyle.Top;
+            this.panelWyn2.EdgeLineColor = System.Drawing.Color.FromArgb(((int)(((byte)(228)))), ((int)(((byte)(229)))), ((int)(((byte)(232)))));
+            this.panelWyn2.Location = new System.Drawing.Point(0, 0);
+            this.panelWyn2.Name = "panelWyn2";
+            this.panelWyn2.Size = new System.Drawing.Size(675, 139);
+            this.panelWyn2.TabIndex = 12;
+            // 
+            // panelWyn5
+            // 
+            this.panelWyn5.Appearance.BackColor = System.Drawing.Color.White;
+            this.panelWyn5.Appearance.Options.UseBackColor = true;
+            this.panelWyn5.Controls.Add(this.txtNewRouteNm);
+            this.panelWyn5.Controls.Add(this.btnSaveRoute);
+            this.panelWyn5.Controls.Add(this.sectionHeaderWyn3);
+            this.panelWyn5.Dock = System.Windows.Forms.DockStyle.Top;
+            this.panelWyn5.EdgeLineColor = System.Drawing.Color.FromArgb(((int)(((byte)(228)))), ((int)(((byte)(229)))), ((int)(((byte)(232)))));
+            this.panelWyn5.Location = new System.Drawing.Point(0, 0);
+            this.panelWyn5.Name = "panelWyn5";
+            this.panelWyn5.Padding = new System.Windows.Forms.Padding(5, 0, 0, 2);
+            this.panelWyn5.Size = new System.Drawing.Size(675, 27);
+            this.panelWyn5.TabIndex = 11;
+            this.panelWyn5.Visible = false;
+            // 
+            // sectionHeaderWyn3
+            // 
+            this.sectionHeaderWyn3.BackColor = System.Drawing.Color.White;
+            this.sectionHeaderWyn3.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.sectionHeaderWyn3.Font = new System.Drawing.Font("맑은 고딕", 9F, ((System.Drawing.FontStyle)((System.Drawing.FontStyle.Bold | System.Drawing.FontStyle.Underline))), System.Drawing.GraphicsUnit.Point, ((byte)(129)));
+            this.sectionHeaderWyn3.Icon = WYNLAB.Base.Controls.SectionHeaderIcon.Folder;
+            this.sectionHeaderWyn3.Location = new System.Drawing.Point(5, 0);
+            this.sectionHeaderWyn3.Name = "sectionHeaderWyn3";
+            this.sectionHeaderWyn3.Size = new System.Drawing.Size(670, 25);
+            this.sectionHeaderWyn3.SvgIcon = ((DevExpress.Utils.Svg.SvgImage)(resources.GetObject("sectionHeaderWyn3.SvgIcon")));
+            this.sectionHeaderWyn3.TabIndex = 10;
+            this.sectionHeaderWyn3.Text = "승인부";
+            // 
+            // panelWyn11
+            // 
+            this.panelWyn11.Appearance.BackColor = System.Drawing.Color.White;
+            this.panelWyn11.Appearance.Options.UseBackColor = true;
+            this.panelWyn11.Controls.Add(this.cboRoute);
+            this.panelWyn11.Controls.Add(this.lblRoute);
+            this.panelWyn11.Controls.Add(this.btnApplyRoute);
+            this.panelWyn11.Dock = System.Windows.Forms.DockStyle.Top;
+            this.panelWyn11.EdgeLineColor = System.Drawing.Color.FromArgb(((int)(((byte)(228)))), ((int)(((byte)(229)))), ((int)(((byte)(232)))));
+            this.panelWyn11.Location = new System.Drawing.Point(0, 0);
+            this.panelWyn11.Name = "panelWyn11";
+            this.panelWyn11.Size = new System.Drawing.Size(675, 33);
+            this.panelWyn11.TabIndex = 17;
+            // 
+            // cboRoute
+            // 
+            this.cboRoute.EditValue = "";
+            this.cboRoute.Location = new System.Drawing.Point(107, 8);
+            this.cboRoute.Name = "cboRoute";
+            this.cboRoute.Properties.Buttons.AddRange(new DevExpress.XtraEditors.Controls.EditorButton[] {
+            new DevExpress.XtraEditors.Controls.EditorButton(DevExpress.XtraEditors.Controls.ButtonPredefines.Combo)});
+            this.cboRoute.Properties.NullText = "";
+            this.cboRoute.Properties.PopupFilterMode = DevExpress.XtraEditors.PopupFilterMode.Contains;
+            this.cboRoute.Size = new System.Drawing.Size(330, 20);
+            this.cboRoute.TabIndex = 19;
+            // 
+            // splitterWyn1
+            // 
+            this.splitterWyn1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(255)))), ((int)(((byte)(255)))));
+            this.splitterWyn1.Location = new System.Drawing.Point(293, 27);
+            this.splitterWyn1.Name = "splitterWyn1";
+            this.splitterWyn1.Size = new System.Drawing.Size(6, 375);
+            this.splitterWyn1.TabIndex = 18;
+            this.splitterWyn1.TabStop = false;
+            // 
+            // panelWyn8
+            // 
+            this.panelWyn8.Appearance.BackColor = System.Drawing.Color.White;
+            this.panelWyn8.Appearance.Options.UseBackColor = true;
+            this.panelWyn8.Controls.Add(this.treeEmp);
+            this.panelWyn8.Controls.Add(this.panelWyn9);
+            this.panelWyn8.Dock = System.Windows.Forms.DockStyle.Left;
+            this.panelWyn8.EdgeLineColor = System.Drawing.Color.FromArgb(((int)(((byte)(228)))), ((int)(((byte)(229)))), ((int)(((byte)(232)))));
+            this.panelWyn8.Location = new System.Drawing.Point(0, 27);
+            this.panelWyn8.Name = "panelWyn8";
+            this.panelWyn8.Size = new System.Drawing.Size(293, 375);
+            this.panelWyn8.TabIndex = 14;
+            // 
+            // panelWyn9
+            // 
+            this.panelWyn9.Appearance.BackColor = System.Drawing.Color.White;
+            this.panelWyn9.Appearance.Options.UseBackColor = true;
+            this.panelWyn9.Controls.Add(this.btnAddRecv);
+            this.panelWyn9.Controls.Add(this.btnAddLine);
+            this.panelWyn9.Dock = System.Windows.Forms.DockStyle.Top;
+            this.panelWyn9.EdgeLineColor = System.Drawing.Color.FromArgb(((int)(((byte)(228)))), ((int)(((byte)(229)))), ((int)(((byte)(232)))));
+            this.panelWyn9.Location = new System.Drawing.Point(0, 0);
+            this.panelWyn9.Name = "panelWyn9";
+            this.panelWyn9.Size = new System.Drawing.Size(293, 33);
+            this.panelWyn9.TabIndex = 1;
             // 
             // panelWyn4
             // 
+            this.panelWyn4.Appearance.BackColor = System.Drawing.Color.White;
+            this.panelWyn4.Appearance.Options.UseBackColor = true;
             this.panelWyn4.Controls.Add(this.sectionHeaderWyn2);
             this.panelWyn4.Dock = System.Windows.Forms.DockStyle.Top;
             this.panelWyn4.EdgeLineColor = System.Drawing.Color.FromArgb(((int)(((byte)(228)))), ((int)(((byte)(229)))), ((int)(((byte)(232)))));
@@ -761,140 +1003,10 @@ public partial class popApp
             this.sectionHeaderWyn2.TabIndex = 10;
             this.sectionHeaderWyn2.Text = "결재라인구성";
             // 
-            // panelWyn2
-            // 
-            this.panelWyn2.Controls.Add(this.grdLine);
-            this.panelWyn2.Controls.Add(this.panelWyn5);
-            this.panelWyn2.Dock = System.Windows.Forms.DockStyle.Top;
-            this.panelWyn2.EdgeLineColor = System.Drawing.Color.FromArgb(((int)(((byte)(228)))), ((int)(((byte)(229)))), ((int)(((byte)(232)))));
-            this.panelWyn2.Location = new System.Drawing.Point(0, 0);
-            this.panelWyn2.Name = "panelWyn2";
-            this.panelWyn2.Size = new System.Drawing.Size(604, 139);
-            this.panelWyn2.TabIndex = 12;
-            // 
-            // panelWyn3
-            // 
-            this.panelWyn3.Controls.Add(this.grdRecv);
-            this.panelWyn3.Controls.Add(this.panelWyn6);
-            this.panelWyn3.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.panelWyn3.EdgeLineColor = System.Drawing.Color.FromArgb(((int)(((byte)(228)))), ((int)(((byte)(229)))), ((int)(((byte)(232)))));
-            this.panelWyn3.Location = new System.Drawing.Point(0, 145);
-            this.panelWyn3.Name = "panelWyn3";
-            this.panelWyn3.Size = new System.Drawing.Size(604, 221);
-            this.panelWyn3.TabIndex = 12;
-            // 
-            // panelWyn5
-            // 
-            this.panelWyn5.Controls.Add(this.txtNewRouteNm);
-            this.panelWyn5.Controls.Add(this.btnSaveRoute);
-            this.panelWyn5.Controls.Add(this.sectionHeaderWyn3);
-            this.panelWyn5.Dock = System.Windows.Forms.DockStyle.Top;
-            this.panelWyn5.EdgeLineColor = System.Drawing.Color.FromArgb(((int)(((byte)(228)))), ((int)(((byte)(229)))), ((int)(((byte)(232)))));
-            this.panelWyn5.Location = new System.Drawing.Point(0, 0);
-            this.panelWyn5.Name = "panelWyn5";
-            this.panelWyn5.Padding = new System.Windows.Forms.Padding(5, 0, 0, 2);
-            this.panelWyn5.Size = new System.Drawing.Size(604, 27);
-            this.panelWyn5.TabIndex = 11;
-            this.panelWyn5.Visible = false;
-            // 
-            // sectionHeaderWyn3
-            // 
-            this.sectionHeaderWyn3.BackColor = System.Drawing.Color.White;
-            this.sectionHeaderWyn3.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.sectionHeaderWyn3.Font = new System.Drawing.Font("맑은 고딕", 9F, ((System.Drawing.FontStyle)((System.Drawing.FontStyle.Bold | System.Drawing.FontStyle.Underline))), System.Drawing.GraphicsUnit.Point, ((byte)(129)));
-            this.sectionHeaderWyn3.Icon = WYNLAB.Base.Controls.SectionHeaderIcon.Folder;
-            this.sectionHeaderWyn3.Location = new System.Drawing.Point(5, 0);
-            this.sectionHeaderWyn3.Name = "sectionHeaderWyn3";
-            this.sectionHeaderWyn3.Size = new System.Drawing.Size(599, 25);
-            this.sectionHeaderWyn3.SvgIcon = ((DevExpress.Utils.Svg.SvgImage)(resources.GetObject("sectionHeaderWyn3.SvgIcon")));
-            this.sectionHeaderWyn3.TabIndex = 10;
-            this.sectionHeaderWyn3.Text = "승인부";
-            // 
-            // panelWyn6
-            // 
-            this.panelWyn6.Controls.Add(this.sectionHeaderWyn4);
-            this.panelWyn6.Dock = System.Windows.Forms.DockStyle.Top;
-            this.panelWyn6.EdgeLineColor = System.Drawing.Color.FromArgb(((int)(((byte)(228)))), ((int)(((byte)(229)))), ((int)(((byte)(232)))));
-            this.panelWyn6.Location = new System.Drawing.Point(0, 0);
-            this.panelWyn6.Name = "panelWyn6";
-            this.panelWyn6.Padding = new System.Windows.Forms.Padding(5, 0, 0, 2);
-            this.panelWyn6.Size = new System.Drawing.Size(604, 27);
-            this.panelWyn6.TabIndex = 11;
-            this.panelWyn6.Visible = false;
-            // 
-            // sectionHeaderWyn4
-            // 
-            this.sectionHeaderWyn4.BackColor = System.Drawing.Color.White;
-            this.sectionHeaderWyn4.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.sectionHeaderWyn4.Font = new System.Drawing.Font("맑은 고딕", 9F, ((System.Drawing.FontStyle)((System.Drawing.FontStyle.Bold | System.Drawing.FontStyle.Underline))), System.Drawing.GraphicsUnit.Point, ((byte)(129)));
-            this.sectionHeaderWyn4.Icon = WYNLAB.Base.Controls.SectionHeaderIcon.Folder;
-            this.sectionHeaderWyn4.Location = new System.Drawing.Point(5, 0);
-            this.sectionHeaderWyn4.Name = "sectionHeaderWyn4";
-            this.sectionHeaderWyn4.Size = new System.Drawing.Size(599, 25);
-            this.sectionHeaderWyn4.SvgIcon = ((DevExpress.Utils.Svg.SvgImage)(resources.GetObject("sectionHeaderWyn4.SvgIcon")));
-            this.sectionHeaderWyn4.TabIndex = 10;
-            this.sectionHeaderWyn4.Text = "수신부";
-            // 
-            // panelWyn7
-            // 
-            this.panelWyn7.Controls.Add(this.panelWyn3);
-            this.panelWyn7.Controls.Add(this.splitterWyn2);
-            this.panelWyn7.Controls.Add(this.panelWyn2);
-            this.panelWyn7.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.panelWyn7.EdgeLineColor = System.Drawing.Color.FromArgb(((int)(((byte)(228)))), ((int)(((byte)(229)))), ((int)(((byte)(232)))));
-            this.panelWyn7.Location = new System.Drawing.Point(370, 33);
-            this.panelWyn7.Name = "panelWyn7";
-            this.panelWyn7.Size = new System.Drawing.Size(604, 366);
-            this.panelWyn7.TabIndex = 13;
-            // 
-            // splitterWyn2
-            // 
-            this.splitterWyn2.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(255)))), ((int)(((byte)(255)))));
-            this.splitterWyn2.Dock = System.Windows.Forms.DockStyle.Top;
-            this.splitterWyn2.Location = new System.Drawing.Point(0, 139);
-            this.splitterWyn2.Name = "splitterWyn2";
-            this.splitterWyn2.Size = new System.Drawing.Size(604, 6);
-            this.splitterWyn2.TabIndex = 13;
-            this.splitterWyn2.TabStop = false;
-            // 
-            // panelWyn8
-            // 
-            this.panelWyn8.Controls.Add(this.panelWyn7);
-            this.panelWyn8.Controls.Add(this.splitterWyn1);
-            this.panelWyn8.Controls.Add(this.treeEmp);
-            this.panelWyn8.Controls.Add(this.panelWyn9);
-            this.panelWyn8.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.panelWyn8.EdgeLineColor = System.Drawing.Color.FromArgb(((int)(((byte)(228)))), ((int)(((byte)(229)))), ((int)(((byte)(232)))));
-            this.panelWyn8.Location = new System.Drawing.Point(0, 27);
-            this.panelWyn8.Name = "panelWyn8";
-            this.panelWyn8.Size = new System.Drawing.Size(974, 399);
-            this.panelWyn8.TabIndex = 14;
-            // 
-            // panelWyn9
-            // 
-            this.panelWyn9.Controls.Add(this.btnApplyRoute);
-            this.panelWyn9.Controls.Add(this.cboRoute);
-            this.panelWyn9.Controls.Add(this.lblRoute);
-            this.panelWyn9.Controls.Add(this.btnAddRecv);
-            this.panelWyn9.Controls.Add(this.btnAddLine);
-            this.panelWyn9.Dock = System.Windows.Forms.DockStyle.Top;
-            this.panelWyn9.EdgeLineColor = System.Drawing.Color.FromArgb(((int)(((byte)(228)))), ((int)(((byte)(229)))), ((int)(((byte)(232)))));
-            this.panelWyn9.Location = new System.Drawing.Point(0, 0);
-            this.panelWyn9.Name = "panelWyn9";
-            this.panelWyn9.Size = new System.Drawing.Size(974, 33);
-            this.panelWyn9.TabIndex = 1;
-            // 
-            // splitterWyn1
-            // 
-            this.splitterWyn1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(255)))), ((int)(((byte)(255)))));
-            this.splitterWyn1.Location = new System.Drawing.Point(364, 33);
-            this.splitterWyn1.Name = "splitterWyn1";
-            this.splitterWyn1.Size = new System.Drawing.Size(6, 366);
-            this.splitterWyn1.TabIndex = 16;
-            this.splitterWyn1.TabStop = false;
-            // 
             // panelWyn10
             // 
+            this.panelWyn10.Appearance.BackColor = System.Drawing.Color.White;
+            this.panelWyn10.Appearance.Options.UseBackColor = true;
             this.panelWyn10.Controls.Add(this.panelWyn1);
             this.panelWyn10.Controls.Add(this.panHeader);
             this.panelWyn10.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -904,6 +1016,33 @@ public partial class popApp
             this.panelWyn10.Padding = new System.Windows.Forms.Padding(5);
             this.panelWyn10.Size = new System.Drawing.Size(984, 577);
             this.panelWyn10.TabIndex = 14;
+            // 
+            // txtCfmEmpNm
+            // 
+            this.txtCfmEmpNm.Location = new System.Drawing.Point(505, 29);
+            this.txtCfmEmpNm.Name = "txtCfmEmpNm";
+            this.txtCfmEmpNm.Properties.ReadOnly = true;
+            this.txtCfmEmpNm.Size = new System.Drawing.Size(96, 20);
+            this.txtCfmEmpNm.TabIndex = 5;
+            // 
+            // labelControl3
+            // 
+            this.labelControl3.Appearance.Font = new System.Drawing.Font("맑은 고딕", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.labelControl3.Appearance.Options.UseFont = true;
+            this.labelControl3.Location = new System.Drawing.Point(463, 32);
+            this.labelControl3.Name = "labelControl3";
+            this.labelControl3.Size = new System.Drawing.Size(36, 15);
+            this.labelControl3.TabIndex = 4;
+            this.labelControl3.Text = "?뱀씤??";
+            // 
+            // txtCfmEmpId
+            // 
+            this.txtCfmEmpId.Location = new System.Drawing.Point(865, 132);
+            this.txtCfmEmpId.Name = "txtCfmEmpId";
+            this.txtCfmEmpId.Properties.ReadOnly = true;
+            this.txtCfmEmpId.Size = new System.Drawing.Size(96, 20);
+            this.txtCfmEmpId.TabIndex = 5;
+            this.txtCfmEmpId.Visible = false;
             // 
             // popApp
             // 
@@ -922,11 +1061,16 @@ public partial class popApp
             ((System.ComponentModel.ISupportInitialize)(this.panHeader)).EndInit();
             this.panHeader.ResumeLayout(false);
             this.panHeader.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.cboDocType.Properties)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.cboAppStatCd.Properties)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.ymdAppDate.Properties.CalendarTimeProperties)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.ymdAppDate.Properties)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.txtAppId.Properties)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.txtAppNo.Properties)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.txtDocNo.Properties)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.txtReqEmpNm.Properties)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.txtTitle.Properties)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.memoOpinion.Properties)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.cboRoute.Properties)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.txtNewRouteNm.Properties)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.treeEmp)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.grdRecv)).EndInit();
@@ -935,32 +1079,36 @@ public partial class popApp
             ((System.ComponentModel.ISupportInitialize)(this.gvwLine)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.paTitle)).EndInit();
             this.paTitle.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.ymdAppDate.Properties.CalendarTimeProperties)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.ymdAppDate.Properties)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.cboAppStatCd.Properties)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.panelWyn13)).EndInit();
             this.panelWyn13.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.panelWyn1)).EndInit();
             this.panelWyn1.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.panelWyn4)).EndInit();
-            this.panelWyn4.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.panelWyn2)).EndInit();
-            this.panelWyn2.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.panelWyn3)).EndInit();
-            this.panelWyn3.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.panelWyn5)).EndInit();
-            this.panelWyn5.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.panelWyn6)).EndInit();
-            this.panelWyn6.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.panelWyn12)).EndInit();
+            this.panelWyn12.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.panelWyn7)).EndInit();
             this.panelWyn7.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.panelWyn3)).EndInit();
+            this.panelWyn3.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.panelWyn6)).EndInit();
+            this.panelWyn6.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.panelWyn2)).EndInit();
+            this.panelWyn2.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.panelWyn5)).EndInit();
+            this.panelWyn5.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.panelWyn11)).EndInit();
+            this.panelWyn11.ResumeLayout(false);
+            this.panelWyn11.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.cboRoute.Properties)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.panelWyn8)).EndInit();
             this.panelWyn8.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.panelWyn9)).EndInit();
             this.panelWyn9.ResumeLayout(false);
-            this.panelWyn9.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.panelWyn4)).EndInit();
+            this.panelWyn4.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.panelWyn10)).EndInit();
             this.panelWyn10.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.txtCfmEmpNm.Properties)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.txtCfmEmpId.Properties)).EndInit();
             this.ResumeLayout(false);
 
     }
@@ -978,7 +1126,6 @@ public partial class popApp
     private MemoEditWyn memoOpinion;
     private ButtonWyn btnRefresh;
     private ButtonWyn btnSubmit;
-    private ButtonWyn btnApprove;
     private ButtonWyn btnReject;
     private ButtonWyn btnCancelApprove;
     private ButtonWyn btnAck;
@@ -989,7 +1136,6 @@ public partial class popApp
     private ButtonWyn btnAddLine;
     private ButtonWyn btnAddRecv;
     private DevExpress.XtraEditors.LabelControl lblRoute;
-    private DevExpress.XtraEditors.ComboBoxEdit cboRoute;
     private ButtonWyn btnApplyRoute;
     private TextEditWyn txtNewRouteNm;
     private ButtonWyn btnSaveRoute;
@@ -1025,7 +1171,18 @@ public partial class popApp
     private SectionHeaderWyn sectionHeaderWyn2;
     private PanelWyn panelWyn8;
     private SplitterWyn splitterWyn2;
-    private SplitterWyn splitterWyn1;
     private PanelWyn panelWyn9;
     private PanelWyn panelWyn10;
+    private LookUpEditWyn cboDocType;
+    private TextEditWyn txtAppId;
+    private DevExpress.XtraEditors.LabelControl labelControl1;
+    private DevExpress.XtraEditors.LabelControl labelControl2;
+    private TextEditWyn txtDocNo;
+    private LookUpEditWyn cboRoute;
+    private PanelWyn panelWyn12;
+    private PanelWyn panelWyn11;
+    private SplitterWyn splitterWyn1;
+    private DevExpress.XtraEditors.LabelControl labelControl3;
+    private TextEditWyn txtCfmEmpId;
+    private TextEditWyn txtCfmEmpNm;
 }

@@ -182,6 +182,7 @@ internal sealed class GridViewWynBehavior
         _view.CellValueChanged += OnCellValueChanged;
         _view.RowCellStyle += OnRowCellStyle;
         _view.MouseDown += OnMouseDown;
+        _view.ShowingEditor += OnShowingEditor;
         _view.EndSorting += OnEndSorting;
         _view.InitNewRow += OnInitNewRow;
     }
@@ -230,12 +231,30 @@ internal sealed class GridViewWynBehavior
     {
         var hitInfo = _view.CalcHitInfo(e.Location);
         if (!hitInfo.InRowCell) return;
-        if (hitInfo.Column?.ColumnEdit is not RepositoryItemCheckEdit checkEdit) return;
 
-        var current = _view.GetRowCellValue(hitInfo.RowHandle, hitInfo.Column);
-        var isChecked = Equals(current, checkEdit.ValueChecked);
-        _view.SetRowCellValue(hitInfo.RowHandle, hitInfo.Column, isChecked ? checkEdit.ValueUnchecked : checkEdit.ValueChecked);
-        _view.FocusedRowHandle = hitInfo.RowHandle;
+        if (hitInfo.Column?.ColumnEdit is RepositoryItemCheckEdit checkEdit)
+        {
+            var current = _view.GetRowCellValue(hitInfo.RowHandle, hitInfo.Column);
+            var isChecked = Equals(current, checkEdit.ValueChecked);
+            _view.SetRowCellValue(hitInfo.RowHandle, hitInfo.Column, isChecked ? checkEdit.ValueUnchecked : checkEdit.ValueChecked);
+            _view.FocusedRowHandle = hitInfo.RowHandle;
+            return;
+        }
+
+        PopupDebugLog.Write($"MouseDown: Clicks={e.Clicks}, col={hitInfo.Column?.FieldName}, edit={hitInfo.Column?.ColumnEdit?.GetType().Name}");
+    }
+
+    /// <summary>체크박스 컬럼은 실제 편집기(라이브 체크박스 컨트롤)를 아예 열지 않는다 - OnMouseDown이
+    /// 이미 셀 값을 직접 뒤집어주는데, 그 뒤에 편집기까지 열리면 같은 클릭이 편집기 내부 체크박스에도
+    /// 전달되어 한 번 더 토글돼버린다(우리 토글 + 편집기 자체 토글 = 짝수 번 = 눈에는 아무 변화가
+    /// 없어 보임). 견적/구매요청 "불러오기" 팝업의 선택 체크박스에서 여러 번 클릭해야 선택되던
+    /// 증상이 이 경쟁 때문이었다(2026-09-28 실제 지적). 편집기를 아예 안 띄우면 이 경쟁이 원천적으로
+    /// 사라진다 - 체크박스 그림 자체는 편집기 없이도 셀 렌더링만으로 항상 그려진다(DevExpress 표준
+    /// 동작, 포커스/편집 여부와 무관). GridViewWyn/BandedGridViewWyn을 쓰는 모든 화면에 공통 적용.</summary>
+    private void OnShowingEditor(object? sender, System.ComponentModel.CancelEventArgs e)
+    {
+        if (_view.FocusedColumn?.ColumnEdit is RepositoryItemCheckEdit)
+            e.Cancel = true;
     }
 
     /// <summary>DevExpress 자체 팝업은 여기서 완전히 끈다(e.Allow = false) - 데이터 영역
@@ -556,12 +575,52 @@ internal sealed class GridViewWynBehavior
 
     private void OnCellValueChanged(object? sender, CellValueChangedEventArgs e)
     {
-        if (!HighlightUnsavedCells) return;
-        _dirtyCells.Add((e.RowHandle, e.Column.FieldName));
+        if (HighlightUnsavedCells) _dirtyCells.Add((e.RowHandle, e.Column.FieldName));
+
+        // 품번 등을 직접 타이핑해서 값이 바뀐 순간(커밋 시점) 그 값이 맞는지 고를 수 있게 팝업을
+        // 띄운다. 팝업 선택 결과를 SetRowCellValue로 써넣는 것도 이 이벤트를 일으키므로,
+        // PopupLookupColumnEdit.IsApplyingResult로 그 프로그램적 변경은 걸러낸다.
+        if (e.Column.ColumnEdit is PopupLookupColumnEdit popupEdit)
+        {
+            PopupDebugLog.Write($"CellValueChanged: col={e.Column.FieldName}, value={e.Value}, applying={popupEdit.IsApplyingResult}");
+            if (!popupEdit.IsApplyingResult && !string.IsNullOrEmpty(Convert.ToString(e.Value)))
+                _ = popupEdit.OpenPopupForCellAsync(_view, e.RowHandle, e.Column);
+        }
+    }
+
+    /// <summary>숫자 값은 오른쪽 정렬이 표준(2026-09-25 사장님 지시 - "모든 그리드의 숫자 컬럼은 우측정렬"). 컬럼마다 정렬을 지정하지
+    /// 않아도 되게 여기서 한꺼번에 처리한다: 셀 값이 숫자이거나 컬럼 서식(DisplayFormat)이 숫자이면 오른쪽. 예외 두 가지 -
+    /// ① 컬럼에 정렬을 직접 지정해 둔 경우(AppearanceCell.TextOptions.HAlignment를 Default가 아닌 값으로) 그 값을 따른다.
+    /// ② 값이 숫자여도 화면엔 이름/글자로 보이는 컬럼(룩업/팝업/체크/날짜 등 TextEdit 계열이 아닌 편집기)은 건드리지 않는다
+    /// (예: 창고ID를 팝업으로 고르는 컬럼, 코드 대신 명칭을 보여주는 룩업).</summary>
+    private static bool ShouldRightAlign(GridColumn column, object? cellValue)
+    {
+        if (column.AppearanceCell.Options.UseTextOptions && column.AppearanceCell.TextOptions.HAlignment != HorzAlignment.Default) return false;
+
+        var edit = column.ColumnEdit;
+        if (edit != null && edit.GetType() != typeof(RepositoryItemTextEdit) && edit is not RepositoryItemSpinEdit) return false;
+
+        if (column.DisplayFormat.FormatType == FormatType.Numeric) return true;
+        return cellValue is sbyte or byte or short or ushort or int or uint or long or ulong or float or double or decimal;
     }
 
     private void OnRowCellStyle(object? sender, RowCellStyleEventArgs e)
     {
+        if (ShouldRightAlign(e.Column, e.CellValue))
+        {
+            e.Appearance.TextOptions.HAlignment = HorzAlignment.Far;
+            e.Appearance.Options.UseTextOptions = true;
+        }
+
+        // 필수 입력 컬럼(GridViewWyn.RequiredFields)의 빈 셀은 항상 필수 색으로 - 포커스 행/미저장 강조보다 먼저.
+        if (_view is GridViewWyn wyn && wyn.IsRequiredColumn(e.Column)
+            && (e.CellValue == null || e.CellValue == DBNull.Value || (e.CellValue is string s && string.IsNullOrWhiteSpace(s))))
+        {
+            e.Appearance.BackColor = UiTheme.RequiredFieldBackColor;
+            e.Appearance.Options.UseBackColor = true;
+            return;
+        }
+
         // 미저장 강조가 우선한다 - 포커스행이면서 동시에 수정된 셀이라면, "아직 저장 안 됨"이
         // "지금 포커스된 행"보다 사용자가 더 먼저 알아야 하는 정보라서.
         if (HighlightUnsavedCells && _dirtyCells.Contains((e.RowHandle, e.Column.FieldName)))

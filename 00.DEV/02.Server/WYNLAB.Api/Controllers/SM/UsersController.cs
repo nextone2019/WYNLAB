@@ -138,6 +138,7 @@ public class UsersController : ControllerBase
         UseYn = row.UseYn == "Y",
         UserType = row.UserType,
         DeveloperYn = row.DeveloperYn == "Y",
-        LastLoginDt = row.LastLoginDt
+        LastLoginDt = row.LastLoginDt,
+        LastPwdChangeDt = row.LastPwdChangeDt
     };
 }

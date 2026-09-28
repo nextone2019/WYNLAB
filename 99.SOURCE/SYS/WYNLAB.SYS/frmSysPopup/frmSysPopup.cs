@@ -57,6 +57,12 @@ public partial class frmSysPopup : BaseForm
         txtPopupWidth.Tag = new BindingFieldTag("popup_width");
         txtPopupHeight.Tag = new BindingFieldTag("popup_height");
         txtRemark.Tag = new BindingFieldTag("remark");
+        txtSearchPanelClass.Tag = new BindingFieldTag("search_panel_class");
+        txtSearchPanelClass.Leave += (s, e) => RefreshControlNmChoices();
+
+        // 복사(Save As) - 지금 선택된 팝업이 있을 때만 의미가 있다(EnterEditMode/EnterNewMode에서 Enabled를 맞춘다)
+        btnCopyPopup.Enabled = false;
+        btnCopyPopup.Click += (s, e) => EnterCopyMode();
 
         TrackDirty(panData);
 
@@ -199,7 +205,8 @@ public partial class frmSysPopup : BaseForm
             p_popup_width = string.IsNullOrWhiteSpace(txtPopupWidth.Text) ? "700" : txtPopupWidth.Text,
             p_popup_height = string.IsNullOrWhiteSpace(txtPopupHeight.Text) ? "500" : txtPopupHeight.Text,
             p_use_yn = chkUseYn.Checked ? "Y" : "N",
-            p_remark = txtRemark.Text
+            p_remark = txtRemark.Text,
+            p_search_panel_class = string.IsNullOrWhiteSpace(txtSearchPanelClass.Text) ? null : txtSearchPanelClass.Text.Trim()
         });
 
         if (!result.Success)
@@ -368,8 +375,24 @@ public partial class frmSysPopup : BaseForm
         ["p_caption"] = ProcData.Str(row, "caption", version),
         ["p_control_type"] = ProcData.Str(row, "control_type", version) is { Length: > 0 } ct ? ct : "TEXT",
         ["p_sort"] = ProcData.Str(row, "sort", version),
-        ["p_width"] = ProcData.Str(row, "width", version)
+        ["p_width"] = ProcData.Str(row, "width", version),
+        ["p_lookup_key"] = ProcData.Str(row, "lookup_key", version),
+        ["p_row_no"] = ProcData.Str(row, "row_no", version) is { Length: > 0 } rn ? rn : "1",
+        ["p_control_nm"] = ProcData.Str(row, "control_nm", version)
     };
+
+    /// <summary>"패널 컨트롤" 콤보의 목록 - 지금 "검색패널"에 적힌 클래스를 실제로 만들어서(팝업 엔진과
+    /// 같은 PopupSearchPanelBase.TryCreate) 그 안의 편집 컨트롤 이름들을 보여준다. 클래스를 못 찾으면
+    /// (아직 배포 전이거나 오타) 목록이 비고 직접 입력은 그대로 가능하다.</summary>
+    private void RefreshControlNmChoices()
+    {
+        var items = repositoryItemComboBoxSearchControlNm.Items;
+        items.Clear();
+
+        var panel = PopupSearchPanelBase.TryCreate(txtSearchPanelClass.Text, out _);
+        if (panel == null) return;
+        using (panel) items.AddRange(panel.GetEditorNames().ToArray());
+    }
 
     /// <summary>프로시저 구조를 읽어와서(실행은 안 함), grd2/grd3에 아직 없는 컬럼/조회조건만
     /// 기본값으로 채워 넣는다. 이미 있는 행(사람이 캡션/타입 등을 손으로 고쳐둔 것)은 그대로
@@ -421,6 +444,74 @@ public partial class frmSysPopup : BaseForm
         }
     }
 
+    /// <summary>복사 - 메뉴등록(frmMenu.EnterCopyMode)과 같은 방식(2026-09-25, 사장님 요청): 팝업키 입력창 같은 걸 띄우지 않고,
+    /// 지금 화면에 표시된 팝업 한 건의 값(팝업명/프로시저명/키필드/표시필드/크기/검색패널/컬럼 설정/조회조건)을 그대로 둔 채 팝업키만
+    /// 비우고 신규입력 상태로 전환한다. 저장은 여기서 하지 않는다 - 팝업키를 입력하고(필요하면 몇 군데 고친 뒤) 저장 버튼을 눌러야
+    /// 새 팝업으로 실제 등록된다(신규 등록과 같은 저장 경로라 키 중복/필수값 검증도 그대로 적용). 컬럼/조회조건 행은 새 팝업키로 전부
+    /// 신규 등록되도록 "신규(Added)" 행으로 복사한다. 화면 값 그대로 복사하므로 저장 전 수정 내용도 함께 복사된다.</summary>
+    private void EnterCopyMode()
+    {
+        if (_editingPopupKey == null) return; // btnCopyPopup이 이 상태에선 비활성화라 보통 여기 안 옴
+
+        var sourceKey = _editingPopupKey;
+
+        gvw2.CloseEditor();
+        gvw2.UpdateCurrentRow();
+        gvw3.CloseEditor();
+        gvw3.UpdateCurrentRow();
+
+        try
+        {
+            var columns = CopyRows(_columns);
+            var searchFields = CopyRows(_searchFields);
+
+            SuppressDirtyTracking(() =>
+            {
+                _editingPopupKey = null; // 신규 모드 - 저장하면 "N"으로 등록된다
+                txtPopupKey.Text = string.Empty;
+                txtPopupKey.ReadOnly = false;
+                // 팝업명/프로시저명/키필드/표시필드/크기/검색패널/비고 등은 그대로 복사 - 여기서 일부러 안 지운다.
+
+                _columns = columns;
+                TrackDirty(_columns);
+                grd2.DataSource = _columns;
+
+                _searchFields = searchFields;
+                TrackDirty(_searchFields);
+                grd3.DataSource = _searchFields;
+            });
+
+            RefreshControlNmChoices();
+        }
+        catch (Exception ex)
+        {
+            AppMessageBox.Show($"[복사] 처리 중 오류가 발생했습니다.\n{ex.Message}", "오류", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            return;
+        }
+
+        sectionHeaderWyn3.Text = $"팝업 복사 등록 - '{sourceKey}'의 값을 그대로 복사했습니다. 새 팝업키를 입력하고 저장하면 등록됩니다.";
+        btnCopyPopup.Enabled = false;
+        txtPopupKey.Focus();
+    }
+
+    /// <summary>그리드에 바인딩된 DataTable의 화면상 행들을 새 테이블(같은 스키마)에 "신규(Added)" 행으로 복사한다 -
+    /// 새 팝업키로 저장할 때 컬럼/조회조건이 전부 신규 등록(SSP_SYS_POPUP_S_1/_S_2 'N')으로 나가게 하려는 것이다. 삭제 표시된
+    /// 행은 복사하지 않는다.</summary>
+    private static DataTable CopyRows(DataTable source)
+    {
+        var copy = source.Clone();
+        foreach (DataRow row in source.Rows)
+        {
+            if (row.RowState == DataRowState.Deleted) continue;
+
+            var newRow = copy.NewRow();
+            foreach (DataColumn col in source.Columns)
+                newRow[col.ColumnName] = row[col.ColumnName];
+            copy.Rows.Add(newRow);
+        }
+        return copy;
+    }
+
     private int AddMissingColumns(List<ProcColumnInfoDto> discovered)
     {
         var existing = _columns.Rows.Cast<DataRow>()
@@ -470,6 +561,9 @@ public partial class frmSysPopup : BaseForm
             row["control_type"] = p.SuggestedControlType;
             row["sort"] = nextSort++;
             row["width"] = 120;
+            row["lookup_key"] = DBNull.Value;
+            row["row_no"] = 1;
+            row["control_nm"] = DBNull.Value;
             _searchFields.Rows.Add(row);
             added++;
         }
@@ -520,6 +614,7 @@ public partial class frmSysPopup : BaseForm
             txtPopupWidth.Text = "700";
             txtPopupHeight.Text = "500";
             txtRemark.Text = string.Empty;
+            txtSearchPanelClass.Text = string.Empty;
 
             _columns = _columns.Clone();
             TrackDirty(_columns);
@@ -529,6 +624,8 @@ public partial class frmSysPopup : BaseForm
             TrackDirty(_searchFields);
             grd3.DataSource = _searchFields;
         });
+        sectionHeaderWyn3.Text = "팝업 상세";
+        btnCopyPopup.Enabled = false;
         txtPopupKey.Focus();
     }
 
@@ -552,10 +649,15 @@ public partial class frmSysPopup : BaseForm
             txtPopupWidth.Text = Str(popup, "popup_width");
             txtPopupHeight.Text = Str(popup, "popup_height");
             txtRemark.Text = Str(popup, "remark");
+            txtSearchPanelClass.Text = Str(popup, "search_panel_class");
         });
+
+        sectionHeaderWyn3.Text = "팝업 상세";
+        btnCopyPopup.Enabled = true;
 
         if (!isSamePopup)
         {
+            RefreshControlNmChoices();
             _ = LoadColumnsAsync(popupKey);
             _ = LoadSearchFieldsAsync(popupKey);
         }

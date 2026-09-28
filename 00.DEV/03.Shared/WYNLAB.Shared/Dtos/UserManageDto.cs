@@ -34,6 +34,12 @@ public class UserListItemDto
     /// (사장님 지시, 2026-08-31 - "시스템관리자" 판단 조건이라 UI 편집 경로를 아예 없앰).</summary>
     public bool DeveloperYn { get; set; }
     public DateTime? LastLoginDt { get; set; }
+
+    /// <summary>TSMUSER.LAST_PWD_CHANGE_DATE - 조회 전용(표시용). USP_SM_USERAUTH_S_3(로그인 후
+    /// 변경)/USP_SM_PWDRESET_S work_type='C'(이메일 셀프 초기화) 둘 다 비밀번호를 바꿀 때마다
+    /// GETDATE()로 이미 채운다 - 향후 시스템설정의 비밀번호 강제변경 주기 판단에 쓸 값
+    /// (2026-09-22).</summary>
+    public DateTime? LastPwdChangeDt { get; set; }
 }
 
 /// <summary>사용자 신규등록 요청 - 초기 비밀번호는 클라이언트가 정하지 않는다. 서버가

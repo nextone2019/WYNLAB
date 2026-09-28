@@ -10,7 +10,14 @@ public class UserRow
     public string UserId { get; set; } = string.Empty;
     public string UserNm { get; set; } = string.Empty;
     public string? EmpNo { get; set; }
+    /// <summary>TBAEMP.emp_nm - 세션의 사원 이름(UserNm은 로그인 사용자 이름이라 다를 수 있다).</summary>
+    public string? EmpNm { get; set; }
     public string? DeptNm { get; set; }
+    /// <summary>TSMUSER.EMP_ID/그 사원의 DEPT_ID(2026-09-22 추가) - EmpNo/DeptNm(표시용 문자열)과
+    /// 달리 실제 FK가 필요한 화면(구매요청등록 신규진입 자동입력 등)을 위해 원본 ID도 같이
+    /// 내려준다.</summary>
+    public long? EmpId { get; set; }
+    public long? DeptId { get; set; }
     /// <summary>TSMUSER.ACC_ID(TBAACC 참조, 2026-09-08 추가) - 로그인 세션에 사업장을 실어 보내기
     /// 위함(BA 모듈 저장프로시저들의 "로그인 세션에 사업장 생기면 채우도록 전환" TODO가 이 값을
     /// 쓰라는 뜻).</summary>

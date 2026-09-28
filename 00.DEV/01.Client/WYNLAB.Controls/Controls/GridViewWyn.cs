@@ -35,6 +35,31 @@ public class GridViewWyn : GridView
         _behavior.EnsureRoleApplied();
     }
 
+    private HashSet<string> _requiredFields = new(StringComparer.OrdinalIgnoreCase);
+
+    /// <summary>필수 입력 컬럼 - 그 컬럼의 FieldName을 쉼표로 적는다(예: "item_no,qty"). 디자이너 속성창의 WYNLAB 항목에서
+    /// 편집한다. 켜진 컬럼은 값이 비어 있는 셀이 필수 입력 색(연노랑)으로 보이고, 저장할 때(BaseForm.RunSaveAsync)
+    /// 새로 추가/수정한 행에서 비어 있으면 안내한다. 비어 있으면(기본값) 어떤 컬럼도 검사하지 않는다 -
+    /// 컨트롤의 Required와 같은 규칙(true인 것만 검사, false는 절대 검사 안 함).</summary>
+    [Category("WYNLAB")]
+    [Description("필수 입력 컬럼의 FieldName을 쉼표로 구분해서 적습니다(예: item_no,qty). 비어 있는 셀은 노란 배경으로 표시하고 저장 시 검사합니다.")]
+    [DefaultValue("")]
+    public string RequiredFields
+    {
+        get => string.Join(",", _requiredFields.OrderBy(x => x, StringComparer.OrdinalIgnoreCase));
+        set
+        {
+            _requiredFields = new HashSet<string>(
+                (value ?? string.Empty).Split(new[] { ',', ';' }, StringSplitOptions.RemoveEmptyEntries).Select(x => x.Trim()).Where(x => x.Length > 0),
+                StringComparer.OrdinalIgnoreCase);
+            if (GridControl != null) GridControl.Invalidate();
+        }
+    }
+
+    /// <summary>이 컬럼이 RequiredFields에 들어 있는지.</summary>
+    public bool IsRequiredColumn(GridColumn? column) =>
+        column != null && !string.IsNullOrEmpty(column.FieldName) && _requiredFields.Contains(column.FieldName);
+
     /// <summary>행번호 표시 - 기본은 꺼져있다(선택적). 켜면 왼쪽 인디케이터에 1, 2, 3... 순번이 표시된다.</summary>
     [Category("WYNLAB")]
     [Description("왼쪽 인디케이터에 행 번호(1, 2, 3...)를 표시합니다.")]

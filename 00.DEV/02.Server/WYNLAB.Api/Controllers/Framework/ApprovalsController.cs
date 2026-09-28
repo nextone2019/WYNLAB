@@ -147,6 +147,8 @@ public class ApprovalsController : ControllerBase
         DocId = Convert.ToInt64(row["doc_id"]),
         FormId = row["form_id"]?.ToString(),
         ReqEmpNm = row.TryGetValue("req_emp_nm", out var v) ? v?.ToString() : null,
+        StatCd = row.TryGetValue("stat_cd", out var sc) ? sc?.ToString() : null,
+        CurApprEmpNm = row.TryGetValue("cur_appr_emp_nm", out var ca) ? ca?.ToString() : null,
     };
 
     [HttpGet("dept-tree")]

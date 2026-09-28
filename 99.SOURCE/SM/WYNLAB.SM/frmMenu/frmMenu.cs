@@ -44,7 +44,7 @@ public partial class frmMenu : BaseForm
 
         Text = "메뉴관리";
 
-        Controls.Add(BuildScreenHeader());
+        // 상단 화면명 타이틀(BuildScreenHeader)은 이 화면에서 뺐다(2026-09-26 요청) - 아래 트리 제목만 남긴다.
 
 
         // svgImageCollection1(디자이너 갤러리에서 고른 datapanel/open 두 아이콘)은 DevExpress 전용
@@ -62,7 +62,7 @@ public partial class frmMenu : BaseForm
             e.Node.ImageIndex = e.Node.SelectImageIndex = menuType switch
             {
                 "GROUP" => 1,   // menuTypeIcons의 1번 = "open"
-                "FORM" => 0,    // menuTypeIcons의 0번 = "datapanel"
+                "FORM" => -1,   // 폼(화면) 노드는 아이콘 없음(2026-09-26 요청) - 0번 "datapanel"은 안 씀
                 _ => -1         // 아이콘 없음
             };
         };

@@ -16,6 +16,11 @@ public class PopupDefinitionDto
     public string DisplayField { get; set; } = string.Empty;
     public int PopupWidth { get; set; } = 700;
     public int PopupHeight { get; set; } = 500;
+
+    /// <summary>비어있지 않으면 자동 생성 대신 이 클래스(예: "WYNLAB.BA.pnlItemSearch", PopupSearchPanelBase
+    /// 상속 UserControl)를 검색조건 영역으로 쓴다(2026-09-25). 그리드 결과 컬럼은 여전히 Columns 정의대로.</summary>
+    public string? SearchPanelClass { get; set; }
+
     public List<PopupColumnDto> Columns { get; set; } = new();
     public List<PopupSearchFieldDto> SearchFields { get; set; } = new();
 }
@@ -35,7 +40,10 @@ public class PopupColumnDto
 /// <summary>팝업 상단 검색창의 조회조건 하나 - 프로시저마다 파라미터명/개수가 전부 다르므로
 /// (모든 팝업이 @p_keyword 하나로 통일된다는 가정을 버림) 팝업별로 sysPopUpS에 저장해둔다.
 /// ParamNm은 실제 프로시저 파라미터명에서 앞의 '@'를 뗀 것(GenericDataRepository에 넘길 때
-/// 그대로 딕셔너리 키로 쓴다 - column_nm이 '@' 없이 저장되는 것과 같은 컨벤션).</summary>
+/// 그대로 딕셔너리 키로 쓴다 - column_nm이 '@' 없이 저장되는 것과 같은 컨벤션).
+/// ControlType: TEXT/DATE/LOOKUP. LOOKUP이면 LookupKey(sysLookupM.lookup_key, LookUpEditWyn.LookupKey와
+/// 같은 이름 규칙)로 어떤 콤보 목록을 쓸지 지정한다. RowNo는 조회조건이 한 줄에 다 안 들어갈 때
+/// 몇 번째 줄에 놓을지(1부터) - 같은 RowNo끼리 Sort 순으로 왼쪽부터 늘어놓는다(2026-09-23 요청).</summary>
 public class PopupSearchFieldDto
 {
     public string ParamNm { get; set; } = string.Empty;
@@ -43,6 +51,12 @@ public class PopupSearchFieldDto
     public string ControlType { get; set; } = "TEXT";
     public int Sort { get; set; }
     public int Width { get; set; } = 100;
+    public string? LookupKey { get; set; }
+    public int RowNo { get; set; } = 1;
+
+    /// <summary>전용 검색패널(PopupDefinitionDto.SearchPanelClass)을 쓸 때, 이 파라미터의 값을 읽어올
+    /// 패널 컨트롤의 Name. 비어있으면 "컨트롤 Name = 파라미터명" 규칙으로 찾는다.</summary>
+    public string? ControlNm { get; set; }
 }
 
 /// <summary>"컬럼생성" 버튼 - 프로시저를 실행하지 않고 결과셋 구조만 읽어온 것(sys.dm_exec_describe_first_result_set).</summary>

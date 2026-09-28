@@ -95,6 +95,8 @@ public partial class popFileUpload
             // 
             // panSummary
             // 
+            this.panSummary.Appearance.BackColor = System.Drawing.Color.White;
+            this.panSummary.Appearance.Options.UseBackColor = true;
             this.panSummary.Controls.Add(this.progressUpload);
             this.panSummary.Controls.Add(this.lblSummary);
             this.panSummary.Dock = System.Windows.Forms.DockStyle.Bottom;
@@ -123,6 +125,8 @@ public partial class popFileUpload
             // 
             // panFooter
             // 
+            this.panFooter.Appearance.BackColor = System.Drawing.Color.White;
+            this.panFooter.Appearance.Options.UseBackColor = true;
             this.panFooter.Controls.Add(this.btnClose);
             this.panFooter.Dock = System.Windows.Forms.DockStyle.Bottom;
             this.panFooter.EdgeLineColor = System.Drawing.Color.FromArgb(((int)(((byte)(228)))), ((int)(((byte)(229)))), ((int)(((byte)(232)))));
@@ -168,6 +172,8 @@ public partial class popFileUpload
             // 
             // panToolbar
             // 
+            this.panToolbar.Appearance.BackColor = System.Drawing.Color.White;
+            this.panToolbar.Appearance.Options.UseBackColor = true;
             this.panToolbar.Controls.Add(this.btnSelectFile);
             this.panToolbar.Controls.Add(this.btnDelete);
             this.panToolbar.Controls.Add(this.btnDownload);
@@ -232,6 +238,8 @@ public partial class popFileUpload
             // 
             // panHeader
             // 
+            this.panHeader.Appearance.BackColor = System.Drawing.Color.White;
+            this.panHeader.Appearance.Options.UseBackColor = true;
             this.panHeader.Controls.Add(this.lblTarget);
             this.panHeader.Dock = System.Windows.Forms.DockStyle.Top;
             this.panHeader.EdgeLineColor = System.Drawing.Color.FromArgb(((int)(((byte)(228)))), ((int)(((byte)(229)))), ((int)(((byte)(232)))));
@@ -250,6 +258,8 @@ public partial class popFileUpload
             // 
             // panelWyn1
             // 
+            this.panelWyn1.Appearance.BackColor = System.Drawing.Color.White;
+            this.panelWyn1.Appearance.Options.UseBackColor = true;
             this.panelWyn1.Controls.Add(this.grd1);
             this.panelWyn1.Controls.Add(this.panPreview);
             this.panelWyn1.Controls.Add(this.panSummary);
@@ -271,7 +281,7 @@ public partial class popFileUpload
             this.grd1.Name = "grd1";
             this.grd1.RepositoryItems.AddRange(new DevExpress.XtraEditors.Repository.RepositoryItem[] {
             this.repositoryItemCheckEdit1});
-            this.grd1.Size = new System.Drawing.Size(851, 441);
+            this.grd1.Size = new System.Drawing.Size(527, 441);
             this.grd1.TabIndex = 7;
             this.grd1.ViewCollection.AddRange(new DevExpress.XtraGrid.Views.Base.BaseView[] {
             this.gvw1});
@@ -451,11 +461,13 @@ public partial class popFileUpload
             // 
             // panPreview
             // 
+            this.panPreview.Appearance.BackColor = System.Drawing.Color.White;
+            this.panPreview.Appearance.Options.UseBackColor = true;
             this.panPreview.Dock = System.Windows.Forms.DockStyle.Right;
             this.panPreview.EdgeLineColor = System.Drawing.Color.FromArgb(((int)(((byte)(228)))), ((int)(((byte)(229)))), ((int)(((byte)(232)))));
-            this.panPreview.Location = new System.Drawing.Point(851, 80);
+            this.panPreview.Location = new System.Drawing.Point(527, 80);
             this.panPreview.Name = "panPreview";
-            this.panPreview.Size = new System.Drawing.Size(265, 441);
+            this.panPreview.Size = new System.Drawing.Size(589, 441);
             this.panPreview.TabIndex = 8;
             // 
             // popFileUpload

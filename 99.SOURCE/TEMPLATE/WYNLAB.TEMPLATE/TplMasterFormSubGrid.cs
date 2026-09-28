@@ -283,6 +283,7 @@ public partial class TplMasterFormSubGrid : BaseForm
     public override Task NewClick()
     {
         EnterNewMode();
+        FocusFirstEntryField(panData); // 사업장 다음 첫 탭오더 컨트롤에 커서(표준)
         return Task.CompletedTask;
     }
 

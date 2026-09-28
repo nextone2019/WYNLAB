@@ -65,6 +65,18 @@ public class PanelWyn : PanelControl
     protected override DevExpress.XtraEditors.Controls.BorderStyles DefaultBorderStyle =>
         DevExpress.XtraEditors.Controls.BorderStyles.NoBorder;
 
+    /// <summary>DevExpress PanelControl은 자기 자신의 배경을 순정 WinForms .BackColor가 아니라
+    /// Appearance.BackColor(+UseBackColor)로 그린다 - .BackColor만 설정하면 값은 저장되지만
+    /// (Style=Card인 자식이 Parent.BackColor로 읽어가는 용도로는 충분) 패널 자기 자신은 계속
+    /// 스킨 기본색으로 보인다. 매번 두 속성을 같이 챙기지 않아도 되도록 여기서 자동 동기화한다
+    /// (2026-09-22 캔버스 배경이 하나도 안 보이던 문제의 원인).</summary>
+    protected override void OnBackColorChanged(EventArgs e)
+    {
+        base.OnBackColorChanged(e);
+        Appearance.BackColor = BackColor;
+        Appearance.Options.UseBackColor = true;
+    }
+
     [Category("WYNLAB")]
     [Description("화면 공통 레이아웃 역할(구분선/카드)을 한 번에 적용합니다.")]
     [DefaultValue(PanelWynStyle.None)]
@@ -230,6 +242,7 @@ public class PanelWyn : PanelControl
     private static GraphicsPath RoundedRect(Rectangle bounds, int radius)
     {
         var path = new GraphicsPath();
+        if (radius <= 0) { path.AddRectangle(bounds); return path; } // 라운드 0 = 각진 카드(AddArc는 지름 0이면 예외)
         var d = radius * 2;
         path.AddArc(bounds.X, bounds.Y, d, d, 180, 90);
         path.AddArc(bounds.Right - d, bounds.Y, d, d, 270, 90);

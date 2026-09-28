@@ -75,6 +75,8 @@ public partial class frmCustList
             // 
             // panBody
             // 
+            this.panBody.Appearance.BackColor = System.Drawing.Color.White;
+            this.panBody.Appearance.Options.UseBackColor = true;
             this.panBody.Controls.Add(this.grd1);
             this.panBody.Controls.Add(this.paTitle1);
             this.panBody.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -386,6 +388,8 @@ public partial class frmCustList
             // 
             // paTitle1
             // 
+            this.paTitle1.Appearance.BackColor = System.Drawing.Color.White;
+            this.paTitle1.Appearance.Options.UseBackColor = true;
             this.paTitle1.Controls.Add(this.sectionHeaderWyn4);
             this.paTitle1.Dock = System.Windows.Forms.DockStyle.Top;
             this.paTitle1.EdgeLineColor = System.Drawing.Color.FromArgb(((int)(((byte)(228)))), ((int)(((byte)(229)))), ((int)(((byte)(232)))));
@@ -406,7 +410,7 @@ public partial class frmCustList
             this.sectionHeaderWyn4.Size = new System.Drawing.Size(1230, 25);
             this.sectionHeaderWyn4.SvgIcon = ((DevExpress.Utils.Svg.SvgImage)(resources.GetObject("sectionHeaderWyn4.SvgIcon")));
             this.sectionHeaderWyn4.TabIndex = 8;
-            this.sectionHeaderWyn4.Text = "LIST";
+            this.sectionHeaderWyn4.Text = "거래처 LIST";
             // 
             // panHeader
             // 
@@ -440,6 +444,8 @@ public partial class frmCustList
             // 
             // paTitleH
             // 
+            this.paTitleH.Appearance.BackColor = System.Drawing.Color.White;
+            this.paTitleH.Appearance.Options.UseBackColor = true;
             this.paTitleH.Controls.Add(this.sectionHeaderWyn1);
             this.paTitleH.Dock = System.Windows.Forms.DockStyle.Top;
             this.paTitleH.EdgeLineColor = System.Drawing.Color.FromArgb(((int)(((byte)(228)))), ((int)(((byte)(229)))), ((int)(((byte)(232)))));

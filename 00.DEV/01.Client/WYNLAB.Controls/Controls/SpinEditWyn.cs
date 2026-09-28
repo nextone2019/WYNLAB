@@ -86,8 +86,7 @@ public class SpinEditWyn : SpinEdit
             }
             else
             {
-                Properties.Appearance.Options.UseBackColor = false;
-                Properties.Appearance.Options.UseForeColor = false;
+                this.ClearRequired();
             }
         }
     }

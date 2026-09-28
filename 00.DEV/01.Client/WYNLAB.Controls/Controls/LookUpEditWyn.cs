@@ -87,6 +87,12 @@ public class LookUpEditWyn : LookUpEdit
     private string? _where;
     private string? _lookupKey;
     private readonly Dictionary<string, string?> _lookupParams = new();
+    private List<CodeLookupItem> _loadedItems = new();
+
+    /// <summary>지금까지 LookupKey로 불러온 목록의 첫 실제 항목(0번은 항상 빈 값이라 제외) 값 -
+    /// 아직 로드 전이면 null. "신규입력 시 이 콤보를 목록 1번째로 기본값 세팅" 같은 요구에 쓴다
+    /// (예: frmPo 발주구분). 비동기 재조회 없이 이미 불러와 있는 목록을 그대로 읽는다.</summary>
+    public string? FirstItemValue => _loadedItems.Count > 1 ? _loadedItems[1].Value : null;
 
     public LookUpEditWyn()
     {
@@ -174,6 +180,7 @@ public class LookUpEditWyn : LookUpEdit
 
             var items = result.Items;
             items.Insert(0, new CodeLookupItem()); // ProcName/Where 경로와 같은 이유 - 빈 값으로 되돌릴 수 있게
+            _loadedItems = items;
 
             var multiColumn = ComboLookupColumnBuilder.Build(items, result.Columns);
             if (multiColumn != null)
@@ -260,8 +267,7 @@ public class LookUpEditWyn : LookUpEdit
             }
             else
             {
-                Properties.Appearance.Options.UseBackColor = false;
-                Properties.Appearance.Options.UseForeColor = false;
+                this.ClearRequired();
             }
         }
     }

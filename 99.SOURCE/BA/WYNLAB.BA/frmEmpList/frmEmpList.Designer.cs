@@ -239,6 +239,8 @@ public partial class frmEmpList
             // chkEdit1
             // 
             this.chkEdit1.Name = "chkEdit1";
+            this.chkEdit1.ValueChecked = "Y";
+            this.chkEdit1.ValueUnchecked = "N";
             // 
             // col1RetDate
             // 
@@ -361,10 +363,6 @@ public partial class frmEmpList
             this.txtDeptNm.LookupKey = "P_DEPT";
             this.txtDeptNm.MatchField = "dept_nm";
             this.txtDeptNm.Name = "txtDeptNm";
-            this.txtDeptNm.Properties.Appearance.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(249)))), ((int)(((byte)(219)))));
-            this.txtDeptNm.Properties.Appearance.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))));
-            this.txtDeptNm.Properties.Appearance.Options.UseBackColor = true;
-            this.txtDeptNm.Properties.Appearance.Options.UseForeColor = true;
             this.txtDeptNm.Properties.Buttons.AddRange(new DevExpress.XtraEditors.Controls.EditorButton[] {
             new DevExpress.XtraEditors.Controls.EditorButton(DevExpress.XtraEditors.Controls.ButtonPredefines.Ellipsis, "", 24, true, true, false, editorButtonImageOptions1, new DevExpress.Utils.KeyShortcut(System.Windows.Forms.Keys.None), serializableAppearanceObject1, serializableAppearanceObject2, serializableAppearanceObject3, serializableAppearanceObject4, "", null, null, DevExpress.Utils.ToolTipAnchor.Default)});
             this.txtDeptNm.Size = new System.Drawing.Size(175, 20);

@@ -56,8 +56,11 @@
     <Reference Include="DevExpress.XtraLayout.v21.2">
       <HintPath>C:\Program Files (x86)\DevExpress 21.2\Components\Bin\Framework\DevExpress.XtraLayout.v21.2.dll</HintPath>
     </Reference>
-    <!-- 이 모듈의 화면 중 TreeList(권한부여 같은 트리 UI)를 쓰는 화면이 생기면 SM처럼
-         DevExpress.XtraTreeList.v21.2 참조를 여기에 추가할 것. -->
+    <!-- BaseForm.ConfirmMasterRowSwitch의 TreeList 오버로드가 참조하는 타입이라 TreeList를
+         직접 쓰지 않는 화면(frmSaPrice)도 그리드만 쓰면 이 참조가 필요하다(frmPoPrice와 동일). -->
+    <Reference Include="DevExpress.XtraTreeList.v21.2">
+      <HintPath>C:\Program Files (x86)\DevExpress 21.2\Components\Bin\Framework\DevExpress.XtraTreeList.v21.2.dll</HintPath>
+    </Reference>
   </ItemGroup>
 
   <!-- WYNLAB.BaseForm/WYNLAB.Controls/WYNLAB.Shared를 ProjectReference(소스 참조, 매번 같이
@@ -105,6 +108,48 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="frmSaPrice\frmSaPrice.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="frmSaPrice\frmSaPrice.Designer.cs">
+      <DependentUpon>frmSaPrice.cs</DependentUpon>
+    </Compile>
+    <EmbeddedResource Update="frmSaPrice\frmSaPrice.resx">
+      <DependentUpon>frmSaPrice.cs</DependentUpon>
+    </EmbeddedResource>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="frmQt\frmQt.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="frmQt\frmQt.Designer.cs">
+      <DependentUpon>frmQt.cs</DependentUpon>
+    </Compile>
+    <EmbeddedResource Update="frmQt\frmQt.resx">
+      <DependentUpon>frmQt.cs</DependentUpon>
+    </EmbeddedResource>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="frmSo\frmSo.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="frmSo\frmSo.Designer.cs">
+      <DependentUpon>frmSo.cs</DependentUpon>
+    </Compile>
+    <EmbeddedResource Update="frmSo\frmSo.resx">
+      <DependentUpon>frmSo.cs</DependentUpon>
+    </EmbeddedResource>
+    <Compile Update="frmSo\popQtPick.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="frmSo\popQtPick.Designer.cs">
+      <DependentUpon>popQtPick.cs</DependentUpon>
+    </Compile>
   </ItemGroup>
 
   <!-- 빌드 결과를 Shell의 Modules 폴더로 복사해서, 개발 중에 F5를 누르면 바로 최신 화면이

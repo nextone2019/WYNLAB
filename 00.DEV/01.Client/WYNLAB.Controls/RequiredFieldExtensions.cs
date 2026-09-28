@@ -33,6 +33,18 @@ namespace WYNLAB.Base;
 public static class RequiredFieldExtensions
 {
     /// <summary>입력 컨트롤(TextEdit/DateEdit/SpinEdit/ComboBoxEdit 등 BaseEdit 계열 전부)에 필수입력 스타일 적용</summary>
+    /// <summary>필수 표시를 되돌린다(Required=false) - 사용 플래그만 끄면 안 된다: 디자이너는 MarkRequired가 넣은 배경/글자색
+    /// 값 자체를 .Designer.cs에 저장하고, 다시 열 때 그 값을 대입하면 사용 플래그가 자동으로 켜져서 노란색이 되살아난다
+    /// (2026-09-25 - Required를 false로 바꿔도 색이 남던 원인). 색 값까지 비워서 저장할 것이 없게 한다.</summary>
+    public static T ClearRequired<T>(this T edit) where T : BaseEdit
+    {
+        edit.Properties.Appearance.BackColor = System.Drawing.Color.Empty;
+        edit.Properties.Appearance.ForeColor = System.Drawing.Color.Empty;
+        edit.Properties.Appearance.Options.UseBackColor = false;
+        edit.Properties.Appearance.Options.UseForeColor = false;
+        return edit;
+    }
+
     public static T MarkRequired<T>(this T edit) where T : BaseEdit
     {
         edit.Properties.Appearance.BackColor = UiTheme.RequiredFieldBackColor;

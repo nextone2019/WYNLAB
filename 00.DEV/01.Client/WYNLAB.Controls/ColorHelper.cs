@@ -8,9 +8,16 @@ namespace WYNLAB.Base;
 /// </summary>
 public static class ColorHelper
 {
+    /// <summary>"#RRGGBB"/"RRGGBB"뿐 아니라 색 이름("LightCyan")도 받는다 - 사이트환경설정(frmSiteConfig)이 예전엔
+    /// ColorTranslator.ToHtml로 저장해서 알려진 색은 이름으로 DB에 들어갔고, 그러면 16진수 파싱이 예외를 내서
+    /// SiteThemeSync가 조용히 무시하는 바람에 저장한 색이 아무 화면에도 적용되지 않았다(2026-09-25).</summary>
     public static Color FromHex(string hex)
     {
-        hex = hex.TrimStart('#');
+        hex = hex.Trim();
+        var digits = hex.TrimStart('#');
+        if (digits.Length != 6 || !digits.All(Uri.IsHexDigit)) return ColorTranslator.FromHtml(hex);
+
+        hex = digits;
         var r = Convert.ToInt32(hex.Substring(0, 2), 16);
         var g = Convert.ToInt32(hex.Substring(2, 2), 16);
         var b = Convert.ToInt32(hex.Substring(4, 2), 16);

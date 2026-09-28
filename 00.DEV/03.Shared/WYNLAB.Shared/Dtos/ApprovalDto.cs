@@ -146,4 +146,11 @@ public class ApprovalDashboardItemDto
     public string? FormId { get; set; }
     /// <summary>Pending 목록에서만 값이 있다(기안자 이름) - Drafted 목록은 로그인 사용자 본인이라 불필요.</summary>
     public string? ReqEmpNm { get; set; }
+    /// <summary>Drafted 목록에서만 값이 있다(TAPDOC.app_stat_cd: 0=결재상신/1=진행중/E=승인완료/R=반려) -
+    /// Pending 목록은 정의상 전부 "내 차례 대기중"이라 불필요.</summary>
+    public string? StatCd { get; set; }
+    /// <summary>Drafted 목록에서만 값이 있다 - 이 문서를 지금 승인해야 할 차례인 사람 이름
+    /// (승인완료/반려 등 더 이상 대기 라인이 없으면 NULL). Pending 목록은 로그인 사용자 본인이
+    /// 항상 그 대상이라 불필요.</summary>
+    public string? CurApprEmpNm { get; set; }
 }

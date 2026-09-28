@@ -35,11 +35,11 @@ public partial class frmItemGrp
             this.tabDetail4 = new DevExpress.XtraTab.XtraTabPage();
             this.grd5 = new WYNLAB.Base.Controls.GridControlWyn();
             this.gvw5 = new WYNLAB.Base.Controls.GridViewWyn();
-            this.panelWyn1 = new WYNLAB.Base.Controls.PanelWyn();
-            this.sectionHeaderWyn2 = new WYNLAB.Base.Controls.SectionHeaderWyn();
             this.panelWyn7 = new WYNLAB.Base.Controls.PanelWyn();
             this.btnDeletRow2 = new WYNLAB.Base.Controls.ButtonWyn();
             this.btnAddRow2 = new WYNLAB.Base.Controls.ButtonWyn();
+            this.panelWyn1 = new WYNLAB.Base.Controls.PanelWyn();
+            this.sectionHeaderWyn2 = new WYNLAB.Base.Controls.SectionHeaderWyn();
             this.panelWyn5 = new WYNLAB.Base.Controls.PanelWyn();
             this.panData = new WYNLAB.Base.Controls.PanelWyn();
             this.lblDetailAccId = new DevExpress.XtraEditors.LabelControl();
@@ -95,10 +95,10 @@ public partial class frmItemGrp
             this.tabDetail4.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.grd5)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.gvw5)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.panelWyn1)).BeginInit();
-            this.panelWyn1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.panelWyn7)).BeginInit();
             this.panelWyn7.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.panelWyn1)).BeginInit();
+            this.panelWyn1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.panelWyn5)).BeginInit();
             this.panelWyn5.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.panData)).BeginInit();
@@ -143,6 +143,8 @@ public partial class frmItemGrp
             // 
             // panelWyn3
             // 
+            this.panelWyn3.Appearance.BackColor = System.Drawing.Color.White;
+            this.panelWyn3.Appearance.Options.UseBackColor = true;
             this.panelWyn3.Controls.Add(this.panelWyn4);
             this.panelWyn3.Controls.Add(this.splitterWyn1);
             this.panelWyn3.Controls.Add(this.panelWyn8);
@@ -155,7 +157,10 @@ public partial class frmItemGrp
             // 
             // panelWyn4
             // 
+            this.panelWyn4.Appearance.BackColor = System.Drawing.Color.White;
+            this.panelWyn4.Appearance.Options.UseBackColor = true;
             this.panelWyn4.Controls.Add(this.tabDetailGrids);
+            this.panelWyn4.Controls.Add(this.panelWyn7);
             this.panelWyn4.Controls.Add(this.panelWyn1);
             this.panelWyn4.Controls.Add(this.panelWyn5);
             this.panelWyn4.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -169,10 +174,10 @@ public partial class frmItemGrp
             // tabDetailGrids
             // 
             this.tabDetailGrids.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.tabDetailGrids.Location = new System.Drawing.Point(3, 265);
+            this.tabDetailGrids.Location = new System.Drawing.Point(3, 295);
             this.tabDetailGrids.Name = "tabDetailGrids";
             this.tabDetailGrids.SelectedTabPage = this.tabDetail1;
-            this.tabDetailGrids.Size = new System.Drawing.Size(820, 228);
+            this.tabDetailGrids.Size = new System.Drawing.Size(820, 198);
             this.tabDetailGrids.TabIndex = 7;
             this.tabDetailGrids.TabPages.AddRange(new DevExpress.XtraTab.XtraTabPage[] {
             this.tabDetail1,
@@ -185,7 +190,7 @@ public partial class frmItemGrp
             // 
             this.tabDetail1.Controls.Add(this.grd2);
             this.tabDetail1.Name = "tabDetail1";
-            this.tabDetail1.Size = new System.Drawing.Size(818, 202);
+            this.tabDetail1.Size = new System.Drawing.Size(818, 172);
             this.tabDetail1.Text = "tabDetail1";
             // 
             // grd2
@@ -199,7 +204,7 @@ public partial class frmItemGrp
             this.grd2.Location = new System.Drawing.Point(0, 0);
             this.grd2.MainView = this.gvw2;
             this.grd2.Name = "grd2";
-            this.grd2.Size = new System.Drawing.Size(818, 202);
+            this.grd2.Size = new System.Drawing.Size(818, 172);
             this.grd2.TabIndex = 0;
             this.grd2.ViewCollection.AddRange(new DevExpress.XtraGrid.Views.Base.BaseView[] {
             this.gvw2});
@@ -218,7 +223,7 @@ public partial class frmItemGrp
             // 
             this.tabDetail2.Controls.Add(this.grd3);
             this.tabDetail2.Name = "tabDetail2";
-            this.tabDetail2.Size = new System.Drawing.Size(818, 202);
+            this.tabDetail2.Size = new System.Drawing.Size(818, 172);
             this.tabDetail2.Text = "tabDetail2";
             // 
             // grd3
@@ -232,7 +237,7 @@ public partial class frmItemGrp
             this.grd3.Location = new System.Drawing.Point(0, 0);
             this.grd3.MainView = this.gvw3;
             this.grd3.Name = "grd3";
-            this.grd3.Size = new System.Drawing.Size(818, 202);
+            this.grd3.Size = new System.Drawing.Size(818, 172);
             this.grd3.TabIndex = 0;
             this.grd3.ViewCollection.AddRange(new DevExpress.XtraGrid.Views.Base.BaseView[] {
             this.gvw3});
@@ -251,7 +256,7 @@ public partial class frmItemGrp
             // 
             this.tabDetail3.Controls.Add(this.grd4);
             this.tabDetail3.Name = "tabDetail3";
-            this.tabDetail3.Size = new System.Drawing.Size(818, 202);
+            this.tabDetail3.Size = new System.Drawing.Size(818, 172);
             this.tabDetail3.Text = "tabDetail3";
             // 
             // grd4
@@ -265,7 +270,7 @@ public partial class frmItemGrp
             this.grd4.Location = new System.Drawing.Point(0, 0);
             this.grd4.MainView = this.gvw4;
             this.grd4.Name = "grd4";
-            this.grd4.Size = new System.Drawing.Size(818, 202);
+            this.grd4.Size = new System.Drawing.Size(818, 172);
             this.grd4.TabIndex = 0;
             this.grd4.ViewCollection.AddRange(new DevExpress.XtraGrid.Views.Base.BaseView[] {
             this.gvw4});
@@ -284,7 +289,7 @@ public partial class frmItemGrp
             // 
             this.tabDetail4.Controls.Add(this.grd5);
             this.tabDetail4.Name = "tabDetail4";
-            this.tabDetail4.Size = new System.Drawing.Size(818, 202);
+            this.tabDetail4.Size = new System.Drawing.Size(818, 172);
             this.tabDetail4.Text = "tabDetail4";
             // 
             // grd5
@@ -298,7 +303,7 @@ public partial class frmItemGrp
             this.grd5.Location = new System.Drawing.Point(0, 0);
             this.grd5.MainView = this.gvw5;
             this.grd5.Name = "grd5";
-            this.grd5.Size = new System.Drawing.Size(818, 202);
+            this.grd5.Size = new System.Drawing.Size(818, 172);
             this.grd5.TabIndex = 0;
             this.grd5.ViewCollection.AddRange(new DevExpress.XtraGrid.Views.Base.BaseView[] {
             this.gvw5});
@@ -313,10 +318,60 @@ public partial class frmItemGrp
             this.gvw5.OptionsView.ColumnAutoWidth = false;
             this.gvw5.OptionsView.ShowGroupPanel = false;
             // 
+            // panelWyn7
+            // 
+            this.panelWyn7.Appearance.BackColor = System.Drawing.Color.White;
+            this.panelWyn7.Appearance.Options.UseBackColor = true;
+            this.panelWyn7.Controls.Add(this.btnDeletRow2);
+            this.panelWyn7.Controls.Add(this.btnAddRow2);
+            this.panelWyn7.Dock = System.Windows.Forms.DockStyle.Top;
+            this.panelWyn7.EdgeLineColor = System.Drawing.Color.FromArgb(((int)(((byte)(228)))), ((int)(((byte)(229)))), ((int)(((byte)(232)))));
+            this.panelWyn7.Location = new System.Drawing.Point(3, 265);
+            this.panelWyn7.Name = "panelWyn7";
+            this.panelWyn7.Padding = new System.Windows.Forms.Padding(5, 3, 0, 2);
+            this.panelWyn7.Size = new System.Drawing.Size(820, 30);
+            this.panelWyn7.TabIndex = 9;
+            this.panelWyn7.Visible = false;
+            // 
+            // btnDeletRow2
+            // 
+            this.btnDeletRow2.BackColor = System.Drawing.Color.Transparent;
+            this.btnDeletRow2.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(245)))), ((int)(((byte)(198)))), ((int)(((byte)(193)))));
+            this.btnDeletRow2.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.btnDeletRow2.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(253)))), ((int)(((byte)(236)))), ((int)(((byte)(234)))));
+            this.btnDeletRow2.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(51)))), ((int)(((byte)(51)))), ((int)(((byte)(51)))));
+            this.btnDeletRow2.HoverColor = System.Drawing.Color.FromArgb(((int)(((byte)(240)))), ((int)(((byte)(245)))), ((int)(((byte)(255)))));
+            this.btnDeletRow2.Image = null;
+            this.btnDeletRow2.Location = new System.Drawing.Point(68, 4);
+            this.btnDeletRow2.Name = "btnDeletRow2";
+            this.btnDeletRow2.PressedColor = System.Drawing.Color.FromArgb(((int)(((byte)(225)))), ((int)(((byte)(235)))), ((int)(((byte)(253)))));
+            this.btnDeletRow2.Size = new System.Drawing.Size(58, 22);
+            this.btnDeletRow2.TabIndex = 0;
+            this.btnDeletRow2.Text = "행삭제";
+            this.btnDeletRow2.ToolTip = "행삭제(현재 탭)";
+            // 
+            // btnAddRow2
+            // 
+            this.btnAddRow2.BackColor = System.Drawing.Color.Transparent;
+            this.btnAddRow2.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(198)))), ((int)(((byte)(231)))), ((int)(((byte)(203)))));
+            this.btnAddRow2.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.btnAddRow2.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(228)))), ((int)(((byte)(245)))), ((int)(((byte)(231)))));
+            this.btnAddRow2.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(51)))), ((int)(((byte)(51)))), ((int)(((byte)(51)))));
+            this.btnAddRow2.HoverColor = System.Drawing.Color.FromArgb(((int)(((byte)(240)))), ((int)(((byte)(245)))), ((int)(((byte)(255)))));
+            this.btnAddRow2.Image = null;
+            this.btnAddRow2.Location = new System.Drawing.Point(6, 4);
+            this.btnAddRow2.Name = "btnAddRow2";
+            this.btnAddRow2.PressedColor = System.Drawing.Color.FromArgb(((int)(((byte)(225)))), ((int)(((byte)(235)))), ((int)(((byte)(253)))));
+            this.btnAddRow2.Size = new System.Drawing.Size(58, 22);
+            this.btnAddRow2.TabIndex = 0;
+            this.btnAddRow2.Text = "행추가";
+            this.btnAddRow2.ToolTip = "행추가(현재 탭)";
+            // 
             // panelWyn1
             // 
+            this.panelWyn1.Appearance.BackColor = System.Drawing.Color.White;
+            this.panelWyn1.Appearance.Options.UseBackColor = true;
             this.panelWyn1.Controls.Add(this.sectionHeaderWyn2);
-            this.panelWyn1.Controls.Add(this.panelWyn7);
             this.panelWyn1.Dock = System.Windows.Forms.DockStyle.Top;
             this.panelWyn1.EdgeLineColor = System.Drawing.Color.FromArgb(((int)(((byte)(228)))), ((int)(((byte)(229)))), ((int)(((byte)(232)))));
             this.panelWyn1.Location = new System.Drawing.Point(3, 238);
@@ -334,58 +389,15 @@ public partial class frmItemGrp
             this.sectionHeaderWyn2.Icon = WYNLAB.Base.Controls.SectionHeaderIcon.Folder;
             this.sectionHeaderWyn2.Location = new System.Drawing.Point(5, 0);
             this.sectionHeaderWyn2.Name = "sectionHeaderWyn2";
-            this.sectionHeaderWyn2.Size = new System.Drawing.Size(747, 25);
+            this.sectionHeaderWyn2.Size = new System.Drawing.Size(815, 25);
             this.sectionHeaderWyn2.SvgIcon = ((DevExpress.Utils.Svg.SvgImage)(resources.GetObject("sectionHeaderWyn2.SvgIcon")));
             this.sectionHeaderWyn2.TabIndex = 10;
             this.sectionHeaderWyn2.Text = "하위 목록";
             // 
-            // panelWyn7
-            // 
-            this.panelWyn7.Controls.Add(this.btnDeletRow2);
-            this.panelWyn7.Controls.Add(this.btnAddRow2);
-            this.panelWyn7.Dock = System.Windows.Forms.DockStyle.Right;
-            this.panelWyn7.EdgeLineColor = System.Drawing.Color.FromArgb(((int)(((byte)(228)))), ((int)(((byte)(229)))), ((int)(((byte)(232)))));
-            this.panelWyn7.Location = new System.Drawing.Point(752, 0);
-            this.panelWyn7.Name = "panelWyn7";
-            this.panelWyn7.Size = new System.Drawing.Size(68, 25);
-            this.panelWyn7.TabIndex = 9;
-            // 
-            // btnDeletRow2
-            // 
-            this.btnDeletRow2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnDeletRow2.BackColor = System.Drawing.Color.Transparent;
-            this.btnDeletRow2.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(245)))), ((int)(((byte)(198)))), ((int)(((byte)(193)))));
-            this.btnDeletRow2.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.btnDeletRow2.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(253)))), ((int)(((byte)(236)))), ((int)(((byte)(234)))));
-            this.btnDeletRow2.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(51)))), ((int)(((byte)(51)))), ((int)(((byte)(51)))));
-            this.btnDeletRow2.HoverColor = System.Drawing.Color.FromArgb(((int)(((byte)(240)))), ((int)(((byte)(245)))), ((int)(((byte)(255)))));
-            this.btnDeletRow2.Image = null;
-            this.btnDeletRow2.Location = new System.Drawing.Point(42, 2);
-            this.btnDeletRow2.Name = "btnDeletRow2";
-            this.btnDeletRow2.PressedColor = System.Drawing.Color.FromArgb(((int)(((byte)(225)))), ((int)(((byte)(235)))), ((int)(((byte)(253)))));
-            this.btnDeletRow2.Size = new System.Drawing.Size(24, 22);
-            this.btnDeletRow2.TabIndex = 0;
-            this.btnDeletRow2.ToolTip = "행삭제(현재 탭)";
-            // 
-            // btnAddRow2
-            // 
-            this.btnAddRow2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnAddRow2.BackColor = System.Drawing.Color.Transparent;
-            this.btnAddRow2.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(198)))), ((int)(((byte)(231)))), ((int)(((byte)(203)))));
-            this.btnAddRow2.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.btnAddRow2.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(228)))), ((int)(((byte)(245)))), ((int)(((byte)(231)))));
-            this.btnAddRow2.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(51)))), ((int)(((byte)(51)))), ((int)(((byte)(51)))));
-            this.btnAddRow2.HoverColor = System.Drawing.Color.FromArgb(((int)(((byte)(240)))), ((int)(((byte)(245)))), ((int)(((byte)(255)))));
-            this.btnAddRow2.Image = null;
-            this.btnAddRow2.Location = new System.Drawing.Point(10, 2);
-            this.btnAddRow2.Name = "btnAddRow2";
-            this.btnAddRow2.PressedColor = System.Drawing.Color.FromArgb(((int)(((byte)(225)))), ((int)(((byte)(235)))), ((int)(((byte)(253)))));
-            this.btnAddRow2.Size = new System.Drawing.Size(24, 22);
-            this.btnAddRow2.TabIndex = 0;
-            this.btnAddRow2.ToolTip = "행추가(현재 탭)";
-            // 
             // panelWyn5
             // 
+            this.panelWyn5.Appearance.BackColor = System.Drawing.Color.White;
+            this.panelWyn5.Appearance.Options.UseBackColor = true;
             this.panelWyn5.Controls.Add(this.panData);
             this.panelWyn5.Controls.Add(this.panelWyn6);
             this.panelWyn5.Dock = System.Windows.Forms.DockStyle.Top;
@@ -397,6 +409,8 @@ public partial class frmItemGrp
             // 
             // panData
             // 
+            this.panData.Appearance.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(240)))), ((int)(((byte)(240)))), ((int)(((byte)(240)))));
+            this.panData.Appearance.Options.UseBackColor = true;
             this.panData.BorderStyle = DevExpress.XtraEditors.Controls.BorderStyles.Default;
             this.panData.Controls.Add(this.lblDetailAccId);
             this.panData.Controls.Add(this.cboDetailAccId);
@@ -421,7 +435,7 @@ public partial class frmItemGrp
             // 
             this.lblDetailAccId.Appearance.Font = new System.Drawing.Font("맑은 고딕", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
             this.lblDetailAccId.Appearance.Options.UseFont = true;
-            this.lblDetailAccId.Location = new System.Drawing.Point(16, 19);
+            this.lblDetailAccId.Location = new System.Drawing.Point(44, 19);
             this.lblDetailAccId.Name = "lblDetailAccId";
             this.lblDetailAccId.Size = new System.Drawing.Size(36, 15);
             this.lblDetailAccId.TabIndex = 0;
@@ -430,7 +444,7 @@ public partial class frmItemGrp
             // cboDetailAccId
             // 
             this.cboDetailAccId.EditValue = "";
-            this.cboDetailAccId.Location = new System.Drawing.Point(120, 16);
+            this.cboDetailAccId.Location = new System.Drawing.Point(87, 16);
             this.cboDetailAccId.LookupKey = "L_ACC";
             this.cboDetailAccId.Name = "cboDetailAccId";
             this.cboDetailAccId.Properties.Appearance.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(249)))), ((int)(((byte)(219)))));
@@ -446,7 +460,7 @@ public partial class frmItemGrp
             // 
             // txtDetailGrpId
             // 
-            this.txtDetailGrpId.Location = new System.Drawing.Point(300, 42);
+            this.txtDetailGrpId.Location = new System.Drawing.Point(266, 43);
             this.txtDetailGrpId.Name = "txtDetailGrpId";
             this.txtDetailGrpId.Properties.ReadOnly = true;
             this.txtDetailGrpId.Size = new System.Drawing.Size(52, 20);
@@ -456,7 +470,7 @@ public partial class frmItemGrp
             // 
             this.lblDetailGrpNm.Appearance.Font = new System.Drawing.Font("맑은 고딕", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
             this.lblDetailGrpNm.Appearance.Options.UseFont = true;
-            this.lblDetailGrpNm.Location = new System.Drawing.Point(16, 45);
+            this.lblDetailGrpNm.Location = new System.Drawing.Point(44, 45);
             this.lblDetailGrpNm.Name = "lblDetailGrpNm";
             this.lblDetailGrpNm.Size = new System.Drawing.Size(36, 15);
             this.lblDetailGrpNm.TabIndex = 4;
@@ -464,7 +478,7 @@ public partial class frmItemGrp
             // 
             // txtDetailGrpNm
             // 
-            this.txtDetailGrpNm.Location = new System.Drawing.Point(120, 42);
+            this.txtDetailGrpNm.Location = new System.Drawing.Point(87, 43);
             this.txtDetailGrpNm.Name = "txtDetailGrpNm";
             this.txtDetailGrpNm.Properties.Appearance.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(249)))), ((int)(((byte)(219)))));
             this.txtDetailGrpNm.Properties.Appearance.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))));
@@ -478,7 +492,7 @@ public partial class frmItemGrp
             // 
             this.lblDetailGrpLvl.Appearance.Font = new System.Drawing.Font("맑은 고딕", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
             this.lblDetailGrpLvl.Appearance.Options.UseFont = true;
-            this.lblDetailGrpLvl.Location = new System.Drawing.Point(16, 73);
+            this.lblDetailGrpLvl.Location = new System.Drawing.Point(36, 73);
             this.lblDetailGrpLvl.Name = "lblDetailGrpLvl";
             this.lblDetailGrpLvl.Size = new System.Drawing.Size(44, 15);
             this.lblDetailGrpLvl.TabIndex = 6;
@@ -487,7 +501,7 @@ public partial class frmItemGrp
             // cboDetailGrpLvl
             // 
             this.cboDetailGrpLvl.EditValue = "";
-            this.cboDetailGrpLvl.Location = new System.Drawing.Point(120, 70);
+            this.cboDetailGrpLvl.Location = new System.Drawing.Point(87, 70);
             this.cboDetailGrpLvl.LookupKey = "L_CM0006";
             this.cboDetailGrpLvl.Name = "cboDetailGrpLvl";
             this.cboDetailGrpLvl.Properties.Appearance.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(249)))), ((int)(((byte)(219)))));
@@ -503,7 +517,7 @@ public partial class frmItemGrp
             // 
             // txtDetailParGrpId
             // 
-            this.txtDetailParGrpId.Location = new System.Drawing.Point(300, 97);
+            this.txtDetailParGrpId.Location = new System.Drawing.Point(266, 97);
             this.txtDetailParGrpId.Name = "txtDetailParGrpId";
             this.txtDetailParGrpId.Size = new System.Drawing.Size(52, 20);
             this.txtDetailParGrpId.TabIndex = 9;
@@ -512,7 +526,7 @@ public partial class frmItemGrp
             // 
             this.lblDetailParGrpNm.Appearance.Font = new System.Drawing.Font("맑은 고딕", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
             this.lblDetailParGrpNm.Appearance.Options.UseFont = true;
-            this.lblDetailParGrpNm.Location = new System.Drawing.Point(16, 100);
+            this.lblDetailParGrpNm.Location = new System.Drawing.Point(20, 100);
             this.lblDetailParGrpNm.Name = "lblDetailParGrpNm";
             this.lblDetailParGrpNm.Size = new System.Drawing.Size(60, 15);
             this.lblDetailParGrpNm.TabIndex = 10;
@@ -520,7 +534,7 @@ public partial class frmItemGrp
             // 
             // txtDetailParGrpNm
             // 
-            this.txtDetailParGrpNm.Location = new System.Drawing.Point(120, 97);
+            this.txtDetailParGrpNm.Location = new System.Drawing.Point(87, 97);
             this.txtDetailParGrpNm.Name = "txtDetailParGrpNm";
             this.txtDetailParGrpNm.Size = new System.Drawing.Size(178, 20);
             this.txtDetailParGrpNm.TabIndex = 11;
@@ -529,7 +543,7 @@ public partial class frmItemGrp
             // 
             this.lblDetailRemark.Appearance.Font = new System.Drawing.Font("맑은 고딕", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
             this.lblDetailRemark.Appearance.Options.UseFont = true;
-            this.lblDetailRemark.Location = new System.Drawing.Point(16, 130);
+            this.lblDetailRemark.Location = new System.Drawing.Point(56, 124);
             this.lblDetailRemark.Name = "lblDetailRemark";
             this.lblDetailRemark.Size = new System.Drawing.Size(24, 15);
             this.lblDetailRemark.TabIndex = 12;
@@ -537,13 +551,15 @@ public partial class frmItemGrp
             // 
             // memDetailRemark
             // 
-            this.memDetailRemark.Location = new System.Drawing.Point(120, 127);
+            this.memDetailRemark.Location = new System.Drawing.Point(87, 124);
             this.memDetailRemark.Name = "memDetailRemark";
             this.memDetailRemark.Size = new System.Drawing.Size(477, 75);
             this.memDetailRemark.TabIndex = 13;
             // 
             // panelWyn6
             // 
+            this.panelWyn6.Appearance.BackColor = System.Drawing.Color.White;
+            this.panelWyn6.Appearance.Options.UseBackColor = true;
             this.panelWyn6.Controls.Add(this.sectionHeaderWyn3);
             this.panelWyn6.Dock = System.Windows.Forms.DockStyle.Top;
             this.panelWyn6.EdgeLineColor = System.Drawing.Color.FromArgb(((int)(((byte)(228)))), ((int)(((byte)(229)))), ((int)(((byte)(232)))));
@@ -578,6 +594,8 @@ public partial class frmItemGrp
             // 
             // panelWyn8
             // 
+            this.panelWyn8.Appearance.BackColor = System.Drawing.Color.White;
+            this.panelWyn8.Appearance.Options.UseBackColor = true;
             this.panelWyn8.Controls.Add(this.tree1);
             this.panelWyn8.Controls.Add(this.panelWyn2);
             this.panelWyn8.Dock = System.Windows.Forms.DockStyle.Left;
@@ -683,6 +701,8 @@ public partial class frmItemGrp
             // 
             // panelWyn2
             // 
+            this.panelWyn2.Appearance.BackColor = System.Drawing.Color.White;
+            this.panelWyn2.Appearance.Options.UseBackColor = true;
             this.panelWyn2.Controls.Add(this.sectionHeaderWyn4);
             this.panelWyn2.Dock = System.Windows.Forms.DockStyle.Top;
             this.panelWyn2.EdgeLineColor = System.Drawing.Color.FromArgb(((int)(((byte)(228)))), ((int)(((byte)(229)))), ((int)(((byte)(232)))));
@@ -721,21 +741,25 @@ public partial class frmItemGrp
             // 
             // lblSearchGrpNm
             // 
+            this.lblSearchGrpNm.Appearance.Font = new System.Drawing.Font("맑은 고딕", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lblSearchGrpNm.Appearance.Options.UseFont = true;
             this.lblSearchGrpNm.Location = new System.Drawing.Point(17, 19);
             this.lblSearchGrpNm.Name = "lblSearchGrpNm";
-            this.lblSearchGrpNm.Size = new System.Drawing.Size(50, 14);
+            this.lblSearchGrpNm.Size = new System.Drawing.Size(60, 15);
             this.lblSearchGrpNm.TabIndex = 3;
             this.lblSearchGrpNm.Text = "품목그룹명";
             // 
             // txtGrpNm_Q
             // 
-            this.txtGrpNm_Q.Location = new System.Drawing.Point(74, 16);
+            this.txtGrpNm_Q.Location = new System.Drawing.Point(86, 16);
             this.txtGrpNm_Q.Name = "txtGrpNm_Q";
             this.txtGrpNm_Q.Size = new System.Drawing.Size(150, 20);
             this.txtGrpNm_Q.TabIndex = 4;
             // 
             // paTitle
             // 
+            this.paTitle.Appearance.BackColor = System.Drawing.Color.White;
+            this.paTitle.Appearance.Options.UseBackColor = true;
             this.paTitle.Controls.Add(this.sectionHeaderWyn1);
             this.paTitle.Dock = System.Windows.Forms.DockStyle.Top;
             this.paTitle.EdgeLineColor = System.Drawing.Color.FromArgb(((int)(((byte)(228)))), ((int)(((byte)(229)))), ((int)(((byte)(232)))));
@@ -784,10 +808,10 @@ public partial class frmItemGrp
             this.tabDetail4.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.grd5)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.gvw5)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.panelWyn1)).EndInit();
-            this.panelWyn1.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.panelWyn7)).EndInit();
             this.panelWyn7.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.panelWyn1)).EndInit();
+            this.panelWyn1.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.panelWyn5)).EndInit();
             this.panelWyn5.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.panData)).EndInit();

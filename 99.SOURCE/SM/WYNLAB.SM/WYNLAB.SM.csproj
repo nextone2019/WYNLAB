@@ -157,6 +157,15 @@
   </Target>
 
   <ItemGroup>
+    <Compile Update="frmProcConfig\frmProcConfig.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="frmProcConfig\frmProcConfig.Designer.cs">
+      <DependentUpon>frmProcConfig.cs</DependentUpon>
+    </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
     <Compile Update="frmAutoKey\frmAutoKey.cs">
       <SubType>Form</SubType>
     </Compile>

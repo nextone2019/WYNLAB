@@ -36,7 +36,8 @@ public class PopupLookupRepository : IPopupLookupRepository
             @"SELECT popup_key AS PopupKey, proc_nm AS ProcNm, popup_nm AS PopupNm,
                      CAST(CASE WHEN hierarchical_yn = 'Y' THEN 1 ELSE 0 END AS BIT) AS HierarchicalYn,
                      key_field AS KeyField, parent_field AS ParentField, display_field AS DisplayField,
-                     popup_width AS PopupWidth, popup_height AS PopupHeight
+                     popup_width AS PopupWidth, popup_height AS PopupHeight,
+                     search_panel_class AS SearchPanelClass
               FROM sysPopUpM
               WHERE popup_key = @popupKey AND use_yn = 'Y'",
             new { popupKey });
@@ -57,10 +58,11 @@ public class PopupLookupRepository : IPopupLookupRepository
 
         var searchFields = await conn.QueryAsync<PopupSearchFieldDto>(
             @"SELECT param_nm AS ParamNm, ISNULL(caption, param_nm) AS Caption,
-                     control_type AS ControlType, sort AS Sort, width AS Width
+                     control_type AS ControlType, sort AS Sort, width AS Width,
+                     lookup_key AS LookupKey, row_no AS RowNo, control_nm AS ControlNm
               FROM sysPopUpS
               WHERE popup_key = @popupKey
-              ORDER BY sort",
+              ORDER BY row_no, sort",
             new { popupKey });
         master.SearchFields = searchFields.ToList();
 

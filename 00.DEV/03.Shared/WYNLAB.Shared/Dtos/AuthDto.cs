@@ -29,7 +29,14 @@ public class UserInfoDto
     public string UserId { get; set; } = string.Empty;
     public string UserNm { get; set; } = string.Empty;
     public string? EmpNo { get; set; }
+    public string? EmpNm { get; set; }
     public string? DeptNm { get; set; }
+
+    /// <summary>TSMUSER.EMP_ID(TBAEMP 참조)/그 사원의 DEPT_ID(2026-09-22 추가) - EmpNo/DeptNm은
+    /// 표시 전용이라, 구매요청등록처럼 신규 진입 시 담당자/부서 FK를 세션값으로 바로 채워야 하는
+    /// 화면(AccId와 같은 이유)을 위해 원본 ID를 같이 내려준다.</summary>
+    public long? EmpId { get; set; }
+    public long? DeptId { get; set; }
 
     /// <summary>TSMUSER.DEVELOPER_YN - "시스템관리자"(SYS 모듈/개발자 전용 도구 접근) 판단
     /// 조건(사장님 지시, 2026-08-31). USER_TYPE(일반 메뉴권한 우회용 관리자)과는 별개 축이다.

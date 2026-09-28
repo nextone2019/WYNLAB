@@ -47,7 +47,9 @@ public static class ControlDataSources
 
             return response.Tables[0].Rows.Select(row =>
             {
-                var rowStrings = row.ToDictionary(kv => kv.Key, kv => (string?)Convert.ToString(kv.Value));
+                // OrdinalIgnoreCase - popPopUp.RowToDict와 같은 이유(그쪽 주석 참고, 2026-09-23) -
+                // key_field 표기와 실제 컬럼명의 대소문자가 어긋나면 TryGetValue가 못 찾는다.
+                var rowStrings = row.ToDictionary(kv => kv.Key, kv => (string?)Convert.ToString(kv.Value), StringComparer.OrdinalIgnoreCase);
                 rowStrings.TryGetValue(def.KeyField, out var code);
                 rowStrings.TryGetValue(def.DisplayField, out var display);
                 return new PopupLookupResult { Code = code ?? string.Empty, Display = display ?? string.Empty, Row = rowStrings };

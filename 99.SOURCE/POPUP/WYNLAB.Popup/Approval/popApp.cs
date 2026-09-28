@@ -28,6 +28,7 @@ public partial class popApp : XtraForm
 
     private long? _appId;
     private bool _changed;
+    private bool _composing;
     private List<ApprovalPathDto> _lineRows = new(); // path_type='A'
     private List<ApprovalPathDto> _recvRows = new(); // path_type='F'
     private List<ApprovalRouteItemDto> _routes = new();
@@ -61,8 +62,7 @@ public partial class popApp : XtraForm
         grdRecv.DragDrop += (s, e) => DropEmp(e, "F");
 
         btnRefresh.Click += async (s, e) => await RefreshAsync();
-        btnSubmit.Click += async (s, e) => await SubmitAsync();
-        btnApprove.Click += async (s, e) => await ProcessApproveOrRejectAsync(approve: true);
+        btnSubmit.Click += async (s, e) => await OnPrimaryActionClick();
         btnReject.Click += async (s, e) => await ProcessApproveOrRejectAsync(approve: false);
         btnCancelApprove.Click += async (s, e) => await CancelApproveAsync();
         btnAck.Click += async (s, e) => await AcknowledgeAsync();
@@ -114,9 +114,13 @@ public partial class popApp : XtraForm
             // 작성모드 - 아직 상신 전
             _appId = null;
             txtAppNo.Text = string.Empty;
+            txtAppId.Text = string.Empty;
             ymdAppDate.Text = string.Empty;
             txtReqEmpNm.Text = string.Empty;
             cboAppStatCd.EditValue = string.Empty;
+            
+
+
             txtTitle.ReadOnly = false;
             memoOpinion.ReadOnly = false;
 
@@ -129,6 +133,7 @@ public partial class popApp : XtraForm
 
         _appId = header.AppId;
         txtAppNo.Text = header.AppNo;
+        txtAppId.Text = header.AppId.ToString();
         ymdAppDate.Text = header.AppDate;
         txtReqEmpNm.Text = header.ReqEmpNm ?? string.Empty;
         cboAppStatCd.EditValue = header.StatCd ?? string.Empty;
@@ -153,16 +158,25 @@ public partial class popApp : XtraForm
     private void SetMode(bool composing)
     {
         //panCompose.Visible = composing;
-        btnSubmit.Visible = composing;
-        btnApprove.Visible = !composing;
+        _composing = composing;
+        btnSubmit.Text = composing ? "결재상신" : "승인";
         btnReject.Visible = !composing;
         btnCancelApprove.Visible = !composing;
         btnAck.Visible = !composing;
 
         if (composing)
         {
-            btnApprove.Enabled = btnReject.Enabled = btnCancelApprove.Enabled = btnAck.Enabled = false;
+            btnSubmit.Enabled = true;
+            btnReject.Enabled = btnCancelApprove.Enabled = btnAck.Enabled = false;
         }
+    }
+
+    /// <summary>결재상신/승인 버튼을 하나로 합친 것 - 작성모드(상신 전)면 상신, 아니면(상신 후) 내
+    /// 차례의 승인 처리. 텍스트/활성화는 SetMode·UpdateActionButtons가 미리 맞춰둔다.</summary>
+    private async Task OnPrimaryActionClick()
+    {
+        if (_composing) await SubmitAsync();
+        else await ProcessApproveOrRejectAsync(approve: true);
     }
 
     /// <summary>로그인 사용자 자신의 결재라인/수신라인 행 상태로 버튼 활성/비활성을 계산한다(힌트일
@@ -174,7 +188,7 @@ public partial class popApp : XtraForm
         var mine = _lineRows.FirstOrDefault(p => p.EmpNo == myEmpNo);
         var canActNow = mine != null && mine.StatCd == "N"
             && !_lineRows.Any(o => o.PathType == "A" && o.Sort < mine.Sort && o.StatCd != "Y");
-        btnApprove.Enabled = canActNow;
+        btnSubmit.Enabled = canActNow;
         btnReject.Enabled = canActNow;
 
         var canCancel = mine != null && mine.StatCd == "Y"
@@ -319,10 +333,10 @@ public partial class popApp : XtraForm
 
     private async Task LoadRoutesAsync()
     {
-        _routes = await ApprovalClient.GetRoutesAsync() ?? new List<ApprovalRouteItemDto>();
-        cboRoute.Properties.Items.Clear();
-        foreach (var r in _routes) cboRoute.Properties.Items.Add(r.RouteNm);
-        await Task.CompletedTask;
+        //_routes = await ApprovalClient.GetRoutesAsync() ?? new List<ApprovalRouteItemDto>();
+        //cboRoute.Properties.Items.Clear();
+        //foreach (var r in _routes) cboRoute.Properties.Items.Add(r.RouteNm);
+        //await Task.CompletedTask;
     }
 
     private void AddSelectedEmployee(string pathType)
@@ -361,29 +375,29 @@ public partial class popApp : XtraForm
 
     private async Task ApplyRouteAsync()
     {
-        var idx = cboRoute.SelectedIndex;
-        if (idx < 0 || idx >= _routes.Count)
-        {
-            AppMessageBox.Show("적용할 결재경로를 먼저 선택해주세요.", "안내");
-            return;
-        }
+        //var idx = cboRoute.SelectedIndex;
+        //if (idx < 0 || idx >= _routes.Count)
+        //{
+        //    AppMessageBox.Show("적용할 결재경로를 먼저 선택해주세요.", "안내");
+        //    return;
+        //}
 
-        var detail = await ApprovalClient.GetRouteDetailAsync(_routes[idx].RouteId) ?? new List<ApprovalRoutePathItemDto>();
-        foreach (var d in detail)
-        {
-            var target = d.PathType == "A" ? _lineRows : _recvRows;
-            if (target.Any(r => r.EmpNo == d.EmpNo)) continue;
-            target.Add(new ApprovalPathDto
-            {
-                EmpId = d.EmpId,
-                EmpNo = d.EmpNo,
-                EmpNm = d.EmpNm,
-                PathType = d.PathType,
-                StatCd = "N",
-                Sort = d.PathType == "A" ? target.Count(r => r.PathType == "A") + 1 : 0,
-            });
-        }
-        BindGrids();
+        //var detail = await ApprovalClient.GetRouteDetailAsync(_routes[idx].RouteId) ?? new List<ApprovalRoutePathItemDto>();
+        //foreach (var d in detail)
+        //{
+        //    var target = d.PathType == "A" ? _lineRows : _recvRows;
+        //    if (target.Any(r => r.EmpNo == d.EmpNo)) continue;
+        //    target.Add(new ApprovalPathDto
+        //    {
+        //        EmpId = d.EmpId,
+        //        EmpNo = d.EmpNo,
+        //        EmpNm = d.EmpNm,
+        //        PathType = d.PathType,
+        //        StatCd = "N",
+        //        Sort = d.PathType == "A" ? target.Count(r => r.PathType == "A") + 1 : 0,
+        //    });
+        //}
+        //BindGrids();
     }
 
     private async Task SaveRouteAsync()
@@ -519,5 +533,12 @@ public partial class popApp : XtraForm
         _changed = true;
         Toast.Show("확인되었습니다.");
         await RefreshAsync();
+    }
+
+
+    //저장된 결재경로 적용 
+    private void btnApplyRoute_Click(object sender, EventArgs e)
+    {
+
     }
 }

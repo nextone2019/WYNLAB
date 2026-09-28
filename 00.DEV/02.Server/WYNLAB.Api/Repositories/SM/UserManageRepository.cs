@@ -36,6 +36,7 @@ public class UserManageRow
     public string DeveloperYn { get; set; } = "N";
     public string UserType { get; set; } = "U";
     public DateTime? LastLoginDt { get; set; }
+    public DateTime? LastPwdChangeDt { get; set; }
 }
 
 /// <summary>사용자 기준 그룹소속 배정 화면용 - 전체 그룹 + 이 사용자의 소속여부</summary>

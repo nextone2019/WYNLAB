@@ -55,10 +55,6 @@ public partial class frmItemList
             this.labelControl3 = new DevExpress.XtraEditors.LabelControl();
             this.txtItemNo_Q = new WYNLAB.Base.Controls.TextEditWyn();
             this.labelControl2 = new DevExpress.XtraEditors.LabelControl();
-            this.labelControl1 = new DevExpress.XtraEditors.LabelControl();
-            this.lblSearchItemNm = new DevExpress.XtraEditors.LabelControl();
-            this.txtItemSpec_Q = new WYNLAB.Base.Controls.TextEditWyn();
-            this.txtItemNm_Q = new WYNLAB.Base.Controls.TextEditWyn();
             this.paTitleH = new WYNLAB.Base.Controls.PanelWyn();
             this.sectionHeaderWyn1 = new WYNLAB.Base.Controls.SectionHeaderWyn();
             ((System.ComponentModel.ISupportInitialize)(this.panBody)).BeginInit();
@@ -78,14 +74,14 @@ public partial class frmItemList
             ((System.ComponentModel.ISupportInitialize)(this.cboAssetType_Q.Properties)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.cboStatCd_Q.Properties)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.txtItemNo_Q.Properties)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.txtItemSpec_Q.Properties)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.txtItemNm_Q.Properties)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.paTitleH)).BeginInit();
             this.paTitleH.SuspendLayout();
             this.SuspendLayout();
             // 
             // panBody
             // 
+            this.panBody.Appearance.BackColor = System.Drawing.Color.White;
+            this.panBody.Appearance.Options.UseBackColor = true;
             this.panBody.Controls.Add(this.grd1);
             this.panBody.Controls.Add(this.paTitle1);
             this.panBody.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -334,6 +330,8 @@ public partial class frmItemList
             // chkEdit1
             // 
             this.chkEdit1.Name = "chkEdit1";
+            this.chkEdit1.ValueChecked = "Y";
+            this.chkEdit1.ValueUnchecked = "N";
             // 
             // col1StatCd
             // 
@@ -377,6 +375,8 @@ public partial class frmItemList
             // 
             // paTitle1
             // 
+            this.paTitle1.Appearance.BackColor = System.Drawing.Color.White;
+            this.paTitle1.Appearance.Options.UseBackColor = true;
             this.paTitle1.Controls.Add(this.sectionHeaderWyn4);
             this.paTitle1.Dock = System.Windows.Forms.DockStyle.Top;
             this.paTitle1.EdgeLineColor = System.Drawing.Color.FromArgb(((int)(((byte)(228)))), ((int)(((byte)(229)))), ((int)(((byte)(232)))));
@@ -397,7 +397,7 @@ public partial class frmItemList
             this.sectionHeaderWyn4.Size = new System.Drawing.Size(2203, 25);
             this.sectionHeaderWyn4.SvgIcon = ((DevExpress.Utils.Svg.SvgImage)(resources.GetObject("sectionHeaderWyn4.SvgIcon")));
             this.sectionHeaderWyn4.TabIndex = 8;
-            this.sectionHeaderWyn4.Text = "LIST";
+            this.sectionHeaderWyn4.Text = "품목LIST";
             // 
             // panHeader
             // 
@@ -408,10 +408,6 @@ public partial class frmItemList
             this.panHeader.Controls.Add(this.labelControl3);
             this.panHeader.Controls.Add(this.txtItemNo_Q);
             this.panHeader.Controls.Add(this.labelControl2);
-            this.panHeader.Controls.Add(this.labelControl1);
-            this.panHeader.Controls.Add(this.lblSearchItemNm);
-            this.panHeader.Controls.Add(this.txtItemSpec_Q);
-            this.panHeader.Controls.Add(this.txtItemNm_Q);
             this.panHeader.Dock = System.Windows.Forms.DockStyle.Top;
             this.panHeader.EdgeLineColor = System.Drawing.Color.FromArgb(((int)(((byte)(228)))), ((int)(((byte)(229)))), ((int)(((byte)(232)))));
             this.panHeader.Location = new System.Drawing.Point(5, 30);
@@ -422,7 +418,7 @@ public partial class frmItemList
             // cboAssetType_Q
             // 
             this.cboAssetType_Q.EditValue = "";
-            this.cboAssetType_Q.Location = new System.Drawing.Point(845, 21);
+            this.cboAssetType_Q.Location = new System.Drawing.Point(294, 22);
             this.cboAssetType_Q.LookupKey = "L_CM0002";
             this.cboAssetType_Q.Name = "cboAssetType_Q";
             this.cboAssetType_Q.Properties.Buttons.AddRange(new DevExpress.XtraEditors.Controls.EditorButton[] {
@@ -435,7 +431,7 @@ public partial class frmItemList
             // cboStatCd_Q
             // 
             this.cboStatCd_Q.EditValue = "";
-            this.cboStatCd_Q.Location = new System.Drawing.Point(642, 20);
+            this.cboStatCd_Q.Location = new System.Drawing.Point(505, 22);
             this.cboStatCd_Q.Name = "cboStatCd_Q";
             this.cboStatCd_Q.Properties.Buttons.AddRange(new DevExpress.XtraEditors.Controls.EditorButton[] {
             new DevExpress.XtraEditors.Controls.EditorButton(DevExpress.XtraEditors.Controls.ButtonPredefines.Combo)});
@@ -446,67 +442,45 @@ public partial class frmItemList
             // 
             // lblSearchItemNo
             // 
+            this.lblSearchItemNo.Appearance.Font = new System.Drawing.Font("맑은 고딕", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lblSearchItemNo.Appearance.Options.UseFont = true;
             this.lblSearchItemNo.Location = new System.Drawing.Point(17, 24);
             this.lblSearchItemNo.Name = "lblSearchItemNo";
-            this.lblSearchItemNo.Size = new System.Drawing.Size(20, 14);
+            this.lblSearchItemNo.Size = new System.Drawing.Size(24, 15);
             this.lblSearchItemNo.TabIndex = 0;
             this.lblSearchItemNo.Text = "품번";
             // 
             // labelControl3
             // 
-            this.labelControl3.Location = new System.Drawing.Point(799, 24);
+            this.labelControl3.Appearance.Font = new System.Drawing.Font("맑은 고딕", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.labelControl3.Appearance.Options.UseFont = true;
+            this.labelControl3.Location = new System.Drawing.Point(242, 25);
             this.labelControl3.Name = "labelControl3";
-            this.labelControl3.Size = new System.Drawing.Size(40, 14);
+            this.labelControl3.Size = new System.Drawing.Size(48, 15);
             this.labelControl3.TabIndex = 2;
             this.labelControl3.Text = "자산구분";
             // 
             // txtItemNo_Q
             // 
-            this.txtItemNo_Q.Location = new System.Drawing.Point(39, 21);
+            this.txtItemNo_Q.Location = new System.Drawing.Point(47, 21);
             this.txtItemNo_Q.Name = "txtItemNo_Q";
-            this.txtItemNo_Q.Size = new System.Drawing.Size(150, 20);
+            this.txtItemNo_Q.Size = new System.Drawing.Size(173, 20);
             this.txtItemNo_Q.TabIndex = 1;
             // 
             // labelControl2
             // 
-            this.labelControl2.Location = new System.Drawing.Point(596, 23);
+            this.labelControl2.Appearance.Font = new System.Drawing.Font("맑은 고딕", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.labelControl2.Appearance.Options.UseFont = true;
+            this.labelControl2.Location = new System.Drawing.Point(451, 25);
             this.labelControl2.Name = "labelControl2";
-            this.labelControl2.Size = new System.Drawing.Size(40, 14);
+            this.labelControl2.Size = new System.Drawing.Size(48, 15);
             this.labelControl2.TabIndex = 2;
             this.labelControl2.Text = "품목상태";
             // 
-            // labelControl1
-            // 
-            this.labelControl1.Location = new System.Drawing.Point(399, 24);
-            this.labelControl1.Name = "labelControl1";
-            this.labelControl1.Size = new System.Drawing.Size(20, 14);
-            this.labelControl1.TabIndex = 2;
-            this.labelControl1.Text = "규격";
-            // 
-            // lblSearchItemNm
-            // 
-            this.lblSearchItemNm.Location = new System.Drawing.Point(206, 24);
-            this.lblSearchItemNm.Name = "lblSearchItemNm";
-            this.lblSearchItemNm.Size = new System.Drawing.Size(20, 14);
-            this.lblSearchItemNm.TabIndex = 2;
-            this.lblSearchItemNm.Text = "품명";
-            // 
-            // txtItemSpec_Q
-            // 
-            this.txtItemSpec_Q.Location = new System.Drawing.Point(423, 21);
-            this.txtItemSpec_Q.Name = "txtItemSpec_Q";
-            this.txtItemSpec_Q.Size = new System.Drawing.Size(150, 20);
-            this.txtItemSpec_Q.TabIndex = 3;
-            // 
-            // txtItemNm_Q
-            // 
-            this.txtItemNm_Q.Location = new System.Drawing.Point(230, 21);
-            this.txtItemNm_Q.Name = "txtItemNm_Q";
-            this.txtItemNm_Q.Size = new System.Drawing.Size(150, 20);
-            this.txtItemNm_Q.TabIndex = 3;
-            // 
             // paTitleH
             // 
+            this.paTitleH.Appearance.BackColor = System.Drawing.Color.White;
+            this.paTitleH.Appearance.Options.UseBackColor = true;
             this.paTitleH.Controls.Add(this.sectionHeaderWyn1);
             this.paTitleH.Dock = System.Windows.Forms.DockStyle.Top;
             this.paTitleH.EdgeLineColor = System.Drawing.Color.FromArgb(((int)(((byte)(228)))), ((int)(((byte)(229)))), ((int)(((byte)(232)))));
@@ -558,8 +532,6 @@ public partial class frmItemList
             ((System.ComponentModel.ISupportInitialize)(this.cboAssetType_Q.Properties)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.cboStatCd_Q.Properties)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.txtItemNo_Q.Properties)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.txtItemSpec_Q.Properties)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.txtItemNm_Q.Properties)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.paTitleH)).EndInit();
             this.paTitleH.ResumeLayout(false);
             this.ResumeLayout(false);
@@ -574,8 +546,6 @@ public partial class frmItemList
     private PanelWyn paTitleH;
     private DevExpress.XtraEditors.LabelControl lblSearchItemNo;
     private TextEditWyn txtItemNo_Q;
-    private DevExpress.XtraEditors.LabelControl lblSearchItemNm;
-    private TextEditWyn txtItemNm_Q;
     private DevExpress.XtraGrid.Columns.GridColumn col1ItemId;
     private DevExpress.XtraGrid.Columns.GridColumn col1ItemNo;
     private DevExpress.XtraGrid.Columns.GridColumn col1ItemNm;
@@ -597,8 +567,6 @@ public partial class frmItemList
     private DevExpress.XtraEditors.Repository.RepositoryItemSpinEdit spinEditcol1;
     private LookUpColumnEdit lookUpcol1UnitCd;
     private LookUpColumnEdit lookUpcol1StatCd;
-    private DevExpress.XtraEditors.LabelControl labelControl1;
-    private TextEditWyn txtItemSpec_Q;
     private SectionHeaderWyn sectionHeaderWyn1;
     private LookUpColumnEdit lookUpColumnEdit1;
     private LookUpEditWyn cboStatCd_Q;

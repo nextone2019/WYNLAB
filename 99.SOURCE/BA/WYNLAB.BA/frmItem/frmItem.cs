@@ -43,23 +43,23 @@ public partial class frmItem : BaseForm
             catch (Exception ex) { AppMessageBox.Show(ex.Message, "삭제 실패"); }
         };
 
-        gvw3.Role = GridRoleWyn.Edit;
-        gvw3.HighlightFocusedRow = true;
-        gvw3.RowAdd += (s, e) => gvw3.AddNewRow();
-        gvw3.RowDelete += (s, e) =>
-        {
-            try { if (gvw3.GetFocusedRow() is DataRowView view) view.Row.Delete(); }
-            catch (Exception ex) { AppMessageBox.Show(ex.Message, "삭제 실패"); }
-        };
+        //gvw3.Role = GridRoleWyn.Edit;
+        //gvw3.HighlightFocusedRow = true;
+        //gvw3.RowAdd += (s, e) => gvw3.AddNewRow();
+        //gvw3.RowDelete += (s, e) =>
+        //{
+        //    try { if (gvw3.GetFocusedRow() is DataRowView view) view.Row.Delete(); }
+        //    catch (Exception ex) { AppMessageBox.Show(ex.Message, "삭제 실패"); }
+        //};
 
         // panelWyn1의 공용 추가/삭제 버튼 - 현재 활성 탭의 그리드에 적용(각 그리드 자체
         // EmbeddedNavigator와 별개로, 탭을 안 넘나들어도 되는 지름길).
-        btnAddRow2.Click += (s, e) => ActiveDetailView().AddNewRow();
-        btnDeletRow2.Click += (s, e) =>
-        {
-            try { if (ActiveDetailView().GetFocusedRow() is DataRowView view) view.Row.Delete(); }
-            catch (Exception ex) { AppMessageBox.Show(ex.Message, "삭제 실패"); }
-        };
+        //btnAddRow2.Click += (s, e) => ActiveDetailView().AddNewRow();
+        //btnDeletRow2.Click += (s, e) =>
+        //{
+        //    try { if (ActiveDetailView().GetFocusedRow() is DataRowView view) view.Row.Delete(); }
+        //    catch (Exception ex) { AppMessageBox.Show(ex.Message, "삭제 실패"); }
+        //};
 
         // 개발자용 마우스오버 툴팁(BindingField) - 실제 적용은 BaseForm.ApplyBindingFieldTooltips가
         // 공통으로 처리한다(Session.IsDeveloper일 때만). 그리드 컬럼은 FieldName이 이미 DB
@@ -164,7 +164,7 @@ public partial class frmItem : BaseForm
         Load += async (s, e) => await QueryClick();
     }
 
-    private GridViewWyn ActiveDetailView() => ReferenceEquals(tabDetailGrids.SelectedTabPage, tabDetail2) ? gvw3 : gvw2;
+   // private GridViewWyn ActiveDetailView() => ReferenceEquals(tabDetailGrids.SelectedTabPage, tabDetail2) ? gvw3 : gvw2;
 
     /// <summary>사용자가 상위 그룹을 바꿀 때만 호출됨(생성자의 EditValueChanged 구독) - 기존
     /// 레코드를 불러오는 중(LoadGrpChainAsync)에는 이 클래스가 값을 직접 순서대로 채우므로
@@ -369,8 +369,8 @@ public partial class frmItem : BaseForm
             _detail2 = _detail2.Clone();
             TrackDirty(_detail1);
             TrackDirty(_detail2);
-            grd2.DataSource = _detail1;
-            grd3.DataSource = _detail2;
+            //grd2.DataSource = _detail1;
+            //grd3.DataSource = _detail2;
         });
 
         txtDetailItemNo.Focus();
@@ -392,7 +392,7 @@ public partial class frmItem : BaseForm
         TrackDirty(_detail1);
         TrackDirty(_detail2);
         grd2.DataSource = _detail1;
-        grd3.DataSource = _detail2;
+        //grd3.DataSource = _detail2;
     }
 
     public override Task NewClick()
@@ -491,13 +491,13 @@ public partial class frmItem : BaseForm
         // 빈 문자열로 치환됨) 저장프로시저가 없으면 이 단계를 건너뛴다(MasterFormSubGrid의 panData
         // 조회전용 폴백과 같은 원칙 - "지우지 말 것" 주석이 아니라 실제로 이 화면에 grd3이 없는
         // 정상적인 경우다). ----
-        if (!string.IsNullOrEmpty(""))
-        {
-            var detail2Ok = await SaveDetailRowsAsync(gvw3, _detail2, "", headerKey, (row, version) => new Dictionary<string, string?>
-            {
-            });
-            if (!detail2Ok) return;
-        }
+        //if (!string.IsNullOrEmpty(""))
+        //{
+        //    var detail2Ok = await SaveDetailRowsAsync(gvw3, _detail2, "", headerKey, (row, version) => new Dictionary<string, string?>
+        //    {
+        //    });
+        //    if (!detail2Ok) return;
+        //}
 
         _editingKey ??= headerResult.GeneratedCode;
         Toast.Show("저장되었습니다.");

@@ -1,0 +1,97 @@
+﻿
+CREATE   PROCEDURE USP_MA_POREQ_S
+    @p_work_type VARCHAR(50),
+    ---------------------------------------------------------------------------------------------------
+    @p_req_id BIGINT = NULL,
+    @p_acc_id BIGINT = NULL,
+    @p_req_date VARCHAR(8) = NULL,
+    @p_req_title NVARCHAR(200) = NULL,
+    @p_po_type VARCHAR(10) = NULL,
+    @p_cust_id BIGINT = NULL,
+    @p_dept_id BIGINT = NULL,
+    @p_emp_id BIGINT = NULL,
+    @p_pjt_id BIGINT = NULL,
+    @p_cur_cd VARCHAR(20) = NULL,
+    @p_exc_rate NUMERIC(18,6) = NULL,
+    @p_remark NVARCHAR(3000) = NULL,
+    @p_user_id VARCHAR(50),
+    @p_client_pc NVARCHAR(200) = NULL,
+    ---------------------------------------------------------------------------------------------------
+    @GeneratedCode VARCHAR(20) = NULL OUTPUT,
+    @ReturnCode INT = 0 OUTPUT,
+    @ReturnMsg NVARCHAR(200) = NULL OUTPUT,
+    @ErrorCode INT = 0 OUTPUT,
+    @ErrorMsg NVARCHAR(500) = NULL OUTPUT
+AS
+BEGIN
+    SET NOCOUNT ON;
+    SET @ReturnCode = 0; SET @ReturnMsg = N'성공'; SET @ErrorCode = 0; SET @ErrorMsg = NULL;
+
+    BEGIN TRY
+        IF @p_work_type = 'N'
+        BEGIN
+            DECLARE @new_req_no VARCHAR(20);
+            EXEC SSP_SYS_GetAutoKey 'TMAPOREQM', 'req_no', @p_acc_id, @new_req_no OUTPUT;
+
+            INSERT INTO TMAPOREQM (
+                acc_id, req_no, req_date, req_title, stat_cd, po_type,
+                cust_id, dept_id, emp_id, pjt_id, cur_cd, exc_rate, remark,
+                reg_user_id, reg_dt, reg_pc, upt_user_id, upt_dt, upt_pc
+            )
+            VALUES (
+                @p_acc_id, @new_req_no, @p_req_date, @p_req_title, '0', @p_po_type,
+                @p_cust_id, @p_dept_id, @p_emp_id, @p_pjt_id, @p_cur_cd, @p_exc_rate, @p_remark,
+                @p_user_id, GETDATE(), @p_client_pc, @p_user_id, GETDATE(), @p_client_pc
+            );
+
+            SET @p_req_id = SCOPE_IDENTITY();
+        END
+        ELSE IF @p_work_type = 'U'
+        BEGIN
+            UPDATE TMAPOREQM SET
+                acc_id = @p_acc_id,
+                req_date = @p_req_date,
+                req_title = @p_req_title,
+                po_type = @p_po_type,
+                cust_id = @p_cust_id,
+                dept_id = @p_dept_id,
+                emp_id = @p_emp_id,
+                pjt_id = @p_pjt_id,
+                cur_cd = @p_cur_cd,
+                exc_rate = @p_exc_rate,
+                remark = @p_remark,
+                upt_user_id = @p_user_id,
+                upt_dt = GETDATE(),
+                upt_pc = @p_client_pc
+            WHERE req_id = @p_req_id;
+        END
+        ELSE IF @p_work_type = 'D'
+        BEGIN
+            IF EXISTS (SELECT 1 FROM TMAPOREQM WHERE req_id = @p_req_id AND app_no IS NOT NULL AND app_no <> '')
+            BEGIN
+                SET @ReturnCode = -1;
+                SET @ReturnMsg = N'이미 결재상신된 구매요청은 삭제할 수 없습니다.';
+                RETURN;
+            END
+
+            IF EXISTS (SELECT 1 FROM TMAPOREQD WHERE req_id = @p_req_id AND ISNULL(next_qty, 0) > 0)
+            BEGIN
+                SET @ReturnCode = -1;
+                SET @ReturnMsg = N'발주에 사용된 품목이 있는 구매요청은 삭제할 수 없습니다.';
+                RETURN;
+            END
+
+            DELETE FROM TMAPOREQD WHERE req_id = @p_req_id;
+            DELETE FROM TMAPOREQM WHERE req_id = @p_req_id;
+        END
+
+        SET @GeneratedCode = CAST(@p_req_id AS VARCHAR(20));
+    END TRY
+    BEGIN CATCH
+        SET @ReturnCode = -1;
+        SET @ReturnMsg = N'처리 중 오류가 발생했습니다.';
+        SET @ErrorCode = ERROR_NUMBER();
+        SET @ErrorMsg = ERROR_MESSAGE();
+    END CATCH
+END
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    
