@@ -123,7 +123,14 @@ public class PopupLookupColumnEdit : RepositoryItemButtonEdit
             // 검색돼서 "결과 1건이면 팝업 생략" 규칙(popPopUp.ShowAsync)에 걸려 팝업이 아예 안 뜬다. 값을 직접 타이핑해서 바뀐 경우에만 검색어로 쓴다.
             var keyword = userOpened ? null : Convert.ToString(view.ActiveEditor?.EditValue ?? view.GetRowCellValue(rowHandle, column));
             PopupLookupResult? result;
-            PopupLookupProvider.ExtraConditions = ConditionProvider?.Invoke();
+            var extra = ConditionProvider?.Invoke();
+            var fixedConditions = PopupLookupProvider.ParseConditions(PopupConditions);
+            if (fixedConditions != null)
+            {
+                extra = extra == null ? fixedConditions : new Dictionary<string, string?>(extra);
+                foreach (var kv in fixedConditions) extra[kv.Key] = kv.Value;
+            }
+            PopupLookupProvider.ExtraConditions = extra;
             try { result = await PopupLookupProvider.OpenPopup(LookupKey!, view.GridControl, string.IsNullOrEmpty(keyword) ? null : keyword); }
             finally { PopupLookupProvider.ExtraConditions = null; }
             PopupDebugLog.Write($"OpenPopup 반환. result={(result == null ? "null(취소)" : result.Code)}");
@@ -168,6 +175,13 @@ public class PopupLookupColumnEdit : RepositoryItemButtonEdit
     [Description("sysPopUpM에 등록해둔 팝업 이름(popup_key). 이 값만 지정하면 \"...\" 버튼으로 팝업이 뜹니다.")]
     [DefaultValue(null)]
     public string? LookupKey { get; set; }
+
+    /// <summary>팝업을 열 때 조회조건에 미리 넣을 고정 값("파라미터=값;파라미터=값", 예: p_cust_class=OS). Designer에서 지정하며
+    /// ConditionProvider 값과 같이 쓰면 이 값이 우선한다(PopupLookupEditWyn.PopupConditions와 같은 의미).</summary>
+    [Category("WYNLAB")]
+    [Description("팝업을 열 때 조회조건에 미리 넣을 값(예: p_cust_class=OS;...).")]
+    [DefaultValue(null)]
+    public string? PopupConditions { get; set; }
 
     /// <summary>팝업을 열 때마다 호출돼서 "화면 상태에서 온 추가 조회조건"(예: p_cust_id, p_base_date)을 돌려주는 콜백 -
     /// 화면 코드에서 지정한다(Designer 저장 안 함). 값은 PopupLookupProvider.ExtraConditions로 팝업 엔진에 전달된다.</summary>

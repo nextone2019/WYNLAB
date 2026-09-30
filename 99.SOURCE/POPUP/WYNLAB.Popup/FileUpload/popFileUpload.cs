@@ -41,6 +41,7 @@ public partial class popFileUpload : XtraForm
     private popFileUpload(string docType, long docId, string docNo, int docSerl, string? formId)
     {
         InitializeComponent();
+        WYNLAB.Base.Controls.GridSortSupport.Enable(gvw1); // 헤더 클릭 정렬 - 모든 그리드 공통(GridViewWyn이 아닌 기본 GridView)
 
         _docType = docType;
         _docId = docId;

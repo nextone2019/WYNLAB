@@ -413,6 +413,11 @@ public class popPopUp : XtraForm
                     edit.EditValue = initialKeyword;
                     isFirstTextField = false;
                 }
+                // 팝업을 연 컨트롤이 넘긴 조건(PopupConditions/ConditionProvider)과 같은 이름의 LOOKUP 칸은 그 값으로 미리 채워 보여 준다
+                // (조회 때 엔진이 같은 값을 넣으므로 - 보이는 값과 실제 조건이 일치하게).
+                if (edit is LookUpEditWyn && PopupLookupProvider.ExtraConditions is { } pre
+                    && pre.TryGetValue(field.ParamNm, out var preValue) && !string.IsNullOrEmpty(preValue))
+                    edit.EditValue = preValue;
                 edit.KeyDown += async (s, e) =>
                 {
                     if (e.KeyCode != Keys.Enter) return;
@@ -536,6 +541,7 @@ public class popPopUp : XtraForm
             grid.Dock = DockStyle.Fill;
             grid.MainView = gridView;
             gridView.OptionsBehavior.Editable = false;
+            GridSortSupport.Enable(gridView); // 헤더 클릭 정렬 - 모든 그리드 공통
             gridView.OptionsSelection.EnableAppearanceFocusedCell = false;
             gridView.OptionsView.ColumnAutoWidth = false;
             gridView.OptionsView.ShowGroupPanel = false;

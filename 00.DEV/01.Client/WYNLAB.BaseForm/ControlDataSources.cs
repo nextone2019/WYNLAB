@@ -40,6 +40,9 @@ public static class ControlDataSources
             if (def == null) return new List<PopupLookupResult>();
 
             var conditions = def.SearchFields.ToDictionary(f => f.ParamNm, f => (string?)keyword);
+            // 컨트롤이 미리 지정한 조건(PopupConditions, 예: p_cust_class=OS)은 타이핑한 값 대신 그 값으로 - 거래처분류 칸에 거래처명이 들어가지 않게.
+            if (PopupLookupProvider.ExtraConditions is { } extra)
+                foreach (var kv in extra) conditions[kv.Key] = kv.Value;
             var response = await ApiClient.PostAsync<Dictionary<string, string?>, DataQueryResponse>(
                 $"api/lookups/{Uri.EscapeDataString(popupKey)}/search", conditions);
 

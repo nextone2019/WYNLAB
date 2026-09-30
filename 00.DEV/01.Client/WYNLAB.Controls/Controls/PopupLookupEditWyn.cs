@@ -34,6 +34,19 @@ public static class PopupLookupProvider
     /// 팝업은 앱 전체에서 한 번에 하나만 뜨므로(popPopUp._isShowing) 전역 하나로 충분하다. 팝업 엔진은 조회조건에 같은 키가
     /// 비어 있을 때만 이 값을 넣고, 검색패널에 같은 이름의 컨트롤이 있으면 초기값으로도 채운다.</summary>
     public static Dictionary<string, string?>? ExtraConditions { get; set; }
+
+    /// <summary>컨트롤의 PopupConditions 속성값("p_cust_class=OS;p_x=1")을 ExtraConditions 형태로 바꾼다. 비어 있으면 null.</summary>
+    public static Dictionary<string, string?>? ParseConditions(string? text)
+    {
+        if (string.IsNullOrWhiteSpace(text)) return null;
+        var result = new Dictionary<string, string?>(StringComparer.OrdinalIgnoreCase);
+        foreach (var part in text.Split(new[] { ';' }, StringSplitOptions.RemoveEmptyEntries))
+        {
+            var kv = part.Split(new[] { '=' }, 2);
+            if (kv.Length == 2 && kv[0].Trim().Length > 0) result[kv[0].Trim()] = kv[1].Trim();
+        }
+        return result.Count == 0 ? null : result;
+    }
 }
 
 /// <summary>
@@ -91,6 +104,14 @@ public class PopupLookupEditWyn : ButtonEdit
         Leave += async (s, e) => await OnLeaveAsync();
         EditValueChanged += (s, e) => { if (Text.Length == 0) ClearMappedFields(); };
     }
+
+    /// <summary>이 컨트롤이 팝업을 열 때(버튼/타이핑 후 조용한 검색 모두) 조회조건에 미리 넣어 줄 값 - "파라미터=값;파라미터=값" 형식.
+    /// 예: 영업 화면의 거래처는 "p_cust_class=SA"(매출거래처만), 구매는 "PO", 외주는 "OS". 팝업 검색창에 같은 조건 칸이 있으면 미리 채워 보이고,
+    /// 사용자가 다른 값으로 바꿀 수는 있지만 비워서 전체로 넓힐 수는 없다.</summary>
+    [Category("WYNLAB")]
+    [Description("팝업을 열 때 조회조건에 미리 넣을 값(예: p_cust_class=OS;...).")]
+    [DefaultValue(null)]
+    public string? PopupConditions { get; set; }
 
     private bool _required;
 
@@ -270,6 +291,7 @@ public class PopupLookupEditWyn : ButtonEdit
         if (string.IsNullOrEmpty(typed) || string.IsNullOrEmpty(LookupKey) || PopupLookupProvider.SearchExact == null) return;
 
         List<PopupLookupResult> candidates;
+        PopupLookupProvider.ExtraConditions = PopupLookupProvider.ParseConditions(PopupConditions);
         try
         {
             candidates = await PopupLookupProvider.SearchExact(LookupKey!, typed!);
@@ -278,6 +300,7 @@ public class PopupLookupEditWyn : ButtonEdit
         {
             return; // 목록 하나 못 불러온다고 화면이 죽으면 안 됨 - 다른 팝업 경로와 같은 원칙.
         }
+        finally { PopupLookupProvider.ExtraConditions = null; }
 
         var exact = candidates.Where(c =>
             c.Row.TryGetValue(MatchField!, out var v) && string.Equals(v, typed, StringComparison.OrdinalIgnoreCase)).ToList();
@@ -307,7 +330,10 @@ public class PopupLookupEditWyn : ButtonEdit
             return;
         }
 
-        var result = await PopupLookupProvider.OpenPopup(LookupKey!, this, initialKeyword);
+        PopupLookupResult? result;
+        PopupLookupProvider.ExtraConditions = PopupLookupProvider.ParseConditions(PopupConditions);
+        try { result = await PopupLookupProvider.OpenPopup(LookupKey!, this, initialKeyword); }
+        finally { PopupLookupProvider.ExtraConditions = null; }
         if (result == null)
         {
             // initialKeyword가 있다 = OnLeaveAsync가 방금 타이핑된(실제로 바뀐) 값을 못 좁혀서

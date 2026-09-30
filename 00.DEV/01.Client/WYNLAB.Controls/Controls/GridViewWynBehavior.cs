@@ -152,6 +152,9 @@ internal sealed class GridViewWynBehavior
         // 편집컬럼(COMBO/POP/CHECK/NUMBER)에 똑같이 해당하는 문제라 공용 기본값에서 고친다.
         _view.OptionsBehavior.EditorShowMode = EditorShowMode.MouseDown;
 
+        // 헤더 클릭 정렬 - 모든 그리드 공통(GridSortSupport 참고: 뷰/컬럼 정렬 명시, 룩업 컬럼은 표시 이름 기준, 나중에 추가되는 컬럼 포함).
+        GridSortSupport.Enable(_view);
+
         // 룩업 컬럼(ColumnEdit이 RepositoryItemLookUpEdit 계열 - 예: LookUpColumnEdit)은 기본
         // ShowButtonMode(Default, 사실상 포커스된 셀에서만 드롭다운 삼각형이 보임)라서, 그리드를
         // 훑어볼 때는 어떤 컬럼이 룩업인지 구분이 안 됐다(2026-09-16 요청 - "룩업들은 오른쪽에
