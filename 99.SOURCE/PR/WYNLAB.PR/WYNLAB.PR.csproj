@@ -56,8 +56,22 @@
     <Reference Include="DevExpress.XtraLayout.v21.2">
       <HintPath>C:\Program Files (x86)\DevExpress 21.2\Components\Bin\Framework\DevExpress.XtraLayout.v21.2.dll</HintPath>
     </Reference>
-    <!-- 이 모듈의 화면 중 TreeList(권한부여 같은 트리 UI)를 쓰는 화면이 생기면 SM처럼
-         DevExpress.XtraTreeList.v21.2 참조를 여기에 추가할 것. -->
+    <!-- frmRslt(공정실적)의 엑셀 불러오기(EDS 웨이퍼 판정 .xlsx 읽기)용 - BA/frmItemMulti와 같은 방식으로 로컬에 설치된
+         DevExpress Office File API를 쓴다(화면에 안 띄우는 SpreadsheetControl의 Document로 읽음). -->
+    <Reference Include="DevExpress.Spreadsheet.v21.2.Core">
+      <HintPath>C:\Program Files (x86)\DevExpress 21.2\Components\Bin\Framework\DevExpress.Spreadsheet.v21.2.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="DevExpress.XtraSpreadsheet.v21.2">
+      <HintPath>C:\Program Files (x86)\DevExpress 21.2\Components\Bin\Framework\DevExpress.XtraSpreadsheet.v21.2.dll</HintPath>
+    </Reference>
+    <Reference Include="DevExpress.Office.v21.2.Core">
+      <HintPath>C:\Program Files (x86)\DevExpress 21.2\Components\Bin\Framework\DevExpress.Office.v21.2.Core.dll</HintPath>
+    </Reference>
+    <!-- BaseForm.ConfirmMasterRowSwitch/SuppressMasterRowSwitchConfirm 오버로드가 TreeList 타입을 받아서, 목록-상세 화면(frmRoute)이
+         이 메서드를 부르면 컴파일러가 이 어셈블리 참조를 요구한다(BA/SM과 같은 이유). -->
+    <Reference Include="DevExpress.XtraTreeList.v21.2">
+      <HintPath>C:\Program Files (x86)\DevExpress 21.2\Components\Bin\Framework\DevExpress.XtraTreeList.v21.2.dll</HintPath>
+    </Reference>
   </ItemGroup>
 
   <!-- WYNLAB.BaseForm/WYNLAB.Controls/WYNLAB.Shared를 ProjectReference(소스 참조, 매번 같이
