@@ -12,6 +12,8 @@ public static class UiTheme
 {
     public static Color RequiredFieldBackColor { get; set; } = ColorHelper.FromHex("#FFF9DB");
     public static Color RequiredFieldForeColor { get; set; } = ColorHelper.FromHex("#000000");
+    /// <summary>그리드 필수 입력 컬럼(GridViewWyn.RequiredFields)의 헤더 글자색 - 일반 헤더(GridHeaderForeColor)와 구분되게 붉은색.</summary>
+    public static Color RequiredHeaderForeColor { get; set; } = ColorHelper.FromHex("#C62828");
 
     public static Color TreeGroupBackColor { get; set; } = ColorHelper.FromHex("#F2F3F5");
     public static Color TreeGroupForeColor { get; set; } = ColorHelper.FromHex("#5A5D64");

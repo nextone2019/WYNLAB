@@ -57,6 +57,11 @@ public class PopupSearchFieldDto
     /// <summary>전용 검색패널(PopupDefinitionDto.SearchPanelClass)을 쓸 때, 이 파라미터의 값을 읽어올
     /// 패널 컨트롤의 Name. 비어있으면 "컨트롤 Name = 파라미터명" 규칙으로 찾는다.</summary>
     public string? ControlNm { get; set; }
+
+    /// <summary>LOOKUP 연쇄 - 이 조건이 "부모"로 삼는 다른 LOOKUP 조건들의 ParamNm(쉼표 구분). 팝업 엔진이 부모 값이 바뀔 때마다 그 값을
+    /// (부모의 ParamNm 그대로) 이 콤보의 룩업 파라미터로 넘겨 목록을 다시 불러오고 이 콤보의 선택값은 비운다(예: 품목그룹2는 품목그룹1 아래만).
+    /// 비어 있으면 연쇄 없음.</summary>
+    public string? ParFields { get; set; }
 }
 
 /// <summary>"컬럼생성" 버튼 - 프로시저를 실행하지 않고 결과셋 구조만 읽어온 것(sys.dm_exec_describe_first_result_set).</summary>

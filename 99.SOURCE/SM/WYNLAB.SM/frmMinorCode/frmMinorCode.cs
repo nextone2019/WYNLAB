@@ -29,11 +29,6 @@ public partial class frmMinorCode : BaseForm
 {
     private const int RelCount = 10;
 
-    /// <summary>관리항목1~10 구분 콤보가 참조하는 대분류코드("소분류참조구분"). 이 대분류의
-    /// 소분류 목록(TSMMINOR)이 곧 콤보에 뜨는 선택지다 - 코드를 고치는 게 아니라 기초코드등록
-    /// 화면에서 SM00001의 소분류를 추가/수정하면 그대로 반영된다.</summary>
-    private const string RelCdTypeMajorCd = "SM00001";
-
     // 조회 결과를 DTO가 아니라 DataTable로 들고 있다. 이 화면은 범용 데이터 통로(api/data/*)로
     // 프로시저를 직접 부르는 첫 화면이라, 화면별 DTO를 만들지 않는 게 그 구조의 요점이다
     // (설계 배경은 저장소 루트의 GENERIC_DATA_API.md 참고).
@@ -82,11 +77,9 @@ public partial class frmMinorCode : BaseForm
         gvw2.RowAdd += async (s, e) => await NewRowClick();
         gvw2.RowDelete += async (s, e) => await DeleteRowClick();
 
-        foreach (var cbo in CboRelCdType)
-        {
-            cbo.ProcName = "SSP_CBO_CODE_Q";
-            cbo.Where = RelCdTypeMajorCd;
-        }
+        // 관리항목 구분 콤보(cborel_cd_type1~10)의 목록은 Designer의 LookupKey(L_SM0001 - 관리항목구분 L/C/S)가 채운다.
+        // 예전엔 여기서 ProcName/Where("SM00001")도 같이 지정했는데, 존재하지 않는 대분류라 /api/codes/lookup이 정상 동작하게 되자
+        // 빈 목록이 LookupKey 목록을 덮어써서 콤보가 비었다(2026-10-03) - 그 경로는 쓰지 않는다.
 
         // 개발자용 마우스오버 툴팁(BindingField) - 실제 적용은 BaseForm.ApplyBindingFieldTooltips가
         // 공통으로 처리한다(Session.IsDeveloper일 때만). 그리드 컬럼은 FieldName이 이미 DB
@@ -221,6 +214,8 @@ public partial class frmMinorCode : BaseForm
     /// 반쪽만 지워진 상태가 남는다. 프로시저 한 번의 호출로 끝내야 트랜잭션이 보장된다.
     /// 프로시저가 "소분류가 있어 삭제 불가"로 막으면 그 사유(ReturnMsg)가 그대로 표시된다.
     /// </summary>
+    protected override bool ConfirmDeleteByDefault => false; // 삭제 확인창을 DeleteClick에서 직접 띄움(문서번호 등 상세 문구)
+
     public override async Task DeleteClick()
     {
         if (_editingMajorCd == null)

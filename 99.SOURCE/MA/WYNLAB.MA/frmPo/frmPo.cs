@@ -21,15 +21,29 @@ public partial class frmPo : BaseForm
     {
         InitializeComponent();
 
+        // 조회조건 사업장 - 화면 표준(2026-10-03): 항상 첫 번째, Required, 화면을 열면 로그인 사업장이 기본값.
+        cboSearchAccId.EditValue = Session.AccId?.ToString() ?? string.Empty;
+        cboSearchAccId.Tag = new BindingFieldTag("acc_id");
+
         Text = "구매발주등록";
 
         Controls.Add(BuildScreenHeader());
 
         txtDeptNm.MapField("dept_id", txtDeptId);
         txtEmpNm.MapField("emp_id", txtEmpId);
+        txtEmpNm.LinkDept(txtDeptNm, txtDeptId); // 담당자 팝업은 선택한 부서 소속만, 담당자를 고르면 부서도 채움
         txtCustNm.MapField("cust_id", txtCustId);
         txtCustNm.MapField("vat_type", cboVatType);
         txtCustNm.MapField("vat_rate", txtVatRate);
+
+        // 부가세유형을 고르면 그 유형의 세율(L_CM0004의 rel_cd1)을 부가세율에 채운다(2026-10-05 요청). 조회로 문서를 읽을 때는 이 콤보를 채운 바로 다음 줄에서
+        // 저장돼 있던 실제 세율로 다시 덮어쓰므로(OnRowLoaded) 이 핸들러 결과가 남지 않는다 - 사용자가 직접 유형을 바꿀 때만 실질적으로 적용된다.
+        cboVatType.EditValueChanged += (s, e) =>
+        {
+            if (string.IsNullOrEmpty(cboVatType.EditValue?.ToString())) return;
+            var rate = cboVatType.GetColumnValue("rel_cd1");
+            if (rate != null && rate != DBNull.Value) txtVatRate.Text = rate.ToString();
+        };
 
         gvw1.Role = GridRoleWyn.Edit;
         // 금액 컬럼 합계를 그리드 하단(Footer)에 상시 표시(2026-09-26 요청) - 단가/수량/세율처럼 합계가 의미 없는 컬럼은 뺀다.
@@ -217,6 +231,7 @@ public partial class frmPo : BaseForm
         }
         var p = new Dictionary<string, string?>
         {
+            ["p_acc_id"] = cboSearchAccId.EditValue?.ToString(),
             ["p_work_type"] = "Q",
             ["p_po_id"] = forceKey,
             ["p_po_no"] = forceKey == null ? txtSearchPoNo.Text : null,
@@ -240,6 +255,7 @@ public partial class frmPo : BaseForm
             _editingKey = row["po_id"]?.ToString();
             cboAccId.EditValue = row["acc_id"]?.ToString() ?? string.Empty;
             txtPoNo.Text = row["po_no"]?.ToString() ?? string.Empty;
+            txtSearchPoNo.Text = txtPoNo.Text; // 링크로 열었거나 저장 후에도 조회 버튼이 현재 문서를 다시 읽도록
             dtePoDate.YyyyMmDd = row["po_date"]?.ToString();
             dteDelvDate.YyyyMmDd = row["delv_date"]?.ToString();
             txtPoTitle.Text = row["po_title"]?.ToString() ?? string.Empty;
@@ -265,6 +281,7 @@ public partial class frmPo : BaseForm
         colQcYn.OptionsColumn.AllowEdit = !approved;
         colStockYn.OptionsColumn.AllowEdit = !approved;
 
+        ApplyLockState();
         return BindDetailGridAsync();
     }
 
@@ -274,6 +291,10 @@ public partial class frmPo : BaseForm
         grd1.DataSource = _detail;
         return Task.CompletedTask;
     }
+
+    /// <summary>결재 상신된(상신/진행중/승인완료) 문서는 헤더/품목을 수정하지 못하게 잠근다 - 반려되거나 상신 취소되면 다시 수정할 수 있다(서버도 같은 기준으로 저장을 거부).</summary>
+    private void ApplyLockState() =>
+        ApplyApprovalLock(IsApprovalLockedStatus(cboApprStatCd.EditValue?.ToString()), panData, gvw1, btnAddRow1, btnDeletRow1, btnLoadReq);
 
     private void EnterNewMode()
     {
@@ -295,8 +316,9 @@ public partial class frmPo : BaseForm
             txtEmpNm.Text = Session.EmpNm; // 담당자명 = 세션 사원명(EmpId의 이름) - 사용자 이름(UserNm)이 아니다
             cboCurCd.EditValue = "KRW";
             txtExcRate.Text = "1";
-            cboVatType.EditValue = null;
-            txtVatRate.Text = "10";
+            cboVatType.EditValue = cboVatType.FirstItemValue; // 신규 기본 = 목록 첫 유형(부가세일반) - 세율은 위 핸들러가 채운다
+            var defaultRate = string.IsNullOrEmpty(cboVatType.EditValue?.ToString()) ? null : cboVatType.GetColumnValue("rel_cd1"); // 같은 유형이 이미 선택돼 있어도 세율은 확실히 초기화
+            txtVatRate.Text = defaultRate == null || defaultRate == DBNull.Value ? "10" : defaultRate.ToString(); // 콤보 목록이 아직 안 읽힌 시점(생성자)은 10
             txtAppNo.Text = string.Empty;
             cboApprStatCd.EditValue = string.Empty;
             memoRemark.Text = string.Empty;
@@ -305,6 +327,7 @@ public partial class frmPo : BaseForm
             TrackDirty(_detail);
             grd1.DataSource = _detail;
         });
+        ApplyLockState();
     }
 
     public override Task NewClick()
@@ -315,6 +338,11 @@ public partial class frmPo : BaseForm
 
     public override async Task SaveClick()
     {
+        if (IsApprovalLockedStatus(cboApprStatCd.EditValue?.ToString()))
+        {
+            AppMessageBox.Show("결재 상신된 문서는 수정할 수 없습니다.", "안내");
+            return;
+        }
         var headerParams = new Dictionary<string, string?>
         {
             ["p_work_type"] = _editingKey == null ? "N" : "U",
@@ -396,6 +424,11 @@ public partial class frmPo : BaseForm
 
     public override async Task DeleteClick()
     {
+        if (IsApprovalLockedStatus(cboApprStatCd.EditValue?.ToString()))
+        {
+            AppMessageBox.Show("결재 상신된 문서는 삭제할 수 없습니다.", "안내");
+            return;
+        }
         if (_editingKey == null) return;
 
         var result = await SaveAsync("USP_MA_PO_S", new Dictionary<string, string?>

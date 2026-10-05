@@ -24,6 +24,10 @@
     <Reference Include="DevExpress.Data.v21.2">
       <HintPath>C:\Program Files (x86)\DevExpress 21.2\Components\Bin\Framework\DevExpress.Data.v21.2.dll</HintPath>
     </Reference>
+    <!-- 홈 결재 리스트 그리드(GridViewWyn 컬럼/DataTable 바인딩)가 IControlRowSource(이 어셈블리)를 요구한다 -->
+    <Reference Include="DevExpress.Data.Desktop.v21.2">
+      <HintPath>C:\Program Files (x86)\DevExpress 21.2\Components\Bin\Framework\DevExpress.Data.Desktop.v21.2.dll</HintPath>
+    </Reference>
     <Reference Include="DevExpress.Utils.v21.2">
       <HintPath>C:\Program Files (x86)\DevExpress 21.2\Components\Bin\Framework\DevExpress.Utils.v21.2.dll</HintPath>
     </Reference>
@@ -116,6 +120,19 @@
          appsettings.json처럼 파일 경로에 의존하지 않고 코드/리소스로 고정해서 배포한다.
          SvgIcons.LoadEmbedded가 "WYNLAB.Shell.Assets.ToolbarIcons.{파일명}" 이름으로 찾는다. -->
     <EmbeddedResource Include="Assets\ToolbarIcons\*.svg" />
+  </ItemGroup>
+
+  <!-- 홈 화면 - SubType=Form + DependentUpon이 있어야 VS가 .Designer.cs/.ApprovalCenter.cs를 HomeForm.cs 밑에 묶고 폼 디자이너로 연다 -->
+  <ItemGroup>
+    <Compile Update="HomeForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="HomeForm.Designer.cs">
+      <DependentUpon>HomeForm.cs</DependentUpon>
+    </Compile>
+    <Compile Update="HomeForm.ApprovalCenter.cs">
+      <DependentUpon>HomeForm.cs</DependentUpon>
+    </Compile>
   </ItemGroup>
 
 </Project>

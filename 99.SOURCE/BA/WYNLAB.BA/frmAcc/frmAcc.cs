@@ -147,6 +147,8 @@ public partial class frmAcc : BaseForm
         return Task.CompletedTask;
     }
 
+    protected override bool ConfirmDeleteByDefault => false; // 삭제 확인창을 DeleteClick에서 직접 띄움(문서번호 등 상세 문구)
+
     public override async Task DeleteClick()
     {
         if (_editingCd == null)

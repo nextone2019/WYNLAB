@@ -22,7 +22,6 @@ public partial class frmExcRate : BaseForm
 
         Text = "환율조회";
 
-        Controls.Add(BuildScreenHeader());
 
         gvw1.Role = GridRoleWyn.Query;
         gvw1.HighlightFocusedRow = true;

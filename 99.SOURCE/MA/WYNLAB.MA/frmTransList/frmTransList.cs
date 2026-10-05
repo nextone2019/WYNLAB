@@ -17,9 +17,12 @@ public partial class frmTransList : BaseForm
     {
         InitializeComponent();
 
+        // 조회조건 사업장 - 화면 표준(2026-10-03): 항상 첫 번째, Required, 화면을 열면 로그인 사업장이 기본값.
+        cboSearchAccId.EditValue = Session.AccId?.ToString() ?? string.Empty;
+        cboSearchAccId.Tag = new BindingFieldTag("acc_id");
+
         Text = "수불현황";
 
-        Controls.Add(BuildScreenHeader());
 
         cboSearchKind.SelectedIndex = 0;
         dteSearchFrom.YyyyMmDd = DateTime.Today.AddMonths(-1).ToString("yyyyMMdd");
@@ -37,6 +40,7 @@ public partial class frmTransList : BaseForm
         var kind = cboSearchKind.EditValue?.ToString();
         var p = new Dictionary<string, string?>
         {
+            ["p_acc_id"] = cboSearchAccId.EditValue?.ToString(),
             ["p_work_type"] = "Q",
             ["p_date_from"] = dteSearchFrom.YyyyMmDd,
             ["p_date_to"] = dteSearchTo.YyyyMmDd,
@@ -66,6 +70,7 @@ public partial class frmTransList : BaseForm
 
     public override Task NewClick() => Task.CompletedTask;
     public override Task DeleteClick() => Task.CompletedTask;
+    protected override bool ConfirmDeleteByDefault => false; // 조회전용 - 삭제 기능 없음
     public override Task NewRowClick() => Task.CompletedTask;
     public override Task DeleteRowClick() => Task.CompletedTask;
     public override Task SaveClick() => Task.CompletedTask;

@@ -63,6 +63,10 @@ public class ApprovalsController : ControllerBase
         return await SaveAsync("USP_AP_APPR_S", p);
     }
 
+    /// <summary>상신 마무리 - 결재/수신라인 추가(add-path)를 모두 끝낸 뒤 한 번 부른다. 결재자가 없어 이미 완료인 문서는 여기서 최종승인 후처리(문서 확정 등)를 실행한다.</summary>
+    [HttpPost("finalize")]
+    public Task<ActionResult<ApiResult>> Finalize([FromBody] ApprovalActionRequest request) => ActionAsync("FIN", request);
+
     [HttpPost("approve")]
     public Task<ActionResult<ApiResult>> Approve([FromBody] ApprovalActionRequest request) => ActionAsync("A", request);
 
@@ -129,6 +133,51 @@ public class ApprovalsController : ControllerBase
         });
     }
 
+    /// <summary>홈 "결재 리스트" 한 칸(기안함/결재함 x 미결재/반려/결재완료)의 목록.
+    /// box: "drafted"=기안함(Q6), "inbox"=결재함. stat: "P"=미결재, "R"=반려, "E"=결재완료.
+    /// 결재함의 미결재는 "내 차례인 건"이라 Q1, 반려/완료는 "내가 결재·수신라인에 포함된 문서"라 Q7이다.
+    /// 사번은 my-dashboard와 같은 이유로 서버가 직접 해석한다.</summary>
+    [HttpGet("my-list")]
+    public async Task<ActionResult<List<ApprovalDashboardItemDto>>> MyList(
+        [FromQuery] string box, [FromQuery] string stat, [FromQuery] long? accId = null,
+        [FromQuery] string? docType = null, [FromQuery] string? dateFrom = null, [FromQuery] string? dateTo = null,
+        [FromQuery] string? reqEmpNo = null, [FromQuery] string? title = null)
+    {
+        var empNo = await ResolveMyEmpNoAsync();
+        if (string.IsNullOrEmpty(empNo)) return Ok(new List<ApprovalDashboardItemDto>());
+
+        var workType = box == "drafted" ? "Q6" : stat == "P" ? "Q1" : "Q7";
+        var data = await _repo.QueryAsync("USP_AP_APPR_Q", new Dictionary<string, string?>
+        {
+            ["p_acc_id"] = accId?.ToString(),
+            ["p_work_type"] = workType,
+            ["p_emp_no"] = empNo,
+            ["p_doc_type"] = docType,
+            ["p_date_from"] = dateFrom,
+            ["p_date_to"] = dateTo,
+            ["p_req_emp_no"] = reqEmpNo,
+            ["p_title"] = title,
+            ["p_stat_cd"] = stat,
+        });
+        return Ok((data.Tables.FirstOrDefault()?.Rows ?? new()).Select(MapDashboardItem).ToList());
+    }
+
+    /// <summary>기안서 작성 탭의 바로가기 타일 - 문서유형(AP0002) 중 문서등록 화면(rel_cd1)이 지정된 것만.</summary>
+    [HttpGet("doc-types")]
+    public async Task<ActionResult<List<ApprovalDocTypeDto>>> DocTypes()
+    {
+        var result = await _repo.QueryRawAsync(
+            "SELECT minor_cd, minor_nm, rel_cd1, rel_cd2 FROM TSMMINOR WHERE major_cd = 'AP0002' AND use_yn = 'Y' AND ISNULL(rel_cd1, '') <> '' ORDER BY sort, minor_cd",
+            new Dictionary<string, string?>());
+        return Ok((result.Tables.FirstOrDefault()?.Rows ?? new()).Select(r => new ApprovalDocTypeDto
+        {
+            DocType = r["minor_cd"]?.ToString() ?? string.Empty,
+            DocTypeNm = r["minor_nm"]?.ToString() ?? string.Empty,
+            FormId = r["rel_cd1"]?.ToString() ?? string.Empty,
+            Category = r["rel_cd2"]?.ToString() ?? string.Empty,
+        }).ToList());
+    }
+
     private async Task<string?> ResolveMyEmpNoAsync()
     {
         var result = await _repo.QueryRawAsync(
@@ -145,10 +194,14 @@ public class ApprovalsController : ControllerBase
         AppTitle = row["app_title"]?.ToString() ?? string.Empty,
         DocType = row["doc_type"]?.ToString() ?? string.Empty,
         DocId = Convert.ToInt64(row["doc_id"]),
+        DocNo = row["doc_no"]?.ToString() ?? string.Empty,
         FormId = row["form_id"]?.ToString(),
         ReqEmpNm = row.TryGetValue("req_emp_nm", out var v) ? v?.ToString() : null,
         StatCd = row.TryGetValue("stat_cd", out var sc) ? sc?.ToString() : null,
         CurApprEmpNm = row.TryGetValue("cur_appr_emp_nm", out var ca) ? ca?.ToString() : null,
+        ReqDt = row.TryGetValue("req_dt", out var rd) ? rd as DateTime? : null,
+        LastApprEmpNm = row.TryGetValue("last_appr_emp_nm", out var la) ? la?.ToString() : null,
+        PathType = row.TryGetValue("path_type", out var pt) ? pt?.ToString() : null,
     };
 
     [HttpGet("dept-tree")]

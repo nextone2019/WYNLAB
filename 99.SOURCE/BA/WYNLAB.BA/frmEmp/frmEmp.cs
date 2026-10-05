@@ -23,6 +23,10 @@ public partial class frmEMP : BaseForm
     {
         InitializeComponent();
 
+        // 조회조건 사업장 - 화면 표준(2026-10-03): 항상 첫 번째, Required, 화면을 열면 로그인 사업장이 기본값.
+        cboSearchAccId.EditValue = Session.AccId?.ToString() ?? string.Empty;
+        cboSearchAccId.Tag = new BindingFieldTag("acc_id");
+
         Text = "사원등록";
 
         // BuildScreenHeader()(공통 상단 타이틀 줄, 앱 전체 화면이 같이 씀)는 이 화면(frmEMP)만
@@ -97,6 +101,7 @@ public partial class frmEMP : BaseForm
     {
         var p = new Dictionary<string, string?>
         {
+            ["p_acc_id"] = cboSearchAccId.EditValue?.ToString(),
             ["p_work_type"] = "Q",
             ["p_emp_no"] = txtEmpNo.Text,
             // p_dept_id는 서버에서 BIGINT 파라미터라서 빈 문자열을 그대로 보내면 숫자 변환 오류가

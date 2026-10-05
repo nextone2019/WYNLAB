@@ -14,9 +14,12 @@ public partial class frmItemList : BaseForm
     {
         InitializeComponent();
 
+        // 조회조건 사업장 - 화면 표준(2026-10-03): 항상 첫 번째, Required, 화면을 열면 로그인 사업장이 기본값.
+        cboSearchAccId.EditValue = Session.AccId?.ToString() ?? string.Empty;
+        cboSearchAccId.Tag = new BindingFieldTag("acc_id");
+
         Text = "품목정보조회";
 
-        Controls.Add(BuildScreenHeader());
 
         gvw1.Role = GridRoleWyn.Edit;
         gvw1.HighlightFocusedRow = true;
@@ -35,6 +38,7 @@ public partial class frmItemList : BaseForm
     {
         var p = new Dictionary<string, string?>
         {
+            ["p_acc_id"] = cboSearchAccId.EditValue?.ToString(),
             ["p_work_type"] = "Q",
             ["p_item_no"] = txtItemNo_Q.Text,
             //["p_item_nm"] = txtItemNm_Q.Text,

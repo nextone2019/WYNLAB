@@ -33,6 +33,10 @@ public partial class frmRslt : BaseForm
     {
         InitializeComponent();
 
+        // 조회조건 사업장 - 화면 표준(2026-10-03): 항상 첫 번째, Required, 화면을 열면 로그인 사업장이 기본값.
+        cboSearchAccId.EditValue = Session.AccId?.ToString() ?? string.Empty;
+        cboSearchAccId.Tag = new BindingFieldTag("acc_id");
+
         Text = "공정실적";
 
         Controls.Add(BuildScreenHeader());
@@ -91,6 +95,7 @@ public partial class frmRslt : BaseForm
 
         var p = new Dictionary<string, string?>
         {
+            ["p_acc_id"] = cboSearchAccId.EditValue?.ToString(),
             ["p_work_type"] = "Q",
             ["p_rslt_id"] = forceKey,
             ["p_rslt_no"] = forceKey == null ? txtSearchRsltNo.Text : null,

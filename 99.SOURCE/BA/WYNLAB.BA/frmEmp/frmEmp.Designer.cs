@@ -1,5 +1,5 @@
-﻿// AI Builder媛 留덉뒪?????쒕툕洹몃━???쒗뵆由우쓣 蹂듭젣?댁꽌 ?먮룞 ?앹꽦 - 2026-09-09.
-// ?붿옄???쒕ぉ?곸뿭/?щ갚/?됱긽)??諛붽씀?ㅻ㈃ ???뚯씪???꾨땲???먮낯 ?쒗뵆由?99.SOURCE/TEMPLATE/WYNLAB.TEMPLATE)??怨좎튂?몄슂.
+﻿// AI Builder가 마스터-폼-서브그리드 템플릿을 복제해서 자동 생성 - 2026-09-09.
+// 디자인(제목영역/여백/색상)을 바꾸려면 이 파일이 아니라 원본 템플릿(99.SOURCE/TEMPLATE/WYNLAB.TEMPLATE)을 고치세요.
 #nullable disable
 using WYNLAB.Base;
 using WYNLAB.Base.Controls;
@@ -124,6 +124,8 @@ public partial class frmEMP
             this.panelWyn6 = new WYNLAB.Base.Controls.PanelWyn();
             this.sectionHeaderWyn3 = new WYNLAB.Base.Controls.SectionHeaderWyn();
             this.panHeader = new WYNLAB.Base.Controls.PanelWyn();
+            this.lblSearchAccId = new DevExpress.XtraEditors.LabelControl();
+            this.cboSearchAccId = new WYNLAB.Base.Controls.LookUpEditWyn();
             this.lblSearchEmpNo = new DevExpress.XtraEditors.LabelControl();
             this.txtDeptNm = new WYNLAB.Base.Controls.PopupLookupEditWyn();
             this.txtEmpNo = new WYNLAB.Base.Controls.TextEditWyn();
@@ -196,6 +198,7 @@ public partial class frmEMP
             ((System.ComponentModel.ISupportInitialize)(this.txtDeptId.Properties)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.paTitleH)).BeginInit();
             this.paTitleH.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.cboSearchAccId.Properties)).BeginInit();
             this.SuspendLayout();
             // 
             // panBase
@@ -325,7 +328,7 @@ public partial class frmEMP
             // 
             // colMAccId
             // 
-            this.colMAccId.Caption = "?ъ뾽??";
+            this.colMAccId.Caption = "사업장";
             this.colMAccId.ColumnEdit = this.lookUpColumnEdit1;
             this.colMAccId.FieldName = "acc_id";
             this.colMAccId.Name = "colMAccId";
@@ -343,7 +346,7 @@ public partial class frmEMP
             // 
             // colMEmpNo
             // 
-            this.colMEmpNo.Caption = "?щ쾲";
+            this.colMEmpNo.Caption = "사번";
             this.colMEmpNo.FieldName = "emp_no";
             this.colMEmpNo.Name = "colMEmpNo";
             this.colMEmpNo.OptionsColumn.AllowEdit = false;
@@ -353,7 +356,7 @@ public partial class frmEMP
             // 
             // colMEmpNm
             // 
-            this.colMEmpNm.Caption = "?ъ썝紐?";
+            this.colMEmpNm.Caption = "사원명";
             this.colMEmpNm.FieldName = "emp_nm";
             this.colMEmpNm.Name = "colMEmpNm";
             this.colMEmpNm.Visible = true;
@@ -362,14 +365,14 @@ public partial class frmEMP
             // 
             // colMEmpNmEng
             // 
-            this.colMEmpNmEng.Caption = "?ъ썝紐??곷Ц)";
+            this.colMEmpNmEng.Caption = "사원명(영문)";
             this.colMEmpNmEng.FieldName = "emp_nm_eng";
             this.colMEmpNmEng.Name = "colMEmpNmEng";
             this.colMEmpNmEng.Width = 100;
             // 
             // colMDeptId
             // 
-            this.colMDeptId.Caption = "遺?쏧D";
+            this.colMDeptId.Caption = "부서ID";
             this.colMDeptId.ColumnEdit = this.spinEditcolM;
             this.colMDeptId.FieldName = "DEPT_ID";
             this.colMDeptId.Name = "colMDeptId";
@@ -383,7 +386,7 @@ public partial class frmEMP
             // 
             // colMDeptNm
             // 
-            this.colMDeptNm.Caption = "遺??";
+            this.colMDeptNm.Caption = "부서";
             this.colMDeptNm.FieldName = "dept_nm";
             this.colMDeptNm.Name = "colMDeptNm";
             this.colMDeptNm.Visible = true;
@@ -392,7 +395,7 @@ public partial class frmEMP
             // 
             // colMEntDate
             // 
-            this.colMEntDate.Caption = "?낆궗?쇱옄";
+            this.colMEntDate.Caption = "입사일자";
             this.colMEntDate.ColumnEdit = this.dateColumnEdit1;
             this.colMEntDate.FieldName = "ent_date";
             this.colMEntDate.Name = "colMEntDate";
@@ -412,7 +415,7 @@ public partial class frmEMP
             // 
             // colMGrpEntDate
             // 
-            this.colMGrpEntDate.Caption = "洹몃９?낆궗?쇱옄";
+            this.colMGrpEntDate.Caption = "그룹입사일자";
             this.colMGrpEntDate.ColumnEdit = this.dateColumnEdit2;
             this.colMGrpEntDate.FieldName = "grp_ent_date";
             this.colMGrpEntDate.Name = "colMGrpEntDate";
@@ -432,7 +435,7 @@ public partial class frmEMP
             // 
             // colMJobGrade
             // 
-            this.colMJobGrade.Caption = "吏곸옲";
+            this.colMJobGrade.Caption = "직위";
             this.colMJobGrade.FieldName = "job_grade";
             this.colMJobGrade.Name = "colMJobGrade";
             this.colMJobGrade.Visible = true;
@@ -441,7 +444,7 @@ public partial class frmEMP
             // 
             // colMJobType
             // 
-            this.colMJobType.Caption = "吏곷Т";
+            this.colMJobType.Caption = "직무";
             this.colMJobType.FieldName = "job_type";
             this.colMJobType.Name = "colMJobType";
             this.colMJobType.Visible = true;
@@ -450,7 +453,7 @@ public partial class frmEMP
             // 
             // colMRetYn
             // 
-            this.colMRetYn.Caption = "?댁궗";
+            this.colMRetYn.Caption = "퇴사";
             this.colMRetYn.ColumnEdit = this.chkEditcolM;
             this.colMRetYn.FieldName = "ret_yn";
             this.colMRetYn.Name = "colMRetYn";
@@ -466,7 +469,7 @@ public partial class frmEMP
             // 
             // colMRetDate
             // 
-            this.colMRetDate.Caption = "?댁궗?쇱옄";
+            this.colMRetDate.Caption = "퇴사일자";
             this.colMRetDate.ColumnEdit = this.dateColumnEdit3;
             this.colMRetDate.FieldName = "ret_date";
             this.colMRetDate.Name = "colMRetDate";
@@ -486,7 +489,7 @@ public partial class frmEMP
             // 
             // colMSexCd
             // 
-            this.colMSexCd.Caption = "?깅퀎";
+            this.colMSexCd.Caption = "성별";
             this.colMSexCd.ColumnEdit = this.lookUpColumnEdit2;
             this.colMSexCd.FieldName = "sex_cd";
             this.colMSexCd.Name = "colMSexCd";
@@ -506,7 +509,7 @@ public partial class frmEMP
             // 
             // colMTel
             // 
-            this.colMTel.Caption = "?곕씫泥?";
+            this.colMTel.Caption = "연락처";
             this.colMTel.FieldName = "tel";
             this.colMTel.Name = "colMTel";
             this.colMTel.Visible = true;
@@ -533,7 +536,7 @@ public partial class frmEMP
             // 
             // colMNatCd
             // 
-            this.colMNatCd.Caption = "援??";
+            this.colMNatCd.Caption = "국가";
             this.colMNatCd.FieldName = "nat_cd";
             this.colMNatCd.Name = "colMNatCd";
             this.colMNatCd.Visible = true;
@@ -542,7 +545,7 @@ public partial class frmEMP
             // 
             // colMZipCode
             // 
-            this.colMZipCode.Caption = "?고렪踰덊샇";
+            this.colMZipCode.Caption = "우편번호";
             this.colMZipCode.FieldName = "zip_code";
             this.colMZipCode.Name = "colMZipCode";
             this.colMZipCode.Visible = true;
@@ -551,7 +554,7 @@ public partial class frmEMP
             // 
             // colMAddr1
             // 
-            this.colMAddr1.Caption = "二쇱냼1";
+            this.colMAddr1.Caption = "주소1";
             this.colMAddr1.FieldName = "addr1";
             this.colMAddr1.Name = "colMAddr1";
             this.colMAddr1.Visible = true;
@@ -560,7 +563,7 @@ public partial class frmEMP
             // 
             // colMAddr2
             // 
-            this.colMAddr2.Caption = "二쇱냼2";
+            this.colMAddr2.Caption = "주소2";
             this.colMAddr2.FieldName = "addr2";
             this.colMAddr2.Name = "colMAddr2";
             this.colMAddr2.Visible = true;
@@ -569,7 +572,7 @@ public partial class frmEMP
             // 
             // colMHoliYn
             // 
-            this.colMHoliYn.Caption = "?곗감???";
+            this.colMHoliYn.Caption = "연차대상";
             this.colMHoliYn.ColumnEdit = this.chkEditcolM;
             this.colMHoliYn.FieldName = "holi_yn";
             this.colMHoliYn.Name = "colMHoliYn";
@@ -579,7 +582,7 @@ public partial class frmEMP
             // 
             // colMDiligYn
             // 
-            this.colMDiligYn.Caption = "洹쇳깭???";
+            this.colMDiligYn.Caption = "근태대상";
             this.colMDiligYn.ColumnEdit = this.chkEditcolM;
             this.colMDiligYn.FieldName = "dilig_yn";
             this.colMDiligYn.Name = "colMDiligYn";
@@ -589,7 +592,7 @@ public partial class frmEMP
             // 
             // colMPayYn
             // 
-            this.colMPayYn.Caption = "湲됱뿬???";
+            this.colMPayYn.Caption = "급여대상";
             this.colMPayYn.ColumnEdit = this.chkEditcolM;
             this.colMPayYn.FieldName = "pay_yn";
             this.colMPayYn.Name = "colMPayYn";
@@ -599,7 +602,7 @@ public partial class frmEMP
             // 
             // colMPhoto
             // 
-            this.colMPhoto.Caption = "?ъ쭊";
+            this.colMPhoto.Caption = "사진";
             this.colMPhoto.FieldName = "photo";
             this.colMPhoto.Name = "colMPhoto";
             this.colMPhoto.Visible = true;
@@ -639,7 +642,7 @@ public partial class frmEMP
             this.sectionHeaderWyn4.Size = new System.Drawing.Size(922, 25);
             this.sectionHeaderWyn4.SvgIcon = ((DevExpress.Utils.Svg.SvgImage)(resources.GetObject("sectionHeaderWyn4.SvgIcon")));
             this.sectionHeaderWyn4.TabIndex = 9;
-            this.sectionHeaderWyn4.Text = "?ъ썝 LIST";
+            this.sectionHeaderWyn4.Text = "사원 LIST";
             // 
             // splitterWyn1
             // 
@@ -745,7 +748,7 @@ public partial class frmEMP
             this.lblDetailHoliYn.Name = "lblDetailHoliYn";
             this.lblDetailHoliYn.Size = new System.Drawing.Size(48, 15);
             this.lblDetailHoliYn.TabIndex = 40;
-            this.lblDetailHoliYn.Text = "?곗감???";
+            this.lblDetailHoliYn.Text = "연차대상";
             // 
             // chkDetailPayYn
             // 
@@ -763,7 +766,7 @@ public partial class frmEMP
             this.lblDetailPayYn.Name = "lblDetailPayYn";
             this.lblDetailPayYn.Size = new System.Drawing.Size(48, 15);
             this.lblDetailPayYn.TabIndex = 44;
-            this.lblDetailPayYn.Text = "湲됱뿬???";
+            this.lblDetailPayYn.Text = "급여대상";
             // 
             // chkDetailDiligYn
             // 
@@ -781,7 +784,7 @@ public partial class frmEMP
             this.lblDetailDiligYn.Name = "lblDetailDiligYn";
             this.lblDetailDiligYn.Size = new System.Drawing.Size(48, 15);
             this.lblDetailDiligYn.TabIndex = 42;
-            this.lblDetailDiligYn.Text = "洹쇳깭???";
+            this.lblDetailDiligYn.Text = "근태대상";
             // 
             // chkDetailHoliYn
             // 
@@ -856,7 +859,7 @@ public partial class frmEMP
             this.lblDetailAccId.Name = "lblDetailAccId";
             this.lblDetailAccId.Size = new System.Drawing.Size(36, 15);
             this.lblDetailAccId.TabIndex = 0;
-            this.lblDetailAccId.Text = "?ъ뾽??";
+            this.lblDetailAccId.Text = "사업장";
             // 
             // lblDetailEmpNo
             // 
@@ -866,7 +869,7 @@ public partial class frmEMP
             this.lblDetailEmpNo.Name = "lblDetailEmpNo";
             this.lblDetailEmpNo.Size = new System.Drawing.Size(24, 15);
             this.lblDetailEmpNo.TabIndex = 2;
-            this.lblDetailEmpNo.Text = "?щ쾲";
+            this.lblDetailEmpNo.Text = "사번";
             // 
             // txtDetailEmpNo
             // 
@@ -888,7 +891,7 @@ public partial class frmEMP
             this.lblDetailEmpNm.Name = "lblDetailEmpNm";
             this.lblDetailEmpNm.Size = new System.Drawing.Size(36, 15);
             this.lblDetailEmpNm.TabIndex = 4;
-            this.lblDetailEmpNm.Text = "?ъ썝紐?";
+            this.lblDetailEmpNm.Text = "사원명";
             // 
             // txtDetailEmpNm
             // 
@@ -910,7 +913,7 @@ public partial class frmEMP
             this.lblDetailEmpNmEng.Name = "lblDetailEmpNmEng";
             this.lblDetailEmpNmEng.Size = new System.Drawing.Size(68, 15);
             this.lblDetailEmpNmEng.TabIndex = 6;
-            this.lblDetailEmpNmEng.Text = "?ъ썝紐??곷Ц)";
+            this.lblDetailEmpNmEng.Text = "사원명(영문)";
             // 
             // txtDetailDeptId
             // 
@@ -935,7 +938,7 @@ public partial class frmEMP
             this.lblDetailDeptId.Name = "lblDetailDeptId";
             this.lblDetailDeptId.Size = new System.Drawing.Size(36, 15);
             this.lblDetailDeptId.TabIndex = 8;
-            this.lblDetailDeptId.Text = "遺?쏧D";
+            this.lblDetailDeptId.Text = "부서ID";
             this.lblDetailDeptId.Visible = false;
             // 
             // lblDetailDeptNm
@@ -946,7 +949,7 @@ public partial class frmEMP
             this.lblDetailDeptNm.Name = "lblDetailDeptNm";
             this.lblDetailDeptNm.Size = new System.Drawing.Size(24, 15);
             this.lblDetailDeptNm.TabIndex = 10;
-            this.lblDetailDeptNm.Text = "遺??";
+            this.lblDetailDeptNm.Text = "부서";
             // 
             // lblDetailEntDate
             // 
@@ -956,7 +959,7 @@ public partial class frmEMP
             this.lblDetailEntDate.Name = "lblDetailEntDate";
             this.lblDetailEntDate.Size = new System.Drawing.Size(48, 15);
             this.lblDetailEntDate.TabIndex = 12;
-            this.lblDetailEntDate.Text = "?낆궗?쇱옄";
+            this.lblDetailEntDate.Text = "입사일자";
             // 
             // dteDetailEntDate
             // 
@@ -980,7 +983,7 @@ public partial class frmEMP
             this.lblDetailGrpEntDate.Name = "lblDetailGrpEntDate";
             this.lblDetailGrpEntDate.Size = new System.Drawing.Size(72, 15);
             this.lblDetailGrpEntDate.TabIndex = 14;
-            this.lblDetailGrpEntDate.Text = "洹몃９?낆궗?쇱옄";
+            this.lblDetailGrpEntDate.Text = "그룹입사일자";
             // 
             // dteDetailGrpEntDate
             // 
@@ -1004,7 +1007,7 @@ public partial class frmEMP
             this.lblDetailJobGrade.Name = "lblDetailJobGrade";
             this.lblDetailJobGrade.Size = new System.Drawing.Size(24, 15);
             this.lblDetailJobGrade.TabIndex = 16;
-            this.lblDetailJobGrade.Text = "吏곸옲";
+            this.lblDetailJobGrade.Text = "직위";
             // 
             // txtDetailJobGrade
             // 
@@ -1021,7 +1024,7 @@ public partial class frmEMP
             this.lblDetailJobType.Name = "lblDetailJobType";
             this.lblDetailJobType.Size = new System.Drawing.Size(24, 15);
             this.lblDetailJobType.TabIndex = 18;
-            this.lblDetailJobType.Text = "吏곷Т";
+            this.lblDetailJobType.Text = "직무";
             // 
             // txtDetailJobType
             // 
@@ -1038,7 +1041,7 @@ public partial class frmEMP
             this.lblDetailRetYn.Name = "lblDetailRetYn";
             this.lblDetailRetYn.Size = new System.Drawing.Size(24, 15);
             this.lblDetailRetYn.TabIndex = 20;
-            this.lblDetailRetYn.Text = "?댁궗";
+            this.lblDetailRetYn.Text = "퇴사";
             // 
             // chkDetailRetYn
             // 
@@ -1056,7 +1059,7 @@ public partial class frmEMP
             this.lblDetailRetDate.Name = "lblDetailRetDate";
             this.lblDetailRetDate.Size = new System.Drawing.Size(48, 15);
             this.lblDetailRetDate.TabIndex = 22;
-            this.lblDetailRetDate.Text = "?댁궗?쇱옄";
+            this.lblDetailRetDate.Text = "퇴사일자";
             // 
             // dteDetailRetDate
             // 
@@ -1080,7 +1083,7 @@ public partial class frmEMP
             this.lblDetailSexCd.Name = "lblDetailSexCd";
             this.lblDetailSexCd.Size = new System.Drawing.Size(24, 15);
             this.lblDetailSexCd.TabIndex = 24;
-            this.lblDetailSexCd.Text = "?깅퀎";
+            this.lblDetailSexCd.Text = "성별";
             // 
             // lblDetailTel
             // 
@@ -1090,7 +1093,7 @@ public partial class frmEMP
             this.lblDetailTel.Name = "lblDetailTel";
             this.lblDetailTel.Size = new System.Drawing.Size(36, 15);
             this.lblDetailTel.TabIndex = 26;
-            this.lblDetailTel.Text = "?곕씫泥?";
+            this.lblDetailTel.Text = "연락처";
             // 
             // txtDetailTel
             // 
@@ -1141,7 +1144,7 @@ public partial class frmEMP
             this.lblDetailNatCd.Name = "lblDetailNatCd";
             this.lblDetailNatCd.Size = new System.Drawing.Size(24, 15);
             this.lblDetailNatCd.TabIndex = 32;
-            this.lblDetailNatCd.Text = "援??";
+            this.lblDetailNatCd.Text = "국가";
             this.lblDetailNatCd.Visible = false;
             // 
             // txtDetailNatCd
@@ -1160,7 +1163,7 @@ public partial class frmEMP
             this.lblDetailZipCode.Name = "lblDetailZipCode";
             this.lblDetailZipCode.Size = new System.Drawing.Size(48, 15);
             this.lblDetailZipCode.TabIndex = 34;
-            this.lblDetailZipCode.Text = "?고렪踰덊샇";
+            this.lblDetailZipCode.Text = "우편번호";
             // 
             // txtDetailZipCode
             // 
@@ -1177,7 +1180,7 @@ public partial class frmEMP
             this.lblDetailAddr1.Name = "lblDetailAddr1";
             this.lblDetailAddr1.Size = new System.Drawing.Size(31, 15);
             this.lblDetailAddr1.TabIndex = 36;
-            this.lblDetailAddr1.Text = "二쇱냼1";
+            this.lblDetailAddr1.Text = "주소1";
             // 
             // txtDetailAddr1
             // 
@@ -1194,7 +1197,7 @@ public partial class frmEMP
             this.lblDetailAddr2.Name = "lblDetailAddr2";
             this.lblDetailAddr2.Size = new System.Drawing.Size(31, 15);
             this.lblDetailAddr2.TabIndex = 38;
-            this.lblDetailAddr2.Text = "二쇱냼2";
+            this.lblDetailAddr2.Text = "주소2";
             // 
             // txtDetailAddr2
             // 
@@ -1228,12 +1231,14 @@ public partial class frmEMP
             this.sectionHeaderWyn3.Size = new System.Drawing.Size(704, 25);
             this.sectionHeaderWyn3.SvgIcon = ((DevExpress.Utils.Svg.SvgImage)(resources.GetObject("sectionHeaderWyn3.SvgIcon")));
             this.sectionHeaderWyn3.TabIndex = 9;
-            this.sectionHeaderWyn3.Text = "?ъ썝?뺣낫 ?깅줉";
+            this.sectionHeaderWyn3.Text = "사원정보 등록";
             // 
             // panHeader
             // 
             this.panHeader.Appearance.BackColor = System.Drawing.Color.White;
             this.panHeader.Appearance.Options.UseBackColor = true;
+            this.panHeader.Controls.Add(this.lblSearchAccId);
+            this.panHeader.Controls.Add(this.cboSearchAccId);
             this.panHeader.Controls.Add(this.lblSearchEmpNo);
             this.panHeader.Controls.Add(this.txtDeptNm);
             this.panHeader.Controls.Add(this.txtEmpNo);
@@ -1246,17 +1251,44 @@ public partial class frmEMP
             this.panHeader.Size = new System.Drawing.Size(1678, 49);
             this.panHeader.TabIndex = 8;
             // 
+            // lblSearchAccId (조회조건 첫 번째 - 사업장 표준, 2026-10-03)
+            // 
+            this.lblSearchAccId.Appearance.Font = new System.Drawing.Font("맑은 고딕", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
+            this.lblSearchAccId.Appearance.Options.UseFont = true;
+            this.lblSearchAccId.Location = new System.Drawing.Point(17, 20);
+            this.lblSearchAccId.Name = "lblSearchAccId";
+            this.lblSearchAccId.Size = new System.Drawing.Size(36, 15);
+            this.lblSearchAccId.TabIndex = 0;
+            this.lblSearchAccId.Text = "사업장";
+            // 
+            // cboSearchAccId (사업장 LookUp, Required - 기본값은 화면 생성자에서 로그인 사업장)
+            // 
+            this.cboSearchAccId.EditValue = "";
+            this.cboSearchAccId.Location = new System.Drawing.Point(61, 17);
+            this.cboSearchAccId.LookupKey = "L_ACC";
+            this.cboSearchAccId.Name = "cboSearchAccId";
+            this.cboSearchAccId.Properties.Appearance.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(249)))), ((int)(((byte)(219)))));
+            this.cboSearchAccId.Properties.Appearance.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))));
+            this.cboSearchAccId.Properties.Appearance.Options.UseBackColor = true;
+            this.cboSearchAccId.Properties.Appearance.Options.UseForeColor = true;
+            this.cboSearchAccId.Properties.Buttons.AddRange(new DevExpress.XtraEditors.Controls.EditorButton[] {
+            new DevExpress.XtraEditors.Controls.EditorButton(DevExpress.XtraEditors.Controls.ButtonPredefines.Combo)});
+            this.cboSearchAccId.Properties.NullText = "";
+            this.cboSearchAccId.Required = true;
+            this.cboSearchAccId.Size = new System.Drawing.Size(131, 20);
+            this.cboSearchAccId.TabIndex = 1;
+            // 
             // lblSearchEmpNo
             // 
-            this.lblSearchEmpNo.Location = new System.Drawing.Point(17, 20);
+            this.lblSearchEmpNo.Location = new System.Drawing.Point(216, 20);
             this.lblSearchEmpNo.Name = "lblSearchEmpNo";
             this.lblSearchEmpNo.Size = new System.Drawing.Size(55, 14);
             this.lblSearchEmpNo.TabIndex = 1;
-            this.lblSearchEmpNo.Text = "?щ쾲/?ъ썝紐?";
+            this.lblSearchEmpNo.Text = "사번/사원명";
             // 
             // txtDeptNm
             // 
-            this.txtDeptNm.Location = new System.Drawing.Point(322, 17);
+            this.txtDeptNm.Location = new System.Drawing.Point(521, 17);
             this.txtDeptNm.LookupKey = "P_DEPT";
             this.txtDeptNm.Name = "txtDeptNm";
             this.txtDeptNm.Properties.Buttons.AddRange(new DevExpress.XtraEditors.Controls.EditorButton[] {
@@ -1267,22 +1299,22 @@ public partial class frmEMP
             // 
             // txtEmpNo
             // 
-            this.txtEmpNo.Location = new System.Drawing.Point(87, 17);
+            this.txtEmpNo.Location = new System.Drawing.Point(286, 17);
             this.txtEmpNo.Name = "txtEmpNo";
             this.txtEmpNo.Size = new System.Drawing.Size(150, 20);
             this.txtEmpNo.TabIndex = 0;
             // 
             // lblSearchDeptId
             // 
-            this.lblSearchDeptId.Location = new System.Drawing.Point(292, 20);
+            this.lblSearchDeptId.Location = new System.Drawing.Point(491, 20);
             this.lblSearchDeptId.Name = "lblSearchDeptId";
             this.lblSearchDeptId.Size = new System.Drawing.Size(20, 14);
             this.lblSearchDeptId.TabIndex = 3;
-            this.lblSearchDeptId.Text = "遺??";
+            this.lblSearchDeptId.Text = "부서";
             // 
             // txtDeptId
             // 
-            this.txtDeptId.Location = new System.Drawing.Point(844, 21);
+            this.txtDeptId.Location = new System.Drawing.Point(1043, 21);
             this.txtDeptId.Name = "txtDeptId";
             this.txtDeptId.Size = new System.Drawing.Size(150, 20);
             this.txtDeptId.TabIndex = 4;
@@ -1312,7 +1344,7 @@ public partial class frmEMP
             this.sectionHeaderWyn1.Size = new System.Drawing.Size(1673, 25);
             this.sectionHeaderWyn1.SvgIcon = ((DevExpress.Utils.Svg.SvgImage)(resources.GetObject("sectionHeaderWyn1.SvgIcon")));
             this.sectionHeaderWyn1.TabIndex = 14;
-            this.sectionHeaderWyn1.Text = "?ъ썝?깅줉 [frmEmp]";
+            this.sectionHeaderWyn1.Text = "사원등록 [frmEmp]";
             // 
             // frmEMP
             // 
@@ -1388,6 +1420,7 @@ public partial class frmEMP
             ((System.ComponentModel.ISupportInitialize)(this.txtDeptId.Properties)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.paTitleH)).EndInit();
             this.paTitleH.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.cboSearchAccId.Properties)).EndInit();
             this.ResumeLayout(false);
 
     }
@@ -1494,4 +1527,6 @@ public partial class frmEMP
     private LookUpColumnEdit lookUpColumnEdit2;
     private PanelWyn paTitleH;
     private SectionHeaderWyn sectionHeaderWyn1;
+    private DevExpress.XtraEditors.LabelControl lblSearchAccId;
+    private WYNLAB.Base.Controls.LookUpEditWyn cboSearchAccId;
 }

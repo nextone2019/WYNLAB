@@ -52,7 +52,9 @@ public class IconChipButton : Control
 
     // 7 -> 3: "모바일 알약(Pill) 형태 금지, 데스크톱 규격 2~3px 샤프한 사각 라운드"
     // 요청(2026-09-22) - 이전엔 Height(30) 대비 반경이 커서 알약처럼 보였다.
-    public int CornerRadius { get; set; } = 3;
+    // 3 -> 0: "라운드도 빼버려"(2026-10-03) - 호버 테두리를 1px 구분선처럼 얇게 쓰는 방향이라
+    // 모서리도 각지게 간다. 사이드바 토글(ShellForm)처럼 인스턴스별로 값을 주는 곳은 그대로 둥글다.
+    public int CornerRadius { get; set; } = 0;
 
     // Default는 평소엔 배경이 없다가(투명) 호버할 때만 채워진다. 호버/눌림 배경은 원래 Slate
     // 100/200 불투명색(흰 배경 시절 값)이었는데, 어두운 남색 헤더 위에서는 거의 흰색 플래시처럼
@@ -68,9 +70,9 @@ public class IconChipButton : Control
     public Color DefaultPressedBg { get; set; } = Color.FromArgb(38, 255, 255, 255);
     public Color DefaultTextColor { get; set; } = Color.White;
 
-    public Color DangerHoverBg { get; set; } = Color.FromArgb(18, 220, 38, 38);
-    public Color DangerPressedBg { get; set; } = Color.FromArgb(32, 220, 38, 38);
-    public Color DangerTextColor { get; set; } = Color.FromArgb(220, 38, 38);
+    public Color DangerHoverBg { get; set; } = Color.FromArgb(18, 248, 113, 113);
+    public Color DangerPressedBg { get; set; } = Color.FromArgb(32, 248, 113, 113);
+    public Color DangerTextColor { get; set; } = Color.FromArgb(248, 113, 113);
     public Color DangerBorderColor { get; set; } = Color.FromArgb(254, 202, 202);
 
     // Primary(저장)는 항상 꽉 채운 강조색 - 호버/눌림은 그 색을 살짝 어둡게/밝게.
@@ -86,7 +88,9 @@ public class IconChipButton : Control
     public Color AccentHoverBg { get; set; } = Color.FromArgb(22, 255, 255, 255);
     public Color AccentPressedBg { get; set; } = Color.FromArgb(38, 255, 255, 255);
     public Color AccentBorderColor { get; set; } = Color.FromArgb(191, 219, 254);
-    public Color AccentTextColor { get; set; } = Color.FromArgb(29, 78, 216);
+    // 어두운 남색 헤더 위에서 예전 값(29,78,216 - 흰 배경 기준 진한 파랑)은 대비가 낮아 "잘 안
+    // 보인다"는 지적(2026-09-30) - 연한 하늘색(Tailwind sky-300)으로 밝혀서 대비를 올렸다.
+    public Color AccentTextColor { get; set; } = Color.FromArgb(125, 211, 252);
 
     // 테두리 - Default는 배경이 없을 때(평소)도 옅은 테두리 하나는 항상 그려서 버튼 경계가
     // 보이게 한다("보더가 없어 보인다"는 지적, 2026-09-17). 호버 시엔 더 짙은 톤으로 바뀌어
@@ -104,6 +108,12 @@ public class IconChipButton : Control
     // 활성(White)과 뚜렷이 구분되는 어두운 회색 톤 - 밝은 회색(180,182,186)은 오히려 흰색 텍스트보다
     // 눈에 더 띄어서 "꺼짐" 인상을 못 줬다(2026-09-23 지적).
     private static readonly Color DisabledTextColor = Color.FromArgb(110, 118, 130);
+
+    /// <summary>비활성일 때 글자(+단축키) 색을 DisabledTextColor 대신 이 값으로 쓴다. 아이콘은
+    /// 비활성에서 원래 색을 60% 알파로 흐리게만 그리는데 글자만 회색이면 삭제/로그아웃처럼 색이
+    /// 있는 버튼에서 아이콘과 글자 색이 어긋나 보인다(2026-10-03 "삭제 텍스트도 같은 색으로").
+    /// TextRenderer는 알파를 무시하므로 헤더 위에 미리 섞어 불투명하게 만든 색을 넘겨야 한다.</summary>
+    public Color? DisabledTextColorOverride { get; set; }
 
     private const int IconSize = 16;
     private const int PaddingLeft = 12;
@@ -234,13 +244,22 @@ public class IconChipButton : Control
             using var brush = new SolidBrush(fill);
             g.FillPath(brush, path);
         }
-        if (Enabled)
+        if (Enabled && borderColor.A > 0)
         {
-            // SmoothingMode.None으로 테두리만 그려봤는데(2026-09-21), 둥근 모서리 구간이
-            // 매끄러운 곡선이 아니라 계단져 "깨진" 것처럼 보였다("보더가 깨지고 이상해" 지적) -
-            // AntiAlias로 되돌린다. 얇은 선이 살짝 번져 보이는 정도는 색과 두께로 커버한다.
-            using var pen = new Pen(borderColor, BorderWidth) { Alignment = PenAlignment.Inset };
-            g.DrawPath(pen, path);
+            // SmoothingMode.None은 둥근 모서리가 계단져 "깨져" 보여서(2026-09-21) AntiAlias 유지.
+            // 대신 정수 좌표+HighQuality 오프셋+Inset 펜 조합이 1px 선을 두 픽셀에 걸쳐 번지게
+            // 해서 실제보다 굵어 보였다("보더가 조금 더 얇았으면", 2026-10-03) - 기본 오프셋 +
+            // 중앙 정렬 1px 펜으로 그려 직선 구간을 정확히 1픽셀로 또렷하게 한다(툴바 그룹
+            // 구분선 1px과 같은 굵기). 좌표는 반드시 정수(0,0,W-1,H-1)여야 한다 - AntiAlias +
+            // Default 오프셋에서 GDI+는 정수 좌표를 픽셀 중심으로 보므로, 0.5를 더하면 왼쪽/위는
+            // 맞아도 오른쪽/아래 선이 경계 밖으로 밀려 사라진다(오프스크린 비트맵으로 실측함,
+            // "left/top은 굵고 right/bottom은 얇다" 지적).
+            var oldOffset = g.PixelOffsetMode;
+            g.PixelOffsetMode = PixelOffsetMode.Default;
+            using var borderPath = RoundedRect(new RectangleF(0f, 0f, Width - 1, Height - 1), CornerRadius);
+            using var pen = new Pen(borderColor, BorderWidth);
+            g.DrawPath(pen, borderPath);
+            g.PixelOffsetMode = oldOffset;
         }
 
         var isIconOnly = string.IsNullOrEmpty(Text) && string.IsNullOrEmpty(ShortcutText) && IconImage != null;
@@ -266,7 +285,7 @@ public class IconChipButton : Control
         if (!string.IsNullOrEmpty(ShortcutText))
         {
             x += LabelShortcutGap;
-            var shortcutColor = !Enabled ? DisabledTextColor : Color.FromArgb(Variant == IconChipVariant.Primary ? 210 : 150, textColor);
+            var shortcutColor = !Enabled ? (DisabledTextColorOverride ?? DisabledTextColor) : Color.FromArgb(Variant == IconChipVariant.Primary ? 210 : 150, textColor);
             var shortcutSize = TextRenderer.MeasureText(ShortcutText, AppFonts.Caption);
             var shortcutRect = new Rectangle(x, centerY - shortcutSize.Height / 2, shortcutSize.Width, shortcutSize.Height);
             TextRenderer.DrawText(g, ShortcutText, AppFonts.Caption, shortcutRect, shortcutColor,
@@ -283,7 +302,11 @@ public class IconChipButton : Control
     /// 평소에도 꽉 채운 배경을 유지한다.</summary>
     private (Color Fill, Color Border, Color Text, Color IconTint) ResolveColors()
     {
-        if (!Enabled) return (Color.Transparent, BorderColor, DisabledTextColor, DisabledTextColor);
+        if (!Enabled)
+        {
+            var disabled = DisabledTextColorOverride ?? DisabledTextColor;
+            return (Color.Transparent, BorderColor, disabled, disabled);
+        }
 
         return Variant switch
         {
@@ -292,13 +315,13 @@ public class IconChipButton : Control
                 PrimaryBorderColor, PrimaryTextColor, PrimaryTextColor),
             IconChipVariant.Accent => (
                 _pressed ? AccentPressedBg : _hover ? AccentHoverBg : Color.Transparent,
-                _hover || _pressed ? AccentBorderColor : BorderColor, AccentTextColor, AccentTextColor),
+                _hover || _pressed ? AccentBorderColor : Color.Transparent, AccentTextColor, AccentTextColor),
             IconChipVariant.Danger => (
                 _pressed ? DangerPressedBg : _hover ? DangerHoverBg : Color.Transparent,
-                _hover || _pressed ? DangerBorderColor : BorderColor, DangerTextColor, DangerTextColor),
+                _hover || _pressed ? DangerBorderColor : Color.Transparent, DangerTextColor, DangerTextColor),
             _ => (
                 _pressed ? DefaultPressedBg : _hover ? DefaultHoverBg : Color.Transparent,
-                _hover || _pressed ? HoverBorderColor : BorderColor, DefaultTextColor, DefaultTextColor)
+                _hover || _pressed ? HoverBorderColor : Color.Transparent, DefaultTextColor, DefaultTextColor)
         };
     }
 
@@ -323,10 +346,18 @@ public class IconChipButton : Control
         }
     }
 
-    private static GraphicsPath RoundedRect(Rectangle bounds, int radius)
+    private static GraphicsPath RoundedRect(Rectangle bounds, int radius) => RoundedRect((RectangleF)bounds, radius);
+
+    private static GraphicsPath RoundedRect(RectangleF bounds, int radius)
     {
         var path = new GraphicsPath();
         var d = Math.Min(radius * 2, Math.Min(bounds.Width, bounds.Height));
+        // 폭/높이 0짜리 호는 AddArc가 예외를 던진다 - 반경 0은 그냥 사각형.
+        if (d <= 0)
+        {
+            path.AddRectangle(bounds);
+            return path;
+        }
         path.AddArc(bounds.X, bounds.Y, d, d, 180, 90);
         path.AddArc(bounds.Right - d, bounds.Y, d, d, 270, 90);
         path.AddArc(bounds.Right - d, bounds.Bottom - d, d, d, 0, 90);

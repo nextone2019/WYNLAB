@@ -18,9 +18,12 @@ public partial class frmItem : BaseForm
     {
         InitializeComponent();
 
+        // 조회조건 사업장 - 화면 표준(2026-10-03): 항상 첫 번째, Required, 화면을 열면 로그인 사업장이 기본값.
+        cboDetailAccCd_Q.EditValue = Session.AccId?.ToString() ?? string.Empty;
+        cboDetailAccCd_Q.Tag = new BindingFieldTag("acc_id");
+
         Text = "품목등록";
 
-        Controls.Add(BuildScreenHeader());
 
         gvw1.Role = GridRoleWyn.Query;
         gvw1.HighlightFocusedRow = true;
@@ -118,6 +121,7 @@ public partial class frmItem : BaseForm
         popDetailDeptNm.MapField("DEPT_ID", txtDetailDeptId);
         popDetailEmpNm.MatchField = "emp_nm";
         popDetailEmpNm.MapField("EMP_ID", txtDetailEmpId);
+        popDetailEmpNm.LinkDept(popDetailDeptNm, txtDetailDeptId); // 담당자 팝업은 선택한 부서 소속만, 담당자를 고르면 부서도 채움
         popDetailEmpNm.MapField("emp_no", txtDetailEmpNo);
         popDetailCustNm.MatchField = "cust_nm";
         popDetailCustNm.MapField("CUST_ID", txtDetailCustId);
@@ -217,6 +221,7 @@ public partial class frmItem : BaseForm
     {
         var p = new Dictionary<string, string?>
         {
+            ["p_acc_id"] = cboDetailAccCd_Q.EditValue?.ToString(),
             ["p_work_type"] = "Q",
             ["p_item_id"] = txtItemId.Text,
         };

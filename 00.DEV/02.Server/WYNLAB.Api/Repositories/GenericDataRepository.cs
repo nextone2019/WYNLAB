@@ -65,8 +65,15 @@ public class GenericDataRepository : IGenericDataRepository
         using var cmd = conn.CreateCommand();
         cmd.CommandText = commandText;
         cmd.CommandType = commandType;
+
+        // 조회 조건은 비어있으면 "조건 없음"(NULL)이 맞다 - 숫자형 필터를 공백으로 두면 0으로
+        // 걸러서 결과가 0건이 되는 게 더 이상하다(SaveAsync와 반대 이유 - numericBlankAsZero: false).
+        var paramTypes = await GetParamTypesAsync(conn, commandText);
         foreach (var kv in parameters.Where(kv => kv.Key.StartsWith("p_", StringComparison.OrdinalIgnoreCase)))
-            cmd.Parameters.AddWithValue(kv.Key, (object?)kv.Value ?? DBNull.Value);
+        {
+            var value = NormalizeBlankValue(kv.Key, kv.Value, paramTypes, numericBlankAsZero: false);
+            cmd.Parameters.AddWithValue(kv.Key, (object?)value ?? DBNull.Value);
+        }
 
         await conn.OpenAsync();
         using var reader = await cmd.ExecuteReaderAsync();
@@ -91,9 +98,10 @@ public class GenericDataRepository : IGenericDataRepository
 
     public async Task<ProcResult> SaveAsync(string procName, Dictionary<string, string?> parameters, string userId, string? clientPc)
     {
-        using var conn = _context.CreateConnection();
+        using var conn = (SqlConnection)_context.CreateConnection();
 
-        var p = BuildParameters(parameters);
+        var paramTypes = await GetParamTypesAsync(conn, procName);
+        var p = BuildParameters(parameters, paramTypes);
 
         // 사용자/PC는 화면이 보내는 값을 믿지 않고 서버가 직접 채운다 - 클라이언트가 남의 아이디로
         // 등록이력을 남길 수 있으면 안 된다. 화면이 같은 이름을 보내도 여기서 덮어쓴다.
@@ -118,16 +126,65 @@ public class GenericDataRepository : IGenericDataRepository
     /// SQL 텍스트가 아니라 파라미터 값으로 전달되기 때문이다(SSP_CBO_CODE_Q의 where 파라미터와
     /// 같은 원리 - MinorCodeManageRepository.GetLookupAsync 주석 참고).
     /// </summary>
-    private static DynamicParameters BuildParameters(Dictionary<string, string?> parameters)
+    private static DynamicParameters BuildParameters(Dictionary<string, string?> parameters, Dictionary<string, string> paramTypes)
     {
         var p = new DynamicParameters();
 
         foreach (var kv in parameters)
         {
             if (!kv.Key.StartsWith("p_", StringComparison.OrdinalIgnoreCase)) continue;
-            p.Add(kv.Key, kv.Value);
+            // 저장 값이 비어있으면 숫자형(NUMERIC/DECIMAL류)은 0으로, ID/날짜 같은 나머지
+            // 비문자 타입은 NULL로 채운다(NormalizeBlankValue 주석 참고 - numericBlankAsZero: true).
+            p.Add(kv.Key, NormalizeBlankValue(kv.Key, kv.Value, paramTypes, numericBlankAsZero: true));
         }
 
         return p;
+    }
+
+    /// <summary>프로시저의 실제 입력 파라미터 타입(sys.parameters/sys.types)을 한 번 조회해서
+    /// {파라미터명(@ 뗀 것) -> SQL 타입이름} 맵으로 돌려준다. 원본 SQL 텍스트(QueryRawAsync)를
+    /// 넘기면 OBJECT_ID가 못 찾아 빈 맵이 되고, 그러면 NormalizeBlankValue는 아무것도 안 바꾼다 -
+    /// 프로시저 경로에서만 이 보정이 적용된다(일부러, 안전한 쪽으로).</summary>
+    private static async Task<Dictionary<string, string>> GetParamTypesAsync(SqlConnection conn, string procName)
+    {
+        var rows = await conn.QueryAsync<(string Name, string TypeName)>(
+            @"SELECT p.name AS Name, t.name AS TypeName
+              FROM sys.parameters p
+              JOIN sys.types t ON t.user_type_id = p.user_type_id
+              WHERE p.object_id = OBJECT_ID(@procName)",
+            new { procName });
+
+        return rows.ToDictionary(r => r.Name.TrimStart('@'), r => r.TypeName, StringComparer.OrdinalIgnoreCase);
+    }
+
+    private static readonly HashSet<string> ZeroDefaultTypes = new(StringComparer.OrdinalIgnoreCase)
+        { "numeric", "decimal", "float", "real", "money", "smallmoney" };
+
+    private static readonly HashSet<string> NullDefaultNonStringTypes = new(StringComparer.OrdinalIgnoreCase)
+        { "int", "bigint", "smallint", "tinyint", "bit", "datetime", "datetime2", "smalldatetime", "date", "uniqueidentifier" };
+
+    /// <summary>
+    /// 화면이 빈 문자열("")을 보내면, 프로시저 파라미터가 실제로 문자열이 아닌 타입일 때 SQL이
+    /// ''를 그 타입으로 못 바꿔서 그대로 죽는다(예: NUMERIC(9,4) 자리에 빈 문자열 - "데이터 형식
+    /// nvarchar을(를) numeric(으)로 변환하는 중 오류" - 2026-10-01 수주등록 부가세율 공백 저장
+    /// 실제로 겪음). 범용 통로(ProcData/GenericDataRepository)를 쓰는 모든 화면이 공통으로 겪을 수
+    /// 있는 문제라 화면마다 NullIfEmpty를 안 챙겨도 여기서 한 번에 막는다:
+    ///   - 숫자형(NUMERIC/DECIMAL/FLOAT/REAL/MONEY) 이고 저장(numericBlankAsZero=true)이면 "0" -
+    ///     부가세율/단가/수량 같은 값이 비어있으면 0이 맞다는 사장님 판단(2026-10-01).
+    ///   - 그 외 비문자 타입(INT/BIGINT 등 ID, DATETIME, BIT)은 NULL - 거래처ID 같은 FK를
+    ///     비워뒀다고 0(존재할 수 있는 다른 행의 키)으로 채우면 더 위험하다.
+    ///   - 조회/검색 조건(numericBlankAsZero=false)에서는 숫자형도 NULL - 금액 조건을 비웠다고
+    ///     "0으로 필터링"하면 결과가 0건이 되는 게 더 이상하다, "조건 없음"이 맞다.
+    ///   - 문자열 타입(VARCHAR/NVARCHAR 등)과 타입을 못 찾은 파라미터(원본 SQL 텍스트 등)는
+    ///     손대지 않는다 - 지금까지의 동작 그대로.
+    /// </summary>
+    private static string? NormalizeBlankValue(string paramName, string? value, Dictionary<string, string> paramTypes, bool numericBlankAsZero)
+    {
+        if (!string.IsNullOrWhiteSpace(value)) return value;
+        if (!paramTypes.TryGetValue(paramName, out var typeName)) return value;
+
+        if (ZeroDefaultTypes.Contains(typeName)) return numericBlankAsZero ? "0" : null;
+        if (NullDefaultNonStringTypes.Contains(typeName)) return null;
+        return value;
     }
 }

@@ -77,7 +77,9 @@ builder.Services.AddScoped<IMenuPermissionService, MenuPermissionService>();
 // MustChangePasswordFilter를 전역으로 걸어서, 비밀번호를 먼저 바꿔야 하는 계정의 토큰으로는
 // change-password 말고 어떤 API도 못 부르게 한다(클라이언트 쪽 다이얼로그 우회 방지 - 자세한
 // 이유는 그 필터 클래스 설명 참고).
-builder.Services.AddControllers(options => options.Filters.Add<MustChangePasswordFilter>());
+builder.Services.AddControllers(options => options.Filters.Add<MustChangePasswordFilter>())
+    // 요청 JSON의 문자열은 전부 전각 -> 반각으로 정규화한다(HalfWidthStringConverter 설명 참고).
+    .AddJsonOptions(o => o.JsonSerializerOptions.Converters.Add(new WYNLAB.Api.Services.HalfWidthStringConverter()));
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 

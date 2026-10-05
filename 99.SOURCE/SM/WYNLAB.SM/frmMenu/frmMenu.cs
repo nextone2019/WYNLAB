@@ -1,4 +1,4 @@
-using DevExpress.XtraEditors;
+﻿using DevExpress.XtraEditors;
 using DevExpress.XtraEditors.Controls;
 using WYNLAB.Shared.Dtos;
 using WYNLAB.Base;
@@ -210,6 +210,7 @@ protected override void ApplyMenuAuth()
     // 멤버라 구현만 비워둔다. 실제 등록/삭제는 btnNewTop/btnNewChild/chkUseYn으로 한다.
     public override Task NewClick() => Task.CompletedTask;
     public override Task DeleteClick() => Task.CompletedTask;
+    protected override bool ConfirmDeleteByDefault => false; // 조회전용 - 삭제 기능 없음
     public override Task NewRowClick() => Task.CompletedTask;
     public override Task DeleteRowClick() => Task.CompletedTask;
 
@@ -254,6 +255,7 @@ protected override void ApplyMenuAuth()
             chkUseYn.Checked = true;
             chkUseYn.Enabled = false; // 신규는 항상 사용상태로 생성됨(서버에서 'Y' 고정)
             foreach (var t in TxtAuthNm) t.Text = string.Empty;
+            ApplyFeatures(null);
         });
 
         lblFormTitle.Text = parent != null ? "신규 메뉴 등록 (하위 메뉴)" : "신규 메뉴 등록 (최상위 모듈)";
@@ -319,7 +321,9 @@ protected override void ApplyMenuAuth()
             chkUseYn.Enabled = true;
             for (var i = 0; i < TxtAuthNm.Length; i++)
                 TxtAuthNm[i].Text = i < menu.AuthNm.Length ? (menu.AuthNm[i] ?? string.Empty) : string.Empty;
+            ApplyFeatures(null);
         });
+        _ = LoadFeaturesAsync(menu.MenuId);
 
         lblFormTitle.Text = "메뉴 수정";
         lblFormHint.Text = parent != null ? $"상위 메뉴: {parent.MenuNm}" : "최상위 메뉴(모듈)입니다.";
@@ -327,8 +331,37 @@ protected override void ApplyMenuAuth()
         btnCopy.Enabled = true;
     }
 
+    /// <summary>화면 기능(TSMMENUFEATURE) 값을 컨트롤에 채운다 - null이면 모두 해제. 호출하는 쪽이 SuppressDirtyTracking 안에서 부른다.</summary>
+    private void ApplyFeatures(List<MenuFeatureDto>? features)
+    {
+        var appr = features?.FirstOrDefault(f => f.FeatureCd == "APPROVAL");
+        var file = features?.FirstOrDefault(f => f.FeatureCd == "FILE");
+        chkFeatApproval.Checked = appr?.UseYn == true;
+        cboApprDocType.EditValue = appr?.OptionVal ?? string.Empty;
+        chkFeatFile.Checked = file?.UseYn == true;
+        txtFileDocType.Text = file?.OptionVal ?? string.Empty;
+    }
+
+    private async Task LoadFeaturesAsync(long menuId)
+    {
+        var features = await ApiClient.GetAsync<List<MenuFeatureDto>>($"api/menus/{menuId}/features") ?? new();
+        if (_editingMenuId != menuId) return;   // 응답이 오는 사이 다른 메뉴로 넘어갔으면 버린다
+        SuppressDirtyTracking(() => ApplyFeatures(features));
+    }
+
+    private List<MenuFeatureDto> CollectFeatures() => new()
+    {
+        new() { FeatureCd = "APPROVAL", UseYn = chkFeatApproval.Checked, OptionVal = cboApprDocType.EditValue as string is { Length: > 0 } d ? d : null },
+        new() { FeatureCd = "FILE", UseYn = chkFeatFile.Checked, OptionVal = string.IsNullOrWhiteSpace(txtFileDocType.Text) ? null : txtFileDocType.Text.Trim() },
+    };
+
     public override async Task SaveClick()
     {
+        if (chkFeatApproval.Checked && string.IsNullOrEmpty(cboApprDocType.EditValue as string))
+        {
+            AppMessageBox.Show("전자결재를 사용하려면 문서유형을 선택해야 합니다.", "확인");
+            return;
+        }
         if (string.IsNullOrWhiteSpace(txtMenuNm.Text))
         {
             AppMessageBox.Show("메뉴명은 필수입니다.", "확인");
@@ -406,6 +439,13 @@ protected override void ApplyMenuAuth()
             {
                 AppMessageBox.Show(result?.Message ?? "저장에 실패했습니다.", "저장 실패");
                 return;
+            }
+
+            if (savedMenuId > 0)   // 메뉴 저장이 끝난 뒤 화면 기능 저장(신규는 방금 생긴 ID로)
+            {
+                var fr = await ApiClient.PutAsync<List<MenuFeatureDto>, ApiResult>($"api/menus/{savedMenuId}/features", CollectFeatures());
+                if (fr == null || !fr.Success)
+                    AppMessageBox.Show("메뉴는 저장됐지만 화면 기능 저장에 실패했습니다.\n" + (fr?.Message ?? string.Empty), "확인");
             }
 
             await QueryClick();

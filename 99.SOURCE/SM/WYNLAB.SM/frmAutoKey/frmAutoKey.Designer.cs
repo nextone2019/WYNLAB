@@ -1,5 +1,5 @@
-﻿// AI Builder媛 留덉뒪?????쒕툕洹몃━???쒗뵆由우쓣 蹂듭젣?댁꽌 ?먮룞 ?앹꽦 - 2026-09-14.
-// ?붿옄???쒕ぉ?곸뿭/?щ갚/?됱긽)??諛붽씀?ㅻ㈃ ???뚯씪???꾨땲???먮낯 ?쒗뵆由?99.SOURCE/TEMPLATE/WYNLAB.TEMPLATE)??怨좎튂?몄슂.
+﻿// AI Builder가 마스터-폼-서브그리드 템플릿을 복제해서 자동 생성 - 2026-09-14.
+// 디자인(제목영역/여백/색상)을 바꾸려면 이 파일이 아니라 원본 템플릿(99.SOURCE/TEMPLATE/WYNLAB.TEMPLATE)을 고치세요.
 #nullable disable
 using WYNLAB.Base;
 using WYNLAB.Base.Controls;
@@ -424,8 +424,8 @@ public partial class frmAutoKey
             this.btnDeletRow2.Location = new System.Drawing.Point(68, 4);
             this.btnDeletRow2.Name = "btnDeletRow2";
             this.btnDeletRow2.PressedColor = System.Drawing.Color.FromArgb(((int)(((byte)(225)))), ((int)(((byte)(235)))), ((int)(((byte)(253)))));
-            this.btnDeletRow2.Size = new System.Drawing.Size(58, 22);
-            this.btnDeletRow2.Text = "?됱궘??";
+            this.btnDeletRow2.Size = new System.Drawing.Size(60, 24);
+            this.btnDeletRow2.Text = "행삭제";
             this.btnDeletRow2.TabIndex = 0;
             this.btnDeletRow2.ToolTip = "행삭제(현재 탭)";
             // 
@@ -442,8 +442,8 @@ public partial class frmAutoKey
             this.btnAddRow2.Location = new System.Drawing.Point(6, 4);
             this.btnAddRow2.Name = "btnAddRow2";
             this.btnAddRow2.PressedColor = System.Drawing.Color.FromArgb(((int)(((byte)(225)))), ((int)(((byte)(235)))), ((int)(((byte)(253)))));
-            this.btnAddRow2.Size = new System.Drawing.Size(58, 22);
-            this.btnAddRow2.Text = "?됱텛媛";
+            this.btnAddRow2.Size = new System.Drawing.Size(60, 24);
+            this.btnAddRow2.Text = "행추가";
             this.btnAddRow2.TabIndex = 0;
             this.btnAddRow2.ToolTip = "행추가(현재 탭)";
             // 
@@ -519,7 +519,7 @@ public partial class frmAutoKey
             this.lblDetailTableDesc.Name = "lblDetailTableDesc";
             this.lblDetailTableDesc.Size = new System.Drawing.Size(40, 15);
             this.lblDetailTableDesc.TabIndex = 2;
-            this.lblDetailTableDesc.Text = "Table紐?";
+            this.lblDetailTableDesc.Text = "Table명";
             // 
             // txtDetailTableDesc
             // 
@@ -536,7 +536,7 @@ public partial class frmAutoKey
             this.lblDetailPreFix.Name = "lblDetailPreFix";
             this.lblDetailPreFix.Size = new System.Drawing.Size(48, 15);
             this.lblDetailPreFix.TabIndex = 4;
-            this.lblDetailPreFix.Text = "梨꾨쾲肄붾뱶";
+            this.lblDetailPreFix.Text = "채번코드";
             // 
             // txtDetailPreFix
             // 
@@ -553,7 +553,7 @@ public partial class frmAutoKey
             this.lblDetailKeyCol.Name = "lblDetailKeyCol";
             this.lblDetailKeyCol.Size = new System.Drawing.Size(48, 15);
             this.lblDetailKeyCol.TabIndex = 6;
-            this.lblDetailKeyCol.Text = "梨꾨쾲而щ읆";
+            this.lblDetailKeyCol.Text = "채번컬럼";
             // 
             // txtDetailKeyCol
             // 
@@ -570,7 +570,7 @@ public partial class frmAutoKey
             this.lblDetailDateCol.Name = "lblDetailDateCol";
             this.lblDetailDateCol.Size = new System.Drawing.Size(52, 15);
             this.lblDetailDateCol.TabIndex = 8;
-            this.lblDetailDateCol.Text = "?쇱옄 而щ읆";
+            this.lblDetailDateCol.Text = "일자 컬럼";
             // 
             // txtDetailDateCol
             // 
@@ -587,7 +587,7 @@ public partial class frmAutoKey
             this.lblDetailDateType.Name = "lblDetailDateType";
             this.lblDetailDateType.Size = new System.Drawing.Size(48, 15);
             this.lblDetailDateType.TabIndex = 10;
-            this.lblDetailDateType.Text = "?좎쭨?좏삎";
+            this.lblDetailDateType.Text = "날짜유형";
             // 
             // cboDetailDateType
             // 
@@ -609,7 +609,7 @@ public partial class frmAutoKey
             this.lblDetailSeqLen.Name = "lblDetailSeqLen";
             this.lblDetailSeqLen.Size = new System.Drawing.Size(60, 15);
             this.lblDetailSeqLen.TabIndex = 12;
-            this.lblDetailSeqLen.Text = "?쒕쾲?먮━??";
+            this.lblDetailSeqLen.Text = "순번자리수";
             // 
             // numDetailSeqLen
             // 
@@ -821,7 +821,7 @@ public partial class frmAutoKey
             // 
             // colMTableDesc
             // 
-            this.colMTableDesc.Caption = "Table紐?";
+            this.colMTableDesc.Caption = "Table명";
             this.colMTableDesc.FieldName = "table_desc";
             this.colMTableDesc.Name = "colMTableDesc";
             this.colMTableDesc.Visible = true;
@@ -830,7 +830,7 @@ public partial class frmAutoKey
             // 
             // colMPreFix
             // 
-            this.colMPreFix.Caption = "梨꾨쾲肄붾뱶";
+            this.colMPreFix.Caption = "채번코드";
             this.colMPreFix.FieldName = "pre_fix";
             this.colMPreFix.Name = "colMPreFix";
             this.colMPreFix.Visible = true;
@@ -839,7 +839,7 @@ public partial class frmAutoKey
             // 
             // colMKeyCol
             // 
-            this.colMKeyCol.Caption = "梨꾨쾲而щ읆";
+            this.colMKeyCol.Caption = "채번컬럼";
             this.colMKeyCol.FieldName = "key_col";
             this.colMKeyCol.Name = "colMKeyCol";
             this.colMKeyCol.Visible = true;
@@ -857,7 +857,7 @@ public partial class frmAutoKey
             // 
             // colMDateType
             // 
-            this.colMDateType.Caption = "?좎쭨?좏삎";
+            this.colMDateType.Caption = "날짜유형";
             this.colMDateType.ColumnEdit = this.lookUpcolMDateType;
             this.colMDateType.FieldName = "date_type";
             this.colMDateType.Name = "colMDateType";
@@ -876,7 +876,7 @@ public partial class frmAutoKey
             // 
             // colMSeqLen
             // 
-            this.colMSeqLen.Caption = "?쒕쾲?먮━??";
+            this.colMSeqLen.Caption = "순번자리수";
             this.colMSeqLen.ColumnEdit = this.spinEditcolM;
             this.colMSeqLen.FieldName = "seq_len";
             this.colMSeqLen.Name = "colMSeqLen";

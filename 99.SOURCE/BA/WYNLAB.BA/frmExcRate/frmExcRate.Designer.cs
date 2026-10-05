@@ -274,14 +274,14 @@ public partial class frmExcRate
             this.btnReceive.BackColor = System.Drawing.Color.Transparent;
             this.btnReceive.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(74)))), ((int)(((byte)(134)))), ((int)(((byte)(232)))));
             this.btnReceive.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.btnReceive.FillColor = System.Drawing.Color.White;
+            this.btnReceive.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(234)))), ((int)(((byte)(241)))), ((int)(((byte)(253)))));
             this.btnReceive.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(51)))), ((int)(((byte)(51)))), ((int)(((byte)(51)))));
             this.btnReceive.HoverColor = System.Drawing.Color.FromArgb(((int)(((byte)(240)))), ((int)(((byte)(245)))), ((int)(((byte)(255)))));
             this.btnReceive.Image = null;
-            this.btnReceive.Location = new System.Drawing.Point(320, 16);
+            this.btnReceive.Location = new System.Drawing.Point(320, 18);
             this.btnReceive.Name = "btnReceive";
             this.btnReceive.PressedColor = System.Drawing.Color.FromArgb(((int)(((byte)(225)))), ((int)(((byte)(235)))), ((int)(((byte)(253)))));
-            this.btnReceive.Size = new System.Drawing.Size(110, 28);
+            this.btnReceive.Size = new System.Drawing.Size(110, 24);
             this.btnReceive.TabIndex = 2;
             this.btnReceive.Text = "환율정보수신";
             this.btnReceive.ToolTip = null;

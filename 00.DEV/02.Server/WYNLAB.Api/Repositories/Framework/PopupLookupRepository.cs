@@ -59,7 +59,7 @@ public class PopupLookupRepository : IPopupLookupRepository
         var searchFields = await conn.QueryAsync<PopupSearchFieldDto>(
             @"SELECT param_nm AS ParamNm, ISNULL(caption, param_nm) AS Caption,
                      control_type AS ControlType, sort AS Sort, width AS Width,
-                     lookup_key AS LookupKey, row_no AS RowNo, control_nm AS ControlNm
+                     lookup_key AS LookupKey, row_no AS RowNo, control_nm AS ControlNm, par_fields AS ParFields
               FROM sysPopUpS
               WHERE popup_key = @popupKey
               ORDER BY row_no, sort",

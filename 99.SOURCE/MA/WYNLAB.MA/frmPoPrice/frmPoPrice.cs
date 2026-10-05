@@ -29,7 +29,7 @@ namespace WYNLAB.MA;
 ///    겹침 검사에 걸리지 않게). 중간에 실패해도 이미 저장된 행은 다시 저장되지 않는다.
 ///  - 저장 후에는 품목 목록도 다시 조회해서 최종단가가 바로 갱신되고, 방금 편집하던 품목에 포커스가 남는다.
 /// </summary>
-public partial class frmPoPrice : BaseForm
+public partial class frmPoPrice : BaseForm, WYNLAB.Popup.IFeatureHost
 {
     private const string OpenEnd = "99991231";
 
@@ -70,6 +70,9 @@ public partial class frmPoPrice : BaseForm
         gvw2.CellValueChanged += Gvw2_CellValueChanged;
         gvw2.CustomColumnDisplayText += Gvw2_CustomColumnDisplayText;
         gvw2.RowCellStyle += Gvw2_RowCellStyle;
+        gvw2.ShowingEditor += Gvw2_ShowingEditor;
+        gvw2.FocusedRowChanged += (s, e) => featBar.UpdateState();   // 결재 상태 표시는 선택한 단가 행 기준
+        featBar.FeaturesLoaded += (s, e) => featBar.UpdateState();
 
         btnAddRow1.Click += (s, e) => AddRow();
         btnDeletRow1.Click += (s, e) => DeleteSelectedRows();
@@ -111,7 +114,7 @@ public partial class frmPoPrice : BaseForm
         foreach (var col in new[]
         {
             "price_id", "acc_id", "item_id", "item_no", "item_nm", "item_spec", "cust_id", "cust_nm",
-            "start_date", "end_date", "cur_cd", "unit_cd", "price", "remark", "stat_nm"
+            "start_date", "end_date", "cur_cd", "unit_cd", "price", "remark", "stat_nm", "app_id", "app_no", "appr_stat_cd"
         })
         {
             table.Columns.Add(col, typeof(object));
@@ -308,7 +311,15 @@ public partial class frmPoPrice : BaseForm
         {
             // 핸들이 큰 것(=아래쪽 행)부터 지워야 앞쪽 행 핸들이 밀리지 않는다.
             foreach (var handle in handles.OrderByDescending(h => h))
-                gvw2.GetDataRow(handle)?.Delete();
+            {
+                var row = gvw2.GetDataRow(handle);
+                if (row != null && IsRowLocked(row))
+                {
+                    Toast.Show("결재 상신된 단가는 삭제할 수 없습니다.");
+                    continue;
+                }
+                row?.Delete();
+            }
         }
         catch (Exception ex)
         {
@@ -658,8 +669,41 @@ public partial class frmPoPrice : BaseForm
         return visible >= 0 ? visible + 1 : index + 1;
     }
 
-    // ==================== 공통 ====================
+    // ==================== 전자결재/첨부(FeatureBarWyn) - 결재 단위 = 단가 한 줄(doc_id = price_id) ====================
 
+    /// <summary>결재 상신된(진행/승인완료) 단가 행 - 결재를 쓰는 메뉴에서만 잠긴다. 반려(R)나 상신 전은 수정 가능.</summary>
+    private bool IsRowLocked(DataRow row) => featBar.ApprovalEnabled && Cell(row, "appr_stat_cd") is "0" or "1" or "E";
+
+    /// <summary>잠긴 행은 적용종료일/비고만 고칠 수 있다(단가개정이 이전 단가의 종료일을 줄이기 때문 - 서버도 같은 기준).</summary>
+    private void Gvw2_ShowingEditor(object? sender, System.ComponentModel.CancelEventArgs e)
+    {
+        if (gvw2.GetFocusedDataRow() is DataRow row && IsRowLocked(row) && gvw2.FocusedColumn != colEndDate && gvw2.FocusedColumn != colRemark)
+            e.Cancel = true;
+    }
+
+    public WYNLAB.Popup.FeatureContext GetFeatureContext()
+    {
+        var row = gvw2.GetFocusedDataRow();
+        var priceId = row == null ? string.Empty : Cell(row, "price_id");
+        return new WYNLAB.Popup.FeatureContext
+        {
+            DocId = long.TryParse(priceId, out var id) ? id : null,
+            DocNo = priceId,
+            Title = row == null ? string.Empty : $"구매단가 {Cell(row, "item_no")} {Cell(row, "item_nm")} - {Cell(row, "price")} {Cell(row, "cur_cd")}/{Cell(row, "unit_cd")}",
+            Text = row == null ? string.Empty : $"적용기간 {Cell(row, "start_date")} ~ {(Cell(row, "end_date") is { Length: > 0 } and not OpenEnd ? Cell(row, "end_date") : "무기한")}" + (Cell(row, "cust_nm").Length > 0 ? $" / 거래처 {Cell(row, "cust_nm")}" : " / 전체 거래처"),
+            HasUnsavedChanges = HasUnsavedChanges,
+            AppNo = row == null ? null : Cell(row, "app_no"),
+            ApprStatCd = row == null ? null : Cell(row, "appr_stat_cd"),
+        };
+    }
+
+    public void OnFeatureChanged(string featureCd)
+    {
+        // 결재 상신/반려로 연결 상태가 바뀌었으니 선택한 품목의 단가를 다시 읽는다(열기 전에 미저장 변경이 없음을 확인했다).
+        if (featureCd == "APPROVAL" && gvw1.GetFocusedDataRow() is DataRow item) _ = SafeExecuteAsync(() => LoadItemAsync(item), "단가 재조회");
+    }
+
+    // ==================== 공통 ====================
     private static string? NullIfEmpty(string? value) => string.IsNullOrWhiteSpace(value) ? null : value;
 
     private static string Cell(DataRow row, string column) =>

@@ -15,6 +15,12 @@ public interface IMenuManageRepository
         string menuType, string? module, string? screenClassNm, string? iconNm, string? procPrefix, int sortOrder, bool useYn, string?[] authNm,
         string userId, string? clientPc);
     Task<ProcResult> SetUseYnAsync(long menuId, bool useYn, string userId, string? clientPc);
+
+    /// <summary>이 메뉴에 설정된 화면 기능 전체(사용 안 함으로 꺼둔 것 포함) - 메뉴등록 화면의 "화면 기능" 영역 표시용.</summary>
+    Task<List<WYNLAB.Shared.Dtos.MenuFeatureDto>> GetFeaturesAsync(long menuId);
+
+    /// <summary>화면 기능 설정 저장 - 목록의 각 기능을 USP_SM_MENUFEATURE_S(SET)로 한 건씩 저장한다. 첫 실패에서 멈추고 그 결과를 돌려준다.</summary>
+    Task<ProcResult> SaveFeaturesAsync(long menuId, IEnumerable<WYNLAB.Shared.Dtos.MenuFeatureDto> features, string userId, string? clientPc);
 }
 
 /// <summary>DB 조회 전용 - 관리화면 목록 표시용</summary>
@@ -131,6 +137,39 @@ public class MenuManageRepository : IMenuManageRepository
     {
         for (var i = 0; i < 10; i++)
             p.Add($"p_auth{(i + 1):00}_nm", i < authNm.Length ? authNm[i] : null);
+    }
+
+    public async Task<List<WYNLAB.Shared.Dtos.MenuFeatureDto>> GetFeaturesAsync(long menuId)
+    {
+        using var conn = _context.CreateConnection();
+        // Dapper는 snake_case 컬럼을 PascalCase 속성에 자동 매핑하지 않으므로 별칭을 단다.
+        var rows = await conn.QueryAsync<(string FeatureCd, string UseYn, string? OptionVal)>(
+            "SELECT feature_cd AS FeatureCd, use_yn AS UseYn, option_val AS OptionVal FROM TSMMENUFEATURE WHERE menu_id = @menuId ORDER BY feature_cd",
+            new { menuId });
+        return rows.Select(r => new WYNLAB.Shared.Dtos.MenuFeatureDto { FeatureCd = r.FeatureCd, UseYn = r.UseYn == "Y", OptionVal = r.OptionVal }).ToList();
+    }
+
+    public async Task<ProcResult> SaveFeaturesAsync(long menuId, IEnumerable<WYNLAB.Shared.Dtos.MenuFeatureDto> features, string userId, string? clientPc)
+    {
+        using var conn = _context.CreateConnection();
+        ProcResult last = new();
+        foreach (var f in features)
+        {
+            var p = new DynamicParameters();
+            p.Add("p_work_type", "SET");
+            p.Add("p_menu_id", menuId);
+            p.Add("p_feature_cd", f.FeatureCd);
+            p.Add("p_use_yn", f.UseYn ? "Y" : "N");
+            p.Add("p_option_val", f.OptionVal);
+            p.Add("p_user_id", userId);
+            p.Add("p_client_pc", clientPc);
+            p.AddStandardOutputs(pascalCase: true);
+
+            await conn.ExecuteAsync("USP_SM_MENUFEATURE_S", p, commandType: CommandType.StoredProcedure);
+            last = p.ReadStandardOutputs(pascalCase: true);
+            if (!last.IsSuccess) return last;
+        }
+        return last;
     }
 
     /// <summary>물리삭제 대신 USE_YN='N' 처리 - 하위 메뉴 참조무결성 보존을 위한 표준 삭제 방식(work_type='D')</summary>

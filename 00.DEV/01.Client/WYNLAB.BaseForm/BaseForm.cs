@@ -168,6 +168,7 @@ public class BaseForm : XtraForm
 
         this.MdiParent = null; // Shell에서 폼 생성 후 주입
         this.Load += BaseForm_Load;
+        this.Load += (_, _) => ImeGuard.Attach(this);   // 전각 입력 방어 - 붙여넣기 값 정규화 + 편집기 진입 시 IME 전각 해제(ImeGuard 참고)
         this.FormClosing += BaseForm_FormClosing;
     }
 
@@ -210,6 +211,44 @@ public class BaseForm : XtraForm
         }
     }
 
+    // ---------------------------------------------------------------- 결재 상신 이후 잠금(공통)
+
+    private readonly Dictionary<BaseEdit, bool> _lockedEditBackup = new();
+
+    /// <summary>결재 진행 상태(TAPDOC.app_stat_cd, AP0001)가 "상신 이후 수정 불가" 상태인지 - 결재상신(0)/진행중(1)/승인완료(E). 반려(R)나 결재 없음(빈 값)은 수정 가능.
+    /// 서버(FN_AP_IS_LOCKED)가 같은 기준으로 저장을 거부한다.</summary>
+    protected static bool IsApprovalLockedStatus(string? apprStatCd) => apprStatCd is "0" or "1" or "E";
+
+    /// <summary>결재 상신된 문서를 수정하지 못하게 화면을 잠그거나 푼다(2026-10-04 - 결재를 쓰는 모든 화면 공통 규칙).
+    /// container(보통 panData) 아래 편집 컨트롤은 읽기전용으로(원래 읽기전용이던 컨트롤은 풀 때도 그대로 읽기전용), 그리드는 편집 불가로, buttons(행추가/행삭제/불러오기 등)는 비활성으로 만든다.
+    /// 잠금을 풀면(반려/상신취소/신규) 위 상태를 원래대로 되돌린다.</summary>
+    protected void ApplyApprovalLock(bool locked, Control container, GridView? grid, params Control[] buttons)
+    {
+        void Walk(Control parent)
+        {
+            foreach (Control child in parent.Controls)
+            {
+                if (child is BaseEdit edit)
+                {
+                    if (locked)
+                    {
+                        if (!_lockedEditBackup.ContainsKey(edit)) _lockedEditBackup[edit] = edit.Properties.ReadOnly;
+                        edit.Properties.ReadOnly = true;
+                    }
+                    else if (_lockedEditBackup.TryGetValue(edit, out var original))
+                    {
+                        edit.Properties.ReadOnly = original;
+                        _lockedEditBackup.Remove(edit);
+                    }
+                }
+                if (child.Controls.Count > 0) Walk(child);
+            }
+        }
+        Walk(container);
+
+        if (grid != null) grid.OptionsBehavior.Editable = !locked;
+        foreach (var b in buttons) b.Enabled = !locked;
+    }
     /// <summary>편집 가능한 하위 그리드(grd2 등)의 DataTable에 변경 감지를 건다. 조회로 새
     /// DataTable을 받아 다시 바인딩할 때마다(재조회, EnterNewMode의 Clone() 등) 그 새 인스턴스에
     /// 대해 다시 호출해야 한다 - 이전 테이블에 걸어둔 구독은 그 테이블을 더 이상 안 쓰면서
@@ -663,27 +702,64 @@ public class BaseForm : XtraForm
     /// 체크만으로는 그 값까지 "BindingField"로 잘못 표시할 위험이 있다 - 타입으로 구분하면
     /// 이 화면들끼리 절대 안 섞인다.
     /// </summary>
+    /// <summary>컨트롤 이름(txtDeptNm, cboStatCd, dteSearchFrom ...)에서 DB 컬럼명(dept_nm, stat_cd ...)을 추정한다. 앞의 소문자 접두사(txt/cbo/dte/chk/memo/spn...)를
+    /// 떼고 PascalCase를 snake_case로 바꾼다. "Search"로 시작하면 조회조건(isSearch)이다. 추정이 불가능한 이름이면 false.</summary>
+    private static bool GuessFieldFromControlName(string? name, out string field, out bool isSearch)
+    {
+        field = string.Empty; isSearch = false;
+        if (string.IsNullOrEmpty(name)) return false;
+        var m = System.Text.RegularExpressions.Regex.Match(name, "^[a-z]+(?=[A-Z0-9])");
+        if (!m.Success || m.Length == name.Length) return false;
+        var rest = name.Substring(m.Length);
+        if (rest.StartsWith("Search") && rest.Length > "Search".Length) { isSearch = true; rest = rest.Substring("Search".Length); }
+        field = System.Text.RegularExpressions.Regex.Replace(rest, "(?<=[a-z0-9])(?=[A-Z])", "_").ToLowerInvariant();
+        return field.Length > 0;
+    }
+
     private static void ApplyBindingFieldTooltips(Control root)
     {
         foreach (Control child in root.Controls)
         {
-            if (child is BaseEdit edit && edit.Tag is BindingFieldTag tag)
+            if (child is BaseEdit edit)
             {
-                var tip = $"BindingField : {tag.Field}";
+                // 1순위: 화면이 Tag에 명시한 BindingFieldTag(정확한 DB 컬럼). 없으면 컨트롤 이름에서 추정한다(2026-10-05) -
+                // 화면마다 Tag를 손으로 넣는 방식은 새 화면/재생성 때마다 조용히 빠졌다(2026-09-12, 10-05). 팝업/룩업 이름은 Tag와 무관하게 항상 보여준다.
+                string? tip = null;
+                if (edit.Tag is BindingFieldTag tag) tip = $"BindingField : {tag.Field}";
+                else if (GuessFieldFromControlName(edit.Name, out var guessed, out var isSearch))
+                    tip = isSearch ? $"조회조건 : p_{guessed} (컨트롤 이름 기반 추정)" : $"BindingField : {guessed} (컨트롤 이름 기반 추정)";
+                else
+                    tip = $"BindingField : ? ({(string.IsNullOrEmpty(edit.Name) ? "Name 없음" : edit.Name)} - Tag에 BindingFieldTag를 지정하세요)";
+
+                string? source = null;
                 if (edit is PopupLookupEditWyn pop && !string.IsNullOrWhiteSpace(pop.LookupKey))
-                    tip += $"\nPopup : {pop.LookupKey}";
+                    source = $"Popup : {pop.LookupKey}";
                 else if (edit is LookUpEditWyn look)
                 {
-                    if (!string.IsNullOrWhiteSpace(look.LookupKey)) tip += $"\nLookUp : {look.LookupKey}";
-                    else if (!string.IsNullOrWhiteSpace(look.ProcName)) tip += $"\nLookUp(Proc) : {look.ProcName}";
+                    if (!string.IsNullOrWhiteSpace(look.LookupKey)) source = $"LookUp : {look.LookupKey}";
+                    else if (!string.IsNullOrWhiteSpace(look.ProcName)) source = $"LookUp(Proc) : {look.ProcName}";
                 }
-                edit.ToolTip = tip;
+                if (source != null) tip = tip == null ? source : tip + "\n" + source;
+
+                if (tip != null)
+                {
+                    // 화면이 직접 지정해 둔 사용자용 툴팁은 지우지 않고 아래에 이어 붙인다.
+                    // PopupLookupEditWyn은 ToolTip을 new로 가려서(텍스트 영역 + "..." 버튼 양쪽에 같은 툴팁) BaseEdit 형식으로 쓰면 버튼엔 안 들어간다 - 반드시 형식별로 지정한다.
+                    var original = edit is PopupLookupEditWyn popTip ? popTip.ToolTip : edit.ToolTip;
+                    var finalTip = string.IsNullOrWhiteSpace(original) || original.StartsWith("BindingField") || original.StartsWith("조회조건 :")
+                        ? tip : tip + "\n" + original;
+                    if (edit is PopupLookupEditWyn popTip2) popTip2.ToolTip = finalTip;
+                    else edit.ToolTip = finalTip;
+                }
             }
             else if (child is GridControl grid && grid.MainView is GridView gv)
             {
                 foreach (DevExpress.XtraGrid.Columns.GridColumn col in gv.Columns)
                 {
-                    if (!string.IsNullOrEmpty(col.ToolTip)) continue;
+                    // 화면이 직접 지정한 컬럼 툴팁이 있으면(BindingField 표시가 아닌 것) 지우지 않고 개발자 정보를 앞에 붙인다.
+                    var colOriginal = col.ToolTip;
+                    if (!string.IsNullOrEmpty(colOriginal) && colOriginal.StartsWith("BindingField")) continue;
+                    col.ToolTip = null;
 
                     // 보통은 FieldName이 이미 실제 DB 컬럼명이라(DataTable 바인딩) 그대로 쓴다.
                     // List<T> 바인딩 그리드(frmUserAuth 등)는 FieldName이 C# 프로퍼티명(PascalCase,
@@ -693,6 +769,17 @@ public class BaseForm : XtraForm
                     // 사용자권한관리에서 실제로 발견된 불일치).
                     if (col.Tag is BindingFieldTag colTag) col.ToolTip = $"BindingField : {colTag.Field}";
                     else if (!string.IsNullOrWhiteSpace(col.FieldName)) col.ToolTip = $"BindingField : {col.FieldName}";
+
+                    // 컬럼에 룩업/팝업이 걸려 있으면 그 이름도 같이 보여준다.
+                    var colSource = col.ColumnEdit switch
+                    {
+                        PopupLookupColumnEdit p when !string.IsNullOrWhiteSpace(p.LookupKey) => $"Popup : {p.LookupKey}",
+                        LookUpColumnEdit l when !string.IsNullOrWhiteSpace(l.LookupKey) => $"LookUp : {l.LookupKey}",
+                        _ => null
+                    };
+                    if (colSource != null && !string.IsNullOrEmpty(col.ToolTip)) col.ToolTip += "\n" + colSource;
+                    if (!string.IsNullOrEmpty(colOriginal) && !string.IsNullOrEmpty(col.ToolTip)) col.ToolTip += "\n" + colOriginal;
+                    else if (string.IsNullOrEmpty(col.ToolTip)) col.ToolTip = colOriginal;
                 }
             }
             else if (child is TreeList tree)
@@ -825,6 +912,23 @@ public class BaseForm : XtraForm
         if (!ValidateRequired(searchPanel: false)) return;
         await SaveClick();
     }
+
+    /// <summary>
+    /// 툴바 [삭제](와 삭제 단축키)의 표준 진입점 - 삭제는 되돌릴 수 없어서 DeleteClick을 부르기 전에 항상 확인을 받는다
+    /// ("선택한 데이터를 삭제 하시겠습니까?"). 화면마다 확인창 코드를 복사하지 않아도 모든 전표/마스터 화면이 같은 동작을 한다.
+    /// 확인창을 이미 DeleteClick 안에서 직접 띄우는 화면(문서번호 등 자세한 문구)이나 삭제 기능이 없는 조회전용 화면은
+    /// <see cref="ConfirmDeleteByDefault"/>를 false로 override 한다.
+    /// </summary>
+    public async Task RunDeleteAsync()
+    {
+        if (ConfirmDeleteByDefault &&
+            AppMessageBox.Show("선택한 데이터를 삭제 하시겠습니까?", "삭제 확인", MessageBoxButtons.YesNo, MessageBoxIcon.Question) != DialogResult.Yes)
+            return;
+        await DeleteClick();
+    }
+
+    /// <summary>true(기본)면 RunDeleteAsync가 표준 삭제 확인창을 먼저 띄운다. 자체 확인창이 있거나 삭제가 없는 화면만 false.</summary>
+    protected virtual bool ConfirmDeleteByDefault => true;
 
     /// <summary>필수 컨트롤이 비어 있으면 안내 + 그 컨트롤로 포커스를 옮기고 false를 돌려준다.</summary>
     protected bool ValidateRequired(bool searchPanel)

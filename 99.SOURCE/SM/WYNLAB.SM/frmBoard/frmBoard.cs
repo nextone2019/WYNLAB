@@ -3,21 +3,31 @@
 using System.Data;
 using WYNLAB.Base;
 using WYNLAB.Base.Controls;
+using WYNLAB.Popup;
+using WYNLAB.Shared.Dtos;
 
 namespace WYNLAB.SM;
 
 public partial class frmBoard : BaseForm
 {
+    /// <summary>TSMFILE.doc_type 값 - 이 화면(공지사항)의 첨부파일을 다른 화면의 첨부파일과
+    /// 구분하는 용도(frmCust="BACUST", frmAcc="BAACC"와 같은 규칙). doc_id는 board_id.</summary>
+    private const string FileDocType = "SMBOARD";
+
     private DataTable _list = new();
     private string? _editingKey; // null이면 신규모드
+    private List<FileListItemDto> _files = new();
 
     public frmBoard()
     {
         InitializeComponent();
 
+        // 조회조건 사업장 - 화면 표준(2026-10-03): 항상 첫 번째, Required, 화면을 열면 로그인 사업장이 기본값.
+        cboSearchAccId.EditValue = Session.AccId?.ToString() ?? string.Empty;
+        cboSearchAccId.Tag = new BindingFieldTag("acc_id");
+
         Text = "공지사항등록";
 
-        Controls.Add(BuildScreenHeader());
 
         gvw1.Role = GridRoleWyn.Query;
         gvw1.HighlightFocusedRow = true;
@@ -44,6 +54,27 @@ public partial class frmBoard : BaseForm
         // (ConfirmMasterRowSwitch) 둘 다 이 추적에 기댄다 - grd2/grd3(편집 가능한 하위 그리드)는
         TrackDirty(panData);
 
+        // FILE SIZE를 바이트 그대로 안 보여주고 KB/MB 단위로 바꿔 보여준다(frmAcc.gvwFile와 같은 이유).
+        gvwFile.CustomColumnDisplayText += (s, e) =>
+        {
+            if (e.Column == colFFileSize && e.Value is long bytes)
+                e.DisplayText = FileSizeFormatter.Format(bytes);
+        };
+
+        // 첨부파일 - 공통 팝업(popFileUpload)을 doc_type="SMBOARD"/doc_id=board_id로 열고, 닫히면
+        // 목록을 다시 조회한다(frmAcc.btnFileAttach와 같은 패턴). 저장 전(신규모드, board_id가 아직
+        // 없음)에는 첨부할 대상 자체가 없으므로 먼저 저장하라고 안내한다.
+        btnFileAttach.Click += async (s, e) =>
+        {
+            if (_editingKey == null)
+            {
+                AppMessageBox.Show("먼저 공지사항을 저장한 뒤 첨부파일을 등록할 수 있습니다.", "확인");
+                return;
+            }
+            popFileUpload.ShowAsync(FileDocType, long.Parse(_editingKey), txtDetailTitle.Text, 0, this);
+            await LoadFileListAsync();
+        };
+
         EnterNewMode();
         Load += async (s, e) => await QueryClick();
     }
@@ -58,6 +89,7 @@ public partial class frmBoard : BaseForm
     {
         var p = new Dictionary<string, string?>
         {
+            ["p_acc_id"] = cboSearchAccId.EditValue?.ToString(),
             ["p_work_type"] = "Q",
             ["p_title"] = txtTitle.Text,
         };
@@ -144,6 +176,35 @@ public partial class frmBoard : BaseForm
         chkDetailUseYn.Checked = row["use_yn"]?.ToString() == "Y";
         txtDetailRegDt.Text = row["reg_dt"]?.ToString() ?? string.Empty;
         });
+
+        _ = LoadFileListAsync();
+    }
+
+    /// <summary>grdFile(읽기전용 요약 그리드) 갱신 - 실제 업로드/다운로드/삭제는 popFileUpload
+    /// 팝업에서 하고, 여기서는 "이 공지에 첨부파일이 몇 건 있는지"만 보여준다(frmAcc.
+    /// LoadFileListAsync와 같은 패턴). 행을 빠르게 넘기면 늦게 끝난 이전 행의 응답이 현재 행의
+    /// 목록을 덮어쓸 수 있어서, 응답이 왔을 때 아직 같은 공지를 보고 있는지 확인한다.</summary>
+    private async Task LoadFileListAsync()
+    {
+        var key = _editingKey;
+        var files = new List<FileListItemDto>();
+        if (key != null)
+        {
+            try
+            {
+                var url = $"api/files?docType={FileDocType}&docId={key}&docSerl=0";
+                files = await ApiClient.GetAsync<List<FileListItemDto>>(url) ?? new List<FileListItemDto>();
+            }
+            catch (Exception ex)
+            {
+                AppMessageBox.Show($"첨부파일 목록 조회 중 오류가 발생했습니다.\n{ex.Message}", "오류");
+            }
+        }
+
+        if (key != _editingKey) return;
+        _files = files;
+        grdFile.DataSource = null;
+        grdFile.DataSource = _files;
     }
 
     private void EnterNewMode()
@@ -160,6 +221,10 @@ public partial class frmBoard : BaseForm
         chkDetailUseYn.Checked = false;
         txtDetailRegDt.Text = string.Empty;
         });
+
+        _files = new List<FileListItemDto>();
+        grdFile.DataSource = null;
+        grdFile.DataSource = _files;
     }
 
     public override Task NewClick()

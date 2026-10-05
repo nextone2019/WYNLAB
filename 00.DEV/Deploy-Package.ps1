@@ -102,7 +102,7 @@ Write-Host "=== 3) 화면 모듈 (99.SOURCE\{모듈코드}\, 예: SM/BA) ===" -F
 # Modules\POPUP\에 중복 배포되는데, ModuleLoader는 이 dll을 메뉴 화면처럼 런타임에 찾지 않고
 # 모든 모듈이 컴파일타임에 직접 참조하므로(HintPath) Modules\ 쪽 사본은 그냥 죽은 파일이 된다.
 $moduleDirs = Get-ChildItem "$legacySourceRoot\99.SOURCE" -Directory |
-    Where-Object { $_.Name -ne "TEMPLATE" -and $_.Name -ne "POPUP" }
+    Where-Object { $_.Name -ne "TEMPLATE" -and $_.Name -ne "POPUP" -and $_.Name -ne "REPORT" }
 
 foreach ($moduleDir in $moduleDirs) {
     $moduleCd = $moduleDir.Name # 예: SM, BA
@@ -144,7 +144,7 @@ foreach ($moduleDir in $moduleDirs) {
         # 엑셀 업로드(SpreadsheetControl)가 쓰는 3개도 같은 이유로 추가함(2026-09-16). frmSchedule의
         # 캘린더(SchedulerControl)가 쓰는 3개도 동일(2026-09-17) - 처음 배포 때 이 목록에 못 넣어서
         # Modules\ 루트에 안 올라갔던 걸 실제로 겪고 나서 추가함.
-        foreach ($reportDll in @("DevExpress.Printing.v21.2.Core.dll", "DevExpress.XtraPrinting.v21.2.dll", "DevExpress.XtraReports.v21.2.dll", "DevExpress.XtraReports.v21.2.Extensions.dll", "DevExpress.Spreadsheet.v21.2.Core.dll", "DevExpress.XtraSpreadsheet.v21.2.dll", "DevExpress.Office.v21.2.Core.dll", "DevExpress.XtraScheduler.v21.2.dll", "DevExpress.XtraScheduler.v21.2.Core.dll", "DevExpress.XtraScheduler.v21.2.Core.Desktop.dll")) {
+        foreach ($reportDll in @("WYNLAB.Report.dll", "DevExpress.Printing.v21.2.Core.dll", "DevExpress.XtraPrinting.v21.2.dll", "DevExpress.XtraReports.v21.2.dll", "DevExpress.XtraReports.v21.2.Extensions.dll", "DevExpress.Spreadsheet.v21.2.Core.dll", "DevExpress.XtraSpreadsheet.v21.2.dll", "DevExpress.Office.v21.2.Core.dll", "DevExpress.XtraScheduler.v21.2.dll", "DevExpress.XtraScheduler.v21.2.Core.dll", "DevExpress.XtraScheduler.v21.2.Core.Desktop.dll")) {
             $src = Join-Path $srcDir $reportDll
             if (Test-Path $src) {
                 Copy-Item $src "$deploy\Modules\" -Force

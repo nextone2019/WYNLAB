@@ -1,4 +1,4 @@
-﻿// 援щℓ?붿껌 遺덈윭?ㅺ린 ?앹뾽(popReqPick) ?붿옄?대꼫 - VS ?붿옄?대꼫濡?諛곗튂瑜??몄쭛?????덈떎. 濡쒖쭅? popReqPick.cs.
+// 구매요청 불러오기 팝업(popReqPick) 디자이너 - VS 디자이너로 배치를 편집할 수 있다. 로직은 popReqPick.cs.
 #nullable disable
 using WYNLAB.Base;
 using WYNLAB.Base.Controls;
@@ -153,7 +153,7 @@ public partial class popReqPick
         this.btnSearch.Name = "btnSearch";
         this.btnSearch.Size = new System.Drawing.Size(80, 24);
         this.btnSearch.TabIndex = 8;
-        this.btnSearch.Text = "議고쉶";
+        this.btnSearch.Text = "조회";
         //
         // lblCust
         //
@@ -276,7 +276,7 @@ public partial class popReqPick
         //
         // colItemSpec
         //
-        this.colItemSpec.Caption = "洹쒓꺽";
+        this.colItemSpec.Caption = "규격";
         this.colItemSpec.FieldName = "item_spec";
         this.colItemSpec.Name = "colItemSpec";
         this.colItemSpec.OptionsColumn.AllowEdit = false;
@@ -375,9 +375,9 @@ public partial class popReqPick
         //
         this.btnOk.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
         this.btnOk.Cursor = System.Windows.Forms.Cursors.Hand;
-        this.btnOk.Location = new System.Drawing.Point(796, 9);
+        this.btnOk.Location = new System.Drawing.Point(796, 10);
         this.btnOk.Name = "btnOk";
-        this.btnOk.Size = new System.Drawing.Size(90, 26);
+        this.btnOk.Size = new System.Drawing.Size(90, 24);
         this.btnOk.TabIndex = 2;
         this.btnOk.Text = "불러오기";
         //
@@ -385,9 +385,9 @@ public partial class popReqPick
         //
         this.btnClose.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
         this.btnClose.Cursor = System.Windows.Forms.Cursors.Hand;
-        this.btnClose.Location = new System.Drawing.Point(894, 9);
+        this.btnClose.Location = new System.Drawing.Point(894, 10);
         this.btnClose.Name = "btnClose";
-        this.btnClose.Size = new System.Drawing.Size(90, 26);
+        this.btnClose.Size = new System.Drawing.Size(90, 24);
         this.btnClose.TabIndex = 3;
         this.btnClose.Text = "닫기";
         //

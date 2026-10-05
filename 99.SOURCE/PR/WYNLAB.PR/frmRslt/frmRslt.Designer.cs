@@ -88,6 +88,8 @@ public partial class frmRslt
         this.btnConfirmCancel = new WYNLAB.Base.Controls.ButtonWyn();
         this.shHeader = new WYNLAB.Base.Controls.SectionHeaderWyn();
         this.panHeader = new WYNLAB.Base.Controls.PanelWyn();
+        this.lblSearchAccId = new DevExpress.XtraEditors.LabelControl();
+        this.cboSearchAccId = new WYNLAB.Base.Controls.LookUpEditWyn();
         this.lblSearchRsltNo = new DevExpress.XtraEditors.LabelControl();
         this.txtSearchRsltNo = new WYNLAB.Base.Controls.TextEditWyn();
         ((System.ComponentModel.ISupportInitialize)(this.panBase)).BeginInit();
@@ -128,6 +130,7 @@ public partial class frmRslt
         ((System.ComponentModel.ISupportInitialize)(this.panHeader)).BeginInit();
         this.panHeader.SuspendLayout();
         ((System.ComponentModel.ISupportInitialize)(this.txtSearchRsltNo.Properties)).BeginInit();
+        ((System.ComponentModel.ISupportInitialize)(this.cboSearchAccId.Properties)).BeginInit();
         this.SuspendLayout();
         //
         // panBase
@@ -619,6 +622,8 @@ public partial class frmRslt
         // btnAddRow1
         //
         this.btnAddRow1.Cursor = System.Windows.Forms.Cursors.Hand;
+        this.btnAddRow1.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(193)))), ((int)(((byte)(229)))), ((int)(((byte)(205)))));
+        this.btnAddRow1.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(234)))), ((int)(((byte)(247)))), ((int)(((byte)(239)))));
         this.btnAddRow1.Location = new System.Drawing.Point(8, 3);
         this.btnAddRow1.Name = "btnAddRow1";
         this.btnAddRow1.Size = new System.Drawing.Size(60, 24);
@@ -836,6 +841,8 @@ public partial class frmRslt
         this.panHeader.Appearance.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(241)))), ((int)(((byte)(245)))), ((int)(((byte)(249)))));
         this.panHeader.Appearance.Options.UseBackColor = true;
         this.panHeader.BorderStyle = DevExpress.XtraEditors.Controls.BorderStyles.NoBorder;
+        this.panHeader.Controls.Add(this.lblSearchAccId);
+        this.panHeader.Controls.Add(this.cboSearchAccId);
         this.panHeader.Controls.Add(this.lblSearchRsltNo);
         this.panHeader.Controls.Add(this.txtSearchRsltNo);
         this.panHeader.Dock = System.Windows.Forms.DockStyle.Top;
@@ -843,10 +850,37 @@ public partial class frmRslt
         this.panHeader.Name = "panHeader";
         this.panHeader.Size = new System.Drawing.Size(1670, 49);
         this.panHeader.TabIndex = 0;
+        // 
+        // lblSearchAccId (조회조건 첫 번째 - 사업장 표준, 2026-10-03)
+        // 
+        this.lblSearchAccId.Appearance.Font = new System.Drawing.Font("맑은 고딕", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
+        this.lblSearchAccId.Appearance.Options.UseFont = true;
+        this.lblSearchAccId.Location = new System.Drawing.Point(25, 18);
+        this.lblSearchAccId.Name = "lblSearchAccId";
+        this.lblSearchAccId.Size = new System.Drawing.Size(36, 15);
+        this.lblSearchAccId.TabIndex = 0;
+        this.lblSearchAccId.Text = "사업장";
+        // 
+        // cboSearchAccId (사업장 LookUp, Required - 기본값은 화면 생성자에서 로그인 사업장)
+        // 
+        this.cboSearchAccId.EditValue = "";
+        this.cboSearchAccId.Location = new System.Drawing.Point(69, 15);
+        this.cboSearchAccId.LookupKey = "L_ACC";
+        this.cboSearchAccId.Name = "cboSearchAccId";
+        this.cboSearchAccId.Properties.Appearance.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(249)))), ((int)(((byte)(219)))));
+        this.cboSearchAccId.Properties.Appearance.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))));
+        this.cboSearchAccId.Properties.Appearance.Options.UseBackColor = true;
+        this.cboSearchAccId.Properties.Appearance.Options.UseForeColor = true;
+        this.cboSearchAccId.Properties.Buttons.AddRange(new DevExpress.XtraEditors.Controls.EditorButton[] {
+        new DevExpress.XtraEditors.Controls.EditorButton(DevExpress.XtraEditors.Controls.ButtonPredefines.Combo)});
+        this.cboSearchAccId.Properties.NullText = "";
+        this.cboSearchAccId.Required = true;
+        this.cboSearchAccId.Size = new System.Drawing.Size(131, 20);
+        this.cboSearchAccId.TabIndex = 1;
         //
         // lblSearchRsltNo
         //
-        this.lblSearchRsltNo.Location = new System.Drawing.Point(25, 18);
+        this.lblSearchRsltNo.Location = new System.Drawing.Point(224, 18);
         this.lblSearchRsltNo.Name = "lblSearchRsltNo";
         this.lblSearchRsltNo.Size = new System.Drawing.Size(48, 15);
         this.lblSearchRsltNo.TabIndex = 0;
@@ -854,7 +888,7 @@ public partial class frmRslt
         //
         // txtSearchRsltNo
         //
-        this.txtSearchRsltNo.Location = new System.Drawing.Point(90, 15);
+        this.txtSearchRsltNo.Location = new System.Drawing.Point(289, 15);
         this.txtSearchRsltNo.Name = "txtSearchRsltNo";
         this.txtSearchRsltNo.Size = new System.Drawing.Size(180, 20);
         this.txtSearchRsltNo.TabIndex = 1;
@@ -905,6 +939,7 @@ public partial class frmRslt
         this.panHeader.ResumeLayout(false);
         this.panHeader.PerformLayout();
         ((System.ComponentModel.ISupportInitialize)(this.txtSearchRsltNo.Properties)).EndInit();
+        ((System.ComponentModel.ISupportInitialize)(this.cboSearchAccId.Properties)).EndInit();
         this.ResumeLayout(false);
     }
 
@@ -981,4 +1016,6 @@ public partial class frmRslt
     private PanelWyn panHeader;
     private DevExpress.XtraEditors.LabelControl lblSearchRsltNo;
     private TextEditWyn txtSearchRsltNo;
+    private DevExpress.XtraEditors.LabelControl lblSearchAccId;
+    private WYNLAB.Base.Controls.LookUpEditWyn cboSearchAccId;
 }

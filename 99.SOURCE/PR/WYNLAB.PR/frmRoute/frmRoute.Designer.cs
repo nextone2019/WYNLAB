@@ -48,6 +48,15 @@ public partial class frmRoute
         this.colPriceUnit = new DevExpress.XtraGrid.Columns.GridColumn();
         this.colPrice = new DevExpress.XtraGrid.Columns.GridColumn();
         this.colRemark = new DevExpress.XtraGrid.Columns.GridColumn();
+        this.lblItems = new DevExpress.XtraEditors.LabelControl();
+        this.grd3 = new WYNLAB.Base.Controls.GridControlWyn();
+        this.gvw3 = new WYNLAB.Base.Controls.GridViewWyn();
+        this.popcolProd = new WYNLAB.Base.Controls.PopupLookupColumnEdit();
+        this.chkcolItemDef = new DevExpress.XtraEditors.Repository.RepositoryItemCheckEdit();
+        this.colItemId = new DevExpress.XtraGrid.Columns.GridColumn();
+        this.colItemDef = new DevExpress.XtraGrid.Columns.GridColumn();
+        this.btnAddItem = new WYNLAB.Base.Controls.ButtonWyn();
+        this.btnDelItem = new WYNLAB.Base.Controls.ButtonWyn();
         this.panTool = new WYNLAB.Base.Controls.PanelWyn();
         this.btnAddRow1 = new WYNLAB.Base.Controls.ButtonWyn();
         this.btnDeletRow1 = new WYNLAB.Base.Controls.ButtonWyn();
@@ -59,9 +68,6 @@ public partial class frmRoute
         this.txtRouteCd = new WYNLAB.Base.Controls.TextEditWyn();
         this.lblRouteNm = new DevExpress.XtraEditors.LabelControl();
         this.txtRouteNm = new WYNLAB.Base.Controls.TextEditWyn();
-        this.lblItemNm = new DevExpress.XtraEditors.LabelControl();
-        this.txtItemNm = new WYNLAB.Base.Controls.PopupLookupEditWyn();
-        this.txtItemId = new WYNLAB.Base.Controls.TextEditWyn();
         this.lblUseYn = new DevExpress.XtraEditors.LabelControl();
         this.chkUseYn = new DevExpress.XtraEditors.CheckEdit();
         this.lblUsedNote = new DevExpress.XtraEditors.LabelControl();
@@ -70,6 +76,8 @@ public partial class frmRoute
         this.lblHint = new DevExpress.XtraEditors.LabelControl();
         this.shHeader = new WYNLAB.Base.Controls.SectionHeaderWyn();
         this.panHeader = new WYNLAB.Base.Controls.PanelWyn();
+        this.lblSearchAccId = new DevExpress.XtraEditors.LabelControl();
+        this.cboSearchAccId = new WYNLAB.Base.Controls.LookUpEditWyn();
         this.lblSearchRouteCd = new DevExpress.XtraEditors.LabelControl();
         this.txtSearchRouteCd = new WYNLAB.Base.Controls.TextEditWyn();
         ((System.ComponentModel.ISupportInitialize)(this.panBase)).BeginInit();
@@ -90,6 +98,10 @@ public partial class frmRoute
         ((System.ComponentModel.ISupportInitialize)(this.popcolCust)).BeginInit();
         ((System.ComponentModel.ISupportInitialize)(this.popcolInItem)).BeginInit();
         ((System.ComponentModel.ISupportInitialize)(this.popcolOutItem)).BeginInit();
+        ((System.ComponentModel.ISupportInitialize)(this.grd3)).BeginInit();
+        ((System.ComponentModel.ISupportInitialize)(this.gvw3)).BeginInit();
+        ((System.ComponentModel.ISupportInitialize)(this.popcolProd)).BeginInit();
+        ((System.ComponentModel.ISupportInitialize)(this.chkcolItemDef)).BeginInit();
         ((System.ComponentModel.ISupportInitialize)(this.panTool)).BeginInit();
         this.panTool.SuspendLayout();
         ((System.ComponentModel.ISupportInitialize)(this.panData)).BeginInit();
@@ -97,13 +109,12 @@ public partial class frmRoute
         ((System.ComponentModel.ISupportInitialize)(this.cboAccId.Properties)).BeginInit();
         ((System.ComponentModel.ISupportInitialize)(this.txtRouteCd.Properties)).BeginInit();
         ((System.ComponentModel.ISupportInitialize)(this.txtRouteNm.Properties)).BeginInit();
-        ((System.ComponentModel.ISupportInitialize)(this.txtItemNm.Properties)).BeginInit();
-        ((System.ComponentModel.ISupportInitialize)(this.txtItemId.Properties)).BeginInit();
         ((System.ComponentModel.ISupportInitialize)(this.chkUseYn.Properties)).BeginInit();
         ((System.ComponentModel.ISupportInitialize)(this.memoRemark.Properties)).BeginInit();
         ((System.ComponentModel.ISupportInitialize)(this.panHeader)).BeginInit();
         this.panHeader.SuspendLayout();
         ((System.ComponentModel.ISupportInitialize)(this.txtSearchRouteCd.Properties)).BeginInit();
+        ((System.ComponentModel.ISupportInitialize)(this.cboSearchAccId.Properties)).BeginInit();
         this.SuspendLayout();
         //
         // panBase
@@ -209,7 +220,7 @@ public partial class frmRoute
         //
         // colListItem
         //
-        this.colListItem.Caption = "완제품";
+        this.colListItem.Caption = "적용 제품";
         this.colListItem.FieldName = "item_nm";
         this.colListItem.Name = "colListItem";
         this.colListItem.Visible = true;
@@ -270,15 +281,16 @@ public partial class frmRoute
         this.panData.Controls.Add(this.txtRouteCd);
         this.panData.Controls.Add(this.lblRouteNm);
         this.panData.Controls.Add(this.txtRouteNm);
-        this.panData.Controls.Add(this.lblItemNm);
-        this.panData.Controls.Add(this.txtItemNm);
-        this.panData.Controls.Add(this.txtItemId);
         this.panData.Controls.Add(this.lblUseYn);
         this.panData.Controls.Add(this.chkUseYn);
         this.panData.Controls.Add(this.lblUsedNote);
         this.panData.Controls.Add(this.lblRemark);
         this.panData.Controls.Add(this.memoRemark);
         this.panData.Controls.Add(this.lblHint);
+        this.panData.Controls.Add(this.lblItems);
+        this.panData.Controls.Add(this.grd3);
+        this.panData.Controls.Add(this.btnAddItem);
+        this.panData.Controls.Add(this.btnDelItem);
         this.panData.Dock = System.Windows.Forms.DockStyle.Top;
         this.panData.Location = new System.Drawing.Point(3, 27);
         this.panData.Name = "panData";
@@ -335,31 +347,6 @@ public partial class frmRoute
         this.txtRouteNm.Size = new System.Drawing.Size(250, 20);
         this.txtRouteNm.TabIndex = 5;
         //
-        // lblItemNm
-        //
-        this.lblItemNm.Location = new System.Drawing.Point(28, 43);
-        this.lblItemNm.Name = "lblItemNm";
-        this.lblItemNm.Size = new System.Drawing.Size(36, 15);
-        this.lblItemNm.TabIndex = 6;
-        this.lblItemNm.Text = "완제품";
-        //
-        // txtItemNm
-        //
-        this.txtItemNm.Location = new System.Drawing.Point(100, 40);
-        this.txtItemNm.LookupKey = "P_ITEM";
-        this.txtItemNm.MatchField = "item_nm";
-        this.txtItemNm.Name = "txtItemNm";
-        this.txtItemNm.Size = new System.Drawing.Size(150, 20);
-        this.txtItemNm.TabIndex = 7;
-        //
-        // txtItemId
-        //
-        this.txtItemId.Location = new System.Drawing.Point(1200, 40);
-        this.txtItemId.Name = "txtItemId";
-        this.txtItemId.Size = new System.Drawing.Size(60, 20);
-        this.txtItemId.TabIndex = 8;
-        this.txtItemId.Visible = false;
-        //
         // lblUseYn
         //
         this.lblUseYn.Location = new System.Drawing.Point(282, 43);
@@ -401,6 +388,94 @@ public partial class frmRoute
         this.memoRemark.Size = new System.Drawing.Size(774, 25);
         this.memoRemark.TabIndex = 13;
         //
+        // lblItems
+        //
+        this.lblItems.Location = new System.Drawing.Point(930, 15);
+        this.lblItems.Name = "lblItems";
+        this.lblItems.Size = new System.Drawing.Size(60, 15);
+        this.lblItems.TabIndex = 20;
+        this.lblItems.Text = "적용 제품";
+        //
+        // btnAddItem
+        //
+        this.btnAddItem.Cursor = System.Windows.Forms.Cursors.Hand;
+        this.btnAddItem.Location = new System.Drawing.Point(1320, 10);
+        this.btnAddItem.Name = "btnAddItem";
+        this.btnAddItem.Size = new System.Drawing.Size(60, 24);
+        this.btnAddItem.TabIndex = 21;
+        this.btnAddItem.Text = "추가";
+        //
+        // btnDelItem
+        //
+        this.btnDelItem.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(245)))), ((int)(((byte)(198)))), ((int)(((byte)(193)))));
+        this.btnDelItem.Cursor = System.Windows.Forms.Cursors.Hand;
+        this.btnDelItem.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(253)))), ((int)(((byte)(236)))), ((int)(((byte)(234)))));
+        this.btnDelItem.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(51)))), ((int)(((byte)(51)))), ((int)(((byte)(51)))));
+        this.btnDelItem.Location = new System.Drawing.Point(1384, 10);
+        this.btnDelItem.Name = "btnDelItem";
+        this.btnDelItem.Size = new System.Drawing.Size(60, 24);
+        this.btnDelItem.TabIndex = 22;
+        this.btnDelItem.Text = "삭제";
+        //
+        // grd3
+        //
+        this.grd3.Location = new System.Drawing.Point(1000, 10);
+        this.grd3.MainView = this.gvw3;
+        this.grd3.Name = "grd3";
+        this.grd3.RepositoryItems.AddRange(new DevExpress.XtraEditors.Repository.RepositoryItem[] {
+        this.popcolProd,
+        this.chkcolItemDef});
+        this.grd3.Size = new System.Drawing.Size(316, 118);
+        this.grd3.TabIndex = 23;
+        this.grd3.UseEmbeddedNavigator = false;
+        this.grd3.ViewCollection.AddRange(new DevExpress.XtraGrid.Views.Base.BaseView[] {
+        this.gvw3});
+        //
+        // gvw3
+        //
+        this.gvw3.Columns.AddRange(new DevExpress.XtraGrid.Columns.GridColumn[] {
+        this.colItemId,
+        this.colItemDef});
+        this.gvw3.GridControl = this.grd3;
+        this.gvw3.HighlightFocusedRow = true;
+        this.gvw3.Name = "gvw3";
+        this.gvw3.OptionsView.ColumnAutoWidth = false;
+        this.gvw3.OptionsView.ShowGroupPanel = false;
+        //
+        // popcolProd
+        //
+        this.popcolProd.Buttons.AddRange(new DevExpress.XtraEditors.Controls.EditorButton[] {
+        new DevExpress.XtraEditors.Controls.EditorButton(DevExpress.XtraEditors.Controls.ButtonPredefines.Ellipsis, "...")});
+        this.popcolProd.LookupKey = "P_ITEM";
+        this.popcolProd.Name = "popcolProd";
+        //
+        // chkcolItemDef
+        //
+        this.chkcolItemDef.AutoHeight = false;
+        this.chkcolItemDef.Name = "chkcolItemDef";
+        this.chkcolItemDef.ValueChecked = "Y";
+        this.chkcolItemDef.ValueUnchecked = "N";
+        //
+        // colItemId
+        //
+        this.colItemId.Caption = "제품";
+        this.colItemId.ColumnEdit = this.popcolProd;
+        this.colItemId.FieldName = "item_id";
+        this.colItemId.Name = "colItemId";
+        this.colItemId.Visible = true;
+        this.colItemId.VisibleIndex = 0;
+        this.colItemId.Width = 190;
+        //
+        // colItemDef
+        //
+        this.colItemDef.Caption = "기본";
+        this.colItemDef.ColumnEdit = this.chkcolItemDef;
+        this.colItemDef.FieldName = "default_yn";
+        this.colItemDef.Name = "colItemDef";
+        this.colItemDef.Visible = true;
+        this.colItemDef.VisibleIndex = 1;
+        this.colItemDef.Width = 50;
+        //
         // lblHint
         //
         this.lblHint.Appearance.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(120)))), ((int)(((byte)(120)))), ((int)(((byte)(120)))));
@@ -409,7 +484,7 @@ public partial class frmRoute
         this.lblHint.Name = "lblHint";
         this.lblHint.Size = new System.Drawing.Size(60, 15);
         this.lblHint.TabIndex = 14;
-        this.lblHint.Text = "※ 공정을 순서대로 추가하세요. 앞 공정의 산출품목이 다음 공정의 투입품목이 됩니다. 수정 내용은 이후에 만드는 작업지시에만 반영됩니다.";
+        this.lblHint.Text = "※ 공정을 순서대로 추가하고 산출품목을 고르세요(산출품목의 BOM을 BOM관리에서 먼저 등록). 적용 제품은 이 라우팅을 쓸 제품이며 제품마다 기본 라우팅 1개를 지정합니다. 수정 내용은 이후에 만드는 작업지시에만 반영됩니다.";
         //
         // shLine
         //
@@ -421,7 +496,7 @@ public partial class frmRoute
         this.shLine.Name = "shLine";
         this.shLine.Size = new System.Drawing.Size(1664, 27);
         this.shLine.TabIndex = 2;
-        this.shLine.Text = "공정 체인 (투입품목 → 산출품목)";
+        this.shLine.Text = "공정 (산출품목을 고르면 투입품목은 그 품목 BOM의 주원료로 자동 결정)";
         //
         // panTool
         //
@@ -436,6 +511,8 @@ public partial class frmRoute
         // btnAddRow1
         //
         this.btnAddRow1.Cursor = System.Windows.Forms.Cursors.Hand;
+        this.btnAddRow1.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(193)))), ((int)(((byte)(229)))), ((int)(((byte)(205)))));
+        this.btnAddRow1.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(234)))), ((int)(((byte)(247)))), ((int)(((byte)(239)))));
         this.btnAddRow1.Location = new System.Drawing.Point(8, 3);
         this.btnAddRow1.Name = "btnAddRow1";
         this.btnAddRow1.Size = new System.Drawing.Size(60, 24);
@@ -564,17 +641,19 @@ public partial class frmRoute
         //
         // colInItemId
         //
-        this.colInItemId.Caption = "투입품목";
+        this.colInItemId.Caption = "투입품목(BOM 주원료)";
+        this.colInItemId.OptionsColumn.AllowEdit = false;
         this.colInItemId.ColumnEdit = this.popcolInItem;
         this.colInItemId.FieldName = "in_item_id";
         this.colInItemId.Name = "colInItemId";
         this.colInItemId.Visible = true;
         this.colInItemId.VisibleIndex = 3;
-        this.colInItemId.Width = 120;
+        this.colInItemId.Width = 150;
         //
         // colInUnit
         //
         this.colInUnit.Caption = "투입단위";
+        this.colInUnit.OptionsColumn.AllowEdit = false;
         this.colInUnit.ColumnEdit = this.lookupcolUnit;
         this.colInUnit.FieldName = "in_unit_cd";
         this.colInUnit.Name = "colInUnit";
@@ -648,6 +727,8 @@ public partial class frmRoute
         this.panHeader.Appearance.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(241)))), ((int)(((byte)(245)))), ((int)(((byte)(249)))));
         this.panHeader.Appearance.Options.UseBackColor = true;
         this.panHeader.BorderStyle = DevExpress.XtraEditors.Controls.BorderStyles.NoBorder;
+        this.panHeader.Controls.Add(this.lblSearchAccId);
+        this.panHeader.Controls.Add(this.cboSearchAccId);
         this.panHeader.Controls.Add(this.lblSearchRouteCd);
         this.panHeader.Controls.Add(this.txtSearchRouteCd);
         this.panHeader.Dock = System.Windows.Forms.DockStyle.Top;
@@ -655,10 +736,37 @@ public partial class frmRoute
         this.panHeader.Name = "panHeader";
         this.panHeader.Size = new System.Drawing.Size(1670, 49);
         this.panHeader.TabIndex = 0;
+        // 
+        // lblSearchAccId (조회조건 첫 번째 - 사업장 표준, 2026-10-03)
+        // 
+        this.lblSearchAccId.Appearance.Font = new System.Drawing.Font("맑은 고딕", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
+        this.lblSearchAccId.Appearance.Options.UseFont = true;
+        this.lblSearchAccId.Location = new System.Drawing.Point(25, 18);
+        this.lblSearchAccId.Name = "lblSearchAccId";
+        this.lblSearchAccId.Size = new System.Drawing.Size(36, 15);
+        this.lblSearchAccId.TabIndex = 0;
+        this.lblSearchAccId.Text = "사업장";
+        // 
+        // cboSearchAccId (사업장 LookUp, Required - 기본값은 화면 생성자에서 로그인 사업장)
+        // 
+        this.cboSearchAccId.EditValue = "";
+        this.cboSearchAccId.Location = new System.Drawing.Point(69, 15);
+        this.cboSearchAccId.LookupKey = "L_ACC";
+        this.cboSearchAccId.Name = "cboSearchAccId";
+        this.cboSearchAccId.Properties.Appearance.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(249)))), ((int)(((byte)(219)))));
+        this.cboSearchAccId.Properties.Appearance.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))));
+        this.cboSearchAccId.Properties.Appearance.Options.UseBackColor = true;
+        this.cboSearchAccId.Properties.Appearance.Options.UseForeColor = true;
+        this.cboSearchAccId.Properties.Buttons.AddRange(new DevExpress.XtraEditors.Controls.EditorButton[] {
+        new DevExpress.XtraEditors.Controls.EditorButton(DevExpress.XtraEditors.Controls.ButtonPredefines.Combo)});
+        this.cboSearchAccId.Properties.NullText = "";
+        this.cboSearchAccId.Required = true;
+        this.cboSearchAccId.Size = new System.Drawing.Size(131, 20);
+        this.cboSearchAccId.TabIndex = 1;
         //
         // lblSearchRouteCd
         //
-        this.lblSearchRouteCd.Location = new System.Drawing.Point(25, 18);
+        this.lblSearchRouteCd.Location = new System.Drawing.Point(224, 18);
         this.lblSearchRouteCd.Name = "lblSearchRouteCd";
         this.lblSearchRouteCd.Size = new System.Drawing.Size(60, 15);
         this.lblSearchRouteCd.TabIndex = 0;
@@ -666,7 +774,7 @@ public partial class frmRoute
         //
         // txtSearchRouteCd
         //
-        this.txtSearchRouteCd.Location = new System.Drawing.Point(100, 15);
+        this.txtSearchRouteCd.Location = new System.Drawing.Point(299, 15);
         this.txtSearchRouteCd.Name = "txtSearchRouteCd";
         this.txtSearchRouteCd.Size = new System.Drawing.Size(180, 20);
         this.txtSearchRouteCd.TabIndex = 1;
@@ -695,6 +803,10 @@ public partial class frmRoute
         ((System.ComponentModel.ISupportInitialize)(this.popcolCust)).EndInit();
         ((System.ComponentModel.ISupportInitialize)(this.popcolInItem)).EndInit();
         ((System.ComponentModel.ISupportInitialize)(this.popcolOutItem)).EndInit();
+        ((System.ComponentModel.ISupportInitialize)(this.grd3)).EndInit();
+        ((System.ComponentModel.ISupportInitialize)(this.gvw3)).EndInit();
+        ((System.ComponentModel.ISupportInitialize)(this.popcolProd)).EndInit();
+        ((System.ComponentModel.ISupportInitialize)(this.chkcolItemDef)).EndInit();
         ((System.ComponentModel.ISupportInitialize)(this.panTool)).EndInit();
         this.panTool.ResumeLayout(false);
         ((System.ComponentModel.ISupportInitialize)(this.panData)).EndInit();
@@ -703,14 +815,13 @@ public partial class frmRoute
         ((System.ComponentModel.ISupportInitialize)(this.cboAccId.Properties)).EndInit();
         ((System.ComponentModel.ISupportInitialize)(this.txtRouteCd.Properties)).EndInit();
         ((System.ComponentModel.ISupportInitialize)(this.txtRouteNm.Properties)).EndInit();
-        ((System.ComponentModel.ISupportInitialize)(this.txtItemNm.Properties)).EndInit();
-        ((System.ComponentModel.ISupportInitialize)(this.txtItemId.Properties)).EndInit();
         ((System.ComponentModel.ISupportInitialize)(this.chkUseYn.Properties)).EndInit();
         ((System.ComponentModel.ISupportInitialize)(this.memoRemark.Properties)).EndInit();
         ((System.ComponentModel.ISupportInitialize)(this.panHeader)).EndInit();
         this.panHeader.ResumeLayout(false);
         this.panHeader.PerformLayout();
         ((System.ComponentModel.ISupportInitialize)(this.txtSearchRouteCd.Properties)).EndInit();
+        ((System.ComponentModel.ISupportInitialize)(this.cboSearchAccId.Properties)).EndInit();
         this.ResumeLayout(false);
     }
 
@@ -745,6 +856,15 @@ public partial class frmRoute
     private DevExpress.XtraGrid.Columns.GridColumn colPriceUnit;
     private DevExpress.XtraGrid.Columns.GridColumn colPrice;
     private DevExpress.XtraGrid.Columns.GridColumn colRemark;
+    private DevExpress.XtraEditors.LabelControl lblItems;
+    private GridControlWyn grd3;
+    private GridViewWyn gvw3;
+    private PopupLookupColumnEdit popcolProd;
+    private DevExpress.XtraEditors.Repository.RepositoryItemCheckEdit chkcolItemDef;
+    private DevExpress.XtraGrid.Columns.GridColumn colItemId;
+    private DevExpress.XtraGrid.Columns.GridColumn colItemDef;
+    private ButtonWyn btnAddItem;
+    private ButtonWyn btnDelItem;
     private PanelWyn panTool;
     private ButtonWyn btnAddRow1;
     private ButtonWyn btnDeletRow1;
@@ -756,9 +876,6 @@ public partial class frmRoute
     private TextEditWyn txtRouteCd;
     private DevExpress.XtraEditors.LabelControl lblRouteNm;
     private TextEditWyn txtRouteNm;
-    private DevExpress.XtraEditors.LabelControl lblItemNm;
-    private PopupLookupEditWyn txtItemNm;
-    private TextEditWyn txtItemId;
     private DevExpress.XtraEditors.LabelControl lblUseYn;
     private DevExpress.XtraEditors.CheckEdit chkUseYn;
     private DevExpress.XtraEditors.LabelControl lblUsedNote;
@@ -769,4 +886,6 @@ public partial class frmRoute
     private PanelWyn panHeader;
     private DevExpress.XtraEditors.LabelControl lblSearchRouteCd;
     private TextEditWyn txtSearchRouteCd;
+    private DevExpress.XtraEditors.LabelControl lblSearchAccId;
+    private WYNLAB.Base.Controls.LookUpEditWyn cboSearchAccId;
 }

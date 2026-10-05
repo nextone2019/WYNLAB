@@ -1,5 +1,5 @@
-﻿// VS ?붿옄?대꼫媛 ?먮룞 ?앹꽦?섎뒗 ?꾨뱶 ?좎뼵?먮뒗 = null!????遺숈뿬??nullable 寃쎄퀬(CS8618)媛
-// 怨꾩냽 ?섍린 ?뚮Ц?? ???뚯씪(?붿옄?대꼫 ?꾩슜)留?nullable 寃?щ? ?덈떎 - ?뷀븳 愿濡.
+// VS 디자이너가 자동 생성하는 필드 선언에는 = null!을 안 붙여서 nullable 경고(CS8618)가
+// 계속 나기 때문에, 이 파일(디자이너 전용)만 nullable 검사를 끈다 - 흔한 관례.
 #nullable disable
 using DevExpress.XtraEditors.Controls;
 using DevExpress.XtraGrid.Columns;
@@ -9,10 +9,10 @@ using WYNLAB.Base.Controls;
 namespace WYNLAB.Popup;
 
 /// <summary>
-/// ?꾩옄寃곗옱 怨듭슜 ?앹뾽 - 而⑦듃濡?諛곗튂???ш린???대떦(?ъ슜?먭? VS ?붿옄?대꼫濡??쒓컖?곸쑝濡??ㅻ벉????
-/// ?덇쾶 frmAcc.Designer.cs? 媛숈? 援ъ“濡?遺꾨━?덈떎). 濡쒖쭅/?대깽???곌껐? popApp.cs.
-/// ?몃줈 諛곗튂: panHeader(留??? 寃곗옱湲곕낯?뺣낫+?대컮) - panCompose(?묒꽦紐⑤뱶 ?꾩슜, 遺?쒗듃由??ъ썝/
-/// 寃곗옱寃쎈줈) - panGrids(寃곗옱?쇱씤/?섏떊?쇱씤 洹몃━?? ?섎㉧吏 怨듦컙) - panBottom(留??꾨옒, ?リ린).
+/// 전자결재 공용 팝업 - 컨트롤 배치는 여기서 담당(사용자가 VS 디자이너로 시각적으로 다듬을 수
+/// 있게 frmAcc.Designer.cs와 같은 구조로 분리했다). 로직/이벤트 연결은 popApp.cs.
+/// 세로 배치: panHeader(맨 위, 결재기본정보+툴바) - panCompose(작성모드 전용, 부서트리/사원/
+/// 결재경로) - panGrids(결재라인/수신라인 그리드, 나머지 공간) - panBottom(맨 아래, 닫기).
 /// </summary>
 public partial class popApp
 {
@@ -190,6 +190,7 @@ public partial class popApp
             // 
             this.cboDocType.EditValue = "";
             this.cboDocType.Location = new System.Drawing.Point(71, 29);
+            this.cboDocType.LookupKey = "L_AP0002";
             this.cboDocType.Name = "cboDocType";
             this.cboDocType.Properties.Buttons.AddRange(new DevExpress.XtraEditors.Controls.EditorButton[] {
             new DevExpress.XtraEditors.Controls.EditorButton(DevExpress.XtraEditors.Controls.ButtonPredefines.Combo)});
@@ -235,7 +236,7 @@ public partial class popApp
             this.lblAppNo.Name = "lblAppNo";
             this.lblAppNo.Size = new System.Drawing.Size(48, 15);
             this.lblAppNo.TabIndex = 0;
-            this.lblAppNo.Text = "寃곗옱踰덊샇";
+            this.lblAppNo.Text = "결재번호";
             // 
             // txtAppId
             // 
@@ -271,7 +272,7 @@ public partial class popApp
             this.labelControl2.Name = "labelControl2";
             this.labelControl2.Size = new System.Drawing.Size(48, 15);
             this.labelControl2.TabIndex = 4;
-            this.labelControl2.Text = "臾몄꽌踰덊샇";
+            this.labelControl2.Text = "문서번호";
             // 
             // lblReqEmpNm
             // 
@@ -291,7 +292,7 @@ public partial class popApp
             this.labelControl1.Name = "labelControl1";
             this.labelControl1.Size = new System.Drawing.Size(48, 15);
             this.labelControl1.TabIndex = 6;
-            this.labelControl1.Text = "臾몄꽌援щ텇";
+            this.labelControl1.Text = "문서구분";
             // 
             // txtDocNo
             // 
@@ -358,14 +359,14 @@ public partial class popApp
             this.btnRefresh.BackColor = System.Drawing.Color.Transparent;
             this.btnRefresh.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(74)))), ((int)(((byte)(134)))), ((int)(((byte)(232)))));
             this.btnRefresh.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.btnRefresh.FillColor = System.Drawing.Color.White;
+            this.btnRefresh.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(234)))), ((int)(((byte)(241)))), ((int)(((byte)(253)))));
             this.btnRefresh.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(51)))), ((int)(((byte)(51)))), ((int)(((byte)(51)))));
             this.btnRefresh.HoverColor = System.Drawing.Color.FromArgb(((int)(((byte)(240)))), ((int)(((byte)(245)))), ((int)(((byte)(255)))));
             this.btnRefresh.Image = null;
-            this.btnRefresh.Location = new System.Drawing.Point(6, 2);
+            this.btnRefresh.Location = new System.Drawing.Point(6, 3);
             this.btnRefresh.Name = "btnRefresh";
             this.btnRefresh.PressedColor = System.Drawing.Color.FromArgb(((int)(((byte)(225)))), ((int)(((byte)(235)))), ((int)(((byte)(253)))));
-            this.btnRefresh.Size = new System.Drawing.Size(90, 26);
+            this.btnRefresh.Size = new System.Drawing.Size(90, 24);
             this.btnRefresh.TabIndex = 12;
             this.btnRefresh.Text = "새로고침";
             this.btnRefresh.ToolTip = null;
@@ -375,14 +376,14 @@ public partial class popApp
             this.btnSubmit.BackColor = System.Drawing.Color.Transparent;
             this.btnSubmit.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(74)))), ((int)(((byte)(134)))), ((int)(((byte)(232)))));
             this.btnSubmit.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.btnSubmit.FillColor = System.Drawing.Color.White;
+            this.btnSubmit.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(234)))), ((int)(((byte)(241)))), ((int)(((byte)(253)))));
             this.btnSubmit.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(51)))), ((int)(((byte)(51)))), ((int)(((byte)(51)))));
             this.btnSubmit.HoverColor = System.Drawing.Color.FromArgb(((int)(((byte)(240)))), ((int)(((byte)(245)))), ((int)(((byte)(255)))));
             this.btnSubmit.Image = null;
-            this.btnSubmit.Location = new System.Drawing.Point(99, 2);
+            this.btnSubmit.Location = new System.Drawing.Point(99, 3);
             this.btnSubmit.Name = "btnSubmit";
             this.btnSubmit.PressedColor = System.Drawing.Color.FromArgb(((int)(((byte)(225)))), ((int)(((byte)(235)))), ((int)(((byte)(253)))));
-            this.btnSubmit.Size = new System.Drawing.Size(90, 26);
+            this.btnSubmit.Size = new System.Drawing.Size(90, 24);
             this.btnSubmit.TabIndex = 13;
             this.btnSubmit.Text = "결재상신";
             this.btnSubmit.ToolTip = null;
@@ -392,16 +393,16 @@ public partial class popApp
             this.btnReject.BackColor = System.Drawing.Color.Transparent;
             this.btnReject.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(74)))), ((int)(((byte)(134)))), ((int)(((byte)(232)))));
             this.btnReject.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.btnReject.FillColor = System.Drawing.Color.White;
+            this.btnReject.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(234)))), ((int)(((byte)(241)))), ((int)(((byte)(253)))));
             this.btnReject.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(51)))), ((int)(((byte)(51)))), ((int)(((byte)(51)))));
             this.btnReject.HoverColor = System.Drawing.Color.FromArgb(((int)(((byte)(240)))), ((int)(((byte)(245)))), ((int)(((byte)(255)))));
             this.btnReject.Image = null;
-            this.btnReject.Location = new System.Drawing.Point(384, 2);
+            this.btnReject.Location = new System.Drawing.Point(384, 3);
             this.btnReject.Name = "btnReject";
             this.btnReject.PressedColor = System.Drawing.Color.FromArgb(((int)(((byte)(225)))), ((int)(((byte)(235)))), ((int)(((byte)(253)))));
-            this.btnReject.Size = new System.Drawing.Size(90, 26);
+            this.btnReject.Size = new System.Drawing.Size(90, 24);
             this.btnReject.TabIndex = 15;
-            this.btnReject.Text = "諛섎젮";
+            this.btnReject.Text = "반려";
             this.btnReject.ToolTip = null;
             // 
             // btnCancelApprove
@@ -409,14 +410,14 @@ public partial class popApp
             this.btnCancelApprove.BackColor = System.Drawing.Color.Transparent;
             this.btnCancelApprove.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(74)))), ((int)(((byte)(134)))), ((int)(((byte)(232)))));
             this.btnCancelApprove.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.btnCancelApprove.FillColor = System.Drawing.Color.White;
+            this.btnCancelApprove.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(234)))), ((int)(((byte)(241)))), ((int)(((byte)(253)))));
             this.btnCancelApprove.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(51)))), ((int)(((byte)(51)))), ((int)(((byte)(51)))));
             this.btnCancelApprove.HoverColor = System.Drawing.Color.FromArgb(((int)(((byte)(240)))), ((int)(((byte)(245)))), ((int)(((byte)(255)))));
             this.btnCancelApprove.Image = null;
-            this.btnCancelApprove.Location = new System.Drawing.Point(192, 2);
+            this.btnCancelApprove.Location = new System.Drawing.Point(192, 3);
             this.btnCancelApprove.Name = "btnCancelApprove";
             this.btnCancelApprove.PressedColor = System.Drawing.Color.FromArgb(((int)(((byte)(225)))), ((int)(((byte)(235)))), ((int)(((byte)(253)))));
-            this.btnCancelApprove.Size = new System.Drawing.Size(90, 26);
+            this.btnCancelApprove.Size = new System.Drawing.Size(90, 24);
             this.btnCancelApprove.TabIndex = 16;
             this.btnCancelApprove.Text = "승인취소";
             this.btnCancelApprove.ToolTip = null;
@@ -426,14 +427,14 @@ public partial class popApp
             this.btnAck.BackColor = System.Drawing.Color.Transparent;
             this.btnAck.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(74)))), ((int)(((byte)(134)))), ((int)(((byte)(232)))));
             this.btnAck.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.btnAck.FillColor = System.Drawing.Color.White;
+            this.btnAck.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(234)))), ((int)(((byte)(241)))), ((int)(((byte)(253)))));
             this.btnAck.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(51)))), ((int)(((byte)(51)))), ((int)(((byte)(51)))));
             this.btnAck.HoverColor = System.Drawing.Color.FromArgb(((int)(((byte)(240)))), ((int)(((byte)(245)))), ((int)(((byte)(255)))));
             this.btnAck.Image = null;
-            this.btnAck.Location = new System.Drawing.Point(480, 2);
+            this.btnAck.Location = new System.Drawing.Point(480, 3);
             this.btnAck.Name = "btnAck";
             this.btnAck.PressedColor = System.Drawing.Color.FromArgb(((int)(((byte)(225)))), ((int)(((byte)(235)))), ((int)(((byte)(253)))));
-            this.btnAck.Size = new System.Drawing.Size(90, 26);
+            this.btnAck.Size = new System.Drawing.Size(90, 24);
             this.btnAck.TabIndex = 17;
             this.btnAck.Text = "수신확인";
             this.btnAck.ToolTip = null;
@@ -453,14 +454,14 @@ public partial class popApp
             this.btnApplyRoute.BackColor = System.Drawing.Color.Transparent;
             this.btnApplyRoute.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(74)))), ((int)(((byte)(134)))), ((int)(((byte)(232)))));
             this.btnApplyRoute.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.btnApplyRoute.FillColor = System.Drawing.Color.White;
+            this.btnApplyRoute.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(234)))), ((int)(((byte)(241)))), ((int)(((byte)(253)))));
             this.btnApplyRoute.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(51)))), ((int)(((byte)(51)))), ((int)(((byte)(51)))));
             this.btnApplyRoute.HoverColor = System.Drawing.Color.FromArgb(((int)(((byte)(240)))), ((int)(((byte)(245)))), ((int)(((byte)(255)))));
             this.btnApplyRoute.Image = null;
-            this.btnApplyRoute.Location = new System.Drawing.Point(443, 4);
+            this.btnApplyRoute.Location = new System.Drawing.Point(443, 5);
             this.btnApplyRoute.Name = "btnApplyRoute";
             this.btnApplyRoute.PressedColor = System.Drawing.Color.FromArgb(((int)(((byte)(225)))), ((int)(((byte)(235)))), ((int)(((byte)(253)))));
-            this.btnApplyRoute.Size = new System.Drawing.Size(88, 26);
+            this.btnApplyRoute.Size = new System.Drawing.Size(88, 24);
             this.btnApplyRoute.TabIndex = 2;
             this.btnApplyRoute.Text = "적용";
             this.btnApplyRoute.ToolTip = null;
@@ -479,7 +480,7 @@ public partial class popApp
             this.btnSaveRoute.BackColor = System.Drawing.Color.Transparent;
             this.btnSaveRoute.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(74)))), ((int)(((byte)(134)))), ((int)(((byte)(232)))));
             this.btnSaveRoute.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.btnSaveRoute.FillColor = System.Drawing.Color.White;
+            this.btnSaveRoute.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(234)))), ((int)(((byte)(241)))), ((int)(((byte)(253)))));
             this.btnSaveRoute.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(51)))), ((int)(((byte)(51)))), ((int)(((byte)(51)))));
             this.btnSaveRoute.HoverColor = System.Drawing.Color.FromArgb(((int)(((byte)(240)))), ((int)(((byte)(245)))), ((int)(((byte)(255)))));
             this.btnSaveRoute.Image = null;
@@ -497,14 +498,14 @@ public partial class popApp
             this.btnAddLine.BackColor = System.Drawing.Color.Transparent;
             this.btnAddLine.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(74)))), ((int)(((byte)(134)))), ((int)(((byte)(232)))));
             this.btnAddLine.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.btnAddLine.FillColor = System.Drawing.Color.White;
+            this.btnAddLine.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(234)))), ((int)(((byte)(241)))), ((int)(((byte)(253)))));
             this.btnAddLine.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(51)))), ((int)(((byte)(51)))), ((int)(((byte)(51)))));
             this.btnAddLine.HoverColor = System.Drawing.Color.FromArgb(((int)(((byte)(240)))), ((int)(((byte)(245)))), ((int)(((byte)(255)))));
             this.btnAddLine.Image = null;
-            this.btnAddLine.Location = new System.Drawing.Point(3, 3);
+            this.btnAddLine.Location = new System.Drawing.Point(3, 4);
             this.btnAddLine.Name = "btnAddLine";
             this.btnAddLine.PressedColor = System.Drawing.Color.FromArgb(((int)(((byte)(225)))), ((int)(((byte)(235)))), ((int)(((byte)(253)))));
-            this.btnAddLine.Size = new System.Drawing.Size(120, 26);
+            this.btnAddLine.Size = new System.Drawing.Size(120, 24);
             this.btnAddLine.TabIndex = 0;
             this.btnAddLine.Text = "승인자 추가";
             this.btnAddLine.ToolTip = null;
@@ -514,14 +515,14 @@ public partial class popApp
             this.btnAddRecv.BackColor = System.Drawing.Color.Transparent;
             this.btnAddRecv.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(74)))), ((int)(((byte)(134)))), ((int)(((byte)(232)))));
             this.btnAddRecv.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.btnAddRecv.FillColor = System.Drawing.Color.White;
+            this.btnAddRecv.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(234)))), ((int)(((byte)(241)))), ((int)(((byte)(253)))));
             this.btnAddRecv.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(51)))), ((int)(((byte)(51)))), ((int)(((byte)(51)))));
             this.btnAddRecv.HoverColor = System.Drawing.Color.FromArgb(((int)(((byte)(240)))), ((int)(((byte)(245)))), ((int)(((byte)(255)))));
             this.btnAddRecv.Image = null;
-            this.btnAddRecv.Location = new System.Drawing.Point(129, 3);
+            this.btnAddRecv.Location = new System.Drawing.Point(129, 4);
             this.btnAddRecv.Name = "btnAddRecv";
             this.btnAddRecv.PressedColor = System.Drawing.Color.FromArgb(((int)(((byte)(225)))), ((int)(((byte)(235)))), ((int)(((byte)(253)))));
-            this.btnAddRecv.Size = new System.Drawing.Size(120, 26);
+            this.btnAddRecv.Size = new System.Drawing.Size(120, 24);
             this.btnAddRecv.TabIndex = 1;
             this.btnAddRecv.Text = "수신자 추가";
             this.btnAddRecv.ToolTip = null;
@@ -628,11 +629,13 @@ public partial class popApp
             // colRecvAppDt
             // 
             this.colRecvAppDt.Caption = "확인일시";
+            this.colRecvAppDt.DisplayFormat.FormatString = "yyyy-MM-dd HH:mm";
+            this.colRecvAppDt.DisplayFormat.FormatType = DevExpress.Utils.FormatType.DateTime;
             this.colRecvAppDt.FieldName = "AppDt";
             this.colRecvAppDt.Name = "colRecvAppDt";
             this.colRecvAppDt.Visible = true;
             this.colRecvAppDt.VisibleIndex = 3;
-            this.colRecvAppDt.Width = 110;
+            this.colRecvAppDt.Width = 130;
             // 
             // colRecvRemark
             // 
@@ -704,11 +707,13 @@ public partial class popApp
             // colLineAppDt
             // 
             this.colLineAppDt.Caption = "처리일시";
+            this.colLineAppDt.DisplayFormat.FormatString = "yyyy-MM-dd HH:mm";
+            this.colLineAppDt.DisplayFormat.FormatType = DevExpress.Utils.FormatType.DateTime;
             this.colLineAppDt.FieldName = "AppDt";
             this.colLineAppDt.Name = "colLineAppDt";
             this.colLineAppDt.Visible = true;
             this.colLineAppDt.VisibleIndex = 3;
-            this.colLineAppDt.Width = 110;
+            this.colLineAppDt.Width = 130;
             // 
             // colLineRemark
             // 
@@ -729,10 +734,10 @@ public partial class popApp
             this.btnClose.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(51)))), ((int)(((byte)(51)))), ((int)(((byte)(51)))));
             this.btnClose.HoverColor = System.Drawing.Color.FromArgb(((int)(((byte)(240)))), ((int)(((byte)(245)))), ((int)(((byte)(255)))));
             this.btnClose.Image = null;
-            this.btnClose.Location = new System.Drawing.Point(893, 2);
+            this.btnClose.Location = new System.Drawing.Point(893, 3);
             this.btnClose.Name = "btnClose";
             this.btnClose.PressedColor = System.Drawing.Color.FromArgb(((int)(((byte)(225)))), ((int)(((byte)(235)))), ((int)(((byte)(253)))));
-            this.btnClose.Size = new System.Drawing.Size(88, 26);
+            this.btnClose.Size = new System.Drawing.Size(88, 24);
             this.btnClose.TabIndex = 0;
             this.btnClose.Text = "Close";
             this.btnClose.ToolTip = null;
@@ -848,7 +853,6 @@ public partial class popApp
             this.panelWyn6.Padding = new System.Windows.Forms.Padding(5, 0, 0, 2);
             this.panelWyn6.Size = new System.Drawing.Size(675, 27);
             this.panelWyn6.TabIndex = 11;
-            this.panelWyn6.Visible = false;
             // 
             // sectionHeaderWyn4
             // 
@@ -861,7 +865,7 @@ public partial class popApp
             this.sectionHeaderWyn4.Size = new System.Drawing.Size(670, 25);
             this.sectionHeaderWyn4.SvgIcon = ((DevExpress.Utils.Svg.SvgImage)(resources.GetObject("sectionHeaderWyn4.SvgIcon")));
             this.sectionHeaderWyn4.TabIndex = 10;
-            this.sectionHeaderWyn4.Text = "수신부";
+            this.sectionHeaderWyn4.Text = "수신경로";
             // 
             // splitterWyn2
             // 
@@ -883,7 +887,7 @@ public partial class popApp
             this.panelWyn2.EdgeLineColor = System.Drawing.Color.FromArgb(((int)(((byte)(228)))), ((int)(((byte)(229)))), ((int)(((byte)(232)))));
             this.panelWyn2.Location = new System.Drawing.Point(0, 0);
             this.panelWyn2.Name = "panelWyn2";
-            this.panelWyn2.Size = new System.Drawing.Size(675, 139);
+            this.panelWyn2.Size = new System.Drawing.Size(675, 166);
             this.panelWyn2.TabIndex = 12;
             // 
             // panelWyn5
@@ -900,7 +904,6 @@ public partial class popApp
             this.panelWyn5.Padding = new System.Windows.Forms.Padding(5, 0, 0, 2);
             this.panelWyn5.Size = new System.Drawing.Size(675, 27);
             this.panelWyn5.TabIndex = 11;
-            this.panelWyn5.Visible = false;
             // 
             // sectionHeaderWyn3
             // 
@@ -913,7 +916,7 @@ public partial class popApp
             this.sectionHeaderWyn3.Size = new System.Drawing.Size(670, 25);
             this.sectionHeaderWyn3.SvgIcon = ((DevExpress.Utils.Svg.SvgImage)(resources.GetObject("sectionHeaderWyn3.SvgIcon")));
             this.sectionHeaderWyn3.TabIndex = 10;
-            this.sectionHeaderWyn3.Text = "승인부";
+            this.sectionHeaderWyn3.Text = "결재승인경로";
             // 
             // panelWyn11
             // 
@@ -1033,7 +1036,7 @@ public partial class popApp
             this.labelControl3.Name = "labelControl3";
             this.labelControl3.Size = new System.Drawing.Size(36, 15);
             this.labelControl3.TabIndex = 4;
-            this.labelControl3.Text = "?뱀씤??";
+            this.labelControl3.Text = "승인자";
             // 
             // txtCfmEmpId
             // 
@@ -1052,12 +1055,17 @@ public partial class popApp
             this.Controls.Add(this.panelWyn10);
             this.Controls.Add(this.panelWyn13);
             this.Controls.Add(this.paTitle);
+            this.ControlBox = false;
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
             this.MaximizeBox = false;
             this.MinimizeBox = false;
             this.Name = "popApp";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
-            this.Text = "전자결재";
+            // OS 제목표시줄에 "전자결재" 텍스트를 그대로 두면 바로 아래 커스텀 헤더(sectionHeaderWyn1
+            // "전자결재승인 [frmApp]")가 사실상 같은 내용을 또 보여줘서 제목줄이 두 겹으로 겹쳐 보인다 -
+            // popPopUp.cs가 2026-09-23에 똑같은 지적("팝업이 두 번 뜨는 것처럼 보인다")을 받고 고친
+            // 것과 동일한 원인. OS 제목표시줄 자체(드래그용)는 남기되 텍스트/버튼만 비운다.
+            this.Text = string.Empty;
             ((System.ComponentModel.ISupportInitialize)(this.panHeader)).EndInit();
             this.panHeader.ResumeLayout(false);
             this.panHeader.PerformLayout();

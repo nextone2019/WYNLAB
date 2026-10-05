@@ -492,5 +492,6 @@ public class frmSiteConfig : BaseForm
     }
 
     public override Task NewClick() => Task.CompletedTask; // 회사당 1건뿐이라 "신규" 개념 없음
-    public override Task DeleteClick() => Task.CompletedTask; // 삭제 불가(단일 설정 레코드)
+    public override Task DeleteClick() => Task.CompletedTask;
+    protected override bool ConfirmDeleteByDefault => false; // 조회전용 - 삭제 기능 없음 // 삭제 불가(단일 설정 레코드)
 }

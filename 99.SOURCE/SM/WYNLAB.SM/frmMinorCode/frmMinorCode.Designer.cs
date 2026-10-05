@@ -1,4 +1,4 @@
-﻿// VS 디자이너가 자동 생성하는 필드 선언에는 = null!을 안 붙여서 nullable 경고(CS8618)가
+// VS 디자이너가 자동 생성하는 필드 선언에는 = null!을 안 붙여서 nullable 경고(CS8618)가
 // 계속 나기 때문에, 이 파일(디자이너 전용)만 nullable 검사를 끈다 - 흔한 관례.
 #nullable disable
 using DevExpress.XtraGrid;
@@ -41,10 +41,10 @@ public partial class frmMinorCode
             this.gridColumn6 = new DevExpress.XtraGrid.Columns.GridColumn();
             this.repositoryItemCheckEdit1 = new DevExpress.XtraEditors.Repository.RepositoryItemCheckEdit();
             this.gridColumn7 = new DevExpress.XtraGrid.Columns.GridColumn();
-            this.panelWyn1 = new WYNLAB.Base.Controls.PanelWyn();
             this.panelWyn7 = new WYNLAB.Base.Controls.PanelWyn();
             this.btnDeletRow2 = new WYNLAB.Base.Controls.ButtonWyn();
             this.btnAddRow2 = new WYNLAB.Base.Controls.ButtonWyn();
+            this.panelWyn1 = new WYNLAB.Base.Controls.PanelWyn();
             this.sectionHeaderWyn2 = new WYNLAB.Base.Controls.SectionHeaderWyn();
             this.panelWyn5 = new WYNLAB.Base.Controls.PanelWyn();
             this.panData = new WYNLAB.Base.Controls.PanelWyn();
@@ -117,10 +117,10 @@ public partial class frmMinorCode
             ((System.ComponentModel.ISupportInitialize)(this.grd2)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.gvw2)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.repositoryItemCheckEdit1)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.panelWyn1)).BeginInit();
-            this.panelWyn1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.panelWyn7)).BeginInit();
             this.panelWyn7.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.panelWyn1)).BeginInit();
+            this.panelWyn1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.panelWyn5)).BeginInit();
             this.panelWyn5.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.panData)).BeginInit();
@@ -189,6 +189,8 @@ public partial class frmMinorCode
             // 
             // panelWyn3
             // 
+            this.panelWyn3.Appearance.BackColor = System.Drawing.Color.White;
+            this.panelWyn3.Appearance.Options.UseBackColor = true;
             this.panelWyn3.Controls.Add(this.panelWyn4);
             this.panelWyn3.Controls.Add(this.splitterWyn1);
             this.panelWyn3.Controls.Add(this.panelWyn8);
@@ -201,6 +203,8 @@ public partial class frmMinorCode
             // 
             // panelWyn4
             // 
+            this.panelWyn4.Appearance.BackColor = System.Drawing.Color.White;
+            this.panelWyn4.Appearance.Options.UseBackColor = true;
             this.panelWyn4.Controls.Add(this.grd2);
             this.panelWyn4.Controls.Add(this.panelWyn7);
             this.panelWyn4.Controls.Add(this.panelWyn1);
@@ -221,12 +225,12 @@ public partial class frmMinorCode
             this.grd2.EmbeddedNavigator.Buttons.Edit.Visible = false;
             this.grd2.EmbeddedNavigator.Buttons.EndEdit.Visible = false;
             this.grd2.EmbeddedNavigator.Buttons.Remove.Visible = false;
-            this.grd2.Location = new System.Drawing.Point(3, 245);
+            this.grd2.Location = new System.Drawing.Point(3, 275);
             this.grd2.MainView = this.gvw2;
             this.grd2.Name = "grd2";
             this.grd2.RepositoryItems.AddRange(new DevExpress.XtraEditors.Repository.RepositoryItem[] {
             this.repositoryItemCheckEdit1});
-            this.grd2.Size = new System.Drawing.Size(744, 281);
+            this.grd2.Size = new System.Drawing.Size(744, 251);
             this.grd2.TabIndex = 7;
             this.grd2.ViewCollection.AddRange(new DevExpress.XtraGrid.Views.Base.BaseView[] {
             this.gvw2});
@@ -302,8 +306,60 @@ public partial class frmMinorCode
             this.gridColumn7.VisibleIndex = 4;
             this.gridColumn7.Width = 293;
             // 
+            // panelWyn7
+            // 
+            this.panelWyn7.Appearance.BackColor = System.Drawing.Color.White;
+            this.panelWyn7.Appearance.Options.UseBackColor = true;
+            this.panelWyn7.Controls.Add(this.btnDeletRow2);
+            this.panelWyn7.Controls.Add(this.btnAddRow2);
+            this.panelWyn7.Dock = System.Windows.Forms.DockStyle.Top;
+            this.panelWyn7.EdgeLineColor = System.Drawing.Color.FromArgb(((int)(((byte)(228)))), ((int)(((byte)(229)))), ((int)(((byte)(232)))));
+            this.panelWyn7.Location = new System.Drawing.Point(3, 245);
+            this.panelWyn7.Name = "panelWyn7";
+            this.panelWyn7.Padding = new System.Windows.Forms.Padding(5, 3, 0, 2);
+            this.panelWyn7.Size = new System.Drawing.Size(744, 30);
+            this.panelWyn7.TabIndex = 9;
+            // 
+            // btnDeletRow2
+            // 
+            this.btnDeletRow2.BackColor = System.Drawing.Color.Transparent;
+            this.btnDeletRow2.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(245)))), ((int)(((byte)(198)))), ((int)(((byte)(193)))));
+            this.btnDeletRow2.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.btnDeletRow2.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(253)))), ((int)(((byte)(236)))), ((int)(((byte)(234)))));
+            this.btnDeletRow2.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(51)))), ((int)(((byte)(51)))), ((int)(((byte)(51)))));
+            this.btnDeletRow2.HoverColor = System.Drawing.Color.FromArgb(((int)(((byte)(240)))), ((int)(((byte)(245)))), ((int)(((byte)(255)))));
+            this.btnDeletRow2.Image = null;
+            this.btnDeletRow2.Location = new System.Drawing.Point(70, 2);
+            this.btnDeletRow2.Name = "btnDeletRow2";
+            this.btnDeletRow2.PressedColor = System.Drawing.Color.FromArgb(((int)(((byte)(225)))), ((int)(((byte)(235)))), ((int)(((byte)(253)))));
+            this.btnDeletRow2.Size = new System.Drawing.Size(60, 24);
+            this.btnDeletRow2.TabIndex = 0;
+            this.btnDeletRow2.Text = "행삭제";
+            this.btnDeletRow2.ToolTip = "행삭제";
+            this.btnDeletRow2.Click += new System.EventHandler(this.btnDeletRow2_Click);
+            // 
+            // btnAddRow2
+            // 
+            this.btnAddRow2.BackColor = System.Drawing.Color.Transparent;
+            this.btnAddRow2.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(198)))), ((int)(((byte)(231)))), ((int)(((byte)(203)))));
+            this.btnAddRow2.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.btnAddRow2.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(228)))), ((int)(((byte)(245)))), ((int)(((byte)(231)))));
+            this.btnAddRow2.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(51)))), ((int)(((byte)(51)))), ((int)(((byte)(51)))));
+            this.btnAddRow2.HoverColor = System.Drawing.Color.FromArgb(((int)(((byte)(240)))), ((int)(((byte)(245)))), ((int)(((byte)(255)))));
+            this.btnAddRow2.Image = null;
+            this.btnAddRow2.Location = new System.Drawing.Point(6, 2);
+            this.btnAddRow2.Name = "btnAddRow2";
+            this.btnAddRow2.PressedColor = System.Drawing.Color.FromArgb(((int)(((byte)(225)))), ((int)(((byte)(235)))), ((int)(((byte)(253)))));
+            this.btnAddRow2.Size = new System.Drawing.Size(60, 24);
+            this.btnAddRow2.TabIndex = 0;
+            this.btnAddRow2.Text = "행추가";
+            this.btnAddRow2.ToolTip = "행추가";
+            this.btnAddRow2.Click += new System.EventHandler(this.btnAddRow2_Click);
+            // 
             // panelWyn1
             // 
+            this.panelWyn1.Appearance.BackColor = System.Drawing.Color.White;
+            this.panelWyn1.Appearance.Options.UseBackColor = true;
             this.panelWyn1.Controls.Add(this.sectionHeaderWyn2);
             this.panelWyn1.Dock = System.Windows.Forms.DockStyle.Top;
             this.panelWyn1.EdgeLineColor = System.Drawing.Color.FromArgb(((int)(((byte)(228)))), ((int)(((byte)(229)))), ((int)(((byte)(232)))));
@@ -312,58 +368,6 @@ public partial class frmMinorCode
             this.panelWyn1.Padding = new System.Windows.Forms.Padding(5, 0, 0, 2);
             this.panelWyn1.Size = new System.Drawing.Size(744, 27);
             this.panelWyn1.TabIndex = 8;
-            // 
-            // panelWyn7
-            // 
-            this.panelWyn7.Controls.Add(this.btnDeletRow2);
-            this.panelWyn7.Controls.Add(this.btnAddRow2);
-            this.panelWyn7.Appearance.BackColor = System.Drawing.Color.White;
-            this.panelWyn7.Appearance.Options.UseBackColor = true;
-            this.panelWyn7.Dock = System.Windows.Forms.DockStyle.Top;
-            this.panelWyn7.EdgeLineColor = System.Drawing.Color.FromArgb(((int)(((byte)(228)))), ((int)(((byte)(229)))), ((int)(((byte)(232)))));
-            this.panelWyn7.Location = new System.Drawing.Point(676, 0);
-            this.panelWyn7.Name = "panelWyn7";
-            this.panelWyn7.Padding = new System.Windows.Forms.Padding(5, 3, 0, 2);
-            this.panelWyn7.Size = new System.Drawing.Size(68, 30);
-            this.panelWyn7.TabIndex = 9;
-            // 
-            // btnDeletRow2
-            // 
-            this.btnDeletRow2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)));
-            this.btnDeletRow2.BackColor = System.Drawing.Color.Transparent;
-            this.btnDeletRow2.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(245)))), ((int)(((byte)(198)))), ((int)(((byte)(193)))));
-            this.btnDeletRow2.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.btnDeletRow2.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(253)))), ((int)(((byte)(236)))), ((int)(((byte)(234)))));
-            this.btnDeletRow2.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(51)))), ((int)(((byte)(51)))), ((int)(((byte)(51)))));
-            this.btnDeletRow2.HoverColor = System.Drawing.Color.FromArgb(((int)(((byte)(240)))), ((int)(((byte)(245)))), ((int)(((byte)(255)))));
-            this.btnDeletRow2.Image = ((System.Drawing.Image)(resources.GetObject("btnDeletRow2.Image")));
-            this.btnDeletRow2.Location = new System.Drawing.Point(68, 4);
-            this.btnDeletRow2.Name = "btnDeletRow2";
-            this.btnDeletRow2.PressedColor = System.Drawing.Color.FromArgb(((int)(((byte)(225)))), ((int)(((byte)(235)))), ((int)(((byte)(253)))));
-            this.btnDeletRow2.Size = new System.Drawing.Size(58, 22);
-            this.btnDeletRow2.TabIndex = 0;
-            this.btnDeletRow2.Text = "행삭제";
-            this.btnDeletRow2.ToolTip = "행삭제";
-            this.btnDeletRow2.Click += new System.EventHandler(this.btnDeletRow2_Click);
-            // 
-            // btnAddRow2
-            // 
-            this.btnAddRow2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)));
-            this.btnAddRow2.BackColor = System.Drawing.Color.Transparent;
-            this.btnAddRow2.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(198)))), ((int)(((byte)(231)))), ((int)(((byte)(203)))));
-            this.btnAddRow2.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.btnAddRow2.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(228)))), ((int)(((byte)(245)))), ((int)(((byte)(231)))));
-            this.btnAddRow2.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(51)))), ((int)(((byte)(51)))), ((int)(((byte)(51)))));
-            this.btnAddRow2.HoverColor = System.Drawing.Color.FromArgb(((int)(((byte)(240)))), ((int)(((byte)(245)))), ((int)(((byte)(255)))));
-            this.btnAddRow2.Image = ((System.Drawing.Image)(resources.GetObject("btnAddRow2.Image")));
-            this.btnAddRow2.Location = new System.Drawing.Point(6, 4);
-            this.btnAddRow2.Name = "btnAddRow2";
-            this.btnAddRow2.PressedColor = System.Drawing.Color.FromArgb(((int)(((byte)(225)))), ((int)(((byte)(235)))), ((int)(((byte)(253)))));
-            this.btnAddRow2.Size = new System.Drawing.Size(58, 22);
-            this.btnAddRow2.TabIndex = 0;
-            this.btnAddRow2.Text = "행추가";
-            this.btnAddRow2.ToolTip = "행추가";
-            this.btnAddRow2.Click += new System.EventHandler(this.btnAddRow2_Click);
             // 
             // sectionHeaderWyn2
             // 
@@ -380,6 +384,8 @@ public partial class frmMinorCode
             // 
             // panelWyn5
             // 
+            this.panelWyn5.Appearance.BackColor = System.Drawing.Color.White;
+            this.panelWyn5.Appearance.Options.UseBackColor = true;
             this.panelWyn5.Controls.Add(this.panData);
             this.panelWyn5.Controls.Add(this.panelWyn6);
             this.panelWyn5.Dock = System.Windows.Forms.DockStyle.Top;
@@ -391,6 +397,8 @@ public partial class frmMinorCode
             // 
             // panData
             // 
+            this.panData.Appearance.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(240)))), ((int)(((byte)(240)))), ((int)(((byte)(240)))));
+            this.panData.Appearance.Options.UseBackColor = true;
             this.panData.BorderStyle = DevExpress.XtraEditors.Controls.BorderStyles.Default;
             this.panData.Controls.Add(this.btnLookUp);
             this.panData.Controls.Add(this.cborel_cd_type10);
@@ -449,14 +457,14 @@ public partial class frmMinorCode
             this.btnLookUp.BackColor = System.Drawing.Color.Transparent;
             this.btnLookUp.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(74)))), ((int)(((byte)(134)))), ((int)(((byte)(232)))));
             this.btnLookUp.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.btnLookUp.FillColor = System.Drawing.Color.White;
+            this.btnLookUp.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(234)))), ((int)(((byte)(241)))), ((int)(((byte)(253)))));
             this.btnLookUp.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(51)))), ((int)(((byte)(51)))), ((int)(((byte)(51)))));
             this.btnLookUp.HoverColor = System.Drawing.Color.FromArgb(((int)(((byte)(240)))), ((int)(((byte)(245)))), ((int)(((byte)(255)))));
             this.btnLookUp.Image = null;
-            this.btnLookUp.Location = new System.Drawing.Point(524, 13);
+            this.btnLookUp.Location = new System.Drawing.Point(524, 15);
             this.btnLookUp.Name = "btnLookUp";
             this.btnLookUp.PressedColor = System.Drawing.Color.FromArgb(((int)(((byte)(225)))), ((int)(((byte)(235)))), ((int)(((byte)(253)))));
-            this.btnLookUp.Size = new System.Drawing.Size(116, 28);
+            this.btnLookUp.Size = new System.Drawing.Size(116, 24);
             this.btnLookUp.TabIndex = 32;
             this.btnLookUp.Text = "LookUp생성";
             this.btnLookUp.ToolTip = null;
@@ -858,6 +866,8 @@ public partial class frmMinorCode
             // 
             // panelWyn6
             // 
+            this.panelWyn6.Appearance.BackColor = System.Drawing.Color.White;
+            this.panelWyn6.Appearance.Options.UseBackColor = true;
             this.panelWyn6.Controls.Add(this.sectionHeaderWyn3);
             this.panelWyn6.Dock = System.Windows.Forms.DockStyle.Top;
             this.panelWyn6.EdgeLineColor = System.Drawing.Color.FromArgb(((int)(((byte)(228)))), ((int)(((byte)(229)))), ((int)(((byte)(232)))));
@@ -892,6 +902,8 @@ public partial class frmMinorCode
             // 
             // panelWyn8
             // 
+            this.panelWyn8.Appearance.BackColor = System.Drawing.Color.White;
+            this.panelWyn8.Appearance.Options.UseBackColor = true;
             this.panelWyn8.Controls.Add(this.grd1);
             this.panelWyn8.Controls.Add(this.panelWyn2);
             this.panelWyn8.Dock = System.Windows.Forms.DockStyle.Left;
@@ -953,6 +965,8 @@ public partial class frmMinorCode
             // 
             // panelWyn2
             // 
+            this.panelWyn2.Appearance.BackColor = System.Drawing.Color.White;
+            this.panelWyn2.Appearance.Options.UseBackColor = true;
             this.panelWyn2.Controls.Add(this.sectionHeaderWyn4);
             this.panelWyn2.Dock = System.Windows.Forms.DockStyle.Top;
             this.panelWyn2.EdgeLineColor = System.Drawing.Color.FromArgb(((int)(((byte)(228)))), ((int)(((byte)(229)))), ((int)(((byte)(232)))));
@@ -1009,6 +1023,8 @@ public partial class frmMinorCode
             // 
             // paTitle
             // 
+            this.paTitle.Appearance.BackColor = System.Drawing.Color.White;
+            this.paTitle.Appearance.Options.UseBackColor = true;
             this.paTitle.Controls.Add(this.sectionHeaderWyn1);
             this.paTitle.Dock = System.Windows.Forms.DockStyle.Top;
             this.paTitle.EdgeLineColor = System.Drawing.Color.FromArgb(((int)(((byte)(228)))), ((int)(((byte)(229)))), ((int)(((byte)(232)))));
@@ -1045,10 +1061,10 @@ public partial class frmMinorCode
             ((System.ComponentModel.ISupportInitialize)(this.grd2)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.gvw2)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.repositoryItemCheckEdit1)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.panelWyn1)).EndInit();
-            this.panelWyn1.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.panelWyn7)).EndInit();
             this.panelWyn7.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.panelWyn1)).EndInit();
+            this.panelWyn1.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.panelWyn5)).EndInit();
             this.panelWyn5.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.panData)).EndInit();

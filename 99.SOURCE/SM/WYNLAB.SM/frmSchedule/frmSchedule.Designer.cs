@@ -223,9 +223,9 @@ public partial class frmSchedule
         this.panColorSwatches.Size = new System.Drawing.Size(340, 24);
         this.panData.Controls.Add(this.lblDetailColor);
         this.panData.Controls.Add(this.panColorSwatches);
-        this.btnDetailClose.Location = new System.Drawing.Point(400, 2);
+        this.btnDetailClose.Location = new System.Drawing.Point(400, 1);
         this.btnDetailClose.Name = "btnDetailClose";
-        this.btnDetailClose.Size = new System.Drawing.Size(56, 22);
+        this.btnDetailClose.Size = new System.Drawing.Size(56, 24);
         this.btnDetailClose.Text = "닫기";
         this.btnDetailClose.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
         this.lblDetailContent.Appearance.Font = new System.Drawing.Font("맑은 고딕", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(129)));

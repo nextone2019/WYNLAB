@@ -1,5 +1,5 @@
-﻿// VS ?붿옄?대꼫媛 ?먮룞 ?앹꽦?섎뒗 ?꾨뱶 ?좎뼵?먮뒗 = null!????遺숈뿬??nullable 寃쎄퀬(CS8618)媛
-// 怨꾩냽 ?섍린 ?뚮Ц?? ???뚯씪(?붿옄?대꼫 ?꾩슜)留?nullable 寃?щ? ?덈떎 - ?뷀븳 愿濡.
+// VS 디자이너가 자동 생성하는 필드 선언에는 = null!을 안 붙여서 nullable 경고(CS8618)가
+// 계속 나기 때문에, 이 파일(디자이너 전용)만 nullable 검사를 끈다 - 흔한 관례.
 #nullable disable
 using DevExpress.XtraGrid;
 using WYNLAB.Base.Controls;
@@ -7,10 +7,10 @@ using WYNLAB.Base.Controls;
 namespace WYNLAB.BA;
 
 /// <summary>
-/// ?ъ뾽?λ벑濡??붾㈃ - TEMPLATE(frmMinorCode ?쒖? ?덉씠?꾩썐)?먯꽌 ?섏쐞紐⑸줉(grd2) ?놁씠 grd1(紐⑸줉) +
-/// panData(?곸꽭 ?깅줉)留??④릿 踰꾩쟾. ?먯꽭??而щ읆?뺤쓽???섏쨷??異붽? ?덉젙?대씪 吏湲덉? ?ъ뾽?μ퐫??
-/// ?ъ뾽?λ챸 2媛??꾨뱶留?諛곗튂?쒕떎 - ?꾨뱶瑜????섎┫ ?뚮뒗 panData???쇰꺼+?낅젰而⑦듃濡??띿쓣 洹몃?濡?
-/// ?댁뼱 遺숈씠硫??쒕떎(?ㅼ쓬 Y醫뚰몴??湲곗〈 ?꾨뱶蹂대떎 30留뚰겮 ?꾨옒).
+/// 사업장등록 화면 - TEMPLATE(frmMinorCode 표준 레이아웃)에서 하위목록(grd2) 없이 grd1(목록) +
+/// panData(상세 등록)만 남긴 버전. 자세한 컬럼정의는 나중에 추가 예정이라 지금은 사업장코드/
+/// 사업장명 2개 필드만 배치한다 - 필드를 더 늘릴 때는 panData에 라벨+입력컨트롤 쌍을 그대로
+/// 이어 붙이면 된다(다음 Y좌표는 기존 필드보다 30만큼 아래).
 /// </summary>
 public partial class frmAcc
 {
@@ -292,7 +292,7 @@ public partial class frmAcc
             // 
             // gridColumn6
             // 
-            this.gridColumn6.Caption = "鍮꾧퀬";
+            this.gridColumn6.Caption = "비고";
             this.gridColumn6.FieldName = "Remark";
             this.gridColumn6.Name = "gridColumn6";
             this.gridColumn6.Visible = true;
@@ -317,14 +317,14 @@ public partial class frmAcc
             this.btnFileAttach.BackColor = System.Drawing.Color.Transparent;
             this.btnFileAttach.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(74)))), ((int)(((byte)(134)))), ((int)(((byte)(232)))));
             this.btnFileAttach.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.btnFileAttach.FillColor = System.Drawing.Color.White;
+            this.btnFileAttach.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(234)))), ((int)(((byte)(241)))), ((int)(((byte)(253)))));
             this.btnFileAttach.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(51)))), ((int)(((byte)(51)))), ((int)(((byte)(51)))));
             this.btnFileAttach.HoverColor = System.Drawing.Color.FromArgb(((int)(((byte)(240)))), ((int)(((byte)(245)))), ((int)(((byte)(255)))));
             this.btnFileAttach.Image = null;
-            this.btnFileAttach.Location = new System.Drawing.Point(5, 2);
+            this.btnFileAttach.Location = new System.Drawing.Point(5, 3);
             this.btnFileAttach.Name = "btnFileAttach";
             this.btnFileAttach.PressedColor = System.Drawing.Color.FromArgb(((int)(((byte)(225)))), ((int)(((byte)(235)))), ((int)(((byte)(253)))));
-            this.btnFileAttach.Size = new System.Drawing.Size(95, 26);
+            this.btnFileAttach.Size = new System.Drawing.Size(95, 24);
             this.btnFileAttach.TabIndex = 0;
             this.btnFileAttach.Text = "FILE첨부";
             this.btnFileAttach.ToolTip = null;
@@ -601,7 +601,7 @@ public partial class frmAcc
             this.labelControl4.Name = "labelControl4";
             this.labelControl4.Size = new System.Drawing.Size(31, 15);
             this.labelControl4.TabIndex = 2;
-            this.labelControl4.Text = "二쇱냼2";
+            this.labelControl4.Text = "주소2";
             // 
             // labelControl12
             // 
@@ -621,7 +621,7 @@ public partial class frmAcc
             this.labelControl3.Name = "labelControl3";
             this.labelControl3.Size = new System.Drawing.Size(31, 15);
             this.labelControl3.TabIndex = 2;
-            this.labelControl3.Text = "二쇱냼1";
+            this.labelControl3.Text = "주소1";
             // 
             // labelControl2
             // 

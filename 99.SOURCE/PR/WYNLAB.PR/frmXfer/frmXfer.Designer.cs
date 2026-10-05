@@ -73,6 +73,8 @@ public partial class frmXfer
         this.btnInCancel = new WYNLAB.Base.Controls.ButtonWyn();
         this.shHeader = new WYNLAB.Base.Controls.SectionHeaderWyn();
         this.panHeader = new WYNLAB.Base.Controls.PanelWyn();
+        this.lblSearchAccId = new DevExpress.XtraEditors.LabelControl();
+        this.cboSearchAccId = new WYNLAB.Base.Controls.LookUpEditWyn();
         this.lblSearchXferNo = new DevExpress.XtraEditors.LabelControl();
         this.txtSearchXferNo = new WYNLAB.Base.Controls.TextEditWyn();
         ((System.ComponentModel.ISupportInitialize)(this.panBase)).BeginInit();
@@ -105,6 +107,7 @@ public partial class frmXfer
         ((System.ComponentModel.ISupportInitialize)(this.panHeader)).BeginInit();
         this.panHeader.SuspendLayout();
         ((System.ComponentModel.ISupportInitialize)(this.txtSearchXferNo.Properties)).BeginInit();
+        ((System.ComponentModel.ISupportInitialize)(this.cboSearchAccId.Properties)).BeginInit();
         this.SuspendLayout();
         //
         // panBase
@@ -478,6 +481,7 @@ public partial class frmXfer
         // btnDiff
         //
         this.btnDiff.Cursor = System.Windows.Forms.Cursors.Hand;
+        this.btnDiff.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(234)))), ((int)(((byte)(241)))), ((int)(((byte)(253)))));
         this.btnDiff.Location = new System.Drawing.Point(88, 3);
         this.btnDiff.Name = "btnDiff";
         this.btnDiff.Size = new System.Drawing.Size(120, 24);
@@ -488,6 +492,7 @@ public partial class frmXfer
         // btnDiffCancel
         //
         this.btnDiffCancel.Cursor = System.Windows.Forms.Cursors.Hand;
+        this.btnDiffCancel.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(234)))), ((int)(((byte)(241)))), ((int)(((byte)(253)))));
         this.btnDiffCancel.Location = new System.Drawing.Point(214, 3);
         this.btnDiffCancel.Name = "btnDiffCancel";
         this.btnDiffCancel.Size = new System.Drawing.Size(120, 24);
@@ -678,6 +683,8 @@ public partial class frmXfer
         this.panHeader.Appearance.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(241)))), ((int)(((byte)(245)))), ((int)(((byte)(249)))));
         this.panHeader.Appearance.Options.UseBackColor = true;
         this.panHeader.BorderStyle = DevExpress.XtraEditors.Controls.BorderStyles.NoBorder;
+        this.panHeader.Controls.Add(this.lblSearchAccId);
+        this.panHeader.Controls.Add(this.cboSearchAccId);
         this.panHeader.Controls.Add(this.lblSearchXferNo);
         this.panHeader.Controls.Add(this.txtSearchXferNo);
         this.panHeader.Dock = System.Windows.Forms.DockStyle.Top;
@@ -685,10 +692,37 @@ public partial class frmXfer
         this.panHeader.Name = "panHeader";
         this.panHeader.Size = new System.Drawing.Size(1670, 49);
         this.panHeader.TabIndex = 0;
+        // 
+        // lblSearchAccId (조회조건 첫 번째 - 사업장 표준, 2026-10-03)
+        // 
+        this.lblSearchAccId.Appearance.Font = new System.Drawing.Font("맑은 고딕", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
+        this.lblSearchAccId.Appearance.Options.UseFont = true;
+        this.lblSearchAccId.Location = new System.Drawing.Point(25, 18);
+        this.lblSearchAccId.Name = "lblSearchAccId";
+        this.lblSearchAccId.Size = new System.Drawing.Size(36, 15);
+        this.lblSearchAccId.TabIndex = 0;
+        this.lblSearchAccId.Text = "사업장";
+        // 
+        // cboSearchAccId (사업장 LookUp, Required - 기본값은 화면 생성자에서 로그인 사업장)
+        // 
+        this.cboSearchAccId.EditValue = "";
+        this.cboSearchAccId.Location = new System.Drawing.Point(69, 15);
+        this.cboSearchAccId.LookupKey = "L_ACC";
+        this.cboSearchAccId.Name = "cboSearchAccId";
+        this.cboSearchAccId.Properties.Appearance.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(249)))), ((int)(((byte)(219)))));
+        this.cboSearchAccId.Properties.Appearance.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))));
+        this.cboSearchAccId.Properties.Appearance.Options.UseBackColor = true;
+        this.cboSearchAccId.Properties.Appearance.Options.UseForeColor = true;
+        this.cboSearchAccId.Properties.Buttons.AddRange(new DevExpress.XtraEditors.Controls.EditorButton[] {
+        new DevExpress.XtraEditors.Controls.EditorButton(DevExpress.XtraEditors.Controls.ButtonPredefines.Combo)});
+        this.cboSearchAccId.Properties.NullText = "";
+        this.cboSearchAccId.Required = true;
+        this.cboSearchAccId.Size = new System.Drawing.Size(131, 20);
+        this.cboSearchAccId.TabIndex = 1;
         //
         // lblSearchXferNo
         //
-        this.lblSearchXferNo.Location = new System.Drawing.Point(25, 18);
+        this.lblSearchXferNo.Location = new System.Drawing.Point(224, 18);
         this.lblSearchXferNo.Name = "lblSearchXferNo";
         this.lblSearchXferNo.Size = new System.Drawing.Size(48, 15);
         this.lblSearchXferNo.TabIndex = 0;
@@ -696,7 +730,7 @@ public partial class frmXfer
         //
         // txtSearchXferNo
         //
-        this.txtSearchXferNo.Location = new System.Drawing.Point(90, 15);
+        this.txtSearchXferNo.Location = new System.Drawing.Point(289, 15);
         this.txtSearchXferNo.Name = "txtSearchXferNo";
         this.txtSearchXferNo.Size = new System.Drawing.Size(180, 20);
         this.txtSearchXferNo.TabIndex = 1;
@@ -739,6 +773,7 @@ public partial class frmXfer
         this.panHeader.ResumeLayout(false);
         this.panHeader.PerformLayout();
         ((System.ComponentModel.ISupportInitialize)(this.txtSearchXferNo.Properties)).EndInit();
+        ((System.ComponentModel.ISupportInitialize)(this.cboSearchAccId.Properties)).EndInit();
         this.ResumeLayout(false);
     }
 
@@ -800,4 +835,6 @@ public partial class frmXfer
     private PanelWyn panHeader;
     private DevExpress.XtraEditors.LabelControl lblSearchXferNo;
     private TextEditWyn txtSearchXferNo;
+    private DevExpress.XtraEditors.LabelControl lblSearchAccId;
+    private WYNLAB.Base.Controls.LookUpEditWyn cboSearchAccId;
 }

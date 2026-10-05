@@ -84,6 +84,13 @@ public partial class frmCust
             this.sectionHeaderWyn2 = new WYNLAB.Base.Controls.SectionHeaderWyn();
             this.panelWyn5 = new WYNLAB.Base.Controls.PanelWyn();
             this.panData = new WYNLAB.Base.Controls.PanelWyn();
+            this.groupBoxWyn1 = new WYNLAB.Base.Controls.GroupBoxWyn();
+            this.grd4 = new WYNLAB.Base.Controls.GridControlWyn();
+            this.gvw4 = new WYNLAB.Base.Controls.GridViewWyn();
+            this.colClassIsMember = new DevExpress.XtraGrid.Columns.GridColumn();
+            this.repositoryItemCheckEdit1 = new DevExpress.XtraEditors.Repository.RepositoryItemCheckEdit();
+            this.colClassCd = new DevExpress.XtraGrid.Columns.GridColumn();
+            this.colClassNm = new DevExpress.XtraGrid.Columns.GridColumn();
             this.ymdDetailTransOpenDate = new WYNLAB.Base.Controls.DateEditWyn();
             this.cboDetailVatType = new WYNLAB.Base.Controls.LookUpEditWyn();
             this.memoEditWyn1 = new WYNLAB.Base.Controls.MemoEditWyn();
@@ -168,6 +175,10 @@ public partial class frmCust
             this.panelWyn5.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.panData)).BeginInit();
             this.panData.SuspendLayout();
+            this.groupBoxWyn1.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.grd4)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.gvw4)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.repositoryItemCheckEdit1)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.ymdDetailTransOpenDate.Properties.CalendarTimeProperties)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.ymdDetailTransOpenDate.Properties)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.cboDetailVatType.Properties)).BeginInit();
@@ -204,7 +215,6 @@ public partial class frmCust
             this.panBase.Appearance.Options.UseBackColor = true;
             this.panBase.Controls.Add(this.panelWyn3);
             this.panBase.Controls.Add(this.panHeader);
-            this.panBase.Controls.Add(this.paTitle);
             this.panBase.Dock = System.Windows.Forms.DockStyle.Fill;
             this.panBase.EdgeLineColor = System.Drawing.Color.FromArgb(((int)(((byte)(228)))), ((int)(((byte)(229)))), ((int)(((byte)(232)))));
             this.panBase.Location = new System.Drawing.Point(0, 0);
@@ -222,9 +232,9 @@ public partial class frmCust
             this.panelWyn3.Controls.Add(this.panelWyn4);
             this.panelWyn3.Dock = System.Windows.Forms.DockStyle.Fill;
             this.panelWyn3.EdgeLineColor = System.Drawing.Color.FromArgb(((int)(((byte)(228)))), ((int)(((byte)(229)))), ((int)(((byte)(232)))));
-            this.panelWyn3.Location = new System.Drawing.Point(5, 82);
+            this.panelWyn3.Location = new System.Drawing.Point(5, 49);
             this.panelWyn3.Name = "panelWyn3";
-            this.panelWyn3.Size = new System.Drawing.Size(1235, 746);
+            this.panelWyn3.Size = new System.Drawing.Size(1235, 779);
             this.panelWyn3.TabIndex = 7;
             // 
             // panelWyn8
@@ -237,7 +247,7 @@ public partial class frmCust
             this.panelWyn8.EdgeLineColor = System.Drawing.Color.FromArgb(((int)(((byte)(228)))), ((int)(((byte)(229)))), ((int)(((byte)(232)))));
             this.panelWyn8.Location = new System.Drawing.Point(0, 0);
             this.panelWyn8.Name = "panelWyn8";
-            this.panelWyn8.Size = new System.Drawing.Size(579, 746);
+            this.panelWyn8.Size = new System.Drawing.Size(304, 779);
             this.panelWyn8.TabIndex = 12;
             // 
             // grd1
@@ -251,7 +261,7 @@ public partial class frmCust
             this.grd1.Location = new System.Drawing.Point(0, 27);
             this.grd1.MainView = this.gvw1;
             this.grd1.Name = "grd1";
-            this.grd1.Size = new System.Drawing.Size(579, 719);
+            this.grd1.Size = new System.Drawing.Size(304, 752);
             this.grd1.TabIndex = 10;
             this.grd1.ViewCollection.AddRange(new DevExpress.XtraGrid.Views.Base.BaseView[] {
             this.gvw1});
@@ -468,7 +478,7 @@ public partial class frmCust
             this.panelWyn2.Location = new System.Drawing.Point(0, 0);
             this.panelWyn2.Name = "panelWyn2";
             this.panelWyn2.Padding = new System.Windows.Forms.Padding(5, 0, 0, 2);
-            this.panelWyn2.Size = new System.Drawing.Size(579, 27);
+            this.panelWyn2.Size = new System.Drawing.Size(304, 27);
             this.panelWyn2.TabIndex = 11;
             // 
             // sectionHeaderWyn4
@@ -479,7 +489,7 @@ public partial class frmCust
             this.sectionHeaderWyn4.Icon = WYNLAB.Base.Controls.SectionHeaderIcon.Folder;
             this.sectionHeaderWyn4.Location = new System.Drawing.Point(5, 0);
             this.sectionHeaderWyn4.Name = "sectionHeaderWyn4";
-            this.sectionHeaderWyn4.Size = new System.Drawing.Size(574, 25);
+            this.sectionHeaderWyn4.Size = new System.Drawing.Size(299, 25);
             this.sectionHeaderWyn4.SvgIcon = ((DevExpress.Utils.Svg.SvgImage)(resources.GetObject("sectionHeaderWyn4.SvgIcon")));
             this.sectionHeaderWyn4.TabIndex = 9;
             this.sectionHeaderWyn4.Text = "거래처LIST";
@@ -488,9 +498,9 @@ public partial class frmCust
             // 
             this.splitterWyn1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(255)))), ((int)(((byte)(255)))));
             this.splitterWyn1.Dock = System.Windows.Forms.DockStyle.Right;
-            this.splitterWyn1.Location = new System.Drawing.Point(579, 0);
+            this.splitterWyn1.Location = new System.Drawing.Point(304, 0);
             this.splitterWyn1.Name = "splitterWyn1";
-            this.splitterWyn1.Size = new System.Drawing.Size(10, 746);
+            this.splitterWyn1.Size = new System.Drawing.Size(10, 779);
             this.splitterWyn1.TabIndex = 9;
             this.splitterWyn1.TabStop = false;
             // 
@@ -503,19 +513,19 @@ public partial class frmCust
             this.panelWyn4.Controls.Add(this.panelWyn5);
             this.panelWyn4.Dock = System.Windows.Forms.DockStyle.Right;
             this.panelWyn4.EdgeLineColor = System.Drawing.Color.FromArgb(((int)(((byte)(228)))), ((int)(((byte)(229)))), ((int)(((byte)(232)))));
-            this.panelWyn4.Location = new System.Drawing.Point(589, 0);
+            this.panelWyn4.Location = new System.Drawing.Point(314, 0);
             this.panelWyn4.Name = "panelWyn4";
             this.panelWyn4.Padding = new System.Windows.Forms.Padding(3, 0, 0, 0);
-            this.panelWyn4.Size = new System.Drawing.Size(646, 746);
+            this.panelWyn4.Size = new System.Drawing.Size(921, 779);
             this.panelWyn4.TabIndex = 7;
             // 
             // tabDetailGrids
             // 
             this.tabDetailGrids.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.tabDetailGrids.Location = new System.Drawing.Point(3, 503);
+            this.tabDetailGrids.Location = new System.Drawing.Point(3, 458);
             this.tabDetailGrids.Name = "tabDetailGrids";
             this.tabDetailGrids.SelectedTabPage = this.tabDetail1;
-            this.tabDetailGrids.Size = new System.Drawing.Size(643, 243);
+            this.tabDetailGrids.Size = new System.Drawing.Size(918, 321);
             this.tabDetailGrids.TabIndex = 7;
             this.tabDetailGrids.TabPages.AddRange(new DevExpress.XtraTab.XtraTabPage[] {
             this.tabDetail1,
@@ -527,7 +537,7 @@ public partial class frmCust
             this.tabDetail1.Controls.Add(this.grd2);
             this.tabDetail1.Controls.Add(this.panelWyn7);
             this.tabDetail1.Name = "tabDetail1";
-            this.tabDetail1.Size = new System.Drawing.Size(641, 217);
+            this.tabDetail1.Size = new System.Drawing.Size(916, 295);
             this.tabDetail1.Text = "거래처별 담당자    ";
             // 
             // grd2
@@ -541,7 +551,7 @@ public partial class frmCust
             this.grd2.Location = new System.Drawing.Point(0, 30);
             this.grd2.MainView = this.gvw2;
             this.grd2.Name = "grd2";
-            this.grd2.Size = new System.Drawing.Size(641, 187);
+            this.grd2.Size = new System.Drawing.Size(916, 265);
             this.grd2.TabIndex = 0;
             this.grd2.ViewCollection.AddRange(new DevExpress.XtraGrid.Views.Base.BaseView[] {
             this.gvw2});
@@ -598,7 +608,7 @@ public partial class frmCust
             this.colD1Tel1.Name = "colD1Tel1";
             this.colD1Tel1.Visible = true;
             this.colD1Tel1.VisibleIndex = 3;
-            this.colD1Tel1.Width = 100;
+            this.colD1Tel1.Width = 132;
             // 
             // colD1Tel2
             // 
@@ -607,7 +617,7 @@ public partial class frmCust
             this.colD1Tel2.Name = "colD1Tel2";
             this.colD1Tel2.Visible = true;
             this.colD1Tel2.VisibleIndex = 4;
-            this.colD1Tel2.Width = 100;
+            this.colD1Tel2.Width = 146;
             // 
             // colD1Fax
             // 
@@ -616,7 +626,7 @@ public partial class frmCust
             this.colD1Fax.Name = "colD1Fax";
             this.colD1Fax.Visible = true;
             this.colD1Fax.VisibleIndex = 5;
-            this.colD1Fax.Width = 100;
+            this.colD1Fax.Width = 127;
             // 
             // colD1Email
             // 
@@ -625,7 +635,7 @@ public partial class frmCust
             this.colD1Email.Name = "colD1Email";
             this.colD1Email.Visible = true;
             this.colD1Email.VisibleIndex = 6;
-            this.colD1Email.Width = 100;
+            this.colD1Email.Width = 196;
             // 
             // panelWyn7
             // 
@@ -638,7 +648,7 @@ public partial class frmCust
             this.panelWyn7.Location = new System.Drawing.Point(0, 0);
             this.panelWyn7.Name = "panelWyn7";
             this.panelWyn7.Padding = new System.Windows.Forms.Padding(5, 3, 0, 2);
-            this.panelWyn7.Size = new System.Drawing.Size(641, 30);
+            this.panelWyn7.Size = new System.Drawing.Size(916, 30);
             this.panelWyn7.TabIndex = 11;
             // 
             // btnDeletRow2
@@ -653,7 +663,7 @@ public partial class frmCust
             this.btnDeletRow2.Location = new System.Drawing.Point(68, 3);
             this.btnDeletRow2.Name = "btnDeletRow2";
             this.btnDeletRow2.PressedColor = System.Drawing.Color.FromArgb(((int)(((byte)(225)))), ((int)(((byte)(235)))), ((int)(((byte)(253)))));
-            this.btnDeletRow2.Size = new System.Drawing.Size(58, 24);
+            this.btnDeletRow2.Size = new System.Drawing.Size(60, 24);
             this.btnDeletRow2.TabIndex = 0;
             this.btnDeletRow2.Text = "행삭제";
             this.btnDeletRow2.ToolTip = "행삭제";
@@ -670,7 +680,7 @@ public partial class frmCust
             this.btnAddRow2.Location = new System.Drawing.Point(6, 3);
             this.btnAddRow2.Name = "btnAddRow2";
             this.btnAddRow2.PressedColor = System.Drawing.Color.FromArgb(((int)(((byte)(225)))), ((int)(((byte)(235)))), ((int)(((byte)(253)))));
-            this.btnAddRow2.Size = new System.Drawing.Size(58, 24);
+            this.btnAddRow2.Size = new System.Drawing.Size(60, 24);
             this.btnAddRow2.TabIndex = 0;
             this.btnAddRow2.Text = "행추가";
             this.btnAddRow2.ToolTip = "행추가";
@@ -680,7 +690,7 @@ public partial class frmCust
             this.tabDetail2.Controls.Add(this.grd3);
             this.tabDetail2.Controls.Add(this.panelWyn11);
             this.tabDetail2.Name = "tabDetail2";
-            this.tabDetail2.Size = new System.Drawing.Size(641, 217);
+            this.tabDetail2.Size = new System.Drawing.Size(916, 295);
             this.tabDetail2.Text = "거래처별 계좌정보     ";
             // 
             // grd3
@@ -694,7 +704,7 @@ public partial class frmCust
             this.grd3.Location = new System.Drawing.Point(0, 30);
             this.grd3.MainView = this.gvw3;
             this.grd3.Name = "grd3";
-            this.grd3.Size = new System.Drawing.Size(641, 187);
+            this.grd3.Size = new System.Drawing.Size(916, 265);
             this.grd3.TabIndex = 0;
             this.grd3.ViewCollection.AddRange(new DevExpress.XtraGrid.Views.Base.BaseView[] {
             this.gvw3});
@@ -761,7 +771,7 @@ public partial class frmCust
             this.panelWyn11.Location = new System.Drawing.Point(0, 0);
             this.panelWyn11.Name = "panelWyn11";
             this.panelWyn11.Padding = new System.Windows.Forms.Padding(5, 3, 0, 2);
-            this.panelWyn11.Size = new System.Drawing.Size(641, 30);
+            this.panelWyn11.Size = new System.Drawing.Size(916, 30);
             this.panelWyn11.TabIndex = 11;
             // 
             // btnDeletRow3
@@ -776,7 +786,7 @@ public partial class frmCust
             this.btnDeletRow3.Location = new System.Drawing.Point(68, 3);
             this.btnDeletRow3.Name = "btnDeletRow3";
             this.btnDeletRow3.PressedColor = System.Drawing.Color.FromArgb(((int)(((byte)(225)))), ((int)(((byte)(235)))), ((int)(((byte)(253)))));
-            this.btnDeletRow3.Size = new System.Drawing.Size(58, 24);
+            this.btnDeletRow3.Size = new System.Drawing.Size(60, 24);
             this.btnDeletRow3.TabIndex = 0;
             this.btnDeletRow3.Text = "행삭제";
             this.btnDeletRow3.ToolTip = "행삭제";
@@ -793,7 +803,7 @@ public partial class frmCust
             this.btnAddRow3.Location = new System.Drawing.Point(6, 3);
             this.btnAddRow3.Name = "btnAddRow3";
             this.btnAddRow3.PressedColor = System.Drawing.Color.FromArgb(((int)(((byte)(225)))), ((int)(((byte)(235)))), ((int)(((byte)(253)))));
-            this.btnAddRow3.Size = new System.Drawing.Size(58, 24);
+            this.btnAddRow3.Size = new System.Drawing.Size(60, 24);
             this.btnAddRow3.TabIndex = 0;
             this.btnAddRow3.Text = "행추가";
             this.btnAddRow3.ToolTip = "행추가";
@@ -802,7 +812,7 @@ public partial class frmCust
             // 
             this.tabDetail3.Controls.Add(this.panFile);
             this.tabDetail3.Name = "tabDetail3";
-            this.tabDetail3.Size = new System.Drawing.Size(641, 217);
+            this.tabDetail3.Size = new System.Drawing.Size(916, 295);
             this.tabDetail3.Text = "거래처별 첨부파일";
             // 
             // panFile
@@ -815,7 +825,7 @@ public partial class frmCust
             this.panFile.EdgeLineColor = System.Drawing.Color.FromArgb(((int)(((byte)(228)))), ((int)(((byte)(229)))), ((int)(((byte)(232)))));
             this.panFile.Location = new System.Drawing.Point(0, 0);
             this.panFile.Name = "panFile";
-            this.panFile.Size = new System.Drawing.Size(641, 217);
+            this.panFile.Size = new System.Drawing.Size(916, 295);
             this.panFile.TabIndex = 2;
             // 
             // grdFile
@@ -829,7 +839,7 @@ public partial class frmCust
             this.grdFile.Location = new System.Drawing.Point(0, 30);
             this.grdFile.MainView = this.gvwFile;
             this.grdFile.Name = "grdFile";
-            this.grdFile.Size = new System.Drawing.Size(641, 187);
+            this.grdFile.Size = new System.Drawing.Size(916, 265);
             this.grdFile.TabIndex = 1;
             this.grdFile.ViewCollection.AddRange(new DevExpress.XtraGrid.Views.Base.BaseView[] {
             this.gvwFile});
@@ -895,7 +905,7 @@ public partial class frmCust
             this.panelWyn13.Location = new System.Drawing.Point(0, 0);
             this.panelWyn13.Name = "panelWyn13";
             this.panelWyn13.Padding = new System.Windows.Forms.Padding(5, 0, 0, 2);
-            this.panelWyn13.Size = new System.Drawing.Size(641, 30);
+            this.panelWyn13.Size = new System.Drawing.Size(916, 30);
             this.panelWyn13.TabIndex = 11;
             // 
             // btnFileAttach
@@ -922,10 +932,10 @@ public partial class frmCust
             this.panelWyn1.Controls.Add(this.sectionHeaderWyn2);
             this.panelWyn1.Dock = System.Windows.Forms.DockStyle.Top;
             this.panelWyn1.EdgeLineColor = System.Drawing.Color.FromArgb(((int)(((byte)(228)))), ((int)(((byte)(229)))), ((int)(((byte)(232)))));
-            this.panelWyn1.Location = new System.Drawing.Point(3, 476);
+            this.panelWyn1.Location = new System.Drawing.Point(3, 431);
             this.panelWyn1.Name = "panelWyn1";
             this.panelWyn1.Padding = new System.Windows.Forms.Padding(5, 0, 0, 2);
-            this.panelWyn1.Size = new System.Drawing.Size(643, 27);
+            this.panelWyn1.Size = new System.Drawing.Size(918, 27);
             this.panelWyn1.TabIndex = 8;
             // 
             // sectionHeaderWyn2
@@ -936,7 +946,7 @@ public partial class frmCust
             this.sectionHeaderWyn2.Icon = WYNLAB.Base.Controls.SectionHeaderIcon.Folder;
             this.sectionHeaderWyn2.Location = new System.Drawing.Point(5, 0);
             this.sectionHeaderWyn2.Name = "sectionHeaderWyn2";
-            this.sectionHeaderWyn2.Size = new System.Drawing.Size(638, 25);
+            this.sectionHeaderWyn2.Size = new System.Drawing.Size(913, 25);
             this.sectionHeaderWyn2.SvgIcon = ((DevExpress.Utils.Svg.SvgImage)(resources.GetObject("sectionHeaderWyn2.SvgIcon")));
             this.sectionHeaderWyn2.TabIndex = 10;
             this.sectionHeaderWyn2.Text = "거래처 부가정보 등록";
@@ -951,7 +961,7 @@ public partial class frmCust
             this.panelWyn5.EdgeLineColor = System.Drawing.Color.FromArgb(((int)(((byte)(228)))), ((int)(((byte)(229)))), ((int)(((byte)(232)))));
             this.panelWyn5.Location = new System.Drawing.Point(3, 0);
             this.panelWyn5.Name = "panelWyn5";
-            this.panelWyn5.Size = new System.Drawing.Size(643, 476);
+            this.panelWyn5.Size = new System.Drawing.Size(918, 431);
             this.panelWyn5.TabIndex = 6;
             // 
             // panData
@@ -959,6 +969,7 @@ public partial class frmCust
             this.panData.Appearance.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(240)))), ((int)(((byte)(240)))), ((int)(((byte)(240)))));
             this.panData.Appearance.Options.UseBackColor = true;
             this.panData.BorderStyle = DevExpress.XtraEditors.Controls.BorderStyles.Default;
+            this.panData.Controls.Add(this.groupBoxWyn1);
             this.panData.Controls.Add(this.ymdDetailTransOpenDate);
             this.panData.Controls.Add(this.cboDetailVatType);
             this.panData.Controls.Add(this.memoEditWyn1);
@@ -1003,47 +1014,126 @@ public partial class frmCust
             this.panData.EdgeLineColor = System.Drawing.Color.FromArgb(((int)(((byte)(228)))), ((int)(((byte)(229)))), ((int)(((byte)(232)))));
             this.panData.Location = new System.Drawing.Point(0, 27);
             this.panData.Name = "panData";
-            this.panData.Size = new System.Drawing.Size(643, 449);
+            this.panData.Size = new System.Drawing.Size(918, 404);
             this.panData.TabIndex = 8;
+            // 
+            // groupBoxWyn1
+            // 
+            this.groupBoxWyn1.Controls.Add(this.grd4);
+            this.groupBoxWyn1.Font = new System.Drawing.Font("맑은 고딕", 9F);
+            this.groupBoxWyn1.Location = new System.Drawing.Point(514, 16);
+            this.groupBoxWyn1.Name = "groupBoxWyn1";
+            this.groupBoxWyn1.Padding = new System.Windows.Forms.Padding(3, 5, 5, 3);
+            this.groupBoxWyn1.Size = new System.Drawing.Size(285, 305);
+            this.groupBoxWyn1.TabIndex = 39;
+            this.groupBoxWyn1.TabStop = false;
+            this.groupBoxWyn1.Text = "거래처 분류 정보";
+            // 
+            // grd4
+            // 
+            this.grd4.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.grd4.EmbeddedNavigator.Buttons.Append.Visible = false;
+            this.grd4.EmbeddedNavigator.Buttons.CancelEdit.Visible = false;
+            this.grd4.EmbeddedNavigator.Buttons.Edit.Visible = false;
+            this.grd4.EmbeddedNavigator.Buttons.EndEdit.Visible = false;
+            this.grd4.EmbeddedNavigator.Buttons.Remove.Visible = false;
+            this.grd4.Location = new System.Drawing.Point(3, 21);
+            this.grd4.MainView = this.gvw4;
+            this.grd4.Name = "grd4";
+            this.grd4.RepositoryItems.AddRange(new DevExpress.XtraEditors.Repository.RepositoryItem[] {
+            this.repositoryItemCheckEdit1});
+            this.grd4.Size = new System.Drawing.Size(277, 281);
+            this.grd4.TabIndex = 0;
+            this.grd4.ViewCollection.AddRange(new DevExpress.XtraGrid.Views.Base.BaseView[] {
+            this.gvw4});
+            // 
+            // gvw4
+            // 
+            this.gvw4.Columns.AddRange(new DevExpress.XtraGrid.Columns.GridColumn[] {
+            this.colClassIsMember,
+            this.colClassCd,
+            this.colClassNm});
+            this.gvw4.GridControl = this.grd4;
+            this.gvw4.HighlightFocusedRow = true;
+            this.gvw4.Name = "gvw4";
+            this.gvw4.OptionsBehavior.Editable = false;
+            this.gvw4.OptionsClipboard.PasteMode = DevExpress.Export.PasteMode.None;
+            this.gvw4.OptionsView.ColumnAutoWidth = false;
+            this.gvw4.OptionsView.ShowGroupPanel = false;
+            // 
+            // colClassIsMember
+            // 
+            this.colClassIsMember.Caption = " ";
+            this.colClassIsMember.ColumnEdit = this.repositoryItemCheckEdit1;
+            this.colClassIsMember.FieldName = "is_member";
+            this.colClassIsMember.Name = "colClassIsMember";
+            this.colClassIsMember.Visible = true;
+            this.colClassIsMember.VisibleIndex = 0;
+            this.colClassIsMember.Width = 31;
+            // 
+            // repositoryItemCheckEdit1
+            // 
+            this.repositoryItemCheckEdit1.AutoHeight = false;
+            this.repositoryItemCheckEdit1.Name = "repositoryItemCheckEdit1";
+            this.repositoryItemCheckEdit1.ValueChecked = "Y";
+            this.repositoryItemCheckEdit1.ValueUnchecked = "N";
+            // 
+            // colClassCd
+            // 
+            this.colClassCd.Caption = "코드";
+            this.colClassCd.FieldName = "class_cd";
+            this.colClassCd.Name = "colClassCd";
+            this.colClassCd.Visible = true;
+            this.colClassCd.VisibleIndex = 2;
+            this.colClassCd.Width = 50;
+            // 
+            // colClassNm
+            // 
+            this.colClassNm.Caption = "거래처분류명";
+            this.colClassNm.FieldName = "class_nm";
+            this.colClassNm.Name = "colClassNm";
+            this.colClassNm.Visible = true;
+            this.colClassNm.VisibleIndex = 1;
+            this.colClassNm.Width = 154;
             // 
             // ymdDetailTransOpenDate
             // 
             this.ymdDetailTransOpenDate.EditValue = null;
-            this.ymdDetailTransOpenDate.Location = new System.Drawing.Point(120, 199);
+            this.ymdDetailTransOpenDate.Location = new System.Drawing.Point(359, 89);
             this.ymdDetailTransOpenDate.Name = "ymdDetailTransOpenDate";
             this.ymdDetailTransOpenDate.Properties.Buttons.AddRange(new DevExpress.XtraEditors.Controls.EditorButton[] {
             new DevExpress.XtraEditors.Controls.EditorButton(DevExpress.XtraEditors.Controls.ButtonPredefines.Combo)});
             this.ymdDetailTransOpenDate.Properties.CalendarTimeProperties.Buttons.AddRange(new DevExpress.XtraEditors.Controls.EditorButton[] {
             new DevExpress.XtraEditors.Controls.EditorButton(DevExpress.XtraEditors.Controls.ButtonPredefines.Combo)});
             this.ymdDetailTransOpenDate.Properties.Mask.MaskType = DevExpress.XtraEditors.Mask.MaskType.None;
-            this.ymdDetailTransOpenDate.Size = new System.Drawing.Size(150, 20);
-            this.ymdDetailTransOpenDate.TabIndex = 12;
+            this.ymdDetailTransOpenDate.Size = new System.Drawing.Size(148, 20);
+            this.ymdDetailTransOpenDate.TabIndex = 5;
             this.ymdDetailTransOpenDate.YyyyMmDd = null;
             // 
             // cboDetailVatType
             // 
             this.cboDetailVatType.EditValue = "";
-            this.cboDetailVatType.Location = new System.Drawing.Point(120, 224);
+            this.cboDetailVatType.Location = new System.Drawing.Point(95, 193);
             this.cboDetailVatType.LookupKey = "L_CM0004";
             this.cboDetailVatType.Name = "cboDetailVatType";
             this.cboDetailVatType.Properties.Buttons.AddRange(new DevExpress.XtraEditors.Controls.EditorButton[] {
             new DevExpress.XtraEditors.Controls.EditorButton(DevExpress.XtraEditors.Controls.ButtonPredefines.Combo)});
             this.cboDetailVatType.Properties.NullText = "";
-            this.cboDetailVatType.Size = new System.Drawing.Size(150, 20);
-            this.cboDetailVatType.TabIndex = 14;
+            this.cboDetailVatType.Size = new System.Drawing.Size(156, 20);
+            this.cboDetailVatType.TabIndex = 12;
             // 
             // memoEditWyn1
             // 
-            this.memoEditWyn1.Location = new System.Drawing.Point(120, 332);
+            this.memoEditWyn1.Location = new System.Drawing.Point(95, 328);
             this.memoEditWyn1.Name = "memoEditWyn1";
-            this.memoEditWyn1.Size = new System.Drawing.Size(412, 105);
+            this.memoEditWyn1.Size = new System.Drawing.Size(704, 70);
             this.memoEditWyn1.TabIndex = 19;
             // 
             // lblDetailCustCd
             // 
             this.lblDetailCustCd.Appearance.Font = new System.Drawing.Font("맑은 고딕", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.lblDetailCustCd.Appearance.Options.UseFont = true;
-            this.lblDetailCustCd.Location = new System.Drawing.Point(68, 11);
+            this.lblDetailCustCd.Location = new System.Drawing.Point(43, 40);
             this.lblDetailCustCd.Name = "lblDetailCustCd";
             this.lblDetailCustCd.Size = new System.Drawing.Size(48, 15);
             this.lblDetailCustCd.TabIndex = 0;
@@ -1051,8 +1141,9 @@ public partial class frmCust
             // 
             // txtDetailCustId
             // 
-            this.txtDetailCustId.Location = new System.Drawing.Point(120, 8);
+            this.txtDetailCustId.Location = new System.Drawing.Point(95, 37);
             this.txtDetailCustId.Name = "txtDetailCustId";
+            this.txtDetailCustId.Properties.ReadOnly = true;
             this.txtDetailCustId.Size = new System.Drawing.Size(62, 20);
             this.txtDetailCustId.TabIndex = 0;
             // 
@@ -1060,7 +1151,7 @@ public partial class frmCust
             // 
             this.lblDetailCustNm.Appearance.Font = new System.Drawing.Font("맑은 고딕", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.lblDetailCustNm.Appearance.Options.UseFont = true;
-            this.lblDetailCustNm.Location = new System.Drawing.Point(68, 39);
+            this.lblDetailCustNm.Location = new System.Drawing.Point(169, 40);
             this.lblDetailCustNm.Name = "lblDetailCustNm";
             this.lblDetailCustNm.Size = new System.Drawing.Size(48, 15);
             this.lblDetailCustNm.TabIndex = 2;
@@ -1068,21 +1159,21 @@ public partial class frmCust
             // 
             // txtDetailCustNm
             // 
-            this.txtDetailCustNm.Location = new System.Drawing.Point(120, 36);
+            this.txtDetailCustNm.Location = new System.Drawing.Point(221, 37);
             this.txtDetailCustNm.Name = "txtDetailCustNm";
             this.txtDetailCustNm.Properties.Appearance.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(249)))), ((int)(((byte)(219)))));
             this.txtDetailCustNm.Properties.Appearance.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))));
             this.txtDetailCustNm.Properties.Appearance.Options.UseBackColor = true;
             this.txtDetailCustNm.Properties.Appearance.Options.UseForeColor = true;
             this.txtDetailCustNm.Required = true;
-            this.txtDetailCustNm.Size = new System.Drawing.Size(151, 20);
+            this.txtDetailCustNm.Size = new System.Drawing.Size(286, 20);
             this.txtDetailCustNm.TabIndex = 1;
             // 
             // lblDetailBizNo
             // 
             this.lblDetailBizNo.Appearance.Font = new System.Drawing.Font("맑은 고딕", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.lblDetailBizNo.Appearance.Options.UseFont = true;
-            this.lblDetailBizNo.Location = new System.Drawing.Point(56, 63);
+            this.lblDetailBizNo.Location = new System.Drawing.Point(31, 66);
             this.lblDetailBizNo.Name = "lblDetailBizNo";
             this.lblDetailBizNo.Size = new System.Drawing.Size(60, 15);
             this.lblDetailBizNo.TabIndex = 4;
@@ -1090,16 +1181,16 @@ public partial class frmCust
             // 
             // txtDetailBizNo
             // 
-            this.txtDetailBizNo.Location = new System.Drawing.Point(120, 62);
+            this.txtDetailBizNo.Location = new System.Drawing.Point(95, 63);
             this.txtDetailBizNo.Name = "txtDetailBizNo";
-            this.txtDetailBizNo.Size = new System.Drawing.Size(150, 20);
-            this.txtDetailBizNo.TabIndex = 3;
+            this.txtDetailBizNo.Size = new System.Drawing.Size(156, 20);
+            this.txtDetailBizNo.TabIndex = 2;
             // 
             // lblDetailTel
             // 
             this.lblDetailTel.Appearance.Font = new System.Drawing.Font("맑은 고딕", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.lblDetailTel.Appearance.Options.UseFont = true;
-            this.lblDetailTel.Location = new System.Drawing.Point(80, 119);
+            this.lblDetailTel.Location = new System.Drawing.Point(55, 118);
             this.lblDetailTel.Name = "lblDetailTel";
             this.lblDetailTel.Size = new System.Drawing.Size(36, 15);
             this.lblDetailTel.TabIndex = 6;
@@ -1107,16 +1198,16 @@ public partial class frmCust
             // 
             // txtDetailTel
             // 
-            this.txtDetailTel.Location = new System.Drawing.Point(120, 116);
+            this.txtDetailTel.Location = new System.Drawing.Point(95, 115);
             this.txtDetailTel.Name = "txtDetailTel";
-            this.txtDetailTel.Size = new System.Drawing.Size(150, 20);
+            this.txtDetailTel.Size = new System.Drawing.Size(156, 20);
             this.txtDetailTel.TabIndex = 6;
             // 
             // lblDetailCurCd
             // 
             this.lblDetailCurCd.Appearance.Font = new System.Drawing.Font("맑은 고딕", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.lblDetailCurCd.Appearance.Options.UseFont = true;
-            this.lblDetailCurCd.Location = new System.Drawing.Point(92, 91);
+            this.lblDetailCurCd.Location = new System.Drawing.Point(67, 92);
             this.lblDetailCurCd.Name = "lblDetailCurCd";
             this.lblDetailCurCd.Size = new System.Drawing.Size(24, 15);
             this.lblDetailCurCd.TabIndex = 8;
@@ -1125,20 +1216,20 @@ public partial class frmCust
             // cboDetailCurCd
             // 
             this.cboDetailCurCd.EditValue = "";
-            this.cboDetailCurCd.Location = new System.Drawing.Point(120, 89);
+            this.cboDetailCurCd.Location = new System.Drawing.Point(95, 89);
             this.cboDetailCurCd.LookupKey = "L_CM0003";
             this.cboDetailCurCd.Name = "cboDetailCurCd";
             this.cboDetailCurCd.Properties.Buttons.AddRange(new DevExpress.XtraEditors.Controls.EditorButton[] {
             new DevExpress.XtraEditors.Controls.EditorButton(DevExpress.XtraEditors.Controls.ButtonPredefines.Combo)});
             this.cboDetailCurCd.Properties.NullText = "";
-            this.cboDetailCurCd.Size = new System.Drawing.Size(150, 20);
-            this.cboDetailCurCd.TabIndex = 5;
+            this.cboDetailCurCd.Size = new System.Drawing.Size(156, 20);
+            this.cboDetailCurCd.TabIndex = 4;
             // 
             // lblDetailOwnerNm
             // 
             this.lblDetailOwnerNm.Appearance.Font = new System.Drawing.Font("맑은 고딕", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.lblDetailOwnerNm.Appearance.Options.UseFont = true;
-            this.lblDetailOwnerNm.Location = new System.Drawing.Point(331, 63);
+            this.lblDetailOwnerNm.Location = new System.Drawing.Point(317, 66);
             this.lblDetailOwnerNm.Name = "lblDetailOwnerNm";
             this.lblDetailOwnerNm.Size = new System.Drawing.Size(36, 15);
             this.lblDetailOwnerNm.TabIndex = 10;
@@ -1146,16 +1237,16 @@ public partial class frmCust
             // 
             // txtDetailOwnerNm
             // 
-            this.txtDetailOwnerNm.Location = new System.Drawing.Point(384, 62);
+            this.txtDetailOwnerNm.Location = new System.Drawing.Point(359, 63);
             this.txtDetailOwnerNm.Name = "txtDetailOwnerNm";
-            this.txtDetailOwnerNm.Size = new System.Drawing.Size(150, 20);
-            this.txtDetailOwnerNm.TabIndex = 4;
+            this.txtDetailOwnerNm.Size = new System.Drawing.Size(148, 20);
+            this.txtDetailOwnerNm.TabIndex = 3;
             // 
             // lblDetailZipCode
             // 
             this.lblDetailZipCode.Appearance.Font = new System.Drawing.Font("맑은 고딕", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.lblDetailZipCode.Appearance.Options.UseFont = true;
-            this.lblDetailZipCode.Location = new System.Drawing.Point(68, 257);
+            this.lblDetailZipCode.Location = new System.Drawing.Point(43, 258);
             this.lblDetailZipCode.Name = "lblDetailZipCode";
             this.lblDetailZipCode.Size = new System.Drawing.Size(48, 15);
             this.lblDetailZipCode.TabIndex = 12;
@@ -1163,16 +1254,16 @@ public partial class frmCust
             // 
             // txtDetailZipCode
             // 
-            this.txtDetailZipCode.Location = new System.Drawing.Point(120, 251);
+            this.txtDetailZipCode.Location = new System.Drawing.Point(95, 252);
             this.txtDetailZipCode.Name = "txtDetailZipCode";
-            this.txtDetailZipCode.Size = new System.Drawing.Size(150, 20);
+            this.txtDetailZipCode.Size = new System.Drawing.Size(156, 20);
             this.txtDetailZipCode.TabIndex = 16;
             // 
             // lblDetailAddr1
             // 
             this.lblDetailAddr1.Appearance.Font = new System.Drawing.Font("맑은 고딕", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.lblDetailAddr1.Appearance.Options.UseFont = true;
-            this.lblDetailAddr1.Location = new System.Drawing.Point(85, 283);
+            this.lblDetailAddr1.Location = new System.Drawing.Point(60, 278);
             this.lblDetailAddr1.Name = "lblDetailAddr1";
             this.lblDetailAddr1.Size = new System.Drawing.Size(31, 15);
             this.lblDetailAddr1.TabIndex = 14;
@@ -1180,16 +1271,16 @@ public partial class frmCust
             // 
             // txtDetailAddr1
             // 
-            this.txtDetailAddr1.Location = new System.Drawing.Point(120, 278);
+            this.txtDetailAddr1.Location = new System.Drawing.Point(95, 275);
             this.txtDetailAddr1.Name = "txtDetailAddr1";
-            this.txtDetailAddr1.Size = new System.Drawing.Size(413, 20);
+            this.txtDetailAddr1.Size = new System.Drawing.Size(412, 20);
             this.txtDetailAddr1.TabIndex = 17;
             // 
             // lblDetailAddr2
             // 
             this.lblDetailAddr2.Appearance.Font = new System.Drawing.Font("맑은 고딕", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.lblDetailAddr2.Appearance.Options.UseFont = true;
-            this.lblDetailAddr2.Location = new System.Drawing.Point(85, 308);
+            this.lblDetailAddr2.Location = new System.Drawing.Point(60, 301);
             this.lblDetailAddr2.Name = "lblDetailAddr2";
             this.lblDetailAddr2.Size = new System.Drawing.Size(31, 15);
             this.lblDetailAddr2.TabIndex = 16;
@@ -1197,16 +1288,16 @@ public partial class frmCust
             // 
             // txtDetailAddr2
             // 
-            this.txtDetailAddr2.Location = new System.Drawing.Point(120, 305);
+            this.txtDetailAddr2.Location = new System.Drawing.Point(95, 298);
             this.txtDetailAddr2.Name = "txtDetailAddr2";
-            this.txtDetailAddr2.Size = new System.Drawing.Size(413, 20);
+            this.txtDetailAddr2.Size = new System.Drawing.Size(412, 20);
             this.txtDetailAddr2.TabIndex = 18;
             // 
             // lblDetailHomepage
             // 
             this.lblDetailHomepage.Appearance.Font = new System.Drawing.Font("맑은 고딕", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.lblDetailHomepage.Appearance.Options.UseFont = true;
-            this.lblDetailHomepage.Location = new System.Drawing.Point(57, 145);
+            this.lblDetailHomepage.Location = new System.Drawing.Point(32, 144);
             this.lblDetailHomepage.Name = "lblDetailHomepage";
             this.lblDetailHomepage.Size = new System.Drawing.Size(59, 15);
             this.lblDetailHomepage.TabIndex = 18;
@@ -1214,16 +1305,16 @@ public partial class frmCust
             // 
             // txtDetailHomepage
             // 
-            this.txtDetailHomepage.Location = new System.Drawing.Point(120, 143);
+            this.txtDetailHomepage.Location = new System.Drawing.Point(95, 141);
             this.txtDetailHomepage.Name = "txtDetailHomepage";
-            this.txtDetailHomepage.Size = new System.Drawing.Size(150, 20);
+            this.txtDetailHomepage.Size = new System.Drawing.Size(156, 20);
             this.txtDetailHomepage.TabIndex = 8;
             // 
             // lblDetailEmail
             // 
             this.lblDetailEmail.Appearance.Font = new System.Drawing.Font("맑은 고딕", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.lblDetailEmail.Appearance.Options.UseFont = true;
-            this.lblDetailEmail.Location = new System.Drawing.Point(333, 145);
+            this.lblDetailEmail.Location = new System.Drawing.Point(319, 144);
             this.lblDetailEmail.Name = "lblDetailEmail";
             this.lblDetailEmail.Size = new System.Drawing.Size(34, 15);
             this.lblDetailEmail.TabIndex = 20;
@@ -1231,16 +1322,16 @@ public partial class frmCust
             // 
             // txtDetailEmail
             // 
-            this.txtDetailEmail.Location = new System.Drawing.Point(384, 143);
+            this.txtDetailEmail.Location = new System.Drawing.Point(359, 141);
             this.txtDetailEmail.Name = "txtDetailEmail";
-            this.txtDetailEmail.Size = new System.Drawing.Size(150, 20);
+            this.txtDetailEmail.Size = new System.Drawing.Size(148, 20);
             this.txtDetailEmail.TabIndex = 9;
             // 
             // lblDetailFax
             // 
             this.lblDetailFax.Appearance.Font = new System.Drawing.Font("맑은 고딕", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.lblDetailFax.Appearance.Options.UseFont = true;
-            this.lblDetailFax.Location = new System.Drawing.Point(349, 119);
+            this.lblDetailFax.Location = new System.Drawing.Point(335, 118);
             this.lblDetailFax.Name = "lblDetailFax";
             this.lblDetailFax.Size = new System.Drawing.Size(18, 15);
             this.lblDetailFax.TabIndex = 22;
@@ -1248,16 +1339,16 @@ public partial class frmCust
             // 
             // txtDetailFax
             // 
-            this.txtDetailFax.Location = new System.Drawing.Point(384, 116);
+            this.txtDetailFax.Location = new System.Drawing.Point(359, 115);
             this.txtDetailFax.Name = "txtDetailFax";
-            this.txtDetailFax.Size = new System.Drawing.Size(150, 20);
+            this.txtDetailFax.Size = new System.Drawing.Size(148, 20);
             this.txtDetailFax.TabIndex = 7;
             // 
             // lblDetailBizKind
             // 
             this.lblDetailBizKind.Appearance.Font = new System.Drawing.Font("맑은 고딕", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.lblDetailBizKind.Appearance.Options.UseFont = true;
-            this.lblDetailBizKind.Location = new System.Drawing.Point(92, 174);
+            this.lblDetailBizKind.Location = new System.Drawing.Point(67, 170);
             this.lblDetailBizKind.Name = "lblDetailBizKind";
             this.lblDetailBizKind.Size = new System.Drawing.Size(24, 15);
             this.lblDetailBizKind.TabIndex = 24;
@@ -1265,16 +1356,16 @@ public partial class frmCust
             // 
             // txtDetailBizKind
             // 
-            this.txtDetailBizKind.Location = new System.Drawing.Point(120, 170);
+            this.txtDetailBizKind.Location = new System.Drawing.Point(95, 167);
             this.txtDetailBizKind.Name = "txtDetailBizKind";
-            this.txtDetailBizKind.Size = new System.Drawing.Size(150, 20);
+            this.txtDetailBizKind.Size = new System.Drawing.Size(156, 20);
             this.txtDetailBizKind.TabIndex = 10;
             // 
             // lblDetailBizType
             // 
             this.lblDetailBizType.Appearance.Font = new System.Drawing.Font("맑은 고딕", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.lblDetailBizType.Appearance.Options.UseFont = true;
-            this.lblDetailBizType.Location = new System.Drawing.Point(343, 174);
+            this.lblDetailBizType.Location = new System.Drawing.Point(329, 170);
             this.lblDetailBizType.Name = "lblDetailBizType";
             this.lblDetailBizType.Size = new System.Drawing.Size(24, 15);
             this.lblDetailBizType.TabIndex = 26;
@@ -1282,16 +1373,16 @@ public partial class frmCust
             // 
             // txtDetailBizType
             // 
-            this.txtDetailBizType.Location = new System.Drawing.Point(384, 170);
+            this.txtDetailBizType.Location = new System.Drawing.Point(359, 167);
             this.txtDetailBizType.Name = "txtDetailBizType";
-            this.txtDetailBizType.Size = new System.Drawing.Size(150, 20);
+            this.txtDetailBizType.Size = new System.Drawing.Size(148, 20);
             this.txtDetailBizType.TabIndex = 11;
             // 
             // lblDetailTransOpenDate
             // 
             this.lblDetailTransOpenDate.Appearance.Font = new System.Drawing.Font("맑은 고딕", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.lblDetailTransOpenDate.Appearance.Options.UseFont = true;
-            this.lblDetailTransOpenDate.Location = new System.Drawing.Point(56, 202);
+            this.lblDetailTransOpenDate.Location = new System.Drawing.Point(293, 92);
             this.lblDetailTransOpenDate.Name = "lblDetailTransOpenDate";
             this.lblDetailTransOpenDate.Size = new System.Drawing.Size(60, 15);
             this.lblDetailTransOpenDate.TabIndex = 28;
@@ -1301,7 +1392,7 @@ public partial class frmCust
             // 
             this.lblDetailVatType.Appearance.Font = new System.Drawing.Font("맑은 고딕", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.lblDetailVatType.Appearance.Options.UseFont = true;
-            this.lblDetailVatType.Location = new System.Drawing.Point(56, 228);
+            this.lblDetailVatType.Location = new System.Drawing.Point(31, 196);
             this.lblDetailVatType.Name = "lblDetailVatType";
             this.lblDetailVatType.Size = new System.Drawing.Size(60, 15);
             this.lblDetailVatType.TabIndex = 30;
@@ -1311,7 +1402,7 @@ public partial class frmCust
             // 
             this.lblDetailVatRate.Appearance.Font = new System.Drawing.Font("맑은 고딕", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.lblDetailVatRate.Appearance.Options.UseFont = true;
-            this.lblDetailVatRate.Location = new System.Drawing.Point(301, 228);
+            this.lblDetailVatRate.Location = new System.Drawing.Point(287, 196);
             this.lblDetailVatRate.Name = "lblDetailVatRate";
             this.lblDetailVatRate.Size = new System.Drawing.Size(66, 15);
             this.lblDetailVatRate.TabIndex = 32;
@@ -1319,16 +1410,16 @@ public partial class frmCust
             // 
             // txtDetailVatRate
             // 
-            this.txtDetailVatRate.Location = new System.Drawing.Point(384, 224);
+            this.txtDetailVatRate.Location = new System.Drawing.Point(359, 193);
             this.txtDetailVatRate.Name = "txtDetailVatRate";
-            this.txtDetailVatRate.Size = new System.Drawing.Size(150, 20);
-            this.txtDetailVatRate.TabIndex = 15;
+            this.txtDetailVatRate.Size = new System.Drawing.Size(148, 20);
+            this.txtDetailVatRate.TabIndex = 13;
             // 
             // lblDetailRemark
             // 
             this.lblDetailRemark.Appearance.Font = new System.Drawing.Font("맑은 고딕", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.lblDetailRemark.Appearance.Options.UseFont = true;
-            this.lblDetailRemark.Location = new System.Drawing.Point(92, 336);
+            this.lblDetailRemark.Location = new System.Drawing.Point(67, 328);
             this.lblDetailRemark.Name = "lblDetailRemark";
             this.lblDetailRemark.Size = new System.Drawing.Size(24, 15);
             this.lblDetailRemark.TabIndex = 34;
@@ -1338,7 +1429,7 @@ public partial class frmCust
             // 
             this.lblDetailStatCd.Appearance.Font = new System.Drawing.Font("맑은 고딕", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.lblDetailStatCd.Appearance.Options.UseFont = true;
-            this.lblDetailStatCd.Location = new System.Drawing.Point(307, 39);
+            this.lblDetailStatCd.Location = new System.Drawing.Point(31, 222);
             this.lblDetailStatCd.Name = "lblDetailStatCd";
             this.lblDetailStatCd.Size = new System.Drawing.Size(60, 15);
             this.lblDetailStatCd.TabIndex = 36;
@@ -1347,7 +1438,7 @@ public partial class frmCust
             // cboDetailStatCd
             // 
             this.cboDetailStatCd.EditValue = "";
-            this.cboDetailStatCd.Location = new System.Drawing.Point(384, 36);
+            this.cboDetailStatCd.Location = new System.Drawing.Point(95, 219);
             this.cboDetailStatCd.LookupKey = "L_BA0001";
             this.cboDetailStatCd.Name = "cboDetailStatCd";
             this.cboDetailStatCd.Properties.Appearance.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(249)))), ((int)(((byte)(219)))));
@@ -1358,14 +1449,14 @@ public partial class frmCust
             new DevExpress.XtraEditors.Controls.EditorButton(DevExpress.XtraEditors.Controls.ButtonPredefines.Combo)});
             this.cboDetailStatCd.Properties.NullText = "";
             this.cboDetailStatCd.Required = true;
-            this.cboDetailStatCd.Size = new System.Drawing.Size(150, 20);
-            this.cboDetailStatCd.TabIndex = 2;
+            this.cboDetailStatCd.Size = new System.Drawing.Size(156, 20);
+            this.cboDetailStatCd.TabIndex = 14;
             // 
             // lblDetailEmpNo
             // 
             this.lblDetailEmpNo.Appearance.Font = new System.Drawing.Font("맑은 고딕", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.lblDetailEmpNo.Appearance.Options.UseFont = true;
-            this.lblDetailEmpNo.Location = new System.Drawing.Point(295, 202);
+            this.lblDetailEmpNo.Location = new System.Drawing.Point(281, 222);
             this.lblDetailEmpNo.Name = "lblDetailEmpNo";
             this.lblDetailEmpNo.Size = new System.Drawing.Size(72, 15);
             this.lblDetailEmpNo.TabIndex = 38;
@@ -1373,10 +1464,10 @@ public partial class frmCust
             // 
             // txtDetailEmpNo
             // 
-            this.txtDetailEmpNo.Location = new System.Drawing.Point(384, 197);
+            this.txtDetailEmpNo.Location = new System.Drawing.Point(359, 219);
             this.txtDetailEmpNo.Name = "txtDetailEmpNo";
-            this.txtDetailEmpNo.Size = new System.Drawing.Size(150, 20);
-            this.txtDetailEmpNo.TabIndex = 13;
+            this.txtDetailEmpNo.Size = new System.Drawing.Size(148, 20);
+            this.txtDetailEmpNo.TabIndex = 15;
             // 
             // panelWyn6
             // 
@@ -1388,7 +1479,7 @@ public partial class frmCust
             this.panelWyn6.Location = new System.Drawing.Point(0, 0);
             this.panelWyn6.Name = "panelWyn6";
             this.panelWyn6.Padding = new System.Windows.Forms.Padding(5, 0, 0, 2);
-            this.panelWyn6.Size = new System.Drawing.Size(643, 27);
+            this.panelWyn6.Size = new System.Drawing.Size(918, 27);
             this.panelWyn6.TabIndex = 7;
             // 
             // sectionHeaderWyn3
@@ -1400,7 +1491,7 @@ public partial class frmCust
             this.sectionHeaderWyn3.Location = new System.Drawing.Point(5, 0);
             this.sectionHeaderWyn3.Name = "sectionHeaderWyn3";
             this.sectionHeaderWyn3.Padding = new System.Windows.Forms.Padding(0, 0, 3, 0);
-            this.sectionHeaderWyn3.Size = new System.Drawing.Size(638, 25);
+            this.sectionHeaderWyn3.Size = new System.Drawing.Size(913, 25);
             this.sectionHeaderWyn3.SvgIcon = ((DevExpress.Utils.Svg.SvgImage)(resources.GetObject("sectionHeaderWyn3.SvgIcon")));
             this.sectionHeaderWyn3.TabIndex = 9;
             this.sectionHeaderWyn3.Text = "거래처정보 등록";
@@ -1414,7 +1505,7 @@ public partial class frmCust
             this.panHeader.Controls.Add(this.txtCustNm);
             this.panHeader.Dock = System.Windows.Forms.DockStyle.Top;
             this.panHeader.EdgeLineColor = System.Drawing.Color.FromArgb(((int)(((byte)(228)))), ((int)(((byte)(229)))), ((int)(((byte)(232)))));
-            this.panHeader.Location = new System.Drawing.Point(5, 33);
+            this.panHeader.Location = new System.Drawing.Point(5, 0);
             this.panHeader.Name = "panHeader";
             this.panHeader.Size = new System.Drawing.Size(1235, 49);
             this.panHeader.TabIndex = 8;
@@ -1505,6 +1596,10 @@ public partial class frmCust
             ((System.ComponentModel.ISupportInitialize)(this.panData)).EndInit();
             this.panData.ResumeLayout(false);
             this.panData.PerformLayout();
+            this.groupBoxWyn1.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.grd4)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.gvw4)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.repositoryItemCheckEdit1)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.ymdDetailTransOpenDate.Properties.CalendarTimeProperties)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.ymdDetailTransOpenDate.Properties)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.cboDetailVatType.Properties)).EndInit();
@@ -1651,4 +1746,11 @@ public partial class frmCust
     private PanelWyn panelWyn13;
     private ButtonWyn btnFileAttach;
     private DateEditWyn ymdDetailTransOpenDate;
+    private GridControlWyn grd4;
+    private GridViewWyn gvw4;
+    private DevExpress.XtraGrid.Columns.GridColumn colClassIsMember;
+    private DevExpress.XtraEditors.Repository.RepositoryItemCheckEdit repositoryItemCheckEdit1;
+    private DevExpress.XtraGrid.Columns.GridColumn colClassCd;
+    private DevExpress.XtraGrid.Columns.GridColumn colClassNm;
+    private GroupBoxWyn groupBoxWyn1;
 }

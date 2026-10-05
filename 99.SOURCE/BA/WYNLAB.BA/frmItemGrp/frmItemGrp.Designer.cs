@@ -26,6 +26,15 @@ public partial class frmItemGrp
             this.tabDetail1 = new DevExpress.XtraTab.XtraTabPage();
             this.grd2 = new WYNLAB.Base.Controls.GridControlWyn();
             this.gvw2 = new WYNLAB.Base.Controls.GridViewWyn();
+            this.colItemNo = new DevExpress.XtraGrid.Columns.GridColumn();
+            this.colItemNm = new DevExpress.XtraGrid.Columns.GridColumn();
+            this.colItemSpec = new DevExpress.XtraGrid.Columns.GridColumn();
+            this.colUnitNm = new DevExpress.XtraGrid.Columns.GridColumn();
+            this.colAssetNm = new DevExpress.XtraGrid.Columns.GridColumn();
+            this.colWhNm = new DevExpress.XtraGrid.Columns.GridColumn();
+            this.colStockYn = new DevExpress.XtraGrid.Columns.GridColumn();
+            this.colLotYn = new DevExpress.XtraGrid.Columns.GridColumn();
+            this.colStatNm = new DevExpress.XtraGrid.Columns.GridColumn();
             this.tabDetail2 = new DevExpress.XtraTab.XtraTabPage();
             this.grd3 = new WYNLAB.Base.Controls.GridControlWyn();
             this.gvw3 = new WYNLAB.Base.Controls.GridViewWyn();
@@ -49,9 +58,8 @@ public partial class frmItemGrp
             this.txtDetailGrpNm = new WYNLAB.Base.Controls.TextEditWyn();
             this.lblDetailGrpLvl = new DevExpress.XtraEditors.LabelControl();
             this.cboDetailGrpLvl = new WYNLAB.Base.Controls.LookUpEditWyn();
-            this.txtDetailParGrpId = new WYNLAB.Base.Controls.TextEditWyn();
+            this.cboDetailParGrpId = new WYNLAB.Base.Controls.LookUpEditWyn();
             this.lblDetailParGrpNm = new DevExpress.XtraEditors.LabelControl();
-            this.txtDetailParGrpNm = new WYNLAB.Base.Controls.TextEditWyn();
             this.lblDetailRemark = new DevExpress.XtraEditors.LabelControl();
             this.memDetailRemark = new WYNLAB.Base.Controls.MemoEditWyn();
             this.panelWyn6 = new WYNLAB.Base.Controls.PanelWyn();
@@ -71,6 +79,8 @@ public partial class frmItemGrp
             this.panelWyn2 = new WYNLAB.Base.Controls.PanelWyn();
             this.sectionHeaderWyn4 = new WYNLAB.Base.Controls.SectionHeaderWyn();
             this.panHeader = new WYNLAB.Base.Controls.PanelWyn();
+            this.lblSearchAccId = new DevExpress.XtraEditors.LabelControl();
+            this.cboSearchAccId = new WYNLAB.Base.Controls.LookUpEditWyn();
             this.lblSearchGrpNm = new DevExpress.XtraEditors.LabelControl();
             this.txtGrpNm_Q = new WYNLAB.Base.Controls.TextEditWyn();
             this.paTitle = new WYNLAB.Base.Controls.PanelWyn();
@@ -107,8 +117,7 @@ public partial class frmItemGrp
             ((System.ComponentModel.ISupportInitialize)(this.txtDetailGrpId.Properties)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.txtDetailGrpNm.Properties)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.cboDetailGrpLvl.Properties)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.txtDetailParGrpId.Properties)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.txtDetailParGrpNm.Properties)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.cboDetailParGrpId.Properties)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.memDetailRemark.Properties)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.panelWyn6)).BeginInit();
             this.panelWyn6.SuspendLayout();
@@ -124,6 +133,7 @@ public partial class frmItemGrp
             ((System.ComponentModel.ISupportInitialize)(this.txtGrpNm_Q.Properties)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.paTitle)).BeginInit();
             this.paTitle.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.cboSearchAccId.Properties)).BeginInit();
             this.SuspendLayout();
             // 
             // panBase
@@ -179,12 +189,9 @@ public partial class frmItemGrp
             this.tabDetailGrids.SelectedTabPage = this.tabDetail1;
             this.tabDetailGrids.Size = new System.Drawing.Size(820, 198);
             this.tabDetailGrids.TabIndex = 7;
+            this.tabDetailGrids.ShowTabHeader = DevExpress.Utils.DefaultBoolean.False;
             this.tabDetailGrids.TabPages.AddRange(new DevExpress.XtraTab.XtraTabPage[] {
-            this.tabDetail1,
-            this.tabDetail2,
-            this.tabDetail3,
-            this.tabDetail4});
-            this.tabDetailGrids.Visible = false;
+            this.tabDetail1});
             // 
             // tabDetail1
             // 
@@ -211,6 +218,16 @@ public partial class frmItemGrp
             // 
             // gvw2
             // 
+            this.gvw2.Columns.AddRange(new DevExpress.XtraGrid.Columns.GridColumn[] {
+            this.colItemNo,
+            this.colItemNm,
+            this.colItemSpec,
+            this.colUnitNm,
+            this.colAssetNm,
+            this.colWhNm,
+            this.colStockYn,
+            this.colLotYn,
+            this.colStatNm});
             this.gvw2.GridControl = this.grd2;
             this.gvw2.HighlightFocusedRow = true;
             this.gvw2.Name = "gvw2";
@@ -218,6 +235,95 @@ public partial class frmItemGrp
             this.gvw2.OptionsClipboard.PasteMode = DevExpress.Export.PasteMode.None;
             this.gvw2.OptionsView.ColumnAutoWidth = false;
             this.gvw2.OptionsView.ShowGroupPanel = false;
+            // 
+            // colItemNo
+            // 
+            this.colItemNo.Caption = "품목코드";
+            this.colItemNo.FieldName = "item_no";
+            this.colItemNo.Name = "colItemNo";
+            this.colItemNo.Visible = true;
+            this.colItemNo.VisibleIndex = 0;
+            this.colItemNo.Width = 110;
+            // 
+            // colItemNm
+            // 
+            this.colItemNm.Caption = "품목명";
+            this.colItemNm.FieldName = "item_nm";
+            this.colItemNm.Name = "colItemNm";
+            this.colItemNm.Visible = true;
+            this.colItemNm.VisibleIndex = 1;
+            this.colItemNm.Width = 170;
+            // 
+            // colItemSpec
+            // 
+            this.colItemSpec.Caption = "규격";
+            this.colItemSpec.FieldName = "item_spec";
+            this.colItemSpec.Name = "colItemSpec";
+            this.colItemSpec.Visible = true;
+            this.colItemSpec.VisibleIndex = 2;
+            this.colItemSpec.Width = 150;
+            // 
+            // colUnitNm
+            // 
+            this.colUnitNm.Caption = "단위";
+            this.colUnitNm.AppearanceCell.Options.UseTextOptions = true;
+            this.colUnitNm.AppearanceCell.TextOptions.HAlignment = DevExpress.Utils.HorzAlignment.Center;
+            this.colUnitNm.FieldName = "unit_nm";
+            this.colUnitNm.Name = "colUnitNm";
+            this.colUnitNm.Visible = true;
+            this.colUnitNm.VisibleIndex = 3;
+            this.colUnitNm.Width = 60;
+            // 
+            // colAssetNm
+            // 
+            this.colAssetNm.Caption = "자산구분";
+            this.colAssetNm.FieldName = "asset_nm";
+            this.colAssetNm.Name = "colAssetNm";
+            this.colAssetNm.Visible = true;
+            this.colAssetNm.VisibleIndex = 4;
+            this.colAssetNm.Width = 90;
+            // 
+            // colWhNm
+            // 
+            this.colWhNm.Caption = "창고";
+            this.colWhNm.FieldName = "wh_nm";
+            this.colWhNm.Name = "colWhNm";
+            this.colWhNm.Visible = true;
+            this.colWhNm.VisibleIndex = 5;
+            this.colWhNm.Width = 110;
+            // 
+            // colStockYn
+            // 
+            this.colStockYn.Caption = "재고관리";
+            this.colStockYn.AppearanceCell.Options.UseTextOptions = true;
+            this.colStockYn.AppearanceCell.TextOptions.HAlignment = DevExpress.Utils.HorzAlignment.Center;
+            this.colStockYn.FieldName = "stock_yn";
+            this.colStockYn.Name = "colStockYn";
+            this.colStockYn.Visible = true;
+            this.colStockYn.VisibleIndex = 6;
+            this.colStockYn.Width = 70;
+            // 
+            // colLotYn
+            // 
+            this.colLotYn.Caption = "LOT관리";
+            this.colLotYn.AppearanceCell.Options.UseTextOptions = true;
+            this.colLotYn.AppearanceCell.TextOptions.HAlignment = DevExpress.Utils.HorzAlignment.Center;
+            this.colLotYn.FieldName = "lot_yn";
+            this.colLotYn.Name = "colLotYn";
+            this.colLotYn.Visible = true;
+            this.colLotYn.VisibleIndex = 7;
+            this.colLotYn.Width = 70;
+            // 
+            // colStatNm
+            // 
+            this.colStatNm.Caption = "상태";
+            this.colStatNm.AppearanceCell.Options.UseTextOptions = true;
+            this.colStatNm.AppearanceCell.TextOptions.HAlignment = DevExpress.Utils.HorzAlignment.Center;
+            this.colStatNm.FieldName = "stat_nm";
+            this.colStatNm.Name = "colStatNm";
+            this.colStatNm.Visible = true;
+            this.colStatNm.VisibleIndex = 8;
+            this.colStatNm.Width = 70;
             // 
             // tabDetail2
             // 
@@ -345,7 +451,7 @@ public partial class frmItemGrp
             this.btnDeletRow2.Location = new System.Drawing.Point(68, 4);
             this.btnDeletRow2.Name = "btnDeletRow2";
             this.btnDeletRow2.PressedColor = System.Drawing.Color.FromArgb(((int)(((byte)(225)))), ((int)(((byte)(235)))), ((int)(((byte)(253)))));
-            this.btnDeletRow2.Size = new System.Drawing.Size(58, 22);
+            this.btnDeletRow2.Size = new System.Drawing.Size(60, 24);
             this.btnDeletRow2.TabIndex = 0;
             this.btnDeletRow2.Text = "행삭제";
             this.btnDeletRow2.ToolTip = "행삭제(현재 탭)";
@@ -362,7 +468,7 @@ public partial class frmItemGrp
             this.btnAddRow2.Location = new System.Drawing.Point(6, 4);
             this.btnAddRow2.Name = "btnAddRow2";
             this.btnAddRow2.PressedColor = System.Drawing.Color.FromArgb(((int)(((byte)(225)))), ((int)(((byte)(235)))), ((int)(((byte)(253)))));
-            this.btnAddRow2.Size = new System.Drawing.Size(58, 22);
+            this.btnAddRow2.Size = new System.Drawing.Size(60, 24);
             this.btnAddRow2.TabIndex = 0;
             this.btnAddRow2.Text = "행추가";
             this.btnAddRow2.ToolTip = "행추가(현재 탭)";
@@ -379,7 +485,6 @@ public partial class frmItemGrp
             this.panelWyn1.Padding = new System.Windows.Forms.Padding(5, 0, 0, 2);
             this.panelWyn1.Size = new System.Drawing.Size(820, 27);
             this.panelWyn1.TabIndex = 8;
-            this.panelWyn1.Visible = false;
             // 
             // sectionHeaderWyn2
             // 
@@ -392,7 +497,7 @@ public partial class frmItemGrp
             this.sectionHeaderWyn2.Size = new System.Drawing.Size(815, 25);
             this.sectionHeaderWyn2.SvgIcon = ((DevExpress.Utils.Svg.SvgImage)(resources.GetObject("sectionHeaderWyn2.SvgIcon")));
             this.sectionHeaderWyn2.TabIndex = 10;
-            this.sectionHeaderWyn2.Text = "하위 목록";
+            this.sectionHeaderWyn2.Text = "소속 품목 LIST";
             // 
             // panelWyn5
             // 
@@ -419,9 +524,8 @@ public partial class frmItemGrp
             this.panData.Controls.Add(this.txtDetailGrpNm);
             this.panData.Controls.Add(this.lblDetailGrpLvl);
             this.panData.Controls.Add(this.cboDetailGrpLvl);
-            this.panData.Controls.Add(this.txtDetailParGrpId);
+            this.panData.Controls.Add(this.cboDetailParGrpId);
             this.panData.Controls.Add(this.lblDetailParGrpNm);
-            this.panData.Controls.Add(this.txtDetailParGrpNm);
             this.panData.Controls.Add(this.lblDetailRemark);
             this.panData.Controls.Add(this.memDetailRemark);
             this.panData.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -515,12 +619,16 @@ public partial class frmItemGrp
             this.cboDetailGrpLvl.Size = new System.Drawing.Size(178, 20);
             this.cboDetailGrpLvl.TabIndex = 7;
             // 
-            // txtDetailParGrpId
+            // cboDetailParGrpId
             // 
-            this.txtDetailParGrpId.Location = new System.Drawing.Point(266, 97);
-            this.txtDetailParGrpId.Name = "txtDetailParGrpId";
-            this.txtDetailParGrpId.Size = new System.Drawing.Size(52, 20);
-            this.txtDetailParGrpId.TabIndex = 9;
+            this.cboDetailParGrpId.EditValue = "";
+            this.cboDetailParGrpId.Location = new System.Drawing.Point(87, 97);
+            this.cboDetailParGrpId.Name = "cboDetailParGrpId";
+            this.cboDetailParGrpId.Properties.Buttons.AddRange(new DevExpress.XtraEditors.Controls.EditorButton[] {
+            new DevExpress.XtraEditors.Controls.EditorButton(DevExpress.XtraEditors.Controls.ButtonPredefines.Combo)});
+            this.cboDetailParGrpId.Properties.NullText = "";
+            this.cboDetailParGrpId.Size = new System.Drawing.Size(178, 20);
+            this.cboDetailParGrpId.TabIndex = 9;
             // 
             // lblDetailParGrpNm
             // 
@@ -531,13 +639,6 @@ public partial class frmItemGrp
             this.lblDetailParGrpNm.Size = new System.Drawing.Size(60, 15);
             this.lblDetailParGrpNm.TabIndex = 10;
             this.lblDetailParGrpNm.Text = "상위그룹명";
-            // 
-            // txtDetailParGrpNm
-            // 
-            this.txtDetailParGrpNm.Location = new System.Drawing.Point(87, 97);
-            this.txtDetailParGrpNm.Name = "txtDetailParGrpNm";
-            this.txtDetailParGrpNm.Size = new System.Drawing.Size(178, 20);
-            this.txtDetailParGrpNm.TabIndex = 11;
             // 
             // lblDetailRemark
             // 
@@ -730,6 +831,8 @@ public partial class frmItemGrp
             this.panHeader.Appearance.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(240)))), ((int)(((byte)(240)))), ((int)(((byte)(240)))));
             this.panHeader.Appearance.Options.UseBackColor = true;
             this.panHeader.BorderStyle = DevExpress.XtraEditors.Controls.BorderStyles.Default;
+            this.panHeader.Controls.Add(this.lblSearchAccId);
+            this.panHeader.Controls.Add(this.cboSearchAccId);
             this.panHeader.Controls.Add(this.lblSearchGrpNm);
             this.panHeader.Controls.Add(this.txtGrpNm_Q);
             this.panHeader.Dock = System.Windows.Forms.DockStyle.Top;
@@ -739,11 +842,38 @@ public partial class frmItemGrp
             this.panHeader.Size = new System.Drawing.Size(1235, 49);
             this.panHeader.TabIndex = 8;
             // 
+            // lblSearchAccId (조회조건 첫 번째 - 사업장 표준, 2026-10-03)
+            // 
+            this.lblSearchAccId.Appearance.Font = new System.Drawing.Font("맑은 고딕", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
+            this.lblSearchAccId.Appearance.Options.UseFont = true;
+            this.lblSearchAccId.Location = new System.Drawing.Point(17, 19);
+            this.lblSearchAccId.Name = "lblSearchAccId";
+            this.lblSearchAccId.Size = new System.Drawing.Size(36, 15);
+            this.lblSearchAccId.TabIndex = 0;
+            this.lblSearchAccId.Text = "사업장";
+            // 
+            // cboSearchAccId (사업장 LookUp, Required - 기본값은 화면 생성자에서 로그인 사업장)
+            // 
+            this.cboSearchAccId.EditValue = "";
+            this.cboSearchAccId.Location = new System.Drawing.Point(61, 16);
+            this.cboSearchAccId.LookupKey = "L_ACC";
+            this.cboSearchAccId.Name = "cboSearchAccId";
+            this.cboSearchAccId.Properties.Appearance.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(249)))), ((int)(((byte)(219)))));
+            this.cboSearchAccId.Properties.Appearance.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))));
+            this.cboSearchAccId.Properties.Appearance.Options.UseBackColor = true;
+            this.cboSearchAccId.Properties.Appearance.Options.UseForeColor = true;
+            this.cboSearchAccId.Properties.Buttons.AddRange(new DevExpress.XtraEditors.Controls.EditorButton[] {
+            new DevExpress.XtraEditors.Controls.EditorButton(DevExpress.XtraEditors.Controls.ButtonPredefines.Combo)});
+            this.cboSearchAccId.Properties.NullText = "";
+            this.cboSearchAccId.Required = true;
+            this.cboSearchAccId.Size = new System.Drawing.Size(131, 20);
+            this.cboSearchAccId.TabIndex = 1;
+            // 
             // lblSearchGrpNm
             // 
             this.lblSearchGrpNm.Appearance.Font = new System.Drawing.Font("맑은 고딕", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.lblSearchGrpNm.Appearance.Options.UseFont = true;
-            this.lblSearchGrpNm.Location = new System.Drawing.Point(17, 19);
+            this.lblSearchGrpNm.Location = new System.Drawing.Point(216, 19);
             this.lblSearchGrpNm.Name = "lblSearchGrpNm";
             this.lblSearchGrpNm.Size = new System.Drawing.Size(60, 15);
             this.lblSearchGrpNm.TabIndex = 3;
@@ -751,7 +881,7 @@ public partial class frmItemGrp
             // 
             // txtGrpNm_Q
             // 
-            this.txtGrpNm_Q.Location = new System.Drawing.Point(86, 16);
+            this.txtGrpNm_Q.Location = new System.Drawing.Point(285, 16);
             this.txtGrpNm_Q.Name = "txtGrpNm_Q";
             this.txtGrpNm_Q.Size = new System.Drawing.Size(150, 20);
             this.txtGrpNm_Q.TabIndex = 4;
@@ -821,8 +951,7 @@ public partial class frmItemGrp
             ((System.ComponentModel.ISupportInitialize)(this.txtDetailGrpId.Properties)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.txtDetailGrpNm.Properties)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.cboDetailGrpLvl.Properties)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.txtDetailParGrpId.Properties)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.txtDetailParGrpNm.Properties)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.cboDetailParGrpId.Properties)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.memDetailRemark.Properties)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.panelWyn6)).EndInit();
             this.panelWyn6.ResumeLayout(false);
@@ -839,6 +968,7 @@ public partial class frmItemGrp
             ((System.ComponentModel.ISupportInitialize)(this.txtGrpNm_Q.Properties)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.paTitle)).EndInit();
             this.paTitle.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.cboSearchAccId.Properties)).EndInit();
             this.ResumeLayout(false);
 
     }
@@ -850,6 +980,15 @@ public partial class frmItemGrp
     private DevExpress.XtraTab.XtraTabPage tabDetail1;
     private GridControlWyn grd2;
     private GridViewWyn gvw2;
+    private DevExpress.XtraGrid.Columns.GridColumn colItemNo;
+    private DevExpress.XtraGrid.Columns.GridColumn colItemNm;
+    private DevExpress.XtraGrid.Columns.GridColumn colItemSpec;
+    private DevExpress.XtraGrid.Columns.GridColumn colUnitNm;
+    private DevExpress.XtraGrid.Columns.GridColumn colAssetNm;
+    private DevExpress.XtraGrid.Columns.GridColumn colWhNm;
+    private DevExpress.XtraGrid.Columns.GridColumn colStockYn;
+    private DevExpress.XtraGrid.Columns.GridColumn colLotYn;
+    private DevExpress.XtraGrid.Columns.GridColumn colStatNm;
     private DevExpress.XtraTab.XtraTabPage tabDetail2;
     private GridControlWyn grd3;
     private GridViewWyn gvw3;
@@ -872,9 +1011,8 @@ public partial class frmItemGrp
     private TextEditWyn txtDetailGrpNm;
     private DevExpress.XtraEditors.LabelControl lblDetailGrpLvl;
     private LookUpEditWyn cboDetailGrpLvl;
-    private TextEditWyn txtDetailParGrpId;
+    private LookUpEditWyn cboDetailParGrpId;
     private DevExpress.XtraEditors.LabelControl lblDetailParGrpNm;
-    private TextEditWyn txtDetailParGrpNm;
     private DevExpress.XtraEditors.LabelControl lblDetailRemark;
     private MemoEditWyn memDetailRemark;
     private PanelWyn panelWyn6;
@@ -899,4 +1037,6 @@ public partial class frmItemGrp
     private SectionHeaderWyn sectionHeaderWyn3;
     private SectionHeaderWyn sectionHeaderWyn4;
     private SectionHeaderWyn sectionHeaderWyn1;
+    private DevExpress.XtraEditors.LabelControl lblSearchAccId;
+    private WYNLAB.Base.Controls.LookUpEditWyn cboSearchAccId;
 }

@@ -127,7 +127,8 @@ public class PopupLookupColumnEdit : RepositoryItemButtonEdit
             var fixedConditions = PopupLookupProvider.ParseConditions(PopupConditions);
             if (fixedConditions != null)
             {
-                extra = extra == null ? fixedConditions : new Dictionary<string, string?>(extra);
+                // extra가 null일 때 fixedConditions를 그대로 쓰면 "순회 중인 같은 Dictionary에 쓰기"가 돼서 .NET Framework에서 '컬렉션이 수정되었습니다'가 난다 - 항상 복사한다.
+                extra = extra == null ? new Dictionary<string, string?>() : new Dictionary<string, string?>(extra);
                 foreach (var kv in fixedConditions) extra[kv.Key] = kv.Value;
             }
             PopupLookupProvider.ExtraConditions = extra;

@@ -60,6 +60,8 @@ public partial class frmUserAuth : BaseForm
     public frmUserAuth()
     {
         InitializeComponent();
+        GridSortSupport.Enable(gvw3); // 헤더 클릭 정렬 - 모든 그리드 공통(GridViewWyn이 아닌 기본 GridView)
+        GridSortSupport.Enable(gvw4);
 
         Text = "사용자권한관리";
 

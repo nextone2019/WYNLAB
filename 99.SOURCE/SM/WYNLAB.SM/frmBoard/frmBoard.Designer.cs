@@ -56,6 +56,8 @@ public partial class frmBoard
         this.lookUpcolMAccId = new WYNLAB.Base.Controls.LookUpColumnEdit();
             this.panelWyn2 = new WYNLAB.Base.Controls.PanelWyn();
             this.panHeader = new WYNLAB.Base.Controls.PanelWyn();
+            this.lblSearchAccId = new DevExpress.XtraEditors.LabelControl();
+            this.cboSearchAccId = new WYNLAB.Base.Controls.LookUpEditWyn();
             this.labelControl1 = new DevExpress.XtraEditors.LabelControl();
         this.lblSearchTitle = new DevExpress.XtraEditors.LabelControl();
         this.txtTitle = new WYNLAB.Base.Controls.TextEditWyn();
@@ -63,6 +65,18 @@ public partial class frmBoard
             this.sectionHeaderWyn1 = new WYNLAB.Base.Controls.SectionHeaderWyn();
             this.sectionHeaderWyn4 = new WYNLAB.Base.Controls.SectionHeaderWyn();
             this.sectionHeaderWyn3 = new WYNLAB.Base.Controls.SectionHeaderWyn();
+            this.splitterWyn2 = new WYNLAB.Base.Controls.SplitterWyn();
+            this.panFileSide = new WYNLAB.Base.Controls.PanelWyn();
+            this.panFileHeader = new WYNLAB.Base.Controls.PanelWyn();
+            this.sectionHeaderWyn5 = new WYNLAB.Base.Controls.SectionHeaderWyn();
+            this.panFileBar = new WYNLAB.Base.Controls.PanelWyn();
+            this.btnFileAttach = new WYNLAB.Base.Controls.ButtonWyn();
+            this.grdFile = new WYNLAB.Base.Controls.GridControlWyn();
+            this.gvwFile = new WYNLAB.Base.Controls.GridViewWyn();
+            this.colFSerl = new DevExpress.XtraGrid.Columns.GridColumn();
+            this.colFFileNm = new DevExpress.XtraGrid.Columns.GridColumn();
+            this.colFFileSize = new DevExpress.XtraGrid.Columns.GridColumn();
+            this.colFRemark = new DevExpress.XtraGrid.Columns.GridColumn();
             ((System.ComponentModel.ISupportInitialize)(this.panBase)).BeginInit();
             this.panBase.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.panelWyn3)).BeginInit();
@@ -85,6 +99,15 @@ public partial class frmBoard
             this.panHeader.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.paTitle)).BeginInit();
             this.paTitle.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.panFileSide)).BeginInit();
+            this.panFileSide.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.panFileHeader)).BeginInit();
+            this.panFileHeader.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.panFileBar)).BeginInit();
+            this.panFileBar.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.grdFile)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.gvwFile)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.cboSearchAccId.Properties)).BeginInit();
             this.SuspendLayout();
             // 
             // panBase
@@ -116,13 +139,18 @@ public partial class frmBoard
             // 
             // panelWyn4
             // 
+            // 아래쪽 상세 영역 - 왼쪽 panelWyn5(상세 입력)가 Fill, 오른쪽에 첨부파일 패널(panFileSide)을
+            // 스플리터와 함께 둔다. Dock=Right 스택은 나중에 추가한 컨트롤이 바깥쪽을 먼저 차지하므로
+            // Fill -> 스플리터 -> 첨부 패널 순으로 추가한다.
             this.panelWyn4.Controls.Add(this.panelWyn5);
+            this.panelWyn4.Controls.Add(this.splitterWyn2);
+            this.panelWyn4.Controls.Add(this.panFileSide);
             this.panelWyn4.Dock = System.Windows.Forms.DockStyle.Fill;
             this.panelWyn4.EdgeLineColor = System.Drawing.Color.FromArgb(((int)(((byte)(228)))), ((int)(((byte)(229)))), ((int)(((byte)(232)))));
-            this.panelWyn4.Location = new System.Drawing.Point(412, 0);
+            this.panelWyn4.Location = new System.Drawing.Point(0, 206);
             this.panelWyn4.Name = "panelWyn4";
-            this.panelWyn4.Padding = new System.Windows.Forms.Padding(3, 0, 0, 0);
-            this.panelWyn4.Size = new System.Drawing.Size(823, 493);
+            this.panelWyn4.Padding = new System.Windows.Forms.Padding(0, 3, 0, 0);
+            this.panelWyn4.Size = new System.Drawing.Size(1235, 287);
             this.panelWyn4.TabIndex = 7;
             //
             // panelWyn5
@@ -131,9 +159,9 @@ public partial class frmBoard
             this.panelWyn5.Controls.Add(this.panelWyn6);
             this.panelWyn5.Dock = System.Windows.Forms.DockStyle.Fill;
             this.panelWyn5.EdgeLineColor = System.Drawing.Color.FromArgb(((int)(((byte)(228)))), ((int)(((byte)(229)))), ((int)(((byte)(232)))));
-            this.panelWyn5.Location = new System.Drawing.Point(3, 0);
+            this.panelWyn5.Location = new System.Drawing.Point(0, 3);
             this.panelWyn5.Name = "panelWyn5";
-            this.panelWyn5.Size = new System.Drawing.Size(820, 493);
+            this.panelWyn5.Size = new System.Drawing.Size(849, 284);
             this.panelWyn5.TabIndex = 6;
             // 
             // panData
@@ -189,8 +217,10 @@ public partial class frmBoard
         this.lblDetailContent.Text = "내용";
         this.txtDetailContent.Location = new System.Drawing.Point(120, 100);
         this.txtDetailContent.Name = "txtDetailContent";
-        this.txtDetailContent.Size = new System.Drawing.Size(500, 130);
-        this.txtDetailContent.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) | System.Windows.Forms.AnchorStyles.Left) | System.Windows.Forms.AnchorStyles.Right)));
+        // 목록이 위쪽 가로 전체로 올라가면서 상세 영역이 낮아졌다 - 하단이 panData 밖으로 삐져나가지
+        // 않게 높이를 줄이고, 오른쪽 닻을 풀어서 폭이 늘어도 우측 필드(x=640)를 침범하지 않게 한다.
+        this.txtDetailContent.Size = new System.Drawing.Size(500, 80);
+        this.txtDetailContent.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) | System.Windows.Forms.AnchorStyles.Left)));
         this.panData.Controls.Add(this.lblDetailContent);
         this.panData.Controls.Add(this.txtDetailContent);
         this.lblDetailEmpNm.Appearance.Font = new System.Drawing.Font("맑은 고딕", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
@@ -242,27 +272,28 @@ public partial class frmBoard
             this.panelWyn6.Location = new System.Drawing.Point(0, 0);
             this.panelWyn6.Name = "panelWyn6";
             this.panelWyn6.Padding = new System.Windows.Forms.Padding(5, 0, 0, 2);
-            this.panelWyn6.Size = new System.Drawing.Size(820, 27);
+            this.panelWyn6.Size = new System.Drawing.Size(849, 27);
             this.panelWyn6.TabIndex = 7;
-            // 
+            //
             // splitterWyn1
-            // 
+            //
             this.splitterWyn1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(255)))), ((int)(((byte)(255)))));
-            this.splitterWyn1.Location = new System.Drawing.Point(402, 0);
+            this.splitterWyn1.Dock = System.Windows.Forms.DockStyle.Top;
+            this.splitterWyn1.Location = new System.Drawing.Point(0, 200);
             this.splitterWyn1.Name = "splitterWyn1";
-            this.splitterWyn1.Size = new System.Drawing.Size(10, 493);
+            this.splitterWyn1.Size = new System.Drawing.Size(1235, 6);
             this.splitterWyn1.TabIndex = 9;
             this.splitterWyn1.TabStop = false;
-            // 
+            //
             // panelWyn8
-            // 
+            //
             this.panelWyn8.Controls.Add(this.grd1);
             this.panelWyn8.Controls.Add(this.panelWyn2);
-            this.panelWyn8.Dock = System.Windows.Forms.DockStyle.Left;
+            this.panelWyn8.Dock = System.Windows.Forms.DockStyle.Top;
             this.panelWyn8.EdgeLineColor = System.Drawing.Color.FromArgb(((int)(((byte)(228)))), ((int)(((byte)(229)))), ((int)(((byte)(232)))));
             this.panelWyn8.Location = new System.Drawing.Point(0, 0);
             this.panelWyn8.Name = "panelWyn8";
-            this.panelWyn8.Size = new System.Drawing.Size(402, 493);
+            this.panelWyn8.Size = new System.Drawing.Size(1235, 200);
             this.panelWyn8.TabIndex = 12;
             // 
             // grd1
@@ -276,7 +307,7 @@ public partial class frmBoard
             this.grd1.Location = new System.Drawing.Point(0, 27);
             this.grd1.MainView = this.gvw1;
             this.grd1.Name = "grd1";
-            this.grd1.Size = new System.Drawing.Size(402, 466);
+            this.grd1.Size = new System.Drawing.Size(1235, 173);
             this.grd1.TabIndex = 10;
             this.grd1.ViewCollection.AddRange(new DevExpress.XtraGrid.Views.Base.BaseView[] {
             this.gvw1});
@@ -321,7 +352,7 @@ public partial class frmBoard
         this.colMTitle.Name = "colMTitle";
         this.colMTitle.Visible = true;
         this.colMTitle.VisibleIndex = 2;
-        this.colMTitle.Width = 100;
+        this.colMTitle.Width = 420;
         //
         // colMEmpNm
         //
@@ -387,7 +418,7 @@ public partial class frmBoard
             this.panelWyn2.Location = new System.Drawing.Point(0, 0);
             this.panelWyn2.Name = "panelWyn2";
             this.panelWyn2.Padding = new System.Windows.Forms.Padding(5, 0, 0, 2);
-            this.panelWyn2.Size = new System.Drawing.Size(402, 27);
+            this.panelWyn2.Size = new System.Drawing.Size(1235, 27);
             this.panelWyn2.TabIndex = 11;
             // 
             // panHeader
@@ -395,6 +426,8 @@ public partial class frmBoard
             this.panHeader.Appearance.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(240)))), ((int)(((byte)(240)))), ((int)(((byte)(240)))));
             this.panHeader.Appearance.Options.UseBackColor = true;
             this.panHeader.BorderStyle = DevExpress.XtraEditors.Controls.BorderStyles.Default;
+            this.panHeader.Controls.Add(this.lblSearchAccId);
+            this.panHeader.Controls.Add(this.cboSearchAccId);
             this.panHeader.Controls.Add(this.labelControl1);
             this.panHeader.Dock = System.Windows.Forms.DockStyle.Top;
             this.panHeader.EdgeLineColor = System.Drawing.Color.FromArgb(((int)(((byte)(228)))), ((int)(((byte)(229)))), ((int)(((byte)(232)))));
@@ -403,11 +436,38 @@ public partial class frmBoard
             this.panHeader.Size = new System.Drawing.Size(1235, 49);
             this.panHeader.TabIndex = 8;
             // 
+            // lblSearchAccId (조회조건 첫 번째 - 사업장 표준, 2026-10-03)
+            // 
+            this.lblSearchAccId.Appearance.Font = new System.Drawing.Font("맑은 고딕", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
+            this.lblSearchAccId.Appearance.Options.UseFont = true;
+            this.lblSearchAccId.Location = new System.Drawing.Point(16, 24);
+            this.lblSearchAccId.Name = "lblSearchAccId";
+            this.lblSearchAccId.Size = new System.Drawing.Size(36, 15);
+            this.lblSearchAccId.TabIndex = 0;
+            this.lblSearchAccId.Text = "사업장";
+            // 
+            // cboSearchAccId (사업장 LookUp, Required - 기본값은 화면 생성자에서 로그인 사업장)
+            // 
+            this.cboSearchAccId.EditValue = "";
+            this.cboSearchAccId.Location = new System.Drawing.Point(60, 21);
+            this.cboSearchAccId.LookupKey = "L_ACC";
+            this.cboSearchAccId.Name = "cboSearchAccId";
+            this.cboSearchAccId.Properties.Appearance.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(249)))), ((int)(((byte)(219)))));
+            this.cboSearchAccId.Properties.Appearance.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))));
+            this.cboSearchAccId.Properties.Appearance.Options.UseBackColor = true;
+            this.cboSearchAccId.Properties.Appearance.Options.UseForeColor = true;
+            this.cboSearchAccId.Properties.Buttons.AddRange(new DevExpress.XtraEditors.Controls.EditorButton[] {
+            new DevExpress.XtraEditors.Controls.EditorButton(DevExpress.XtraEditors.Controls.ButtonPredefines.Combo)});
+            this.cboSearchAccId.Properties.NullText = "";
+            this.cboSearchAccId.Required = true;
+            this.cboSearchAccId.Size = new System.Drawing.Size(131, 20);
+            this.cboSearchAccId.TabIndex = 1;
+            // 
             // labelControl1
             // 
             this.labelControl1.Appearance.Font = new System.Drawing.Font("맑은 고딕", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
             this.labelControl1.Appearance.Options.UseFont = true;
-            this.labelControl1.Location = new System.Drawing.Point(25, 18);
+            this.labelControl1.Location = new System.Drawing.Point(224, 18);
             this.labelControl1.Name = "labelControl1";
             this.labelControl1.Size = new System.Drawing.Size(48, 15);
             this.labelControl1.TabIndex = 0;
@@ -415,11 +475,11 @@ public partial class frmBoard
             // 
             // txtSearchQ
             //
-        this.lblSearchTitle.Location = new System.Drawing.Point(16, 24);
+        this.lblSearchTitle.Location = new System.Drawing.Point(215, 24);
         this.lblSearchTitle.Name = "lblSearchTitle";
         this.lblSearchTitle.Text = "제목";
         this.panHeader.Controls.Add(this.lblSearchTitle);
-        this.txtTitle.Location = new System.Drawing.Point(96, 20);
+        this.txtTitle.Location = new System.Drawing.Point(295, 20);
         this.txtTitle.Name = "txtTitle";
         this.txtTitle.Size = new System.Drawing.Size(150, 20);
         this.panHeader.Controls.Add(this.txtTitle);
@@ -474,6 +534,148 @@ public partial class frmBoard
             this.sectionHeaderWyn3.TabIndex = 9;
             this.sectionHeaderWyn3.Text = "상세 등록";
             //
+            // splitterWyn2
+            //
+            this.splitterWyn2.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(255)))), ((int)(((byte)(255)))));
+            this.splitterWyn2.Dock = System.Windows.Forms.DockStyle.Right;
+            this.splitterWyn2.Location = new System.Drawing.Point(849, 3);
+            this.splitterWyn2.Name = "splitterWyn2";
+            this.splitterWyn2.Size = new System.Drawing.Size(6, 284);
+            this.splitterWyn2.TabIndex = 10;
+            this.splitterWyn2.TabStop = false;
+            //
+            // panFileSide
+            //
+            this.panFileSide.Controls.Add(this.grdFile);
+            this.panFileSide.Controls.Add(this.panFileBar);
+            this.panFileSide.Controls.Add(this.panFileHeader);
+            this.panFileSide.Dock = System.Windows.Forms.DockStyle.Right;
+            this.panFileSide.EdgeLineColor = System.Drawing.Color.FromArgb(((int)(((byte)(228)))), ((int)(((byte)(229)))), ((int)(((byte)(232)))));
+            this.panFileSide.Location = new System.Drawing.Point(855, 3);
+            this.panFileSide.Name = "panFileSide";
+            this.panFileSide.Size = new System.Drawing.Size(380, 284);
+            this.panFileSide.TabIndex = 11;
+            //
+            // panFileHeader
+            //
+            this.panFileHeader.Controls.Add(this.sectionHeaderWyn5);
+            this.panFileHeader.Dock = System.Windows.Forms.DockStyle.Top;
+            this.panFileHeader.EdgeLineColor = System.Drawing.Color.FromArgb(((int)(((byte)(228)))), ((int)(((byte)(229)))), ((int)(((byte)(232)))));
+            this.panFileHeader.Location = new System.Drawing.Point(0, 0);
+            this.panFileHeader.Name = "panFileHeader";
+            this.panFileHeader.Padding = new System.Windows.Forms.Padding(5, 0, 0, 2);
+            this.panFileHeader.Size = new System.Drawing.Size(380, 27);
+            this.panFileHeader.TabIndex = 12;
+            //
+            // sectionHeaderWyn5
+            //
+            this.sectionHeaderWyn5.BackColor = System.Drawing.Color.White;
+            this.sectionHeaderWyn5.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.sectionHeaderWyn5.Font = new System.Drawing.Font("맑은 고딕", 9F, ((System.Drawing.FontStyle)((System.Drawing.FontStyle.Bold | System.Drawing.FontStyle.Underline))), System.Drawing.GraphicsUnit.Point, ((byte)(129)));
+            this.sectionHeaderWyn5.Icon = WYNLAB.Base.Controls.SectionHeaderIcon.Folder;
+            this.sectionHeaderWyn5.Location = new System.Drawing.Point(5, 0);
+            this.sectionHeaderWyn5.Name = "sectionHeaderWyn5";
+            this.sectionHeaderWyn5.Size = new System.Drawing.Size(375, 25);
+            this.sectionHeaderWyn5.TabIndex = 9;
+            this.sectionHeaderWyn5.Text = "첨부파일";
+            //
+            // panFileBar
+            //
+            this.panFileBar.Appearance.BackColor = System.Drawing.Color.White;
+            this.panFileBar.Appearance.Options.UseBackColor = true;
+            this.panFileBar.Controls.Add(this.btnFileAttach);
+            this.panFileBar.Dock = System.Windows.Forms.DockStyle.Top;
+            this.panFileBar.EdgeLineColor = System.Drawing.Color.FromArgb(((int)(((byte)(228)))), ((int)(((byte)(229)))), ((int)(((byte)(232)))));
+            this.panFileBar.Location = new System.Drawing.Point(0, 27);
+            this.panFileBar.Name = "panFileBar";
+            this.panFileBar.Padding = new System.Windows.Forms.Padding(5, 0, 0, 2);
+            this.panFileBar.Size = new System.Drawing.Size(380, 30);
+            this.panFileBar.TabIndex = 11;
+            //
+            // btnFileAttach
+            //
+            this.btnFileAttach.BackColor = System.Drawing.Color.Transparent;
+            this.btnFileAttach.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(74)))), ((int)(((byte)(134)))), ((int)(((byte)(232)))));
+            this.btnFileAttach.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.btnFileAttach.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(234)))), ((int)(((byte)(241)))), ((int)(((byte)(253)))));
+            this.btnFileAttach.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(51)))), ((int)(((byte)(51)))), ((int)(((byte)(51)))));
+            this.btnFileAttach.HoverColor = System.Drawing.Color.FromArgb(((int)(((byte)(240)))), ((int)(((byte)(245)))), ((int)(((byte)(255)))));
+            this.btnFileAttach.Image = null;
+            this.btnFileAttach.Location = new System.Drawing.Point(5, 3);
+            this.btnFileAttach.Name = "btnFileAttach";
+            this.btnFileAttach.PressedColor = System.Drawing.Color.FromArgb(((int)(((byte)(225)))), ((int)(((byte)(235)))), ((int)(((byte)(253)))));
+            this.btnFileAttach.Size = new System.Drawing.Size(95, 24);
+            this.btnFileAttach.TabIndex = 0;
+            this.btnFileAttach.Text = "FILE첨부";
+            this.btnFileAttach.ToolTip = null;
+            //
+            // grdFile
+            //
+            this.grdFile.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.grdFile.EmbeddedNavigator.Buttons.Append.Visible = false;
+            this.grdFile.EmbeddedNavigator.Buttons.CancelEdit.Visible = false;
+            this.grdFile.EmbeddedNavigator.Buttons.Edit.Visible = false;
+            this.grdFile.EmbeddedNavigator.Buttons.EndEdit.Visible = false;
+            this.grdFile.EmbeddedNavigator.Buttons.Remove.Visible = false;
+            this.grdFile.Location = new System.Drawing.Point(0, 57);
+            this.grdFile.MainView = this.gvwFile;
+            this.grdFile.Name = "grdFile";
+            this.grdFile.Size = new System.Drawing.Size(380, 227);
+            this.grdFile.TabIndex = 1;
+            this.grdFile.ViewCollection.AddRange(new DevExpress.XtraGrid.Views.Base.BaseView[] {
+            this.gvwFile});
+            //
+            // gvwFile
+            //
+            this.gvwFile.Columns.AddRange(new DevExpress.XtraGrid.Columns.GridColumn[] {
+            this.colFSerl,
+            this.colFFileNm,
+            this.colFFileSize,
+            this.colFRemark});
+            this.gvwFile.GridControl = this.grdFile;
+            this.gvwFile.HighlightFocusedRow = true;
+            this.gvwFile.Name = "gvwFile";
+            this.gvwFile.OptionsBehavior.Editable = false;
+            this.gvwFile.OptionsClipboard.PasteMode = DevExpress.Export.PasteMode.None;
+            this.gvwFile.OptionsView.ColumnAutoWidth = false;
+            this.gvwFile.OptionsView.ShowGroupPanel = false;
+            //
+            // colFSerl
+            //
+            this.colFSerl.Caption = "순번";
+            this.colFSerl.FieldName = "Serl";
+            this.colFSerl.Name = "colFSerl";
+            this.colFSerl.Visible = true;
+            this.colFSerl.VisibleIndex = 0;
+            this.colFSerl.Width = 44;
+            //
+            // colFFileNm
+            //
+            this.colFFileNm.Caption = "FILE NAME";
+            this.colFFileNm.FieldName = "FileNm";
+            this.colFFileNm.Name = "colFFileNm";
+            this.colFFileNm.Visible = true;
+            this.colFFileNm.VisibleIndex = 1;
+            this.colFFileNm.Width = 170;
+            //
+            // colFFileSize
+            //
+            this.colFFileSize.Caption = "FileSize";
+            this.colFFileSize.FieldName = "FileSize";
+            this.colFFileSize.Name = "colFFileSize";
+            this.colFFileSize.Visible = true;
+            this.colFFileSize.VisibleIndex = 2;
+            this.colFFileSize.Width = 70;
+            //
+            // colFRemark
+            //
+            this.colFRemark.Caption = "비고";
+            this.colFRemark.FieldName = "Remark";
+            this.colFRemark.Name = "colFRemark";
+            this.colFRemark.Visible = true;
+            this.colFRemark.VisibleIndex = 3;
+            this.colFRemark.Width = 90;
+            //
             // frmBoard
             //
             this.Appearance.Options.UseFont = true;
@@ -504,6 +706,15 @@ public partial class frmBoard
             this.panHeader.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.paTitle)).EndInit();
             this.paTitle.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.panFileSide)).EndInit();
+            this.panFileSide.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.panFileHeader)).EndInit();
+            this.panFileHeader.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.panFileBar)).EndInit();
+            this.panFileBar.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.grdFile)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.gvwFile)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.cboSearchAccId.Properties)).EndInit();
             this.ResumeLayout(false);
 
     }
@@ -552,4 +763,18 @@ public partial class frmBoard
     private SectionHeaderWyn sectionHeaderWyn3;
     private SectionHeaderWyn sectionHeaderWyn4;
     private SectionHeaderWyn sectionHeaderWyn1;
+    private SplitterWyn splitterWyn2;
+    private PanelWyn panFileSide;
+    private PanelWyn panFileHeader;
+    private SectionHeaderWyn sectionHeaderWyn5;
+    private PanelWyn panFileBar;
+    private ButtonWyn btnFileAttach;
+    private GridControlWyn grdFile;
+    private GridViewWyn gvwFile;
+    private DevExpress.XtraGrid.Columns.GridColumn colFSerl;
+    private DevExpress.XtraGrid.Columns.GridColumn colFFileNm;
+    private DevExpress.XtraGrid.Columns.GridColumn colFFileSize;
+    private DevExpress.XtraGrid.Columns.GridColumn colFRemark;
+    private DevExpress.XtraEditors.LabelControl lblSearchAccId;
+    private WYNLAB.Base.Controls.LookUpEditWyn cboSearchAccId;
 }

@@ -23,14 +23,18 @@ public partial class frmPoReq : BaseForm
     {
         InitializeComponent();
 
+        // 조회조건 사업장 - 화면 표준(2026-10-03): 항상 첫 번째, Required, 화면을 열면 로그인 사업장이 기본값.
+        cboSearchAccId.EditValue = Session.AccId?.ToString() ?? string.Empty;
+        cboSearchAccId.Tag = new BindingFieldTag("acc_id");
+
         Text = "구매요청등록";
 
-        Controls.Add(BuildScreenHeader());
 
         // 부서/담당자/거래처 - PopupLookupEditWyn 멀티필드 모드(frmEMP의 txtDetailDeptNm과
         // 같은 방식). 화면엔 이름만 보이고 실제 FK는 숨긴 필드(txtDeptId 등)에 채워진다.
         txtDeptNm.MapField("dept_id", txtDeptId);
         txtEmpNm.MapField("emp_id", txtEmpId);
+        txtEmpNm.LinkDept(txtDeptNm, txtDeptId); // 담당자 팝업은 선택한 부서 소속만, 담당자를 고르면 부서도 채움
         txtCustNm.MapField("cust_id", txtCustId);
 
         gvw1.Role = GridRoleWyn.Edit;
@@ -425,6 +429,7 @@ public partial class frmPoReq : BaseForm
         }
         var p = new Dictionary<string, string?>
         {
+            ["p_acc_id"] = cboSearchAccId.EditValue?.ToString(),
             ["p_work_type"] = "Q",
             ["p_req_id"] = forceKey,
             ["p_req_no"] = forceKey == null ? txtSearchReqNo.Text : null,
@@ -449,6 +454,7 @@ public partial class frmPoReq : BaseForm
             _editingKey = row["req_id"]?.ToString();
             cboAccId.EditValue = row["acc_id"]?.ToString() ?? string.Empty;
             txtReqNo.Text = row["req_no"]?.ToString() ?? string.Empty;
+            txtSearchReqNo.Text = txtReqNo.Text; // 링크로 열었거나 저장 후에도 조회 버튼이 현재 문서를 다시 읽도록
             dteReqDate.YyyyMmDd = row["req_date"]?.ToString();
             txtReqTitle.Text = row["req_title"]?.ToString() ?? string.Empty;
             cboStatCd.EditValue = row["stat_cd"]?.ToString() ?? string.Empty;
@@ -467,6 +473,7 @@ public partial class frmPoReq : BaseForm
         });
         _loadingHeader = false;
 
+        ApplyLockState();
         return BindDetailGridAsync();
     }
 
@@ -479,6 +486,10 @@ public partial class frmPoReq : BaseForm
     }
 
     private bool _loadingHeader;
+
+    /// <summary>결재 상신된(상신/진행중/승인완료) 문서는 헤더/품목을 수정하지 못하게 잠근다 - 반려되거나 상신 취소되면 다시 수정할 수 있다(서버도 같은 기준으로 저장을 거부).</summary>
+    private void ApplyLockState() =>
+        ApplyApprovalLock(IsApprovalLockedStatus(cboApprStatCd.EditValue?.ToString()), panData, gvw1, btnAddRow1, btnDeletRow1);
 
     private void EnterNewMode()
     {
@@ -511,6 +522,7 @@ public partial class frmPoReq : BaseForm
             AttachTotals();
         });
         _loadingHeader = false;
+        ApplyLockState();
     }
 
     public override Task NewClick()
@@ -521,6 +533,11 @@ public partial class frmPoReq : BaseForm
 
     public override async Task SaveClick()
     {
+        if (IsApprovalLockedStatus(cboApprStatCd.EditValue?.ToString()))
+        {
+            AppMessageBox.Show("결재 상신된 문서는 수정할 수 없습니다.", "안내");
+            return;
+        }
         var headerParams = new Dictionary<string, string?>
         {
             ["p_work_type"] = _editingKey == null ? "N" : "U",
@@ -601,6 +618,11 @@ public partial class frmPoReq : BaseForm
 
     public override async Task DeleteClick()
     {
+        if (IsApprovalLockedStatus(cboApprStatCd.EditValue?.ToString()))
+        {
+            AppMessageBox.Show("결재 상신된 문서는 삭제할 수 없습니다.", "안내");
+            return;
+        }
         if (_editingKey == null) return;
 
         var result = await SaveAsync("USP_MA_POREQ_S", new Dictionary<string, string?>

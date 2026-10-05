@@ -16,6 +16,9 @@ public partial class TplMasterSubGrid : BaseForm
     public TplMasterSubGrid()
     {
         InitializeComponent();
+        // 검색조건 기본값(화면 표준 - 첫 번째 검색조건 사업장은 로그인 사업장이 기본값, 2026-10-03)
+        // @AI_BUILDER:BEGIN SEARCH_DEFAULTS
+        // @AI_BUILDER:END SEARCH_DEFAULTS
 
         Text = "__MENU_CAPTION__";
 

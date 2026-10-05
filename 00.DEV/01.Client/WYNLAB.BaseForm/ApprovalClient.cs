@@ -22,6 +22,10 @@ public static class ApprovalClient
     public static Task<ApiResult?> AddPathAsync(ApprovalAddPathRequest request) =>
         ApiClient.PostAsync<ApprovalAddPathRequest, ApiResult>("api/approvals/add-path", request);
 
+    /// <summary>상신 마무리 - AddPathAsync를 모두 끝낸 뒤 호출. 결재자가 없어 이미 완료인 문서의 최종승인 후처리(문서 확정)를 실행한다.</summary>
+    public static Task<ApiResult?> FinalizeAsync(long appId) =>
+        ApiClient.PostAsync<ApprovalActionRequest, ApiResult>("api/approvals/finalize", new ApprovalActionRequest { AppId = appId });
+
     public static Task<ApiResult?> ApproveAsync(long appId, string? opinion) =>
         ApiClient.PostAsync<ApprovalActionRequest, ApiResult>("api/approvals/approve", new ApprovalActionRequest { AppId = appId, Opinion = opinion });
 

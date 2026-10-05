@@ -40,6 +40,7 @@ public class HomeController : ControllerBase
             Title = r["title"]?.ToString() ?? string.Empty,
             ImportantYn = r["important_yn"]?.ToString() ?? "N",
             RegDt = r["reg_dt"] as DateTime?,
+            EmpNm = r.TryGetValue("emp_nm", out var empNm) ? empNm?.ToString() ?? string.Empty : string.Empty,
         }).ToList());
     }
 

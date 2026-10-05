@@ -70,7 +70,6 @@ public partial class frmSchedule : BaseForm
 
         Text = "일정관리";
 
-        Controls.Add(BuildScreenHeader());
 
         foreach (var c in ColorPalette)
             schedulerStorage1.Appointments.Labels.Add(c.Id, c.Name, c.Name, c.Color);

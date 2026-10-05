@@ -56,6 +56,8 @@ public partial class frmPoReqList
             this.panelWyn1 = new WYNLAB.Base.Controls.PanelWyn();
             this.sectionHeaderWyn1 = new WYNLAB.Base.Controls.SectionHeaderWyn();
             this.panHeader = new WYNLAB.Base.Controls.PanelWyn();
+            this.lblSearchAccId = new DevExpress.XtraEditors.LabelControl();
+            this.cboSearchAccId = new WYNLAB.Base.Controls.LookUpEditWyn();
             this.lblSearchFrom = new DevExpress.XtraEditors.LabelControl();
             this.dteSearchFrom = new WYNLAB.Base.Controls.DateEditWyn();
             this.dteSearchTo = new WYNLAB.Base.Controls.DateEditWyn();
@@ -92,6 +94,7 @@ public partial class frmPoReqList
             ((System.ComponentModel.ISupportInitialize)(this.txtSearchReqTitle.Properties)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.paTitleH)).BeginInit();
             this.paTitleH.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.cboSearchAccId.Properties)).BeginInit();
             this.SuspendLayout();
             // 
             // panBase
@@ -497,6 +500,8 @@ public partial class frmPoReqList
             this.panHeader.Appearance.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(241)))), ((int)(((byte)(245)))), ((int)(((byte)(249)))));
             this.panHeader.Appearance.Options.UseBackColor = true;
             this.panHeader.BorderStyle = DevExpress.XtraEditors.Controls.BorderStyles.Default;
+            this.panHeader.Controls.Add(this.lblSearchAccId);
+            this.panHeader.Controls.Add(this.cboSearchAccId);
             this.panHeader.Controls.Add(this.lblSearchFrom);
             this.panHeader.Controls.Add(this.dteSearchFrom);
             this.panHeader.Controls.Add(this.dteSearchTo);
@@ -511,11 +516,38 @@ public partial class frmPoReqList
             this.panHeader.Size = new System.Drawing.Size(1670, 49);
             this.panHeader.TabIndex = 8;
             // 
+            // lblSearchAccId (조회조건 첫 번째 - 사업장 표준, 2026-10-03)
+            // 
+            this.lblSearchAccId.Appearance.Font = new System.Drawing.Font("맑은 고딕", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
+            this.lblSearchAccId.Appearance.Options.UseFont = true;
+            this.lblSearchAccId.Location = new System.Drawing.Point(17, 19);
+            this.lblSearchAccId.Name = "lblSearchAccId";
+            this.lblSearchAccId.Size = new System.Drawing.Size(36, 15);
+            this.lblSearchAccId.TabIndex = 0;
+            this.lblSearchAccId.Text = "사업장";
+            // 
+            // cboSearchAccId (사업장 LookUp, Required - 기본값은 화면 생성자에서 로그인 사업장)
+            // 
+            this.cboSearchAccId.EditValue = "";
+            this.cboSearchAccId.Location = new System.Drawing.Point(61, 16);
+            this.cboSearchAccId.LookupKey = "L_ACC";
+            this.cboSearchAccId.Name = "cboSearchAccId";
+            this.cboSearchAccId.Properties.Appearance.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(249)))), ((int)(((byte)(219)))));
+            this.cboSearchAccId.Properties.Appearance.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))));
+            this.cboSearchAccId.Properties.Appearance.Options.UseBackColor = true;
+            this.cboSearchAccId.Properties.Appearance.Options.UseForeColor = true;
+            this.cboSearchAccId.Properties.Buttons.AddRange(new DevExpress.XtraEditors.Controls.EditorButton[] {
+            new DevExpress.XtraEditors.Controls.EditorButton(DevExpress.XtraEditors.Controls.ButtonPredefines.Combo)});
+            this.cboSearchAccId.Properties.NullText = "";
+            this.cboSearchAccId.Required = true;
+            this.cboSearchAccId.Size = new System.Drawing.Size(131, 20);
+            this.cboSearchAccId.TabIndex = 1;
+            // 
             // lblSearchFrom
             // 
             this.lblSearchFrom.Appearance.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F);
             this.lblSearchFrom.Appearance.Options.UseFont = true;
-            this.lblSearchFrom.Location = new System.Drawing.Point(17, 19);
+            this.lblSearchFrom.Location = new System.Drawing.Point(216, 19);
             this.lblSearchFrom.Name = "lblSearchFrom";
             this.lblSearchFrom.Size = new System.Drawing.Size(48, 15);
             this.lblSearchFrom.TabIndex = 4;
@@ -524,7 +556,7 @@ public partial class frmPoReqList
             // dteSearchFrom
             // 
             this.dteSearchFrom.EditValue = new System.DateTime(2026, 9, 27, 0, 0, 0, 0);
-            this.dteSearchFrom.Location = new System.Drawing.Point(71, 16);
+            this.dteSearchFrom.Location = new System.Drawing.Point(270, 16);
             this.dteSearchFrom.Name = "dteSearchFrom";
             this.dteSearchFrom.Properties.Appearance.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(249)))), ((int)(((byte)(219)))));
             this.dteSearchFrom.Properties.Appearance.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))));
@@ -541,7 +573,7 @@ public partial class frmPoReqList
             // dteSearchTo
             // 
             this.dteSearchTo.EditValue = new System.DateTime(2026, 9, 27, 0, 0, 0, 0);
-            this.dteSearchTo.Location = new System.Drawing.Point(172, 16);
+            this.dteSearchTo.Location = new System.Drawing.Point(371, 16);
             this.dteSearchTo.Name = "dteSearchTo";
             this.dteSearchTo.Properties.Appearance.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(249)))), ((int)(((byte)(219)))));
             this.dteSearchTo.Properties.Appearance.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))));
@@ -559,7 +591,7 @@ public partial class frmPoReqList
             // 
             this.lblSearchReqNo.Appearance.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F);
             this.lblSearchReqNo.Appearance.Options.UseFont = true;
-            this.lblSearchReqNo.Location = new System.Drawing.Point(295, 19);
+            this.lblSearchReqNo.Location = new System.Drawing.Point(494, 19);
             this.lblSearchReqNo.Name = "lblSearchReqNo";
             this.lblSearchReqNo.Size = new System.Drawing.Size(72, 15);
             this.lblSearchReqNo.TabIndex = 0;
@@ -567,7 +599,7 @@ public partial class frmPoReqList
             // 
             // txtSearchReqNo
             // 
-            this.txtSearchReqNo.Location = new System.Drawing.Point(372, 16);
+            this.txtSearchReqNo.Location = new System.Drawing.Point(571, 16);
             this.txtSearchReqNo.Name = "txtSearchReqNo";
             this.txtSearchReqNo.Size = new System.Drawing.Size(150, 20);
             this.txtSearchReqNo.TabIndex = 2;
@@ -576,7 +608,7 @@ public partial class frmPoReqList
             // 
             this.lblSearchReqTitle.Appearance.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F);
             this.lblSearchReqTitle.Appearance.Options.UseFont = true;
-            this.lblSearchReqTitle.Location = new System.Drawing.Point(546, 19);
+            this.lblSearchReqTitle.Location = new System.Drawing.Point(745, 19);
             this.lblSearchReqTitle.Name = "lblSearchReqTitle";
             this.lblSearchReqTitle.Size = new System.Drawing.Size(60, 15);
             this.lblSearchReqTitle.TabIndex = 2;
@@ -584,7 +616,7 @@ public partial class frmPoReqList
             // 
             // txtSearchReqTitle
             // 
-            this.txtSearchReqTitle.Location = new System.Drawing.Point(612, 16);
+            this.txtSearchReqTitle.Location = new System.Drawing.Point(811, 16);
             this.txtSearchReqTitle.Name = "txtSearchReqTitle";
             this.txtSearchReqTitle.Size = new System.Drawing.Size(200, 20);
             this.txtSearchReqTitle.TabIndex = 3;
@@ -649,6 +681,7 @@ public partial class frmPoReqList
             ((System.ComponentModel.ISupportInitialize)(this.txtSearchReqTitle.Properties)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.paTitleH)).EndInit();
             this.paTitleH.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.cboSearchAccId.Properties)).EndInit();
             this.ResumeLayout(false);
 
     }
@@ -698,4 +731,6 @@ public partial class frmPoReqList
     private DevExpress.XtraEditors.LabelControl lblSearchFrom;
     private DateEditWyn dteSearchFrom;
     private DateEditWyn dteSearchTo;
+    private DevExpress.XtraEditors.LabelControl lblSearchAccId;
+    private WYNLAB.Base.Controls.LookUpEditWyn cboSearchAccId;
 }

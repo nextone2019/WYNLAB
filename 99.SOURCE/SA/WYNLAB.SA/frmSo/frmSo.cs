@@ -22,11 +22,27 @@ public partial class frmSo : BaseForm
     {
         InitializeComponent();
 
+        // 조회조건 사업장 - 화면 표준(2026-10-03): 항상 첫 번째, Required, 화면을 열면 로그인 사업장이 기본값.
+        cboSearchAccId.EditValue = Session.AccId?.ToString() ?? string.Empty;
+        cboSearchAccId.Tag = new BindingFieldTag("acc_id");
+
         Text = "수주등록";
 
         txtDeptNm.MapField("dept_id", txtDeptId);
         txtEmpNm.MapField("emp_id", txtEmpId);
+        txtEmpNm.LinkDept(txtDeptNm, txtDeptId); // 담당자 팝업은 선택한 부서 소속만, 담당자를 고르면 부서도 채움
         txtCustNm.MapField("cust_id", txtCustId);
+        txtCustNm.MapField("vat_type", cboVatType); // 거래처를 고르면 그 거래처의 부가세유형/세율이 채워진다(구매발주와 동일)
+        txtCustNm.MapField("vat_rate", txtVatRate);
+
+        // 부가세유형을 고르면 그 유형의 세율(L_CM0004의 rel_cd1)을 부가세율에 채운다(2026-10-05 요청). 조회로 문서를 읽을 때는 이 콤보를 채운 바로 다음 줄에서
+        // 저장돼 있던 실제 세율로 다시 덮어쓰므로(OnRowLoaded) 이 핸들러 결과가 남지 않는다 - 사용자가 직접 유형을 바꿀 때만 실질적으로 적용된다.
+        cboVatType.EditValueChanged += (s, e) =>
+        {
+            if (string.IsNullOrEmpty(cboVatType.EditValue?.ToString())) return;
+            var rate = cboVatType.GetColumnValue("rel_cd1");
+            if (rate != null && rate != DBNull.Value) txtVatRate.Text = rate.ToString();
+        };
 
         gvw1.Role = GridRoleWyn.Edit;
         foreach (var amountColumn in new[] { colAmt, colVat, colTotalAmt, colKorAmt, colKorVat, colKorTotalAmt })
@@ -47,16 +63,10 @@ public partial class frmSo : BaseForm
             catch (Exception ex) { AppMessageBox.Show(ex.Message, "삭제 실패"); }
         };
 
-        var btnOpenApproval = new ButtonWyn
-        {
-            Text = "전자결재",
-            Location = new System.Drawing.Point(1160, 8),
-            Size = new System.Drawing.Size(90, 22),
-        };
         btnOpenApproval.Click += async (s, e) => await SafeExecuteAsync(OpenApprovalAsync, "전자결재");
-        panData.Controls.Add(btnOpenApproval);
 
         btnLoadQt.Click += async (s, e) => await SafeExecuteAsync(LoadFromQuoteAsync, "견적 불러오기");
+        btnPickItem.Click += async (s, e) => await SafeExecuteAsync(PickItemsAsync, "품목선택");
         btnLineStop.Click += async (s, e) => await SafeExecuteAsync(() => StopLineAsync(true), "수주 라인 마감");
         btnLineStopCancel.Click += async (s, e) => await SafeExecuteAsync(() => StopLineAsync(false), "수주 라인 마감취소");
 
@@ -198,6 +208,7 @@ public partial class frmSo : BaseForm
         }
         var p = new Dictionary<string, string?>
         {
+            ["p_acc_id"] = cboSearchAccId.EditValue?.ToString(),
             ["p_work_type"] = "Q",
             ["p_so_id"] = forceKey,
             ["p_so_no"] = forceKey == null ? txtSearchSoNo.Text : null,
@@ -221,6 +232,7 @@ public partial class frmSo : BaseForm
             _editingKey = row["so_id"]?.ToString();
             cboAccId.EditValue = row["acc_id"]?.ToString() ?? string.Empty;
             txtSoNo.Text = row["so_no"]?.ToString() ?? string.Empty;
+            txtSearchSoNo.Text = txtSoNo.Text; // 링크로 열었거나 저장 후에도 조회 버튼이 현재 문서를 다시 읽도록
             dteSoDate.YyyyMmDd = row["so_date"]?.ToString();
             dteDelvDate.YyyyMmDd = row["delv_date"]?.ToString();
             txtSoTitle.Text = row["so_title"]?.ToString() ?? string.Empty;
@@ -240,6 +252,7 @@ public partial class frmSo : BaseForm
             memoRemark.Text = row["remark"]?.ToString() ?? string.Empty;
         });
 
+        ApplyLockState();
         return BindDetailGridAsync();
     }
 
@@ -249,6 +262,10 @@ public partial class frmSo : BaseForm
         grd1.DataSource = _detail;
         return Task.CompletedTask;
     }
+
+    /// <summary>결재 상신된(상신/진행중/승인완료) 문서는 헤더/품목을 수정하지 못하게 잠근다 - 반려되거나 상신 취소되면 다시 수정할 수 있다(서버도 같은 기준으로 저장을 거부).</summary>
+    private void ApplyLockState() =>
+        ApplyApprovalLock(IsApprovalLockedStatus(cboApprStatCd.EditValue?.ToString()), panData, gvw1, btnAddRow1, btnDeletRow1, btnLoadQt, btnPickItem);
 
     private void EnterNewMode()
     {
@@ -262,15 +279,16 @@ public partial class frmSo : BaseForm
             txtSoTitle.Text = string.Empty;
             cboStatCd.EditValue = "0";
             txtCustId.Text = string.Empty;
-            txtCustNm.Text = string.Empty;
+            txtCustNm.ClearSelf(); // .Text="" 대신 - 거래처에 매핑된 부가세유형/세율은 아래에서 기본값을 정한다
             txtDeptId.Text = Session.DeptId?.ToString() ?? string.Empty;
             txtDeptNm.Text = Session.DeptNm;
             txtEmpId.Text = Session.EmpId?.ToString() ?? string.Empty;
             txtEmpNm.Text = Session.EmpNm;
             cboCurCd.EditValue = "KRW";
             txtExcRate.Text = "1";
-            cboVatType.EditValue = null;
-            txtVatRate.Text = "10";
+            cboVatType.EditValue = cboVatType.FirstItemValue; // 신규 기본 = 목록 첫 유형(부가세일반) - 세율은 위 핸들러가 채운다
+            var defaultRate = string.IsNullOrEmpty(cboVatType.EditValue?.ToString()) ? null : cboVatType.GetColumnValue("rel_cd1"); // 같은 유형이 이미 선택돼 있어도 세율은 확실히 초기화
+            txtVatRate.Text = defaultRate == null || defaultRate == DBNull.Value ? "10" : defaultRate.ToString(); // 콤보 목록이 아직 안 읽힌 시점(생성자)은 10
             txtAppNo.Text = string.Empty;
             cboApprStatCd.EditValue = string.Empty;
             memoRemark.Text = string.Empty;
@@ -279,6 +297,7 @@ public partial class frmSo : BaseForm
             TrackDirty(_detail);
             grd1.DataSource = _detail;
         });
+        ApplyLockState();
     }
 
     public override Task NewClick()
@@ -289,6 +308,11 @@ public partial class frmSo : BaseForm
 
     public override async Task SaveClick()
     {
+        if (IsApprovalLockedStatus(cboApprStatCd.EditValue?.ToString()))
+        {
+            AppMessageBox.Show("결재 상신된 문서는 수정할 수 없습니다.", "안내");
+            return;
+        }
         var headerParams = new Dictionary<string, string?>
         {
             ["p_work_type"] = _editingKey == null ? "N" : "U",
@@ -368,6 +392,11 @@ public partial class frmSo : BaseForm
 
     public override async Task DeleteClick()
     {
+        if (IsApprovalLockedStatus(cboApprStatCd.EditValue?.ToString()))
+        {
+            AppMessageBox.Show("결재 상신된 문서는 삭제할 수 없습니다.", "안내");
+            return;
+        }
         if (_editingKey == null) return;
 
         var result = await SaveAsync("USP_SA_SO_S", new Dictionary<string, string?>
@@ -424,6 +453,46 @@ public partial class frmSo : BaseForm
         ApplyAmounts(row);
     }
 
+    /// <summary>품목선택 - 공통 팝업(P_ITEM)을 다중 선택으로 열어 체크한 품목마다 행을 추가한다(견적 없이 직접 수주). 같은 품목을 또 골라도 막지 않는다.
+    /// 단가는 판매단가에서 자동 조회한다.</summary>
+    private async Task PickItemsAsync()
+    {
+        if (IsApprovalLockedStatus(cboApprStatCd.EditValue?.ToString())) return;
+        if (_detail.Columns.Count == 0) { Toast.Show("화면을 준비하는 중입니다. 잠시 후 다시 시도해주세요."); return; }
+        gvw1.CloseEditor();
+
+        var picked = await WYNLAB.Popup.popPopUp.ShowMultiAsync("P_ITEM", this);
+        if (picked == null || picked.Count == 0) return;
+
+        var vatRate = string.IsNullOrWhiteSpace(txtVatRate.Text) ? "0" : txtVatRate.Text;
+        var missing = 0;
+        foreach (var p in picked)
+        {
+            DataRow? src = null;
+            foreach (DataRow r in _itemCache.Rows)
+                if (string.Equals(r["item_no"]?.ToString(), p.Code, StringComparison.OrdinalIgnoreCase)
+                    || r["item_id"]?.ToString() == p.Code) { src = r; break; }
+            if (src == null) { missing++; continue; }
+
+            var row = _detail.NewRow();
+            row["item_id"] = src["item_id"];
+            row["item_no"] = src["item_no"];
+            row["item_nm"] = src["item_nm"];
+            row["item_spec"] = src["item_spec"];
+            row["unit_cd"] = src["unit_cd"];
+            row["qty"] = 0;
+            row["next_qty"] = 0;
+            row["remain_qty"] = 0;
+            row["price"] = 0;
+            row["vat_rate"] = vatRate;
+            row["stop_yn"] = "N";
+            _detail.Rows.Add(row);
+
+            await ApplyPriceAsync(row);
+            ApplyAmounts(row);
+        }
+        if (missing > 0) Toast.Show($"품목 {missing}건은 품목 목록을 아직 못 받아 추가하지 못했습니다. 잠시 후 다시 시도해주세요.");
+    }
     /// <summary>확정된 견적의 잔량 품목을 팝업(popQtPick)에서 골라 수주 품목으로 가져온다. 가져온 행은
     /// src_type='QT'와 견적 키(src_id/src_serl)를 갖고, 저장 때 USP_SA_SO_S_1이 견적 라인의
     /// next_qty를 재계산한다. 이미 그리드에 같은 견적 라인이 있으면 건너뛴다.</summary>

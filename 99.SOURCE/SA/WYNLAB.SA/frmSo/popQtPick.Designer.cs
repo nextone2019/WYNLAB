@@ -1,4 +1,4 @@
-﻿// 寃ъ쟻 遺덈윭?ㅺ린 ?앹뾽(popQtPick) ?붿옄?대꼫 - popReqPick(WYNLAB.MA)怨?媛숈? 援ъ“. VS ?붿옄?대꼫濡??몄쭛 媛?? 濡쒖쭅? popQtPick.cs.
+// 견적 불러오기 팝업(popQtPick) 디자이너 - popReqPick(WYNLAB.MA)과 같은 구조. VS 디자이너로 편집 가능. 로직은 popQtPick.cs.
 #nullable disable
 using WYNLAB.Base;
 using WYNLAB.Base.Controls;
@@ -122,7 +122,7 @@ public partial class popQtPick
         this.lblQtNo.Name = "lblQtNo";
         this.lblQtNo.Size = new System.Drawing.Size(60, 15);
         this.lblQtNo.TabIndex = 4;
-        this.lblQtNo.Text = "寃ъ쟻踰덊샇";
+        this.lblQtNo.Text = "견적번호";
         //
         // txtQtNo
         //
@@ -153,7 +153,7 @@ public partial class popQtPick
         this.btnSearch.Name = "btnSearch";
         this.btnSearch.Size = new System.Drawing.Size(80, 24);
         this.btnSearch.TabIndex = 8;
-        this.btnSearch.Text = "議고쉶";
+        this.btnSearch.Text = "조회";
         //
         // lblCust
         //
@@ -216,7 +216,7 @@ public partial class popQtPick
         //
         // colQtNo
         //
-        this.colQtNo.Caption = "寃ъ쟻踰덊샇";
+        this.colQtNo.Caption = "견적번호";
         this.colQtNo.FieldName = "qt_no";
         this.colQtNo.Name = "colQtNo";
         this.colQtNo.OptionsColumn.AllowEdit = false;
@@ -236,7 +236,7 @@ public partial class popQtPick
         //
         // colQtTitle
         //
-        this.colQtTitle.Caption = "嫄대챸";
+        this.colQtTitle.Caption = "건명";
         this.colQtTitle.FieldName = "qt_title";
         this.colQtTitle.Name = "colQtTitle";
         this.colQtTitle.OptionsColumn.AllowEdit = false;
@@ -276,7 +276,7 @@ public partial class popQtPick
         //
         // colItemSpec
         //
-        this.colItemSpec.Caption = "洹쒓꺽";
+        this.colItemSpec.Caption = "규격";
         this.colItemSpec.FieldName = "item_spec";
         this.colItemSpec.Name = "colItemSpec";
         this.colItemSpec.OptionsColumn.AllowEdit = false;
@@ -375,9 +375,9 @@ public partial class popQtPick
         //
         this.btnOk.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
         this.btnOk.Cursor = System.Windows.Forms.Cursors.Hand;
-        this.btnOk.Location = new System.Drawing.Point(796, 9);
+        this.btnOk.Location = new System.Drawing.Point(796, 10);
         this.btnOk.Name = "btnOk";
-        this.btnOk.Size = new System.Drawing.Size(90, 26);
+        this.btnOk.Size = new System.Drawing.Size(90, 24);
         this.btnOk.TabIndex = 2;
         this.btnOk.Text = "불러오기";
         //
@@ -385,9 +385,9 @@ public partial class popQtPick
         //
         this.btnClose.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
         this.btnClose.Cursor = System.Windows.Forms.Cursors.Hand;
-        this.btnClose.Location = new System.Drawing.Point(894, 9);
+        this.btnClose.Location = new System.Drawing.Point(894, 10);
         this.btnClose.Name = "btnClose";
-        this.btnClose.Size = new System.Drawing.Size(90, 26);
+        this.btnClose.Size = new System.Drawing.Size(90, 24);
         this.btnClose.TabIndex = 3;
         this.btnClose.Text = "닫기";
         //

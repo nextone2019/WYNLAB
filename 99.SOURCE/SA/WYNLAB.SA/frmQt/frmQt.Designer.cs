@@ -1,5 +1,5 @@
-﻿// 寃ъ쟻?깅줉 - frmPo(援щℓ諛쒖＜?깅줉)? 媛숈? Master-One Sheet ?⑦꽩, 寃곗옱/寃???ш퀬 而щ읆? 類먮떎.
-// 醫뚰몴??湲곕낯媛믪씠怨?VS ?붿옄?대꼫濡??먯쑀濡?쾶 議곗젙 媛?ν빀?덈떎.
+// 견적등록 - frmPo(구매발주등록)와 같은 Master-One Sheet 패턴, 결재/검수/재고 컬럼은 뺐다.
+// 좌표는 기본값이고 VS 디자이너로 자유롭게 조정 가능합니다.
 #nullable disable
 using WYNLAB.Base;
 using WYNLAB.Base.Controls;
@@ -87,6 +87,8 @@ public partial class frmQt
             this.lblRemark = new DevExpress.XtraEditors.LabelControl();
             this.memoRemark = new DevExpress.XtraEditors.MemoEdit();
             this.panHeader = new WYNLAB.Base.Controls.PanelWyn();
+            this.lblSearchAccId = new DevExpress.XtraEditors.LabelControl();
+            this.cboSearchAccId = new WYNLAB.Base.Controls.LookUpEditWyn();
             this.lblSearchQtNo = new DevExpress.XtraEditors.LabelControl();
             this.txtSearchQtNo = new WYNLAB.Base.Controls.TextEditWyn();
             this.paTitleH = new WYNLAB.Base.Controls.PanelWyn();
@@ -136,6 +138,7 @@ public partial class frmQt
             ((System.ComponentModel.ISupportInitialize)(this.txtSearchQtNo.Properties)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.paTitleH)).BeginInit();
             this.paTitleH.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.cboSearchAccId.Properties)).BeginInit();
             this.SuspendLayout();
             //
             // panBase
@@ -278,7 +281,7 @@ public partial class frmQt
             //
             // colItemSpec
             //
-            this.colItemSpec.Caption = "洹쒓꺽";
+            this.colItemSpec.Caption = "규격";
             this.colItemSpec.FieldName = "item_spec";
             this.colItemSpec.Name = "colItemSpec";
             this.colItemSpec.OptionsColumn.AllowEdit = false;
@@ -445,7 +448,7 @@ public partial class frmQt
             //
             // colRemark
             //
-            this.colRemark.Caption = "鍮꾧퀬";
+            this.colRemark.Caption = "비고";
             this.colRemark.FieldName = "remark";
             this.colRemark.Name = "colRemark";
             this.colRemark.Visible = true;
@@ -473,14 +476,14 @@ public partial class frmQt
             this.btnConfirm.BackColor = System.Drawing.Color.Transparent;
             this.btnConfirm.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(74)))), ((int)(((byte)(134)))), ((int)(((byte)(232)))));
             this.btnConfirm.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.btnConfirm.FillColor = System.Drawing.Color.White;
+            this.btnConfirm.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(234)))), ((int)(((byte)(241)))), ((int)(((byte)(253)))));
             this.btnConfirm.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(51)))), ((int)(((byte)(51)))), ((int)(((byte)(51)))));
             this.btnConfirm.HoverColor = System.Drawing.Color.FromArgb(((int)(((byte)(240)))), ((int)(((byte)(245)))), ((int)(((byte)(255)))));
             this.btnConfirm.Image = null;
             this.btnConfirm.Location = new System.Drawing.Point(130, 4);
             this.btnConfirm.Name = "btnConfirm";
             this.btnConfirm.PressedColor = System.Drawing.Color.FromArgb(((int)(((byte)(225)))), ((int)(((byte)(235)))), ((int)(((byte)(253)))));
-            this.btnConfirm.Size = new System.Drawing.Size(84, 22);
+            this.btnConfirm.Size = new System.Drawing.Size(84, 24);
             this.btnConfirm.TabIndex = 0;
             this.btnConfirm.Text = "견적확정";
             this.btnConfirm.ToolTip = "이 견적을 확정합니다. 확정 전에는 수정/삭제할 수 있고 수주에서 불러올 수 있습니다.";
@@ -490,14 +493,14 @@ public partial class frmQt
             this.btnConfirmCancel.BackColor = System.Drawing.Color.Transparent;
             this.btnConfirmCancel.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(74)))), ((int)(((byte)(134)))), ((int)(((byte)(232)))));
             this.btnConfirmCancel.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.btnConfirmCancel.FillColor = System.Drawing.Color.White;
+            this.btnConfirmCancel.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(234)))), ((int)(((byte)(241)))), ((int)(((byte)(253)))));
             this.btnConfirmCancel.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(51)))), ((int)(((byte)(51)))), ((int)(((byte)(51)))));
             this.btnConfirmCancel.HoverColor = System.Drawing.Color.FromArgb(((int)(((byte)(240)))), ((int)(((byte)(245)))), ((int)(((byte)(255)))));
             this.btnConfirmCancel.Image = null;
             this.btnConfirmCancel.Location = new System.Drawing.Point(218, 4);
             this.btnConfirmCancel.Name = "btnConfirmCancel";
             this.btnConfirmCancel.PressedColor = System.Drawing.Color.FromArgb(((int)(((byte)(225)))), ((int)(((byte)(235)))), ((int)(((byte)(253)))));
-            this.btnConfirmCancel.Size = new System.Drawing.Size(84, 22);
+            this.btnConfirmCancel.Size = new System.Drawing.Size(84, 24);
             this.btnConfirmCancel.TabIndex = 0;
             this.btnConfirmCancel.Text = "확정취소";
             this.btnConfirmCancel.ToolTip = "견적확정을 취소합니다.";
@@ -514,7 +517,7 @@ public partial class frmQt
             this.btnDeletRow1.Location = new System.Drawing.Point(65, 4);
             this.btnDeletRow1.Name = "btnDeletRow1";
             this.btnDeletRow1.PressedColor = System.Drawing.Color.FromArgb(((int)(((byte)(225)))), ((int)(((byte)(235)))), ((int)(((byte)(253)))));
-            this.btnDeletRow1.Size = new System.Drawing.Size(58, 22);
+            this.btnDeletRow1.Size = new System.Drawing.Size(60, 24);
             this.btnDeletRow1.TabIndex = 0;
             this.btnDeletRow1.Text = "행삭제";
             this.btnDeletRow1.ToolTip = "행삭제";
@@ -531,7 +534,7 @@ public partial class frmQt
             this.btnAddRow1.Location = new System.Drawing.Point(3, 4);
             this.btnAddRow1.Name = "btnAddRow1";
             this.btnAddRow1.PressedColor = System.Drawing.Color.FromArgb(((int)(((byte)(225)))), ((int)(((byte)(235)))), ((int)(((byte)(253)))));
-            this.btnAddRow1.Size = new System.Drawing.Size(58, 22);
+            this.btnAddRow1.Size = new System.Drawing.Size(60, 24);
             this.btnAddRow1.TabIndex = 0;
             this.btnAddRow1.Text = "행추가";
             this.btnAddRow1.ToolTip = "행추가";
@@ -645,7 +648,7 @@ public partial class frmQt
             this.lblQtNo.Name = "lblQtNo";
             this.lblQtNo.Size = new System.Drawing.Size(48, 14);
             this.lblQtNo.TabIndex = 1;
-            this.lblQtNo.Text = "寃ъ쟻踰덊샇";
+            this.lblQtNo.Text = "견적번호";
             //
             // txtQtNo
             //
@@ -753,6 +756,7 @@ public partial class frmQt
             //
             this.txtCustNm.Location = new System.Drawing.Point(377, 38);
             this.txtCustNm.LookupKey = "P_CUST";
+            this.txtCustNm.PopupConditions = "p_cust_class=SA";
             this.txtCustNm.MatchField = "cust_nm";
             this.txtCustNm.Name = "txtCustNm";
             this.txtCustNm.Properties.Buttons.AddRange(new DevExpress.XtraEditors.Controls.EditorButton[] {
@@ -848,7 +852,7 @@ public partial class frmQt
             this.lblVatType.Name = "lblVatType";
             this.lblVatType.Size = new System.Drawing.Size(48, 14);
             this.lblVatType.TabIndex = 22;
-            this.lblVatType.Text = "怨쇱꽭援щ텇";
+            this.lblVatType.Text = "과세구분";
             //
             // cboVatType
             //
@@ -883,7 +887,7 @@ public partial class frmQt
             this.lblQtTitle.Name = "lblQtTitle";
             this.lblQtTitle.Size = new System.Drawing.Size(36, 14);
             this.lblQtTitle.TabIndex = 26;
-            this.lblQtTitle.Text = "嫄대챸";
+            this.lblQtTitle.Text = "건명";
             //
             // txtQtTitle
             //
@@ -898,7 +902,7 @@ public partial class frmQt
             this.lblRemark.Name = "lblRemark";
             this.lblRemark.Size = new System.Drawing.Size(24, 14);
             this.lblRemark.TabIndex = 28;
-            this.lblRemark.Text = "鍮꾧퀬";
+            this.lblRemark.Text = "비고";
             //
             // memoRemark
             //
@@ -911,6 +915,8 @@ public partial class frmQt
             //
             this.panHeader.Appearance.BackColor = System.Drawing.Color.White;
             this.panHeader.Appearance.Options.UseBackColor = true;
+            this.panHeader.Controls.Add(this.lblSearchAccId);
+            this.panHeader.Controls.Add(this.cboSearchAccId);
             this.panHeader.Controls.Add(this.lblSearchQtNo);
             this.panHeader.Controls.Add(this.txtSearchQtNo);
             this.panHeader.Dock = System.Windows.Forms.DockStyle.Top;
@@ -919,20 +925,47 @@ public partial class frmQt
             this.panHeader.Name = "panHeader";
             this.panHeader.Size = new System.Drawing.Size(1270, 49);
             this.panHeader.TabIndex = 8;
+            // 
+            // lblSearchAccId (조회조건 첫 번째 - 사업장 표준, 2026-10-03)
+            // 
+            this.lblSearchAccId.Appearance.Font = new System.Drawing.Font("맑은 고딕", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
+            this.lblSearchAccId.Appearance.Options.UseFont = true;
+            this.lblSearchAccId.Location = new System.Drawing.Point(19, 20);
+            this.lblSearchAccId.Name = "lblSearchAccId";
+            this.lblSearchAccId.Size = new System.Drawing.Size(36, 15);
+            this.lblSearchAccId.TabIndex = 0;
+            this.lblSearchAccId.Text = "사업장";
+            // 
+            // cboSearchAccId (사업장 LookUp, Required - 기본값은 화면 생성자에서 로그인 사업장)
+            // 
+            this.cboSearchAccId.EditValue = "";
+            this.cboSearchAccId.Location = new System.Drawing.Point(63, 17);
+            this.cboSearchAccId.LookupKey = "L_ACC";
+            this.cboSearchAccId.Name = "cboSearchAccId";
+            this.cboSearchAccId.Properties.Appearance.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(249)))), ((int)(((byte)(219)))));
+            this.cboSearchAccId.Properties.Appearance.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))));
+            this.cboSearchAccId.Properties.Appearance.Options.UseBackColor = true;
+            this.cboSearchAccId.Properties.Appearance.Options.UseForeColor = true;
+            this.cboSearchAccId.Properties.Buttons.AddRange(new DevExpress.XtraEditors.Controls.EditorButton[] {
+            new DevExpress.XtraEditors.Controls.EditorButton(DevExpress.XtraEditors.Controls.ButtonPredefines.Combo)});
+            this.cboSearchAccId.Properties.NullText = "";
+            this.cboSearchAccId.Required = true;
+            this.cboSearchAccId.Size = new System.Drawing.Size(131, 20);
+            this.cboSearchAccId.TabIndex = 1;
             //
             // lblSearchQtNo
             //
             this.lblSearchQtNo.Appearance.Font = new System.Drawing.Font("맑은 고딕", 9F);
             this.lblSearchQtNo.Appearance.Options.UseFont = true;
-            this.lblSearchQtNo.Location = new System.Drawing.Point(19, 20);
+            this.lblSearchQtNo.Location = new System.Drawing.Point(218, 20);
             this.lblSearchQtNo.Name = "lblSearchQtNo";
             this.lblSearchQtNo.Size = new System.Drawing.Size(48, 15);
             this.lblSearchQtNo.TabIndex = 0;
-            this.lblSearchQtNo.Text = "寃ъ쟻踰덊샇";
+            this.lblSearchQtNo.Text = "견적번호";
             //
             // txtSearchQtNo
             //
-            this.txtSearchQtNo.Location = new System.Drawing.Point(75, 17);
+            this.txtSearchQtNo.Location = new System.Drawing.Point(274, 17);
             this.txtSearchQtNo.Name = "txtSearchQtNo";
             this.txtSearchQtNo.Size = new System.Drawing.Size(187, 20);
             this.txtSearchQtNo.TabIndex = 1;
@@ -1015,6 +1048,7 @@ public partial class frmQt
             ((System.ComponentModel.ISupportInitialize)(this.txtSearchQtNo.Properties)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.paTitleH)).EndInit();
             this.paTitleH.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.cboSearchAccId.Properties)).EndInit();
             this.ResumeLayout(false);
 
     }
@@ -1091,4 +1125,6 @@ public partial class frmQt
     private TextEditWyn txtSearchQtNo;
     private PanelWyn paTitleH;
     private SectionHeaderWyn sectionHeaderWyn1;
+    private DevExpress.XtraEditors.LabelControl lblSearchAccId;
+    private WYNLAB.Base.Controls.LookUpEditWyn cboSearchAccId;
 }

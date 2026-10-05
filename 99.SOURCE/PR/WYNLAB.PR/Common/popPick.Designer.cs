@@ -215,9 +215,9 @@ public partial class popPick
         //
         this.btnOk.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
         this.btnOk.Cursor = System.Windows.Forms.Cursors.Hand;
-        this.btnOk.Location = new System.Drawing.Point(796, 9);
+        this.btnOk.Location = new System.Drawing.Point(796, 10);
         this.btnOk.Name = "btnOk";
-        this.btnOk.Size = new System.Drawing.Size(90, 26);
+        this.btnOk.Size = new System.Drawing.Size(90, 24);
         this.btnOk.TabIndex = 2;
         this.btnOk.Text = "불러오기";
         //
@@ -225,9 +225,9 @@ public partial class popPick
         //
         this.btnClose.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
         this.btnClose.Cursor = System.Windows.Forms.Cursors.Hand;
-        this.btnClose.Location = new System.Drawing.Point(894, 9);
+        this.btnClose.Location = new System.Drawing.Point(894, 10);
         this.btnClose.Name = "btnClose";
-        this.btnClose.Size = new System.Drawing.Size(90, 26);
+        this.btnClose.Size = new System.Drawing.Size(90, 24);
         this.btnClose.TabIndex = 3;
         this.btnClose.Text = "닫기";
         //

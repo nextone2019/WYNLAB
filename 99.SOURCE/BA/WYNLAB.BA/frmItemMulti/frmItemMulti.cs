@@ -1,5 +1,8 @@
 using System.Data;
 using DevExpress.Spreadsheet;
+using DevExpress.XtraEditors;
+using DevExpress.XtraEditors.Repository;
+using DevExpress.XtraGrid.Columns;
 using DevExpress.XtraSpreadsheet;
 using WYNLAB.Base;
 using WYNLAB.Base.Controls;
@@ -34,6 +37,11 @@ namespace WYNLAB.BA;
 /// 채움) 안전망을 둔다. out_type은 frmItem에서도 평범한 텍스트 입력(콤보 아님)이라 그대로
 /// 둔다.
 ///
+/// 창고/위치/담당부서/담당자/구매처 칸은 팝업 편집기(P_WH/P_LOC/P_DEPT/P_EMP/P_CUST, "..." 버튼/더블클릭/직접 타이핑)를 붙였다(frmItemMod와 같은 방식). 팝업으로 고르면 이름 칸과 ID 칸(wh_id 등)을 같이
+/// 채우고, 그 ID는 [검증]이 이름이 그대로일 때(같은 이름이 여러 건이어도) 그대로 쓴다 - 직접 입력/붙여넣기/엑셀업로드한 이름은 지금처럼 [검증]이 이름으로 찾는다. 엑셀 붙여넣기 중에는 팝업이 뜨지 않는다
+/// (GridViewWynBehavior). 담당자 팝업은 그 행의 담당부서 소속만 보이고 담당자를 고르면 담당부서도 채운다. 구매처 팝업은 구매(PO) 분류 거래처만(frmItem과 같음).
+/// 품목그룹1~4 칸은 콤보(편집할 때만 상위 그룹 아래 하위 그룹만 목록에 보임)이고, 값은 계속 "그룹 이름 텍스트"라 붙여넣기/엑셀/기존 연쇄 확인(ResolveGrpChainForRowAsync)은 그대로다.
+///
 /// 저장 정책(2026-09-16 확정): 검증 오류가 하나라도 있으면 저장 자체를 막는다(부분저장 없음) -
 /// [저장]을 누르면 항상 먼저 전체 재검증부터 한다.
 /// </summary>
@@ -50,6 +58,14 @@ public partial class frmItemMulti : BaseForm
 
     private DataTable _list = new();
 
+    // 이름 칸 -> (ID 칸, 팝업으로 고른 시점의 이름 칸). 이름이 그대로면 팝업이 정해 준 ID를 신뢰한다.
+    private static readonly string[] PopupPairs = { "wh", "loc", "dept", "emp", "cust" };
+
+    // 품목그룹 1~4단 - 단별 전체 그룹(id, 이름, 상위 id)과 (단, 상위)별로 만든 편집용 콤보.
+    private GridColumn[] _grpCols = Array.Empty<GridColumn>();
+    private readonly Dictionary<int, List<(string Id, string Nm, string Par)>> _grp = new();
+    private readonly Dictionary<(int Lvl, string Par), RepositoryItemComboBox> _grpEditors = new();
+
     // 단위/자산구분/상태 콤보 목록 캐시 - OnLookupCellValueChanged가 셀이 바뀔 때마다 매번 서버를
     // 다시 부르면 타이핑/붙여넣기 중 화면이 버벅일 수 있어서, 화면 열릴 때 한 번만 받아둔다.
     // ValidateAllAsync는 [검증] 시점 기준 최신값이 필요해서 이 캐시를 안 쓰고 그때 다시 받는다.
@@ -63,7 +79,6 @@ public partial class frmItemMulti : BaseForm
 
         Text = "품목일괄등록";
 
-        Controls.Add(BuildScreenHeader());
 
         gvw1.Role = GridRoleWyn.Edit;
         gvw1.HighlightFocusedRow = true;
@@ -87,6 +102,9 @@ public partial class frmItemMulti : BaseForm
         };
 
         gvw1.CellValueChanged += OnLookupCellValueChanged;
+        _grpCols = new[] { colGrp1Nm, colGrp2Nm, colGrp3Nm, colGrp4Nm };
+        gvw1.CustomRowCellEditForEditing += Gvw1_CustomRowCellEditForEditing;
+        WirePopupColumns();
         _ = LoadLookupCachesAsync();
 
         cboAccId.Tag = new BindingFieldTag("acc_id");
@@ -105,6 +123,8 @@ public partial class frmItemMulti : BaseForm
         // 검증에서 역매핑한 ID(저장 시에만 씀, 그리드에는 안 보임).
         foreach (var idCol in new[] { "wh_id", "loc_id", "dept_id", "emp_id", "cust_id", "grp1_id", "grp2_id", "grp3_id", "grp4_id" })
             table.Columns.Add(idCol, typeof(string));
+        // 팝업으로 ID를 정한 시점의 이름(wh_pick 등) - 이름이 그대로면 [검증]이 이 ID를 그대로 쓴다.
+        foreach (var p in PopupPairs) table.Columns.Add(p + "_pick", typeof(string));
         // [엑셀업로드]는 그리드를 안 거치고 이 DataTable을 직접 채우므로(OnLookupCellValueChanged가
         // 못 잡음), [검증]에서 코드/코드명 매칭 결과를 따로 담아둘 안전망 컬럼(저장에만 씀).
         foreach (var resolvedCol in new[] { "unit_cd_resolved", "po_unit_cd_resolved", "asset_type_resolved", "stat_cd_resolved" })
@@ -117,6 +137,108 @@ public partial class frmItemMulti : BaseForm
         _unitCache = await FetchComboItemsAsync("L_CM0001");
         _assetTypeCache = await FetchComboItemsAsync("L_CM0002");
         _statCdCache = await FetchComboItemsAsync("L_BA0002");
+        await LoadGroupsAsync();
+    }
+
+    // ===== 팝업 컬럼 연결 =====
+
+    private void WirePopupColumns()
+    {
+        popcolWh.ResultSelected += (h, r) => ApplyPicked(h, r, "wh");
+        popcolLoc.ResultSelected += (h, r) => ApplyPicked(h, r, "loc");
+        popcolDept.ResultSelected += (h, r) => ApplyPicked(h, r, "dept");
+        popcolEmp.ResultSelected += (h, r) =>
+        {
+            ApplyPicked(h, r, "emp");
+            // 담당자를 고르면 사원의 소속 부서도 같이 채운다(P_EMP가 dept_id/dept_nm을 돌려준다)
+            if (r.Row != null && r.Row.TryGetValue("dept_id", out var deptId) && !string.IsNullOrEmpty(deptId))
+            {
+                r.Row.TryGetValue("dept_nm", out var deptNm);
+                SetPicked(h, "dept", deptId, deptNm ?? string.Empty);
+            }
+        };
+        // 담당자 팝업은 그 행에 입력된 담당부서 소속 인원만 보인다(P_EMP의 부서명 조건 p_dept_nm). 부서가 비어 있으면 전체.
+        popcolEmp.ConditionProvider = () =>
+        {
+            var dept = Convert.ToString(gvw1.GetRowCellValue(gvw1.FocusedRowHandle, colDeptNm))?.Trim();
+            return string.IsNullOrEmpty(dept) ? new Dictionary<string, string?>() : new Dictionary<string, string?> { ["p_dept_nm"] = dept };
+        };
+        popcolCust.ResultSelected += (h, r) => ApplyPicked(h, r, "cust");
+    }
+
+    /// <summary>팝업에서 고른 결과를 이름 칸/ID 칸/pick 칸에 함께 넣는다(이름은 그 팝업이 돌려준 "{x}_nm" 컬럼, 없으면 표시값).</summary>
+    private void ApplyPicked(int rowHandle, PopupLookupResult result, string key)
+    {
+        string? name = null;
+        if (result.Row != null)
+            foreach (var kv in result.Row)
+                if (string.Equals(kv.Key, key + "_nm", StringComparison.OrdinalIgnoreCase) && !string.IsNullOrEmpty(kv.Value)) { name = kv.Value; break; }
+        SetPicked(rowHandle, key, result.Code, name ?? result.Display ?? string.Empty);
+    }
+
+    private void SetPicked(int rowHandle, string key, string id, string name)
+    {
+        gvw1.SetRowCellValue(rowHandle, key + "_nm", name);
+        if (gvw1.GetDataRow(rowHandle) is DataRow row) { row[key + "_id"] = id; row[key + "_pick"] = name; }
+    }
+
+    // ===== 품목그룹 콤보 =====
+
+    /// <summary>1~4단 품목그룹 전체를 한 번 받아 둔다(L_ITEM_GRP, 상위 조건 없이 단별 전체 - 각 항목의 par_grp_id가 상위 그룹).</summary>
+    private async Task LoadGroupsAsync()
+    {
+        if (ComboLookupProvider.Fetch == null) return;
+        try
+        {
+            for (var lvl = 1; lvl <= 4; lvl++)
+            {
+                var result = await ComboLookupProvider.Fetch("L_ITEM_GRP", new Dictionary<string, string?> { ["p_grp_lvl"] = lvl.ToString(), ["p_par_grp_id"] = string.Empty });
+                _grp[lvl] = result.Items.Select(i => (
+                    i.Value, i.Display?.Trim() ?? string.Empty,
+                    i.Row != null && i.Row.TryGetValue("par_grp_id", out var par) ? par ?? string.Empty : string.Empty)).ToList();
+            }
+            _grpEditors.Clear();
+        }
+        catch { /* 목록을 못 받으면 콤보 없이 텍스트 입력으로 둔다 - [검증]이 최종 확인 */ }
+    }
+
+    /// <summary>이 행에서 lvl단의 상위 그룹 id - 1단부터 이름으로 내려오며 찾는다(받아 둔 목록 기준). 못 찾으면 null.</summary>
+    private string? ParentGroupId(DataRow row, int lvl)
+    {
+        string? par = null;
+        for (var i = 1; i < lvl; i++)
+        {
+            var nm = Str(row, $"grp{i}_nm");
+            if (nm.Length == 0 || !_grp.TryGetValue(i, out var list)) return null;
+            var hit = list.FirstOrDefault(g => (i == 1 || g.Par == par) && string.Equals(g.Nm, nm, StringComparison.OrdinalIgnoreCase));
+            if (hit.Id == null) return null;
+            par = hit.Id;
+        }
+        return par;
+    }
+
+    /// <summary>편집용 콤보 - 1단은 전체, 2단 이상은 상위 그룹에 속한 것만(상위가 비면 빈 목록). 값은 그룹 이름 텍스트 그대로.</summary>
+    private RepositoryItemComboBox GetGrpEditor(int lvl, string? parentId)
+    {
+        var key = (lvl, lvl == 1 ? string.Empty : parentId ?? string.Empty);
+        if (_grpEditors.TryGetValue(key, out var editor)) return editor;
+
+        editor = new RepositoryItemComboBox { TextEditStyle = DevExpress.XtraEditors.Controls.TextEditStyles.Standard, NullText = string.Empty };
+        editor.Items.Add(string.Empty);
+        if (_grp.TryGetValue(lvl, out var all))
+            foreach (var g in all.Where(g => lvl == 1 || (key.Item2.Length > 0 && g.Par == key.Item2)))
+                editor.Items.Add(g.Nm);
+        grd1.RepositoryItems.Add(editor);
+        _grpEditors[key] = editor;
+        return editor;
+    }
+
+    private void Gvw1_CustomRowCellEditForEditing(object? sender, DevExpress.XtraGrid.Views.Grid.CustomRowCellEditEventArgs e)
+    {
+        var idx = Array.IndexOf(_grpCols, e.Column);
+        if (idx < 0 || _grp.Count == 0) return;
+        if (gvw1.GetDataRow(e.RowHandle) is not DataRow row) return;
+        e.RepositoryItem = GetGrpEditor(idx + 1, idx == 0 ? null : ParentGroupId(row, idx + 1));
     }
 
     /// <summary>단위/발주단위/자산구분/상태 컬럼(LookUpColumnEdit) 값이 바뀔 때마다 코드/코드명
@@ -383,6 +505,8 @@ public partial class frmItemMulti : BaseForm
 
             if (itemNo.Length == 0) errors.Add("품목코드 필수");
             if (itemNm.Length == 0) errors.Add("품목명 필수");
+            if (Str(row, "unit_cd").Length == 0) errors.Add("재고단위 필수");
+            if (Str(row, "asset_type").Length == 0) errors.Add("자산구분 필수");
             if (itemNo.Length > 0 && !itemNos.Add(itemNo)) errors.Add("품목코드 중복(입력한 행 안에서)");
 
             row["wh_id"] = await ResolvePopupIdAsync("P_WH", row, "wh_nm", "창고", errors);
@@ -437,6 +561,11 @@ public partial class frmItemMulti : BaseForm
         var nm = Str(row, nmField);
         if (nm.Length == 0) return null;
 
+        // 팝업으로 고른 뒤 이름이 그대로면 그 ID를 그대로 쓴다(같은 이름이 여러 건이어도 모호하지 않게).
+        var key = nmField.Substring(0, nmField.Length - 3);
+        var pickedId = Str(row, key + "_id");
+        if (pickedId.Length > 0 && Str(row, key + "_pick") == nm) return pickedId;
+
         if (PopupLookupProvider.SearchExact == null)
         {
             errors.Add($"{label} 조회 기능을 사용할 수 없습니다.");
@@ -466,6 +595,7 @@ public partial class frmItemMulti : BaseForm
             return null;
         }
 
+        row[key + "_pick"] = nm; // 이 이름으로 정한 ID - 다음 검증에서 다시 찾지 않는다(이름이 바뀌면 pick이 달라져 다시 찾는다)
         return matches[0].Code;
     }
 

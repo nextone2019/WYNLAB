@@ -41,9 +41,14 @@ public class popPopUp : XtraForm
 
     public PopupLookupResult? SelectedResult { get; private set; }
 
-    private popPopUp(PopupDefinitionDto def, string? initialKeyword, DataTable? preloadedData, PopupSearchPanelBase? customPanel)
+    // 다중 선택 모드(ShowMultiAsync) - 그리드에 체크박스 열이 생기고, 체크한 행들(없으면 현재 행 1건)이 SelectedResults로 나간다.
+    private readonly bool _multi;
+    public List<PopupLookupResult> SelectedResults { get; } = new();
+
+    private popPopUp(PopupDefinitionDto def, string? initialKeyword, DataTable? preloadedData, PopupSearchPanelBase? customPanel, bool multi = false)
     {
         _def = def;
+        _multi = multi;
         _customPanel = customPanel;
 
         // 컨트롤 5벌을 한꺼번에 Controls.Add하는 동안 매번 레이아웃을 다시 계산하면, 폼이 아직
@@ -178,6 +183,40 @@ public class popPopUp : XtraForm
         }
     }
 
+    /// <summary>여러 건을 한 번에 고르는 팝업(2026-10-03) - 같은 팝업 정의(sysPopUpM/D)를 그대로 쓰되 그리드 맨 앞에 체크박스 열이 생긴다.
+    /// 체크한 행들을 순서대로 돌려주고(아무것도 체크 안 했으면 현재 행 1건), 취소하면 null. 이미 담은 품목을 또 골라도 막지 않는다 - 호출한
+    /// 화면이 고른 만큼 행을 추가한다. 조회 결과가 1건이어도 자동 선택하지 않는다(체크하고 [선택]을 눌러야 한다). 트리형 팝업은 지원하지 않는다.</summary>
+    public static async Task<List<PopupLookupResult>?> ShowMultiAsync(string popupKey, Control owner)
+    {
+        if (_isShowing) return null;
+        _isShowing = true;
+        try
+        {
+            var def = await ApiClient.GetAsync<PopupDefinitionDto>($"api/lookups/{Uri.EscapeDataString(popupKey)}/definition");
+            if (def == null)
+            {
+                AppMessageBox.Show($"등록되지 않은 팝업입니다: {popupKey}", "확인");
+                return null;
+            }
+            if (def.HierarchicalYn)
+            {
+                AppMessageBox.Show($"트리형 팝업({popupKey})은 여러 건 선택을 지원하지 않습니다.", "확인");
+                return null;
+            }
+
+            var customPanel = TryCreateCustomPanel(def);
+            customPanel?.ApplyExtraConditions(PopupLookupProvider.ExtraConditions);
+
+            using var form = new popPopUp(def, null, null, customPanel, multi: true);
+            var ownerForm = owner.FindForm();
+            var result = ownerForm != null ? form.ShowDialog(ownerForm) : form.ShowDialog();
+            return result == DialogResult.OK ? form.SelectedResults : null;
+        }
+        finally
+        {
+            _isShowing = false;
+        }
+    }
     /// <summary>sysPopUpM.search_panel_class(예: "WYNLAB.Popup.pnlItemSearch")로 지정된 전용 검색패널을
     /// 만들고, 조회조건의 컨트롤 연결(sysPopUpS.control_nm)을 넘겨준다. 못 찾거나 만들다 실패하면
     /// 안내 후 null(자동 생성 검색창으로 계속) - 팝업이 아예 안 열리는 것보다 기본 검색창이라도 뜨는 편이
@@ -382,16 +421,35 @@ public class popPopUp : XtraForm
         var panel = new PanelWyn { Dock = DockStyle.Top, Height = rowHeight * rowNumbers.Count };
         var isFirstTextField = true;
 
+        // 줄이 여러 개면 같은 순번(왼쪽부터 n번째) 칸끼리 라벨 폭/입력칸 폭을 맞춰 세로로 열이 정렬되게 한다(2026-10-05 요청 - 품목 팝업의
+        // 1줄 품번/품명·자산구분과 2줄 품목그룹이 들쭉날쭉했다). 한 줄뿐인 팝업은 지금과 똑같이 보인다.
+        var labels = fields.ToDictionary(f => f, f => new LabelControl { Text = f.Caption, AutoSize = true });
+        var colLabelW = new List<int>();
+        var colEditW = new List<int>();
+        foreach (var rowNo in rowNumbers)
+        {
+            var idx = 0;
+            foreach (var field in fields.Where(f => f.RowNo == rowNo))
+            {
+                var ew = field.Width > 0 ? field.Width : 120;
+                if (idx == colLabelW.Count) { colLabelW.Add(labels[field].Width); colEditW.Add(ew); }
+                else { colLabelW[idx] = Math.Max(colLabelW[idx], labels[field].Width); colEditW[idx] = Math.Max(colEditW[idx], ew); }
+                idx++;
+            }
+        }
+
         foreach (var rowNo in rowNumbers)
         {
             var y = rowNumbers.IndexOf(rowNo) * rowHeight;
             var x = 10;
+            var col = 0;
 
             foreach (var field in fields.Where(f => f.RowNo == rowNo))
             {
-                var lbl = new LabelControl { Text = field.Caption, Location = new Point(x, y + 13), AutoSize = true };
+                var lbl = labels[field];
+                lbl.Location = new Point(x, y + 13);
                 panel.Controls.Add(lbl);
-                x += lbl.Width + 6;
+                x += colLabelW[col] + 6;
 
                 BaseEdit edit = field.ControlType switch
                 {
@@ -400,7 +458,7 @@ public class popPopUp : XtraForm
                     _ => new TextEdit()
                 };
                 edit.Location = new Point(x, y + 9);
-                edit.Size = new Size(field.Width > 0 ? field.Width : 120, 20);
+                edit.Size = new Size(colEditW[col], 20);
                 // PopupLookupEditWyn의 멀티필드 모드가 Leave 시 정확히 하나로 못 좁혔을 때, 방금
                 // 타이핑한 값을 여기 다시 안 치게 미리 채워준다 - 단, sort 순서상 "맨 앞"(대표 조회
                 // 조건, 보통 코드/명 통합검색) 칸 하나에만 채운다. 예전엔 조회조건 전부(부서코드/
@@ -428,11 +486,44 @@ public class popPopUp : XtraForm
                 _searchControls[field.ParamNm] = edit;
 
                 x += edit.Width + 16;
+                col++;
             }
         }
 
+        WireLookupCascades(fields);
+
         panel.Controls.Add(CreateQueryButtonHost(Color.Transparent));
         Controls.Add(panel);
+    }
+
+    /// <summary>LOOKUP 조건의 연쇄(sysPopUpS.par_fields) - 부모 조건의 값이 바뀌면 그 값들을 (부모의 param_nm 그대로) 자식 콤보의 룩업
+    /// 파라미터로 넘겨 목록을 다시 불러오고 자식의 선택값은 비운다(예: 품목그룹1을 고르면 품목그룹2는 그 아래 그룹만, 이미 골랐던 그룹2 값은 해제).
+    /// 자식을 비우면 그 자식의 자식(그룹3 등)도 같은 방식으로 이어서 갱신된다. 팝업을 연 쪽이 넘긴 조건으로 부모가 미리 채워져 있으면
+    /// 처음부터 그 값으로 좁혀서 보여준다(이때는 자식의 미리 채워진 값을 비우지 않는다).</summary>
+    private void WireLookupCascades(List<PopupSearchFieldDto> fields)
+    {
+        foreach (var field in fields.Where(f => f.ControlType == "LOOKUP" && !string.IsNullOrWhiteSpace(f.ParFields)))
+        {
+            if (!_searchControls.TryGetValue(field.ParamNm, out var childEdit) || childEdit is not LookUpEditWyn child) continue;
+
+            var parents = field.ParFields!.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries)
+                .Select(p => p.Trim())
+                .Where(p => _searchControls.TryGetValue(p, out var pe) && pe is LookUpEditWyn)
+                .ToList();
+            if (parents.Count == 0) continue;
+
+            void ApplyParents(bool clearChild)
+            {
+                child.SetParams(parents.Select(p => new KeyValuePair<string, string?>(p, ExtractValue(_searchControls[p]))));
+                if (clearChild) child.EditValue = null!;
+            }
+
+            foreach (var p in parents)
+                _searchControls[p].EditValueChanged += (s, e) => ApplyParents(clearChild: true);
+
+            if (parents.Any(p => !string.IsNullOrEmpty(ExtractValue(_searchControls[p]))))
+                ApplyParents(clearChild: false);
+        }
     }
 
     /// <summary>조회 버튼을 조회조건 영역의 오른쪽 끝(세로 가운데)에 두는 작은 도킹 패널(2026-09-25 요청 - "조회는 위쪽,
@@ -554,7 +645,16 @@ public class popPopUp : XtraForm
             gridView.Appearance.HeaderPanel.Options.UseFont = true;
             gridView.Appearance.HeaderPanel.ForeColor = Color.Black;
             gridView.Appearance.HeaderPanel.Options.UseForeColor = true;
-            gridView.DoubleClick += (s, e) => Accept();
+            if (_multi)
+            {
+                gridView.OptionsSelection.MultiSelect = true;
+                gridView.OptionsSelection.MultiSelectMode = GridMultiSelectMode.CheckBoxRowSelect;
+                gridView.OptionsSelection.ShowCheckBoxSelectorInColumnHeader = DevExpress.Utils.DefaultBoolean.True;
+                gridView.OptionsSelection.CheckBoxSelectorColumnWidth = 34;
+                // 체크한 행이 있을 땐 더블클릭(체크 칸을 빠르게 두 번 누르는 경우 포함)으로 닫지 않는다 - [선택]으로만 확정.
+                gridView.DoubleClick += (s, e) => { if (gridView.GetSelectedRows().Length == 0) Accept(); };
+            }
+            else gridView.DoubleClick += (s, e) => Accept();
 
             var visibleIndex = 0;
             foreach (var col in visibleColumns)
@@ -617,7 +717,7 @@ public class popPopUp : XtraForm
             grid.DataSource = _data;
         }
 
-        if (autoAcceptSingle && _data.Rows.Count == 1)
+        if (autoAcceptSingle && !_multi && _data.Rows.Count == 1)
             AcceptRow(RowToDict(_data, _data.Rows[0]));
     }
 
@@ -637,6 +737,8 @@ public class popPopUp : XtraForm
     /// 트리에 보이는 것과 실제로 매핑에 쓸 수 있는 컬럼은 별개다.</summary>
     private void Accept()
     {
+        if (_multi) { AcceptMulti(); return; }
+
         Dictionary<string, string?> row;
 
         if (_def.HierarchicalYn)
@@ -658,6 +760,32 @@ public class popPopUp : XtraForm
         AcceptRow(row);
     }
 
+    /// <summary>체크한 행들을 화면에 보이는 순서대로 담는다. 체크가 없으면 현재 행 1건. 키 컬럼 값이 비는 행이 있으면(BuildResult가 안내) 아무것도 확정하지 않고 폼을 그대로 둔다.</summary>
+    private void AcceptMulti()
+    {
+        var handles = gridView.GetSelectedRows().Where(h => h >= 0).OrderBy(h => gridView.GetVisibleIndex(h)).ToList();
+        if (handles.Count == 0 && gridView.FocusedRowHandle >= 0) handles.Add(gridView.FocusedRowHandle);
+        if (handles.Count == 0)
+        {
+            Toast.Show("선택할 행을 체크해주세요.");
+            return;
+        }
+
+        var results = new List<PopupLookupResult>();
+        foreach (var handle in handles)
+        {
+            var dataRow = gridView.GetDataRow(handle);
+            if (dataRow == null) continue;
+            var result = BuildResult(_def, RowToDict(_data, dataRow));
+            if (result == null) return;
+            results.Add(result);
+        }
+
+        SelectedResults.Clear();
+        SelectedResults.AddRange(results);
+        DialogResult = DialogResult.OK;
+        Close();
+    }
     private void AcceptRow(Dictionary<string, string?> row)
     {
         var result = BuildResult(_def, row);

@@ -73,6 +73,8 @@ public class PopupLookupEditWyn : ButtonEdit
     private Control? _nameControl;
     private bool _syncingPair;
     private readonly Dictionary<string, Control> _fieldMap = new();
+    // 팝업에서 고르면 값만 채우고, 이 컨트롤을 비워도 지우지 않는 연결(예: 담당자를 고르면 부서 - LinkDept)
+    private readonly Dictionary<string, Control> _linkMap = new();
     private string? _valueOnEnter;
 
     public PopupLookupEditWyn()
@@ -112,6 +114,35 @@ public class PopupLookupEditWyn : ButtonEdit
     [Description("팝업을 열 때 조회조건에 미리 넣을 값(예: p_cust_class=OS;...).")]
     [DefaultValue(null)]
     public string? PopupConditions { get; set; }
+
+    /// <summary>팝업을 열 때마다 호출돼서 "화면 상태에서 온 추가 조회조건"(예: 선택된 부서명)을 돌려주는 콜백 - 화면 코드에서 지정한다(Designer 저장 안 함).
+    /// PopupConditions와 같이 쓰면 PopupConditions 값이 우선한다.</summary>
+    [System.ComponentModel.Browsable(false)]
+    [System.ComponentModel.DesignerSerializationVisibility(System.ComponentModel.DesignerSerializationVisibility.Hidden)]
+    public Func<Dictionary<string, string?>>? ConditionProvider { get; set; }
+
+    private Dictionary<string, string?>? BuildExtraConditions()
+    {
+        var fixedConditions = PopupLookupProvider.ParseConditions(PopupConditions);
+        var dynamicConditions = ConditionProvider?.Invoke();
+        if (dynamicConditions == null || dynamicConditions.Count == 0) return fixedConditions;
+        var merged = new Dictionary<string, string?>(dynamicConditions);
+        if (fixedConditions != null) foreach (var kv in fixedConditions) merged[kv.Key] = kv.Value;
+        return merged;
+    }
+
+    /// <summary>사원(P_EMP) 팝업을 부서와 연결한다 - 열 때 화면의 부서명(deptNameControl)을 조회조건(p_dept_nm)으로 넘겨 그 부서 소속만 보이게 하고,
+    /// 사원을 고르면 사원의 소속 부서(dept_id/dept_nm)를 부서 컨트롤(deptIdControl/deptNameControl)에도 채운다. 담당자를 지워도 부서는 그대로 둔다.</summary>
+    public void LinkDept(Control deptNameControl, Control deptIdControl)
+    {
+        ConditionProvider = () =>
+        {
+            var dept = deptNameControl.Text?.Trim();
+            return string.IsNullOrEmpty(dept) ? new Dictionary<string, string?>() : new Dictionary<string, string?> { ["p_dept_nm"] = dept };
+        };
+        _linkMap["dept_id"] = deptIdControl;
+        _linkMap["dept_nm"] = deptNameControl;
+    }
 
     private bool _required;
 
@@ -291,7 +322,7 @@ public class PopupLookupEditWyn : ButtonEdit
         if (string.IsNullOrEmpty(typed) || string.IsNullOrEmpty(LookupKey) || PopupLookupProvider.SearchExact == null) return;
 
         List<PopupLookupResult> candidates;
-        PopupLookupProvider.ExtraConditions = PopupLookupProvider.ParseConditions(PopupConditions);
+        PopupLookupProvider.ExtraConditions = BuildExtraConditions();
         try
         {
             candidates = await PopupLookupProvider.SearchExact(LookupKey!, typed!);
@@ -331,7 +362,7 @@ public class PopupLookupEditWyn : ButtonEdit
         }
 
         PopupLookupResult? result;
-        PopupLookupProvider.ExtraConditions = PopupLookupProvider.ParseConditions(PopupConditions);
+        PopupLookupProvider.ExtraConditions = BuildExtraConditions();
         try { result = await PopupLookupProvider.OpenPopup(LookupKey!, this, initialKeyword); }
         finally { PopupLookupProvider.ExtraConditions = null; }
         if (result == null)
@@ -362,6 +393,8 @@ public class PopupLookupEditWyn : ButtonEdit
                     var value = result.Row.TryGetValue(kv.Key, out var v) ? v : null;
                     SetFieldValue(kv.Value, value);
                 }
+                foreach (var kv in _linkMap)
+                    if (result.Row.TryGetValue(kv.Key, out var linked) && !string.IsNullOrEmpty(linked)) SetFieldValue(kv.Value, linked);
             }
             else
             {

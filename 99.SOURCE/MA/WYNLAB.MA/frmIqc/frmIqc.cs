@@ -25,12 +25,16 @@ public partial class frmIqc : BaseForm
     {
         InitializeComponent();
 
+        // 조회조건 사업장 - 화면 표준(2026-10-03): 항상 첫 번째, Required, 화면을 열면 로그인 사업장이 기본값.
+        cboSearchAccId.EditValue = Session.AccId?.ToString() ?? string.Empty;
+        cboSearchAccId.Tag = new BindingFieldTag("acc_id");
+
         Text = "수입검사등록";
 
-        Controls.Add(BuildScreenHeader());
 
         txtDeptNm.MapField("dept_id", txtDeptId);
         txtEmpNm.MapField("emp_id", txtEmpId);
+        txtEmpNm.LinkDept(txtDeptNm, txtDeptId); // 담당자 팝업은 선택한 부서 소속만, 담당자를 고르면 부서도 채움
         txtCustNm.MapField("cust_id", txtCustId);
 
         gvw1.Role = GridRoleWyn.Edit;
@@ -107,6 +111,7 @@ public partial class frmIqc : BaseForm
         }
         var p = new Dictionary<string, string?>
         {
+            ["p_acc_id"] = cboSearchAccId.EditValue?.ToString(),
             ["p_work_type"] = "Q",
             ["p_iqc_id"] = forceKey,
             ["p_iqc_no"] = forceKey == null ? txtSearchIqcNo.Text : null,
@@ -131,6 +136,7 @@ public partial class frmIqc : BaseForm
             _statCd = row["stat_cd"]?.ToString() ?? "0";
             cboAccId.EditValue = row["acc_id"]?.ToString() ?? string.Empty;
             txtIqcNo.Text = row["iqc_no"]?.ToString() ?? string.Empty;
+            txtSearchIqcNo.Text = txtIqcNo.Text; // 링크로 열었거나 저장 후에도 조회 버튼이 현재 문서를 다시 읽도록
             dteIqcDate.YyyyMmDd = row["iqc_date"]?.ToString();
             cboStatCd.EditValue = _statCd;
             txtCustId.Text = row["cust_id"]?.ToString() ?? string.Empty;

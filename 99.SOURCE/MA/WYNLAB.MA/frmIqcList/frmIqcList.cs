@@ -17,6 +17,10 @@ public partial class frmIqcList : BaseForm
     {
         InitializeComponent();
 
+        // 조회조건 사업장 - 화면 표준(2026-10-03): 항상 첫 번째, Required, 화면을 열면 로그인 사업장이 기본값.
+        cboSearchAccId.EditValue = Session.AccId?.ToString() ?? string.Empty;
+        cboSearchAccId.Tag = new BindingFieldTag("acc_id");
+
         Text = "수입검사현황";
 
         Controls.Add(BuildScreenHeader());
@@ -36,6 +40,7 @@ public partial class frmIqcList : BaseForm
     {
         var p = new Dictionary<string, string?>
         {
+            ["p_acc_id"] = cboSearchAccId.EditValue?.ToString(),
             ["p_work_type"] = "Q",
             ["p_iqc_no"] = txtSearchIqcNo.Text,
             ["p_keyword"] = txtSearchKeyword.Text,
@@ -75,6 +80,7 @@ public partial class frmIqcList : BaseForm
 
     public override Task NewClick() => Task.CompletedTask;
     public override Task DeleteClick() => Task.CompletedTask;
+    protected override bool ConfirmDeleteByDefault => false; // 조회전용 - 삭제 기능 없음
     public override Task NewRowClick() => Task.CompletedTask;
     public override Task DeleteRowClick() => Task.CompletedTask;
     public override Task SaveClick() => Task.CompletedTask;

@@ -5,6 +5,7 @@ using WYNLAB.Base.Controls;
 namespace WYNLAB.PR;
 
 /// <summary>
+/// 제품을 고르면 그 제품에 연결된 라우팅(라우팅관리의 적용 제품)만 라우팅 콤보에 나오고 기본 라우팅이 미리 선택된다. 저장하면 서버가 각 공정 산출품목의 BOM을 자재소요(TPRWOMAT, 하단 그리드)로 복사한다.
 /// 작업지시 - 웨이퍼 LOT 1개의 공정 체인(TPRWOM/TPRWOD). 라우팅을 고르고 시작 LOT/수량을 넣어 저장하면 서버가 라우팅을
 /// 공정행으로 복사하고(창고는 외주처의 외주창고로 자동 지정) 시작 LOT를 만든다. 공정행은 외주발주를 겸해서 외주처/창고/단가/
 /// 납기/분할수량/비고만 고칠 수 있고 공정 추가/삭제는 없다(라우팅에서 온다). 수주(SO) 연결은 선택 사항.
@@ -16,6 +17,7 @@ public partial class frmWo : BaseForm
 {
     private DataTable _detail = new();
     private DataTable _lots = new();
+    private DataTable _mats = new();       // 자재소요(BOM 복사본, 조회 전용)
     private string? _editingKey; // null이면 신규모드
     private string _statCd = "0";
 
@@ -23,12 +25,18 @@ public partial class frmWo : BaseForm
     {
         InitializeComponent();
 
+        // 조회조건 사업장 - 화면 표준(2026-10-03): 항상 첫 번째, Required, 화면을 열면 로그인 사업장이 기본값.
+        cboSearchAccId.EditValue = Session.AccId?.ToString() ?? string.Empty;
+        cboSearchAccId.Tag = new BindingFieldTag("acc_id");
+
         Text = "작업지시";
 
         Controls.Add(BuildScreenHeader());
 
+        txtItemNm.MapField("item_id", txtItemId);
         txtDeptNm.MapField("dept_id", txtDeptId);
         txtEmpNm.MapField("emp_id", txtEmpId);
+        txtEmpNm.LinkDept(txtDeptNm, txtDeptId); // 담당자 팝업은 선택한 부서 소속만, 담당자를 고르면 부서도 채움
 
         gvw1.Role = GridRoleWyn.Edit;
         gvw1.HighlightFocusedRow = true;
@@ -37,6 +45,13 @@ public partial class frmWo : BaseForm
         gvw1.CellValueChanged += Gvw1_CellValueChanged;
 
         gvw2.HighlightFocusedRow = true;
+        gvw3.HighlightFocusedRow = true;
+
+        // 신규 작성 중 제품을 고르면(또는 수주 선택으로 채워지면) 그 제품의 라우팅 목록으로 바꾸고 기본 라우팅을 선택한다.
+        txtItemId.EditValueChanged += (s, e) =>
+        {
+            if (_editingKey == null && IsHandleCreated) _ = SafeExecuteAsync(() => LoadRoutesAsync(txtItemId.Text, null, selectDefault: true), "라우팅 목록 조회");
+        };
 
         btnPickLot.Click += async (s, e) => await SafeExecuteAsync(PickLotAsync, "입고 LOT 선택");
         btnPickSo.Click += async (s, e) => await SafeExecuteAsync(PickSoAsync, "수주 선택");
@@ -67,6 +82,14 @@ public partial class frmWo : BaseForm
         }
     }
 
+    /// <summary>라우팅 콤보를 제품별 목록으로 다시 채운다(itemId 비우면 전체). selectRouteId가 있으면 그 라우팅을, selectDefault면 제품의 기본 라우팅(목록 첫 항목)을 선택한다.</summary>
+    private async Task LoadRoutesAsync(string? itemId, string? selectRouteId, bool selectDefault = false)
+    {
+        await cboRouteId.SetParamAsync("p_item_id", string.IsNullOrWhiteSpace(itemId) ? null : itemId);
+        if (selectRouteId != null) cboRouteId.EditValue = selectRouteId;
+        else if (selectDefault) cboRouteId.EditValue = string.IsNullOrWhiteSpace(itemId) ? null : cboRouteId.FirstItemValue;
+    }
+
     /// <summary>새 폼은 아직 조회한 적이 없어 그리드 테이블에 컬럼이 없다 - 조건에 안 걸리는 조회로 스키마만 먼저 받아 둔다.</summary>
     private async Task EnsureSchemaAsync()
     {
@@ -75,7 +98,9 @@ public partial class frmWo : BaseForm
         var tables = await QueryMultiAsync("USP_PR_WO_Q", new Dictionary<string, string?> { ["p_work_type"] = "Q", ["p_wo_id"] = "-1" });
         if (tables.Count > 1) _detail = tables[1];
         if (tables.Count > 2) _lots = tables[2];
+        if (tables.Count > 3) _mats = tables[3];
         EnterNewMode();
+        await LoadRoutesAsync(null, null);
     }
 
     public override async Task QueryClick() => await QueryCore(forceKey: null);
@@ -92,6 +117,7 @@ public partial class frmWo : BaseForm
 
         var p = new Dictionary<string, string?>
         {
+            ["p_acc_id"] = cboSearchAccId.EditValue?.ToString(),
             ["p_work_type"] = "Q",
             ["p_wo_id"] = forceKey,
             ["p_wo_no"] = forceKey == null ? txtSearchWoNo.Text : null,
@@ -100,8 +126,14 @@ public partial class frmWo : BaseForm
         var header = tables.Count > 0 ? tables[0] : new DataTable();
         _detail = tables.Count > 1 ? tables[1] : new DataTable();
         _lots = tables.Count > 2 ? tables[2] : new DataTable();
+        _mats = tables.Count > 3 ? tables[3] : new DataTable();
 
-        if (header.Rows.Count > 0) OnRowLoaded(header.Rows[0]);
+        if (header.Rows.Count > 0)
+        {
+            OnRowLoaded(header.Rows[0]);
+            // 저장된 작업지시는 연결이 나중에 바뀌었어도 쓴 라우팅이 보이도록 전체 라우팅 목록에서 선택한다.
+            await LoadRoutesAsync(null, header.Rows[0]["route_id"]?.ToString());
+        }
         else
         {
             EnterNewMode();
@@ -125,6 +157,7 @@ public partial class frmWo : BaseForm
             txtStartLotId.Text = string.Empty;
             txtStartLotNo.Text = row["start_lot_no"]?.ToString() ?? string.Empty;
             spnStartQty.EditValue = Dec(row["start_qty"]);
+            txtItemId.Text = row["item_id"]?.ToString() ?? string.Empty;
             txtItemNm.Text = row["item_nm"]?.ToString() ?? string.Empty;
             SetSo(row["so_id"]?.ToString(), row["so_serl"]?.ToString(), row["so_no"]?.ToString());
             txtDeptId.Text = row["dept_id"]?.ToString() ?? string.Empty;
@@ -136,6 +169,7 @@ public partial class frmWo : BaseForm
             TrackDirty(_detail);
             grd1.DataSource = _detail;
             grd2.DataSource = _lots;
+            grd3.DataSource = _mats;
         });
         ApplyLock();
     }
@@ -155,6 +189,7 @@ public partial class frmWo : BaseForm
             txtStartLotId.Text = string.Empty;
             txtStartLotNo.Text = string.Empty;
             spnStartQty.EditValue = 0m;
+            txtItemId.Text = string.Empty;
             txtItemNm.Text = string.Empty;
             SetSo(null, null, null);
             txtDeptId.Text = Session.DeptId?.ToString() ?? string.Empty;
@@ -165,9 +200,11 @@ public partial class frmWo : BaseForm
 
             _detail = _detail.Clone();
             _lots = _lots.Clone();
+            _mats = _mats.Clone();
             TrackDirty(_detail);
             grd1.DataSource = _detail;
             grd2.DataSource = _lots;
+            grd3.DataSource = _mats;
         });
         ApplyLock();
     }
@@ -186,6 +223,7 @@ public partial class frmWo : BaseForm
         var closed = _statCd == "E" || _statCd == "X";
 
         cboRouteId.Properties.ReadOnly = created;
+        txtItemNm.Properties.ReadOnly = created;
         btnPickLot.Enabled = !created;
         foreach (var edit in new DevExpress.XtraEditors.BaseEdit[] { dteWoDate, dteDelvDate, txtDeptNm, txtEmpNm, memoRemark })
             edit.Properties.ReadOnly = closed;
@@ -205,13 +243,18 @@ public partial class frmWo : BaseForm
     {
         EnterNewMode();
         FocusFirstEntryField(panData); // 사업장 다음 첫 탭오더 컨트롤에 커서(표준)
-        return Task.CompletedTask;
+        return LoadRoutesAsync(null, null);
     }
 
     /// <summary>입고 LOT 선택 - 웨이퍼입고에서 확정한 미배정 LOT 한 건을 시작 LOT로 배정한다. 시작수량은 그 LOT의 재고 수량.</summary>
     private async Task PickLotAsync()
     {
         if (_editingKey != null) return;
+        if (string.IsNullOrWhiteSpace(cboRouteId.EditValue?.ToString()))
+        {
+            AppMessageBox.Show("먼저 제품과 라우팅을 선택하세요. 선택한 라우팅 첫 공정의 투입품목 LOT만 나옵니다.", "안내");
+            return;
+        }
 
         var columns = new[]
         {
@@ -221,13 +264,13 @@ public partial class frmWo : BaseForm
         };
         var picked = popPick.Pick(this, MenuId, "입고 LOT 선택", "USP_PR_WOLOTPICK_Q", "LOT번호", columns, cboAccId.EditValue?.ToString(),
             rows => rows.Count > 1 ? "시작 LOT는 한 건만 선택할 수 있습니다." : null,
-            emptyHint: "선택할 웨이퍼 LOT가 없습니다. 먼저 웨이퍼입고 화면에서 입고를 확정하세요(이미 다른 작업지시에 배정된 LOT는 나오지 않습니다).");
+            emptyHint: "선택할 웨이퍼 LOT가 없습니다. 먼저 웨이퍼입고 화면에서 입고를 확정하세요(이미 다른 작업지시에 배정된 LOT, 선택한 라우팅 첫 공정의 투입품목이 아닌 LOT는 나오지 않습니다).",
+            extra: new Dictionary<string, string?> { ["p_route_id"] = cboRouteId.EditValue?.ToString() });
         if (picked == null || picked.Rows.Count == 0) return;
 
         var r = picked.Rows[0];
         txtStartLotId.Text = r["lot_id"]?.ToString() ?? string.Empty;
         txtStartLotNo.Text = r["lot_no"]?.ToString() ?? string.Empty;
-        txtItemNm.Text = r["item_nm"]?.ToString() ?? string.Empty;
         spnStartQty.EditValue = Dec(r["stock_qty"]);
         await Task.CompletedTask;
     }
@@ -247,6 +290,11 @@ public partial class frmWo : BaseForm
 
         var r = picked.Rows[0];
         SetSo(r["so_id"]?.ToString(), r["so_serl"]?.ToString(), r["so_no"]?.ToString());
+        if (_editingKey == null && r.Table.Columns.Contains("item_id") && !string.IsNullOrWhiteSpace(r["item_id"]?.ToString()))
+        {
+            txtItemNm.Text = r["item_nm"]?.ToString() ?? string.Empty;
+            txtItemId.Text = r["item_id"]?.ToString() ?? string.Empty; // 제품이 바뀌면 라우팅 목록이 따라 바뀐다
+        }
         if (string.IsNullOrWhiteSpace(dteDelvDate.YyyyMmDd) && !string.IsNullOrWhiteSpace(r["delv_date"]?.ToString()))
             dteDelvDate.YyyyMmDd = r["delv_date"]?.ToString();
         await Task.CompletedTask;
@@ -257,6 +305,12 @@ public partial class frmWo : BaseForm
         if (_statCd == "E" || _statCd == "X")
         {
             AppMessageBox.Show("완료되었거나 중단된 작업지시는 수정할 수 없습니다.", "안내");
+            return;
+        }
+
+        if (_editingKey == null && string.IsNullOrWhiteSpace(txtItemId.Text))
+        {
+            AppMessageBox.Show("제품을 선택하세요. 제품에 연결된 라우팅만 선택할 수 있습니다.", "안내");
             return;
         }
 
@@ -276,6 +330,7 @@ public partial class frmWo : BaseForm
             ["p_acc_id"] = cboAccId.EditValue?.ToString(),
             ["p_wo_date"] = dteWoDate.YyyyMmDd,
             ["p_route_id"] = cboRouteId.EditValue?.ToString(),
+            ["p_item_id"] = _editingKey == null ? txtItemId.Text : null,
             ["p_start_lot_id"] = _editingKey == null ? txtStartLotId.Text : null,
             ["p_so_id"] = txtSoId.Text,
             ["p_so_serl"] = txtSoSerl.Text,

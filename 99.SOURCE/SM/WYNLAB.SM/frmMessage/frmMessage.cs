@@ -17,7 +17,6 @@ public partial class frmMessage : BaseForm
 
         Text = "쪽지함";
 
-        Controls.Add(BuildScreenHeader());
 
         gvw1.Role = GridRoleWyn.Query;
         gvw1.HighlightFocusedRow = true;

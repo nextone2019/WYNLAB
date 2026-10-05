@@ -49,6 +49,8 @@ public partial class frmItemList
             this.paTitle1 = new WYNLAB.Base.Controls.PanelWyn();
             this.sectionHeaderWyn4 = new WYNLAB.Base.Controls.SectionHeaderWyn();
             this.panHeader = new WYNLAB.Base.Controls.PanelWyn();
+            this.lblSearchAccId = new DevExpress.XtraEditors.LabelControl();
+            this.cboSearchAccId = new WYNLAB.Base.Controls.LookUpEditWyn();
             this.cboAssetType_Q = new WYNLAB.Base.Controls.LookUpEditWyn();
             this.cboStatCd_Q = new WYNLAB.Base.Controls.LookUpEditWyn();
             this.lblSearchItemNo = new DevExpress.XtraEditors.LabelControl();
@@ -76,6 +78,7 @@ public partial class frmItemList
             ((System.ComponentModel.ISupportInitialize)(this.txtItemNo_Q.Properties)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.paTitleH)).BeginInit();
             this.paTitleH.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.cboSearchAccId.Properties)).BeginInit();
             this.SuspendLayout();
             // 
             // panBody
@@ -402,6 +405,8 @@ public partial class frmItemList
             // panHeader
             // 
             this.panHeader.BorderStyle = DevExpress.XtraEditors.Controls.BorderStyles.Default;
+            this.panHeader.Controls.Add(this.lblSearchAccId);
+            this.panHeader.Controls.Add(this.cboSearchAccId);
             this.panHeader.Controls.Add(this.cboAssetType_Q);
             this.panHeader.Controls.Add(this.cboStatCd_Q);
             this.panHeader.Controls.Add(this.lblSearchItemNo);
@@ -415,10 +420,37 @@ public partial class frmItemList
             this.panHeader.Size = new System.Drawing.Size(2208, 60);
             this.panHeader.TabIndex = 0;
             // 
+            // lblSearchAccId (조회조건 첫 번째 - 사업장 표준, 2026-10-03)
+            // 
+            this.lblSearchAccId.Appearance.Font = new System.Drawing.Font("맑은 고딕", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
+            this.lblSearchAccId.Appearance.Options.UseFont = true;
+            this.lblSearchAccId.Location = new System.Drawing.Point(17, 24);
+            this.lblSearchAccId.Name = "lblSearchAccId";
+            this.lblSearchAccId.Size = new System.Drawing.Size(36, 15);
+            this.lblSearchAccId.TabIndex = 0;
+            this.lblSearchAccId.Text = "사업장";
+            // 
+            // cboSearchAccId (사업장 LookUp, Required - 기본값은 화면 생성자에서 로그인 사업장)
+            // 
+            this.cboSearchAccId.EditValue = "";
+            this.cboSearchAccId.Location = new System.Drawing.Point(61, 21);
+            this.cboSearchAccId.LookupKey = "L_ACC";
+            this.cboSearchAccId.Name = "cboSearchAccId";
+            this.cboSearchAccId.Properties.Appearance.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(249)))), ((int)(((byte)(219)))));
+            this.cboSearchAccId.Properties.Appearance.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))));
+            this.cboSearchAccId.Properties.Appearance.Options.UseBackColor = true;
+            this.cboSearchAccId.Properties.Appearance.Options.UseForeColor = true;
+            this.cboSearchAccId.Properties.Buttons.AddRange(new DevExpress.XtraEditors.Controls.EditorButton[] {
+            new DevExpress.XtraEditors.Controls.EditorButton(DevExpress.XtraEditors.Controls.ButtonPredefines.Combo)});
+            this.cboSearchAccId.Properties.NullText = "";
+            this.cboSearchAccId.Required = true;
+            this.cboSearchAccId.Size = new System.Drawing.Size(131, 20);
+            this.cboSearchAccId.TabIndex = 1;
+            // 
             // cboAssetType_Q
             // 
             this.cboAssetType_Q.EditValue = "";
-            this.cboAssetType_Q.Location = new System.Drawing.Point(294, 22);
+            this.cboAssetType_Q.Location = new System.Drawing.Point(493, 22);
             this.cboAssetType_Q.LookupKey = "L_CM0002";
             this.cboAssetType_Q.Name = "cboAssetType_Q";
             this.cboAssetType_Q.Properties.Buttons.AddRange(new DevExpress.XtraEditors.Controls.EditorButton[] {
@@ -431,7 +463,7 @@ public partial class frmItemList
             // cboStatCd_Q
             // 
             this.cboStatCd_Q.EditValue = "";
-            this.cboStatCd_Q.Location = new System.Drawing.Point(505, 22);
+            this.cboStatCd_Q.Location = new System.Drawing.Point(704, 22);
             this.cboStatCd_Q.Name = "cboStatCd_Q";
             this.cboStatCd_Q.Properties.Buttons.AddRange(new DevExpress.XtraEditors.Controls.EditorButton[] {
             new DevExpress.XtraEditors.Controls.EditorButton(DevExpress.XtraEditors.Controls.ButtonPredefines.Combo)});
@@ -444,7 +476,7 @@ public partial class frmItemList
             // 
             this.lblSearchItemNo.Appearance.Font = new System.Drawing.Font("맑은 고딕", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.lblSearchItemNo.Appearance.Options.UseFont = true;
-            this.lblSearchItemNo.Location = new System.Drawing.Point(17, 24);
+            this.lblSearchItemNo.Location = new System.Drawing.Point(216, 24);
             this.lblSearchItemNo.Name = "lblSearchItemNo";
             this.lblSearchItemNo.Size = new System.Drawing.Size(24, 15);
             this.lblSearchItemNo.TabIndex = 0;
@@ -454,7 +486,7 @@ public partial class frmItemList
             // 
             this.labelControl3.Appearance.Font = new System.Drawing.Font("맑은 고딕", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.labelControl3.Appearance.Options.UseFont = true;
-            this.labelControl3.Location = new System.Drawing.Point(242, 25);
+            this.labelControl3.Location = new System.Drawing.Point(441, 25);
             this.labelControl3.Name = "labelControl3";
             this.labelControl3.Size = new System.Drawing.Size(48, 15);
             this.labelControl3.TabIndex = 2;
@@ -462,7 +494,7 @@ public partial class frmItemList
             // 
             // txtItemNo_Q
             // 
-            this.txtItemNo_Q.Location = new System.Drawing.Point(47, 21);
+            this.txtItemNo_Q.Location = new System.Drawing.Point(246, 21);
             this.txtItemNo_Q.Name = "txtItemNo_Q";
             this.txtItemNo_Q.Size = new System.Drawing.Size(173, 20);
             this.txtItemNo_Q.TabIndex = 1;
@@ -471,7 +503,7 @@ public partial class frmItemList
             // 
             this.labelControl2.Appearance.Font = new System.Drawing.Font("맑은 고딕", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.labelControl2.Appearance.Options.UseFont = true;
-            this.labelControl2.Location = new System.Drawing.Point(451, 25);
+            this.labelControl2.Location = new System.Drawing.Point(650, 25);
             this.labelControl2.Name = "labelControl2";
             this.labelControl2.Size = new System.Drawing.Size(48, 15);
             this.labelControl2.TabIndex = 2;
@@ -534,6 +566,7 @@ public partial class frmItemList
             ((System.ComponentModel.ISupportInitialize)(this.txtItemNo_Q.Properties)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.paTitleH)).EndInit();
             this.paTitleH.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.cboSearchAccId.Properties)).EndInit();
             this.ResumeLayout(false);
 
     }
@@ -575,4 +608,6 @@ public partial class frmItemList
     private LookUpColumnEdit lookUpColumnEdit2;
     private LookUpEditWyn cboAssetType_Q;
     private DevExpress.XtraEditors.LabelControl labelControl3;
+    private DevExpress.XtraEditors.LabelControl lblSearchAccId;
+    private WYNLAB.Base.Controls.LookUpEditWyn cboSearchAccId;
 }

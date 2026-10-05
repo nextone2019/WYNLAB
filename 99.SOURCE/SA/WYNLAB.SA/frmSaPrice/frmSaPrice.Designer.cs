@@ -1,5 +1,5 @@
-﻿// ?먮ℓ?④??깅줉 - frmPoPrice(援щℓ?④??깅줉)? ?숈씪??援ъ“: ?쇱そ grd1 = ?덈ぉ 紐⑸줉(+理쒖쥌?④?), ?ㅻⅨ履?= panData(?좏깮???덈ぉ ?뺣낫) + 洹??꾨옒 grd2(?덈ぉ???④? ?깅줉).
-// ?ъ썝?깅줉(frmEmp) ?쒖? 諛곗튂(?쒕ぉ 諛?移대뱶/?ㅻ뜑 ?꾩씠肄?瑜??곕쫫. VS ?붿옄?대꼫濡??먯쑀濡?쾶 ?몄쭛 媛?ν빀?덈떎.
+﻿// 판매단가등록 - frmPoPrice(구매단가등록)와 동일한 구조: 왼쪽 grd1 = 품목 목록(+최종단가), 오른쪽 = panData(선택한 품목 정보) + 그 아래 grd2(품목의 단가 등록).
+// 사원등록(frmEmp) 표준 배치(제목 바/카드/헤더 아이콘)를 따름. VS 디자이너로 자유롭게 편집 가능합니다.
 #nullable disable
 using WYNLAB.Base;
 using WYNLAB.Base.Controls;
@@ -279,7 +279,7 @@ public partial class frmSaPrice
             //
             // colMItemSpec
             //
-            this.colMItemSpec.Caption = "洹쒓꺽";
+            this.colMItemSpec.Caption = "규격";
             this.colMItemSpec.FieldName = "item_spec";
             this.colMItemSpec.Name = "colMItemSpec";
             this.colMItemSpec.Visible = true;
@@ -508,7 +508,7 @@ public partial class frmSaPrice
             //
             // colCustId
             //
-            this.colCustId.Caption = "嫄곕옒泥쁈D";
+            this.colCustId.Caption = "거래처ID";
             this.colCustId.FieldName = "cust_id";
             this.colCustId.Name = "colCustId";
             //
@@ -527,6 +527,7 @@ public partial class frmSaPrice
             this.popcolCust.Buttons.AddRange(new DevExpress.XtraEditors.Controls.EditorButton[] {
             new DevExpress.XtraEditors.Controls.EditorButton(DevExpress.XtraEditors.Controls.ButtonPredefines.Ellipsis, "", 24, true, true, false, editorButtonImageOptions2, new DevExpress.Utils.KeyShortcut(System.Windows.Forms.Keys.None), serializableAppearanceObject5, serializableAppearanceObject6, serializableAppearanceObject7, serializableAppearanceObject8, "...", null, null, DevExpress.Utils.ToolTipAnchor.Default)});
             this.popcolCust.LookupKey = "P_CUST";
+            this.popcolCust.PopupConditions = "p_cust_class=SA";
             this.popcolCust.Name = "popcolCust";
             //
             // colStartDate
@@ -632,7 +633,7 @@ public partial class frmSaPrice
             //
             // colRemark
             //
-            this.colRemark.Caption = "鍮꾧퀬";
+            this.colRemark.Caption = "비고";
             this.colRemark.FieldName = "remark";
             this.colRemark.Name = "colRemark";
             this.colRemark.Visible = true;
@@ -683,7 +684,7 @@ public partial class frmSaPrice
             this.btnDeletRow1.Location = new System.Drawing.Point(68, 3);
             this.btnDeletRow1.Name = "btnDeletRow1";
             this.btnDeletRow1.PressedColor = System.Drawing.Color.FromArgb(((int)(((byte)(225)))), ((int)(((byte)(235)))), ((int)(((byte)(253)))));
-            this.btnDeletRow1.Size = new System.Drawing.Size(58, 24);
+            this.btnDeletRow1.Size = new System.Drawing.Size(60, 24);
             this.btnDeletRow1.TabIndex = 1;
             this.btnDeletRow1.Text = "행삭제";
             this.btnDeletRow1.ToolTip = "선택한 행을 삭제합니다(저장 시 반영).";
@@ -700,7 +701,7 @@ public partial class frmSaPrice
             this.btnAddRow1.Location = new System.Drawing.Point(6, 3);
             this.btnAddRow1.Name = "btnAddRow1";
             this.btnAddRow1.PressedColor = System.Drawing.Color.FromArgb(((int)(((byte)(225)))), ((int)(((byte)(235)))), ((int)(((byte)(253)))));
-            this.btnAddRow1.Size = new System.Drawing.Size(58, 24);
+            this.btnAddRow1.Size = new System.Drawing.Size(60, 24);
             this.btnAddRow1.TabIndex = 0;
             this.btnAddRow1.Text = "행추가";
             this.btnAddRow1.ToolTip = "새 단가 행을 추가합니다 - 시작일자는 오늘, 종료일자는 비우면 무기한.";
@@ -818,7 +819,7 @@ public partial class frmSaPrice
             this.lblDetailItemSpec.Name = "lblDetailItemSpec";
             this.lblDetailItemSpec.Size = new System.Drawing.Size(20, 14);
             this.lblDetailItemSpec.TabIndex = 3;
-            this.lblDetailItemSpec.Text = "洹쒓꺽";
+            this.lblDetailItemSpec.Text = "규격";
             //
             // txtDetailItemSpec
             //
@@ -995,9 +996,9 @@ public partial class frmSaPrice
             this.cboPriceYn.Properties.Buttons.AddRange(new DevExpress.XtraEditors.Controls.EditorButton[] {
             new DevExpress.XtraEditors.Controls.EditorButton(DevExpress.XtraEditors.Controls.ButtonPredefines.Combo)});
             this.cboPriceYn.Properties.Items.AddRange(new object[] {
-            "?꾩껜",
-            "?④? ?깅줉???덈ぉ",
-            "?④? ?녿뒗 ?덈ぉ"});
+            "전체",
+            "단가 등록된 품목",
+            "단가 없는 품목"});
             this.cboPriceYn.Properties.TextEditStyle = DevExpress.XtraEditors.Controls.TextEditStyles.DisableTextEditor;
             this.cboPriceYn.Size = new System.Drawing.Size(150, 20);
             this.cboPriceYn.TabIndex = 2;

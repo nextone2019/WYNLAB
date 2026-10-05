@@ -45,6 +45,18 @@ public class MenuPermissionService : IMenuPermissionService
 
     public async Task<List<MenuDto>> GetEffectivePermissionsAsync(string userId)
     {
+        var menus = await GetPermissionsCoreAsync(userId);
+        if (menus.Count == 0) return menus;
+
+        // 메뉴에 켜진 화면 기능(전자결재/첨부파일...)은 사용자 권한과 무관한 메뉴 설정이라 권한 계산 뒤에 한 번에 붙인다.
+        var features = (await _menuRepo.GetActiveFeaturesAsync()).ToLookup(f => f.MenuId);
+        foreach (var menu in menus)
+            menu.Features = features[menu.MenuId].Select(f => new MenuFeatureDto { FeatureCd = f.FeatureCd, UseYn = true, OptionVal = f.OptionVal }).ToList();
+        return menus;
+    }
+
+    private async Task<List<MenuDto>> GetPermissionsCoreAsync(string userId)
+    {
         var session = await _userRepo.GetSessionAsync(userId);
         var user = session.User;
         if (user == null || user.UseYn != "Y") return new List<MenuDto>();

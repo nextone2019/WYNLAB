@@ -1,5 +1,6 @@
-﻿// VS ?붿옄?대꼫媛 ?먮룞 ?앹꽦?섎뒗 ?꾨뱶 ?좎뼵?먮뒗 = null!????遺숈뿬??nullable 寃쎄퀬(CS8618)媛
-// 怨꾩냽 ?섍린 ?뚮Ц?? ???뚯씪(?붿옄?대꼫 ?꾩슜)留?nullable 寃?щ? ?덈떎 - ?뷀븳 愿濡. ???꾨줈?앺듃瑜?// 蹂듭궗?댁꽌 ???붾㈃??留뚮뱾 ?뚮룄 洹??붾㈃??Designer.cs 留??꾩뿉 ??以꾩쓣 洹몃?濡??좎???寃?
+// VS 디자이너가 자동 생성하는 필드 선언에는 = null!을 안 붙여서 nullable 경고(CS8618)가
+// 계속 나기 때문에, 이 파일(디자이너 전용)만 nullable 검사를 끈다 - 흔한 관례. 이 프로젝트를
+// 복사해서 새 화면을 만들 때도 그 화면의 Designer.cs 맨 위에 이 줄을 그대로 유지할 것.
 #nullable disable
 using DevExpress.XtraGrid;
 using WYNLAB.Base.Controls;
@@ -7,14 +8,18 @@ using WYNLAB.Base.Controls;
 namespace WYNLAB.SYS;
 
 /// <summary>
-/// ???붾㈃ 媛쒕컻???쒗뵆由?- frmMinorCode(湲곗큹肄붾뱶?깅줉)?먯꽌 ?쒖? ?덉씠?꾩썐(?쒕ぉ諛?+ 寃?됲뙣??+
-/// 醫뚯슦 ?ㅽ뵆由ы꽣 + 紐⑸줉洹몃━???곸꽭?⑤꼸/?섏쐞洹몃━??留??④린怨?洹??붾㈃ ?꾩슜 而щ읆/?낅젰而⑦듃濡ㅼ?
-/// ?꾨? 吏??寃? ?ъ슜踰?
-///   1. ???꾨줈?앺듃 ?대뜑(WYNLAB.SYS)瑜????붾㈃ ?꾨줈?앺듃濡?蹂듭궗
-///   2. 蹂듭궗???대뜑 ?덉뿉??frmSysPopup.cs / .Designer.cs / .resx ?뚯씪紐낆쓣 ???붾㈃紐낆쑝濡?///      諛붽씀怨? 洹??덉쓽 ?대옒?ㅻ챸(frmSysPopup)쨌?ㅼ엫?ㅽ럹?댁뒪(WYNLAB.SYS)????///      ?붾㈃紐?WYNLAB.SM?쇰줈 諛붽씔??- 諛섎뱶???뚯씪?????대쫫?쇰줈 諛붽씔 "?ㅼ쓬?? ?대옒?ㅻ챸??///      諛붽? 寃?癒쇱? rename 由ы뙥?곕????곕㈃ ?먮낯怨??대쫫??寃뱀퀜 而댄뙆???먮윭媛 ?쒕떎 - ?ㅼ젣濡?///      寃れ쓬, frmUserAuth 留뚮뱾 ?????쒖꽌瑜???吏耳쒖꽌 1142媛??먮윭媛 ?ъ뿀??.
-///   3. grd1(紐⑸줉)/panData(?곸꽭 ?낅젰)/grd2(?섏쐞 紐⑸줉) ?먮━???붿옄?대꼫濡?而щ읆/而⑦듃濡ㅼ쓣 諛곗튂
-///   4. ?꾩꽦?섎㈃ ??WYNLAB.SYS ?꾨줈?앺듃瑜?WYNLAB.SM.sln?먯꽌 鍮쇨퀬 ?ㅼ젣 ?붾㈃
-///      ?꾨줈?앺듃瑜??붾（?섏뿉 異붽?(?먮뒗 WYNLAB.SM 紐⑤뱢 ?꾨줈?앺듃 諛??대뜑濡???꺼 ?ｊ린)
+/// 새 화면 개발용 템플릿 - frmMinorCode(기초코드등록)에서 표준 레이아웃(제목바 + 검색패널 +
+/// 좌우 스플리터 + 목록그리드/상세패널/하위그리드)만 남기고 그 화면 전용 컬럼/입력컨트롤은
+/// 전부 지운 것. 사용법:
+///   1. 이 프로젝트 폴더(WYNLAB.SYS)를 새 화면 프로젝트로 복사
+///   2. 복사한 폴더 안에서 frmSysPopup.cs / .Designer.cs / .resx 파일명을 새 화면명으로
+///      바꾸고, 그 안의 클래스명(frmSysPopup)·네임스페이스(WYNLAB.SYS)도 새
+///      화면명/WYNLAB.SM으로 바꾼다 - 반드시 파일을 새 이름으로 바꾼 "다음에" 클래스명을
+///      바꿀 것(먼저 rename 리팩터부터 쓰면 원본과 이름이 겹쳐 컴파일 에러가 난다 - 실제로
+///      겪음, frmUserAuth 만들 때 이 순서를 안 지켜서 1142개 에러가 났었다).
+///   3. grd1(목록)/panData(상세 입력)/grd2(하위 목록) 자리에 디자이너로 컬럼/컨트롤을 배치
+///   4. 완성되면 이 WYNLAB.SYS 프로젝트를 WYNLAB.SM.sln에서 빼고 실제 화면
+///      프로젝트를 솔루션에 추가(또는 WYNLAB.SM 모듈 프로젝트 밑 폴더로 옮겨 넣기)
 /// </summary>
 public partial class frmSysPopup
 {
@@ -374,12 +379,12 @@ public partial class frmSysPopup
             this.btnDeletRow2.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(253)))), ((int)(((byte)(236)))), ((int)(((byte)(234)))));
             this.btnDeletRow2.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(51)))), ((int)(((byte)(51)))), ((int)(((byte)(51)))));
             this.btnDeletRow2.HoverColor = System.Drawing.Color.FromArgb(((int)(((byte)(240)))), ((int)(((byte)(245)))), ((int)(((byte)(255)))));
-            this.btnDeletRow2.Image = ((System.Drawing.Image)(resources.GetObject("btnDeletRow2.Image")));
+            this.btnDeletRow2.Image = null;
             this.btnDeletRow2.Location = new System.Drawing.Point(68, 4);
             this.btnDeletRow2.Name = "btnDeletRow2";
             this.btnDeletRow2.PressedColor = System.Drawing.Color.FromArgb(((int)(((byte)(225)))), ((int)(((byte)(235)))), ((int)(((byte)(253)))));
-            this.btnDeletRow2.Size = new System.Drawing.Size(58, 22);
-            this.btnDeletRow2.Text = "";
+            this.btnDeletRow2.Size = new System.Drawing.Size(60, 24);
+            this.btnDeletRow2.Text = "행삭제";
             this.btnDeletRow2.TabIndex = 0;
             this.btnDeletRow2.ToolTip = "행삭제";
             this.btnDeletRow2.Click += new System.EventHandler(this.btnDeletRow2_Click);
@@ -393,12 +398,12 @@ public partial class frmSysPopup
             this.btnAddRow2.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(228)))), ((int)(((byte)(245)))), ((int)(((byte)(231)))));
             this.btnAddRow2.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(51)))), ((int)(((byte)(51)))), ((int)(((byte)(51)))));
             this.btnAddRow2.HoverColor = System.Drawing.Color.FromArgb(((int)(((byte)(240)))), ((int)(((byte)(245)))), ((int)(((byte)(255)))));
-            this.btnAddRow2.Image = ((System.Drawing.Image)(resources.GetObject("btnAddRow2.Image")));
+            this.btnAddRow2.Image = null;
             this.btnAddRow2.Location = new System.Drawing.Point(6, 4);
             this.btnAddRow2.Name = "btnAddRow2";
             this.btnAddRow2.PressedColor = System.Drawing.Color.FromArgb(((int)(((byte)(225)))), ((int)(((byte)(235)))), ((int)(((byte)(253)))));
-            this.btnAddRow2.Size = new System.Drawing.Size(58, 22);
-            this.btnAddRow2.Text = "";
+            this.btnAddRow2.Size = new System.Drawing.Size(60, 24);
+            this.btnAddRow2.Text = "행추가";
             this.btnAddRow2.TabIndex = 0;
             this.btnAddRow2.ToolTip = "행추가";
             this.btnAddRow2.Click += new System.EventHandler(this.btnAddRow2_Click);
@@ -513,7 +518,7 @@ public partial class frmSysPopup
             // 
             // colSearchLookupKey
             // 
-            this.colSearchLookupKey.Caption = "LookUp??";
+            this.colSearchLookupKey.Caption = "LookUp키";
             this.colSearchLookupKey.FieldName = "lookup_key";
             this.colSearchLookupKey.Name = "colSearchLookupKey";
             this.colSearchLookupKey.Visible = true;
@@ -522,7 +527,7 @@ public partial class frmSysPopup
             // 
             // colSearchRowNo
             // 
-            this.colSearchRowNo.Caption = "以꾨쾲??";
+            this.colSearchRowNo.Caption = "줄번호";
             this.colSearchRowNo.FieldName = "row_no";
             this.colSearchRowNo.Name = "colSearchRowNo";
             this.colSearchRowNo.Visible = true;
@@ -531,7 +536,7 @@ public partial class frmSysPopup
             //
             // colSearchControlNm
             //
-            this.colSearchControlNm.Caption = "?⑤꼸 而⑦듃濡?";
+            this.colSearchControlNm.Caption = "패널 컨트롤";
             this.colSearchControlNm.ColumnEdit = this.repositoryItemComboBoxSearchControlNm;
             this.colSearchControlNm.FieldName = "control_nm";
             this.colSearchControlNm.Name = "colSearchControlNm";
@@ -580,12 +585,12 @@ public partial class frmSysPopup
             this.btnDeletRow3.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(253)))), ((int)(((byte)(236)))), ((int)(((byte)(234)))));
             this.btnDeletRow3.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(51)))), ((int)(((byte)(51)))), ((int)(((byte)(51)))));
             this.btnDeletRow3.HoverColor = System.Drawing.Color.FromArgb(((int)(((byte)(240)))), ((int)(((byte)(245)))), ((int)(((byte)(255)))));
-            this.btnDeletRow3.Image = ((System.Drawing.Image)(resources.GetObject("btnDeletRow3.Image")));
+            this.btnDeletRow3.Image = null;
             this.btnDeletRow3.Location = new System.Drawing.Point(68, 4);
             this.btnDeletRow3.Name = "btnDeletRow3";
             this.btnDeletRow3.PressedColor = System.Drawing.Color.FromArgb(((int)(((byte)(225)))), ((int)(((byte)(235)))), ((int)(((byte)(253)))));
-            this.btnDeletRow3.Size = new System.Drawing.Size(58, 22);
-            this.btnDeletRow3.Text = "";
+            this.btnDeletRow3.Size = new System.Drawing.Size(60, 24);
+            this.btnDeletRow3.Text = "행삭제";
             this.btnDeletRow3.TabIndex = 0;
             this.btnDeletRow3.ToolTip = "행삭제";
             this.btnDeletRow3.Click += new System.EventHandler(this.btnDeletRow3_Click);
@@ -599,12 +604,12 @@ public partial class frmSysPopup
             this.btnAddRow3.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(228)))), ((int)(((byte)(245)))), ((int)(((byte)(231)))));
             this.btnAddRow3.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(51)))), ((int)(((byte)(51)))), ((int)(((byte)(51)))));
             this.btnAddRow3.HoverColor = System.Drawing.Color.FromArgb(((int)(((byte)(240)))), ((int)(((byte)(245)))), ((int)(((byte)(255)))));
-            this.btnAddRow3.Image = ((System.Drawing.Image)(resources.GetObject("btnAddRow3.Image")));
+            this.btnAddRow3.Image = null;
             this.btnAddRow3.Location = new System.Drawing.Point(6, 4);
             this.btnAddRow3.Name = "btnAddRow3";
             this.btnAddRow3.PressedColor = System.Drawing.Color.FromArgb(((int)(((byte)(225)))), ((int)(((byte)(235)))), ((int)(((byte)(253)))));
-            this.btnAddRow3.Size = new System.Drawing.Size(58, 22);
-            this.btnAddRow3.Text = "";
+            this.btnAddRow3.Size = new System.Drawing.Size(60, 24);
+            this.btnAddRow3.Text = "행추가";
             this.btnAddRow3.TabIndex = 0;
             this.btnAddRow3.ToolTip = "행추가";
             this.btnAddRow3.Click += new System.EventHandler(this.btnAddRow3_Click);
@@ -620,7 +625,7 @@ public partial class frmSysPopup
             this.sectionHeaderWyn5.Size = new System.Drawing.Size(1061, 25);
             this.sectionHeaderWyn5.SvgIcon = ((DevExpress.Utils.Svg.SvgImage)(resources.GetObject("sectionHeaderWyn5.SvgIcon")));
             this.sectionHeaderWyn5.TabIndex = 8;
-            this.sectionHeaderWyn5.Text = "議고쉶議곌굔";
+            this.sectionHeaderWyn5.Text = "조회조건";
             // 
             // panelWyn5
             // 
@@ -725,14 +730,14 @@ public partial class frmSysPopup
             this.btnGenerateColumns.BackColor = System.Drawing.Color.Transparent;
             this.btnGenerateColumns.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(74)))), ((int)(((byte)(134)))), ((int)(((byte)(232)))));
             this.btnGenerateColumns.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.btnGenerateColumns.FillColor = System.Drawing.Color.White;
+            this.btnGenerateColumns.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(234)))), ((int)(((byte)(241)))), ((int)(((byte)(253)))));
             this.btnGenerateColumns.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(51)))), ((int)(((byte)(51)))), ((int)(((byte)(51)))));
             this.btnGenerateColumns.HoverColor = System.Drawing.Color.FromArgb(((int)(((byte)(240)))), ((int)(((byte)(245)))), ((int)(((byte)(255)))));
             this.btnGenerateColumns.Image = null;
             this.btnGenerateColumns.Location = new System.Drawing.Point(93, 1);
             this.btnGenerateColumns.Name = "btnGenerateColumns";
             this.btnGenerateColumns.PressedColor = System.Drawing.Color.FromArgb(((int)(((byte)(225)))), ((int)(((byte)(235)))), ((int)(((byte)(253)))));
-            this.btnGenerateColumns.Size = new System.Drawing.Size(90, 23);
+            this.btnGenerateColumns.Size = new System.Drawing.Size(90, 24);
             this.btnGenerateColumns.TabIndex = 6;
             this.btnGenerateColumns.Text = "컬럼생성";
             this.btnGenerateColumns.ToolTip = null;
@@ -743,17 +748,17 @@ public partial class frmSysPopup
             this.btnCopyPopup.BackColor = System.Drawing.Color.Transparent;
             this.btnCopyPopup.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(74)))), ((int)(((byte)(134)))), ((int)(((byte)(232)))));
             this.btnCopyPopup.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.btnCopyPopup.FillColor = System.Drawing.Color.White;
+            this.btnCopyPopup.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(234)))), ((int)(((byte)(241)))), ((int)(((byte)(253)))));
             this.btnCopyPopup.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(51)))), ((int)(((byte)(51)))), ((int)(((byte)(51)))));
             this.btnCopyPopup.HoverColor = System.Drawing.Color.FromArgb(((int)(((byte)(240)))), ((int)(((byte)(245)))), ((int)(((byte)(255)))));
             this.btnCopyPopup.Image = null;
             this.btnCopyPopup.Location = new System.Drawing.Point(187, 1);
             this.btnCopyPopup.Name = "btnCopyPopup";
             this.btnCopyPopup.PressedColor = System.Drawing.Color.FromArgb(((int)(((byte)(225)))), ((int)(((byte)(235)))), ((int)(((byte)(253)))));
-            this.btnCopyPopup.Size = new System.Drawing.Size(90, 23);
+            this.btnCopyPopup.Size = new System.Drawing.Size(90, 24);
             this.btnCopyPopup.TabIndex = 7;
-            this.btnCopyPopup.Text = "蹂듭궗";
-            this.btnCopyPopup.ToolTip = "?좏깮???앹뾽??媛?而щ읆/議고쉶議곌굔 ?ы븿)??洹몃?濡?蹂듭궗???좉퇋 ?낅젰 ?곹깭濡?留뚮벊?덈떎(?앹뾽?ㅻ쭔 ?덈줈 ?낅젰)";
+            this.btnCopyPopup.Text = "복사";
+            this.btnCopyPopup.ToolTip = "선택한 팝업의 값(컬럼/조회조건 포함)을 그대로 복사해 신규 입력 상태로 만듭니다(팝업키만 새로 입력)";
             //
             // chkHierarchical
             // 
@@ -856,7 +861,7 @@ public partial class frmSysPopup
             this.lblRemark.Name = "lblRemark";
             this.lblRemark.Size = new System.Drawing.Size(24, 15);
             this.lblRemark.TabIndex = 21;
-            this.lblRemark.Text = "鍮꾧퀬";
+            this.lblRemark.Text = "비고";
             // 
             // panelWyn6
             // 
@@ -1067,7 +1072,7 @@ public partial class frmSysPopup
             this.labelControl2.Name = "labelControl2";
             this.labelControl2.Size = new System.Drawing.Size(46, 15);
             this.labelControl2.TabIndex = 2;
-            this.labelControl2.Text = "Tree援ъ“";
+            this.labelControl2.Text = "Tree구조";
             // 
             // txtRemark
             // 
@@ -1084,7 +1089,7 @@ public partial class frmSysPopup
             this.lblSearchPanel.Name = "lblSearchPanel";
             this.lblSearchPanel.Size = new System.Drawing.Size(48, 15);
             this.lblSearchPanel.TabIndex = 23;
-            this.lblSearchPanel.Text = "寃?됲뙣??";
+            this.lblSearchPanel.Text = "검색패널";
             //
             // txtSearchPanelClass
             //

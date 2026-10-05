@@ -1,4 +1,4 @@
-﻿// 援щℓ?낃퀬?깅줉(frmGr) - frmPo? 媛숈? Master-One Sheet 援ъ“(TMAGRM/TMAGRD ??? 2026-09-25). ?쇱씤? ?낃퀬?湲?遺덈윭?ㅺ린濡쒕쭔 異붽??쒕떎.
+// 구매입고등록(frmGr) - frmPo와 같은 Master-One Sheet 구조(TMAGRM/TMAGRD 대상, 2026-09-25). 라인은 입고대기 불러오기로만 추가한다.
 #nullable disable
 using WYNLAB.Base;
 using WYNLAB.Base.Controls;
@@ -83,6 +83,8 @@ public partial class frmGr
         this.lblSearchGrNo = new DevExpress.XtraEditors.LabelControl();
         this.txtSearchGrNo = new WYNLAB.Base.Controls.TextEditWyn();
         this.panHeader = new WYNLAB.Base.Controls.PanelWyn();
+        this.lblSearchAccId = new DevExpress.XtraEditors.LabelControl();
+        this.cboSearchAccId = new WYNLAB.Base.Controls.LookUpEditWyn();
         ((System.ComponentModel.ISupportInitialize)(this.panBase)).BeginInit();
         this.panBase.SuspendLayout();
         ((System.ComponentModel.ISupportInitialize)(this.panelWyn3)).BeginInit();
@@ -124,6 +126,7 @@ public partial class frmGr
         ((System.ComponentModel.ISupportInitialize)(this.txtSearchGrNo.Properties)).BeginInit();
         ((System.ComponentModel.ISupportInitialize)(this.panHeader)).BeginInit();
         this.panHeader.SuspendLayout();
+        ((System.ComponentModel.ISupportInitialize)(this.cboSearchAccId.Properties)).BeginInit();
         this.SuspendLayout();
         //
         // panBase
@@ -271,7 +274,7 @@ public partial class frmGr
         //
         // colItemSpec
         //
-        this.colItemSpec.Caption = "洹쒓꺽";
+        this.colItemSpec.Caption = "규격";
         this.colItemSpec.FieldName = "item_spec";
         this.colItemSpec.Name = "colItemSpec";
         this.colItemSpec.OptionsColumn.AllowEdit = false;
@@ -322,7 +325,7 @@ public partial class frmGr
         //
         // colPoNo
         //
-        this.colPoNo.Caption = "諛쒖＜踰덊샇";
+        this.colPoNo.Caption = "발주번호";
         this.colPoNo.FieldName = "po_no";
         this.colPoNo.Name = "colPoNo";
         this.colPoNo.OptionsColumn.AllowEdit = false;
@@ -398,7 +401,7 @@ public partial class frmGr
         //
         // colRemark
         //
-        this.colRemark.Caption = "鍮꾧퀬";
+        this.colRemark.Caption = "비고";
         this.colRemark.FieldName = "remark";
         this.colRemark.Name = "colRemark";
         this.colRemark.Visible = true;
@@ -439,7 +442,7 @@ public partial class frmGr
         this.btnDeletRow1.Location = new System.Drawing.Point(6, 4);
         this.btnDeletRow1.Name = "btnDeletRow1";
         this.btnDeletRow1.PressedColor = System.Drawing.Color.FromArgb(((int)(((byte)(225)))), ((int)(((byte)(235)))), ((int)(((byte)(253)))));
-        this.btnDeletRow1.Size = new System.Drawing.Size(58, 22);
+        this.btnDeletRow1.Size = new System.Drawing.Size(60, 24);
         this.btnDeletRow1.Text = "행삭제";
         this.btnDeletRow1.TabIndex = 0;
         this.btnDeletRow1.ToolTip = "행삭제";
@@ -447,10 +450,11 @@ public partial class frmGr
         // btnLoadReady
         //
         this.btnLoadReady.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)));
+        this.btnLoadReady.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(234)))), ((int)(((byte)(241)))), ((int)(((byte)(253)))));
         this.btnLoadReady.Cursor = System.Windows.Forms.Cursors.Hand;
         this.btnLoadReady.Location = new System.Drawing.Point(68, 4);
         this.btnLoadReady.Name = "btnLoadReady";
-        this.btnLoadReady.Size = new System.Drawing.Size(120, 22);
+        this.btnLoadReady.Size = new System.Drawing.Size(120, 24);
         this.btnLoadReady.TabIndex = 1;
         this.btnLoadReady.Text = "입고대기 불러오기";
         this.btnLoadReady.ToolTip = "확정된 검사(합격+특채)건 중에서 입고 가능한 수량을 불러옵니다.";
@@ -624,6 +628,7 @@ public partial class frmGr
         //
         this.txtCustNm.Location = new System.Drawing.Point(100, 96);
         this.txtCustNm.LookupKey = "P_CUST";
+        this.txtCustNm.PopupConditions = "p_cust_class=PO";
         this.txtCustNm.MatchField = "cust_nm";
         this.txtCustNm.Name = "txtCustNm";
         this.txtCustNm.Size = new System.Drawing.Size(150, 20);
@@ -725,7 +730,7 @@ public partial class frmGr
         this.lblRemark.Name = "lblRemark";
         this.lblRemark.Size = new System.Drawing.Size(24, 15);
         this.lblRemark.TabIndex = 27;
-        this.lblRemark.Text = "鍮꾧퀬";
+        this.lblRemark.Text = "비고";
         //
         // memoRemark
         //
@@ -780,7 +785,7 @@ public partial class frmGr
         //
         // lblSearchGrNo
         //
-        this.lblSearchGrNo.Location = new System.Drawing.Point(25, 18);
+        this.lblSearchGrNo.Location = new System.Drawing.Point(224, 18);
         this.lblSearchGrNo.Name = "lblSearchGrNo";
         this.lblSearchGrNo.Size = new System.Drawing.Size(48, 15);
         this.lblSearchGrNo.TabIndex = 31;
@@ -788,7 +793,7 @@ public partial class frmGr
         //
         // txtSearchGrNo
         //
-        this.txtSearchGrNo.Location = new System.Drawing.Point(81, 15);
+        this.txtSearchGrNo.Location = new System.Drawing.Point(280, 15);
         this.txtSearchGrNo.Name = "txtSearchGrNo";
         this.txtSearchGrNo.Size = new System.Drawing.Size(180, 20);
         this.txtSearchGrNo.TabIndex = 32;
@@ -798,6 +803,8 @@ public partial class frmGr
         this.panHeader.Appearance.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(241)))), ((int)(((byte)(245)))), ((int)(((byte)(249)))));
         this.panHeader.Appearance.Options.UseBackColor = true;
         this.panHeader.BorderStyle = DevExpress.XtraEditors.Controls.BorderStyles.NoBorder;
+        this.panHeader.Controls.Add(this.lblSearchAccId);
+        this.panHeader.Controls.Add(this.cboSearchAccId);
         this.panHeader.Controls.Add(this.lblSearchGrNo);
         this.panHeader.Controls.Add(this.txtSearchGrNo);
         this.panHeader.Dock = System.Windows.Forms.DockStyle.Top;
@@ -805,6 +812,33 @@ public partial class frmGr
         this.panHeader.Name = "panHeader";
         this.panHeader.Size = new System.Drawing.Size(1670, 49);
         this.panHeader.TabIndex = 8;
+        // 
+        // lblSearchAccId (조회조건 첫 번째 - 사업장 표준, 2026-10-03)
+        // 
+        this.lblSearchAccId.Appearance.Font = new System.Drawing.Font("맑은 고딕", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
+        this.lblSearchAccId.Appearance.Options.UseFont = true;
+        this.lblSearchAccId.Location = new System.Drawing.Point(25, 18);
+        this.lblSearchAccId.Name = "lblSearchAccId";
+        this.lblSearchAccId.Size = new System.Drawing.Size(36, 15);
+        this.lblSearchAccId.TabIndex = 0;
+        this.lblSearchAccId.Text = "사업장";
+        // 
+        // cboSearchAccId (사업장 LookUp, Required - 기본값은 화면 생성자에서 로그인 사업장)
+        // 
+        this.cboSearchAccId.EditValue = "";
+        this.cboSearchAccId.Location = new System.Drawing.Point(69, 15);
+        this.cboSearchAccId.LookupKey = "L_ACC";
+        this.cboSearchAccId.Name = "cboSearchAccId";
+        this.cboSearchAccId.Properties.Appearance.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(249)))), ((int)(((byte)(219)))));
+        this.cboSearchAccId.Properties.Appearance.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))));
+        this.cboSearchAccId.Properties.Appearance.Options.UseBackColor = true;
+        this.cboSearchAccId.Properties.Appearance.Options.UseForeColor = true;
+        this.cboSearchAccId.Properties.Buttons.AddRange(new DevExpress.XtraEditors.Controls.EditorButton[] {
+        new DevExpress.XtraEditors.Controls.EditorButton(DevExpress.XtraEditors.Controls.ButtonPredefines.Combo)});
+        this.cboSearchAccId.Properties.NullText = "";
+        this.cboSearchAccId.Required = true;
+        this.cboSearchAccId.Size = new System.Drawing.Size(131, 20);
+        this.cboSearchAccId.TabIndex = 1;
         //
         // frmGr
         //
@@ -854,6 +888,7 @@ public partial class frmGr
         ((System.ComponentModel.ISupportInitialize)(this.txtSearchGrNo.Properties)).EndInit();
         ((System.ComponentModel.ISupportInitialize)(this.panHeader)).EndInit();
         this.panHeader.ResumeLayout(false);
+        ((System.ComponentModel.ISupportInitialize)(this.cboSearchAccId.Properties)).EndInit();
         this.ResumeLayout(false);
     }
 
@@ -923,4 +958,6 @@ public partial class frmGr
     private DevExpress.XtraEditors.LabelControl lblSearchGrNo;
     private TextEditWyn txtSearchGrNo;
     private PanelWyn panHeader;
+    private DevExpress.XtraEditors.LabelControl lblSearchAccId;
+    private WYNLAB.Base.Controls.LookUpEditWyn cboSearchAccId;
 }

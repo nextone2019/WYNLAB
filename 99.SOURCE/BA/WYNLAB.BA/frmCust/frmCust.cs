@@ -17,6 +17,7 @@ public partial class frmCust : BaseForm
     private DataTable _list = new();
     private DataTable _detail1 = new();
     private DataTable _detail2 = new();
+    private DataTable _detail3 = new(); // 거래처분류(BA0003) 체크박스 목록 - grd4
     private List<FileListItemDto> _files = new();
     private long? _editingKey; // null이면 신규모드
 
@@ -26,7 +27,6 @@ public partial class frmCust : BaseForm
 
         Text = "거래처등록";
 
-        Controls.Add(BuildScreenHeader());
 
         gvw1.Role = GridRoleWyn.Query;
         gvw1.HighlightFocusedRow = true;
@@ -56,6 +56,13 @@ public partial class frmCust : BaseForm
             try { if (gvw3.GetFocusedRow() is DataRowView view) view.Row.Delete(); }
             catch (Exception ex) { AppMessageBox.Show(ex.Message, "삭제 실패"); }
         };
+
+        // grd4(거래처분류)는 BA0003 코드가 행을 추가/삭제하는 목록이 아니라 항상 전체 코드를
+        // 보여주고 체크박스(is_member)만 토글하는 고정 목록이라 grd2/grd3와 달리 Role=Edit(행
+        // 추가/삭제)을 안 쓴다 - 체크박스 클릭 자체는 GridViewWynBehavior가 앱 전역에서 처리한다
+        // ([[feedback_grid_checkbox_double_toggle_fix]]).
+        gvw4.Role = GridRoleWyn.Query;
+        gvw4.HighlightFocusedRow = true;
 
         // panelWyn1의 공용 추가/삭제 버튼 - 현재 활성 탭의 그리드에 적용(각 그리드 자체
         // EmbeddedNavigator와 별개로, 탭을 안 넘나들어도 되는 지름길).
@@ -302,10 +309,13 @@ public partial class frmCust : BaseForm
             txtDetailEmpNo.Text = string.Empty;
             _detail1 = _detail1.Clone();
             _detail2 = _detail2.Clone();
+            _detail3 = _detail3.Clone();
             TrackDirty(_detail1);
             TrackDirty(_detail2);
+            TrackDirty(_detail3);
             grd2.DataSource = _detail1;
             grd3.DataSource = _detail2;
+            grd4.DataSource = _detail3;
             _files = new List<FileListItemDto>();
             grdFile.DataSource = null;
             grdFile.DataSource = _files;
@@ -326,9 +336,11 @@ public partial class frmCust : BaseForm
         txtDetailCustNm.Focus();
     }
 
-    /// <summary>선택된 마스터 행의 하위 목록 2개(grd2/grd3)를 한 번의 호출로 같이 조회한다 -
-    /// USP_BA_CUST_Q가 work_type='Q1'일 때 레코드셋을 2개(순서대로
-    /// grd2용, grd3용) 반환하기 때문에 QueryMultiAsync를 쓴다(QueryAsync는 첫 레코드셋만 받음).</summary>
+    /// <summary>선택된 마스터 행의 하위 목록 3개(grd2/grd3/grd4)를 한 번의 호출로 같이 조회한다 -
+    /// USP_BA_CUST_Q가 work_type='Q1'일 때 레코드셋을 3개(순서대로 grd2/grd3/grd4용) 반환하기
+    /// 때문에 QueryMultiAsync를 쓴다(QueryAsync는 첫 레코드셋만 받음). grd4(거래처분류)는
+    /// BA0003 전체 코드를 항상 반환하고(추가/삭제 없음), 이 거래처가 이미 속한 분류만
+    /// is_member=1로 표시된다.</summary>
     private async Task LoadDetailAsync()
     {
         var p = new Dictionary<string, string?>
@@ -339,10 +351,13 @@ public partial class frmCust : BaseForm
         var tables = await QueryMultiAsync("USP_BA_CUST_Q", p);
         _detail1 = tables.Count > 0 ? tables[0] : new DataTable();
         _detail2 = tables.Count > 1 ? tables[1] : new DataTable();
+        _detail3 = tables.Count > 2 ? tables[2] : new DataTable();
         TrackDirty(_detail1);
         TrackDirty(_detail2);
+        TrackDirty(_detail3);
         grd2.DataSource = _detail1;
         grd3.DataSource = _detail2;
+        grd4.DataSource = _detail3;
     }
 
     public override Task NewClick()
@@ -410,6 +425,16 @@ public partial class frmCust : BaseForm
             ["p_remark"] = ProcData.Str(row, "remark", version),
         });
         if (!detail2Ok) return;
+
+        // ---- 4) 거래처분류(grd4 -> USP_BA_CUST_S_3) - 체크박스 토글이라 행이 새로 생기거나
+        // 지워지는 게 아니라 is_member 값만 바뀌므로 RowState는 항상 Modified('U')다. 프로시저가
+        // is_member 값을 보고 추가/삭제를 알아서 나눠 처리한다. ----
+        var detail3Ok = await SaveDetailRowsAsync(gvw4, _detail3, "USP_BA_CUST_S_3", headerKey, (row, version) => new Dictionary<string, string?>
+        {
+            ["p_class_cd"] = ProcData.Str(row, "class_cd", version),
+            ["p_is_member"] = ProcData.Str(row, "is_member", version),
+        });
+        if (!detail3Ok) return;
 
         _editingKey ??= long.TryParse(headerResult.GeneratedCode, out var newId) ? newId : null;
         Toast.Show("저장되었습니다.");

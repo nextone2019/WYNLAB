@@ -32,6 +32,10 @@ internal static class SvgIcons
     // Home은 2026-09-03에 사용자가 고른 Lucide 세트(embedded:home.svg)로 바뀌었다 - 아래
     // 상단 툴바 아이콘 블록 주석 참고.
     public const string Home = "embedded:home.svg";
+
+    /// <summary>탭줄(홈/탭목록/전체닫기) 전용 홈 아이콘 - 24px Lucide 홈(가는 선 1.5)을 16px로 줄이면 선이 픽셀 사이에 걸려 흐리고 연해 보인다.
+    /// 16px 격자에 맞춰 다시 그린 외곽선 홈(home_strip.svg)으로, 옆의 번들 아이콘(탭목록/전체닫기)과 선 굵기/농도를 맞춘다(2026-10-03).</summary>
+    public const string HomeStrip = "embedded:home_strip.svg";
     public const string Settings = "svgimages/icon%20builder/actions_settings.svg";
     public const string ShoppingCart = "svgimages/icon%20builder/shopping_shoppingcart.svg";
     public const string Database = "svgimages/icon%20builder/actions_database.svg";
@@ -39,7 +43,11 @@ internal static class SvgIcons
     public const string User = "svgimages/icon%20builder/actions_user.svg";
     public const string Security = "svgimages/icon%20builder/security_security.svg";
     public const string Money = "svgimages/icon%20builder/business_money.svg";
-    public const string Folder = "svgimages/business%20objects/bo_folder.svg";
+    // business%20objects 세트(bo_folder.svg)는 icon%20builder 계열(Settings/ShoppingCart/
+    // Database 등 다른 모든 모듈 아이콘)과 선 굵기/스타일이 달라서 트리 안에서 혼자 튀어
+    // 보였다("폴더 아이콘도 더 깔끔하게" 지적, 2026-10-01) - 같은 icon%20builder 세트 안의
+    // 폴더 아이콘으로 바꿔서 톤을 맞췄다.
+    public const string Folder = "svgimages/icon%20builder/actions_folderclose.svg";
     /// <summary>{ } 코드 브라켓 모양 - "Developer Tool" 최상위 메뉴용(icon builder 계열엔 코드/
     /// 개발도구를 나타낼 만한 아이콘이 없어서 xaf 계열에서 골랐다).</summary>
     public const string Code = "svgimages/xaf/action_showscript.svg";

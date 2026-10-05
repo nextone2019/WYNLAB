@@ -154,6 +154,7 @@ internal sealed class GridViewWynBehavior
 
         // 헤더 클릭 정렬 - 모든 그리드 공통(GridSortSupport 참고: 뷰/컬럼 정렬 명시, 룩업 컬럼은 표시 이름 기준, 나중에 추가되는 컬럼 포함).
         GridSortSupport.Enable(_view);
+        GridDateSupport.Enable(_view);
 
         // 룩업 컬럼(ColumnEdit이 RepositoryItemLookUpEdit 계열 - 예: LookUpColumnEdit)은 기본
         // ShowButtonMode(Default, 사실상 포커스된 셀에서만 드롭다운 삼각형이 보임)라서, 그리드를
@@ -169,6 +170,10 @@ internal sealed class GridViewWynBehavior
         // 개인별 "레이아웃저장"(컬럼 순서/숨김/폭)이 정렬/그룹/필터/서식까지 같이 저장해버리면
         // "어제 걸어둔 조건 때문에 오늘 데이터가 안 보인다" 같은 혼란이 생긴다(사장님 지시로
         // 정렬/그룹/필터는 제외) - 저장 대상을 컬럼 배치 하나로만 좁혀둔다.
+        // 그리드에서 여러 칸을 Ctrl+C 하면 DevExpress 기본값(CopyColumnHeaders=Default)이 컬럼 캡션을 첫 줄로 같이 복사한다 -
+        // 그대로 붙여넣으면 "안전재고" 같은 글자가 숫자 칸 첫 줄로 들어가 문제가 된다(2026-10-05). 값만 복사한다.
+        _view.OptionsClipboard.CopyColumnHeaders = DefaultBoolean.False;
+
         _view.OptionsLayout.StoreAppearance = false;
         _view.OptionsLayout.StoreFormatRules = false;
         _view.OptionsLayout.StoreDataSettings = false; // 정렬/그룹/필터/요약이 여기 묶여있다
@@ -185,7 +190,10 @@ internal sealed class GridViewWynBehavior
         _view.CellValueChanged += OnCellValueChanged;
         _view.RowCellStyle += OnRowCellStyle;
         _view.MouseDown += OnMouseDown;
+        _view.KeyDown += OnKeyDownToggleCheck;
         _view.ShowingEditor += OnShowingEditor;
+        _view.ShownEditor += OnShownEditorImeGuard;
+        _view.ValidatingEditor += OnValidatingEditorImeGuard;
         _view.EndSorting += OnEndSorting;
         _view.InitNewRow += OnInitNewRow;
     }
@@ -245,6 +253,22 @@ internal sealed class GridViewWynBehavior
         }
 
         PopupDebugLog.Write($"MouseDown: Clicks={e.Clicks}, col={hitInfo.Column?.FieldName}, edit={hitInfo.Column?.ColumnEdit?.GetType().Name}");
+    }
+
+    /// <summary>체크박스 컬럼은 편집기를 열지 않아(OnShowingEditor) DevExpress 기본 스페이스바 토글도 같이
+    /// 죽는다 - 포커스된 체크박스 셀에서 스페이스바를 누르면 OnMouseDown과 같은 방식으로 값을 뒤집는다
+    /// (2026-10-05). 읽기전용 그리드/컬럼은 건드리지 않는다.</summary>
+    private void OnKeyDownToggleCheck(object? sender, KeyEventArgs e)
+    {
+        if (e.KeyCode != Keys.Space || e.Modifiers != Keys.None) return;
+        if (_view.IsEditing || _view.FocusedRowHandle < 0) return;
+        if (_view.FocusedColumn is not { } column || column.ColumnEdit is not RepositoryItemCheckEdit checkEdit) return;
+        if (!_view.OptionsBehavior.Editable || column.OptionsColumn.ReadOnly) return;
+
+        var current = _view.GetRowCellValue(_view.FocusedRowHandle, column);
+        var isChecked = Equals(current, checkEdit.ValueChecked);
+        _view.SetRowCellValue(_view.FocusedRowHandle, column, isChecked ? checkEdit.ValueUnchecked : checkEdit.ValueChecked);
+        e.Handled = true;
     }
 
     /// <summary>체크박스 컬럼은 실제 편집기(라이브 체크박스 컨트롤)를 아예 열지 않는다 - OnMouseDown이
@@ -586,9 +610,25 @@ internal sealed class GridViewWynBehavior
         if (e.Column.ColumnEdit is PopupLookupColumnEdit popupEdit)
         {
             PopupDebugLog.Write($"CellValueChanged: col={e.Column.FieldName}, value={e.Value}, applying={popupEdit.IsApplyingResult}");
-            if (!popupEdit.IsApplyingResult && !string.IsNullOrEmpty(Convert.ToString(e.Value)))
+            if (!_pasting && !popupEdit.IsApplyingResult && !string.IsNullOrEmpty(Convert.ToString(e.Value)))
                 _ = popupEdit.OpenPopupForCellAsync(_view, e.RowHandle, e.Column);
         }
+    }
+
+    /// <summary>셀 편집기가 열릴 때 전각 방어를 건다 - 붙여넣은 전각 문자를 반각으로 바꾸고, IME가 전각 모드면 반각으로 되돌린다(ImeGuard 참고).</summary>
+    private void OnShownEditorImeGuard(object? sender, EventArgs e)
+    {
+        if (_view.ActiveEditor is not { } editor) return;
+        editor.EditValueChanging -= ImeGuard.Edit_EditValueChanging;
+        editor.EditValueChanging += ImeGuard.Edit_EditValueChanging;
+        editor.BeginInvoke(new Action(ImeGuard.ClearFullShapeOfFocusedWindow));
+    }
+
+    /// <summary>편집 확정 직전 마지막 확인 - 문자열 값에 전각 문자가 남아 있으면 반각으로 바꾼다.</summary>
+    private static void OnValidatingEditorImeGuard(object? sender, DevExpress.XtraEditors.Controls.BaseContainerValidateEditorEventArgs e)
+    {
+        if (e.Value is string text && WYNLAB.Shared.TextNormalizer.NeedsFix(text))
+            e.Value = WYNLAB.Shared.TextNormalizer.ToHalfWidth(text);
     }
 
     /// <summary>숫자 값은 오른쪽 정렬이 표준(2026-09-25 사장님 지시 - "모든 그리드의 숫자 컬럼은 우측정렬"). 컬럼마다 정렬을 지정하지
@@ -750,15 +790,33 @@ internal sealed class GridViewWynBehavior
     /// <summary>GridControl.ProcessGridKey는 포커스된 View/활성 셀 편집기보다 먼저 키를 볼 수
     /// 있다 - Ctrl+V만 여기서 가로채 PasteFromClipboard()로 넘긴다(ApplyRole의 PasteMode.None
     /// 주석 참고, 내장 붙여넣기를 아예 안 쓰는 이유). 셀 편집기가 열려있는 중이면(더블클릭해서
-    /// 글자를 고치는 중 등) 절대 가로채지 않는다 - 그 경우의 Ctrl+V는 평범한 "텍스트 붙여넣기"라
-    /// 편집기가 직접 처리해야 정상이고, 여기서 채가면 셀 안에 글자를 못 붙여넣게 된다.</summary>
+    /// 글자를 고치는 중 등) 보통은 가로채지 않는다 - 그 경우의 Ctrl+V는 평범한 "텍스트 붙여넣기"라
+    /// 편집기가 직접 처리해야 정상이고, 여기서 채가면 셀 안에 글자를 못 붙여넣게 된다.
+    /// 단 클립보드가 여러 칸(탭/줄바꿈으로 나뉜 엑셀 범위)이면 편집기를 닫고 그리드 붙여넣기로 처리한다 -
+    /// 셀을 클릭하면 곧바로 편집기가 열리는 그리드(EditorShowMode=MouseDown)에서 엑셀 범위를 붙여넣으면
+    /// 한 셀 안에 전부 들어가 버리기 때문이다(2026-10-05). 엑셀의 한 칸 복사(끝에 줄바꿈 하나)는 여러 칸이 아니다.</summary>
     private DateTime _lastPasteScheduledAt = DateTime.MinValue;
+
+    private static bool ClipboardIsMultiCell()
+    {
+        try
+        {
+            if (!Clipboard.ContainsText()) return false;
+            var text = Clipboard.GetText().TrimEnd('\r', '\n');
+            return text.Contains('\t') || text.Contains('\n');
+        }
+        catch { return false; } // 클립보드를 다른 프로그램이 잡고 있으면 평소처럼 편집기가 처리하게 둔다
+    }
 
     private void OnProcessGridKey(object? sender, KeyEventArgs e)
     {
         if (!e.Control) return;
         if (e.KeyCode != Keys.V && e.KeyCode != Keys.Z) return;
-        if (_view.ActiveEditor != null) return;
+        if (_view.ActiveEditor != null)
+        {
+            if (e.KeyCode != Keys.V || _role != GridRoleWyn.Edit || !ClipboardIsMultiCell()) return;
+            _view.HideEditor(); // 편집 중이던 글자는 버리고(커밋 안 함) 포커스된 셀부터 붙여넣는다.
+        }
 
         e.Handled = true;
         if (_role != GridRoleWyn.Edit) return;
@@ -798,7 +856,60 @@ internal sealed class GridViewWynBehavior
     /// 뒤 UpdateCurrentRow()로 한 행씩 확실히 커밋하고서야 다음 행으로 넘어간다 - DevExpress 내장
     /// PasteMode.Update가 신규 행 여러 개를 커밋 없이 한번에 처리하려다 크래시 나던 문제
     /// (ApplyRole 주석, 2026-09-05)를 이 순차 커밋 방식으로 피한다.</summary>
+    // 붙여넣기/붙여넣기 취소가 셀에 값을 쓰는 동안 true - 팝업 컬럼(PopupLookupColumnEdit)이 붙여넣은 값마다 팝업을 띄우지 않게 한다(이름은 그대로 두고 화면의 검증이 처리).
+    private bool _pasting;
+
     private void PasteFromClipboard()
+    {
+        _pasting = true;
+        try { PasteCore(); }
+        finally { _pasting = false; }
+    }
+
+    /// <summary>붙여넣은 글자를 그 컬럼이 실제로 저장하는 값으로 바꾼다. 룩업/콤보 컬럼의 셀 값은 코드(예: "A")인데
+    /// 엑셀/그리드에서 복사한 글자는 화면에 보이던 이름("사용")이라 그대로 넣으면 목록에 없는 값이라 빈 칸으로 보였다
+    /// (2026-10-05 품목일괄수정 품목상태). 이름 → 코드로 찾고, 이미 코드를 붙여넣었으면 그대로 둔다. 체크박스 컬럼은
+    /// Y/N/True/False/1/0을 ValueChecked/ValueUnchecked로 바꾼다. 못 찾으면 원문 그대로(화면 검증이 처리).</summary>
+    private static object? ConvertPastedText(GridColumn column, string text, out bool ok)
+    {
+        ok = true;
+        // 엑셀/웹에서 온 전각 숫자·공백(NBSP)·보이지 않는 글자는 반각으로 - 이게 숫자 칸에 그대로 들어가면 "입력 문자열의 형식이 잘못되었습니다"가 난다(전각 방어, ImeGuard와 같은 규칙).
+        text = (WYNLAB.Shared.TextNormalizer.ToHalfWidth(text) ?? string.Empty).Replace("​", "").Replace("﻿", "");
+        var trimmed = text.Trim();
+
+        // 숫자 컬럼: 쉼표/공백을 걷어내고 그 컬럼 타입으로 변환한다. 빈 칸은 비움(null), 숫자가 아니면 ok=false(그 셀은 건너뜀).
+        var type = Nullable.GetUnderlyingType(column.ColumnType) ?? column.ColumnType;
+        if (type == typeof(decimal) || type == typeof(double) || type == typeof(float)
+            || type == typeof(int) || type == typeof(long) || type == typeof(short))
+        {
+            if (trimmed.Length == 0) return DBNull.Value;
+            var number = trimmed.Replace(",", "").Replace(" ", "");
+            if (decimal.TryParse(number, System.Globalization.NumberStyles.Number | System.Globalization.NumberStyles.AllowExponent,
+                    System.Globalization.CultureInfo.InvariantCulture, out var d))
+            {
+                try { return Convert.ChangeType(d, type, System.Globalization.CultureInfo.InvariantCulture); }
+                catch (OverflowException) { }
+            }
+            ok = false;
+            return null;
+        }
+
+        if (column.ColumnEdit is RepositoryItemLookUpEdit lookUp && trimmed.Length > 0)
+        {
+            if (lookUp.GetKeyValueByDisplayText(trimmed) is { } key) return key;
+            if (lookUp.GetDataSourceRowByKeyValue(trimmed) != null) return trimmed;
+        }
+        else if (column.ColumnEdit is RepositoryItemCheckEdit checkEdit)
+        {
+            if (trimmed.Equals(Convert.ToString(checkEdit.ValueChecked), StringComparison.OrdinalIgnoreCase)
+                || trimmed is "1" or "Y" or "y" or "true" or "True" or "TRUE" or "예" or "사용") return checkEdit.ValueChecked;
+            if (trimmed.Equals(Convert.ToString(checkEdit.ValueUnchecked), StringComparison.OrdinalIgnoreCase)
+                || trimmed is "" or "0" or "N" or "n" or "false" or "False" or "FALSE" or "아니오" or "미사용") return checkEdit.ValueUnchecked;
+        }
+        return text;
+    }
+
+    private void PasteCore()
     {
         if (!Clipboard.ContainsText()) return;
 
@@ -822,6 +933,7 @@ internal sealed class GridViewWynBehavior
         var originalRowCount = _view.RowCount; // 실행취소 시 "이 개수 이후로 새로 생긴 행"을 가려내는 기준
         var overwrites = new List<(int RowHandle, GridColumn Column, object? OriginalValue)>();
         var failedRows = 0;
+        var badCells = 0; // 컬럼 형식(숫자 등)에 맞지 않아 건너뛴 셀 수
 
         for (var r = 0; r < lines.Length; r++)
         {
@@ -848,7 +960,10 @@ internal sealed class GridViewWynBehavior
                 // 기록할 "원래 값"이 없다 - 행 자체를 지우는 걸로 되돌린다).
                 if (!isNewRow)
                     overwrites.Add((rowHandle, pasteColumns[c], _view.GetRowCellValue(rowHandle, pasteColumns[c])));
-                _view.SetRowCellValue(rowHandle, pasteColumns[c], cells[c]);
+                var pasted = ConvertPastedText(pasteColumns[c], cells[c], out var convertible);
+                if (!convertible) { badCells++; continue; }
+                try { _view.SetRowCellValue(rowHandle, pasteColumns[c], pasted); }
+                catch (Exception ex) when (ex is FormatException or InvalidCastException or OverflowException or ArgumentException) { badCells++; }
             }
 
             // UpdateCurrentRow() 전에 활성 편집기를 먼저 닫아 그 값이 확실히 반영된 뒤 커밋되게 한다
@@ -872,6 +987,12 @@ internal sealed class GridViewWynBehavior
             ? new PasteUndoState(overwrites, addedRowHandles)
             : null;
 
+        if (badCells > 0)
+        {
+            XtraMessageBox.Show(
+                $"{badCells}개 셀은 컬럼 형식(숫자 등)에 맞지 않아 붙여넣지 않았습니다.",
+                "붙여넣기 결과", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+        }
         if (failedRows > 0)
         {
             XtraMessageBox.Show(
@@ -888,6 +1009,13 @@ internal sealed class GridViewWynBehavior
     /// 안 밀린다. 그 사이 사용자가 직접 지웠거나 화면을 다시 조회해서 핸들이 더 이상 없는 행/셀은
     /// 조용히 건너뛴다.</summary>
     private void UndoLastPaste()
+    {
+        _pasting = true;
+        try { UndoCore(); }
+        finally { _pasting = false; }
+    }
+
+    private void UndoCore()
     {
         var undo = _lastPasteUndo;
         if (undo == null) return;

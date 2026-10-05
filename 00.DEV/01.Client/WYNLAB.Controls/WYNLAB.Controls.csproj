@@ -37,4 +37,9 @@
     </Reference>
   </ItemGroup>
 
+  <ItemGroup>
+    <!-- ImeGuard가 서버와 같은 전각->반각 규칙(TextNormalizer)을 쓴다 -->
+    <ProjectReference Include="..\..\03.Shared\WYNLAB.Shared\WYNLAB.Shared.csproj" />
+  </ItemGroup>
+
 </Project>

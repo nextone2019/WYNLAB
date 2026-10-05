@@ -20,6 +20,10 @@ public partial class frmRcv : BaseForm
     {
         InitializeComponent();
 
+        // 조회조건 사업장 - 화면 표준(2026-10-03): 항상 첫 번째, Required, 화면을 열면 로그인 사업장이 기본값.
+        cboSearchAccId.EditValue = Session.AccId?.ToString() ?? string.Empty;
+        cboSearchAccId.Tag = new BindingFieldTag("acc_id");
+
         Text = "웨이퍼입고";
 
         Controls.Add(BuildScreenHeader());
@@ -52,6 +56,7 @@ public partial class frmRcv : BaseForm
     {
         _list = await QueryAsync("USP_PR_RCV_Q", new Dictionary<string, string?>
         {
+            ["p_acc_id"] = cboSearchAccId.EditValue?.ToString(),
             ["p_work_type"] = "L",
             ["p_keyword"] = txtSearchKeyword.Text.Trim(),
             ["p_acc_id"] = Session.AccId?.ToString(),
@@ -199,6 +204,8 @@ public partial class frmRcv : BaseForm
         Toast.Show("저장되었습니다.");
         await QueryCore(preserveSelection: true); // 방금 저장한 입고를 목록에서 그대로 선택해 둔다
     }
+
+    protected override bool ConfirmDeleteByDefault => false; // 삭제 확인창을 DeleteClick에서 직접 띄움(문서번호 등 상세 문구)
 
     public override async Task DeleteClick()
     {

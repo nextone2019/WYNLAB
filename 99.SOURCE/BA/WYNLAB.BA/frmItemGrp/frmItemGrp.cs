@@ -16,14 +16,18 @@ public partial class frmItemGrp : BaseForm
     private DataTable _detail3 = new();
     private DataTable _detail4 = new();
     private string? _editingKey; // null이면 신규모드
+    private bool _syncingLevel; // 그룹 레벨 값을 코드가 채우는 중 - 레벨 변경 처리(상위그룹 비우기)를 건너뛴다
 
     public frmItemGrp()
     {
         InitializeComponent();
 
+        // 조회조건 사업장 - 화면 표준(2026-10-03): 항상 첫 번째, Required, 화면을 열면 로그인 사업장이 기본값.
+        cboSearchAccId.EditValue = Session.AccId?.ToString() ?? string.Empty;
+        cboSearchAccId.Tag = new BindingFieldTag("acc_id");
+
         Text = "품목그룹등록";
 
-        Controls.Add(BuildScreenHeader());
 
         // tree1은 자기참조 계층 데이터를 그린다 - KeyFieldName은 grd1의 grp_id과
         // 같은 역할(행 식별), ParentFieldName은 이 템플릿에만 있는 값으로 "이 행의 상위 행"을
@@ -94,14 +98,20 @@ public partial class frmItemGrp : BaseForm
         txtDetailGrpId.Tag = new BindingFieldTag("grp_id");
         txtDetailGrpNm.Tag = new BindingFieldTag("grp_nm");
         cboDetailGrpLvl.Tag = new BindingFieldTag("grp_lvl");
-        txtDetailParGrpId.Tag = new BindingFieldTag("par_grp_id");
-        txtDetailParGrpNm.Tag = new BindingFieldTag("par_grp_nm");
+        cboDetailParGrpId.Tag = new BindingFieldTag("par_grp_id");
         memDetailRemark.Tag = new BindingFieldTag("remark");
 
         // 화면종료 시 저장 확인(BaseForm.ConfirmCloseAsync)과 다른 마스터 노드로 옮길 때 확인
         // (ConfirmMasterRowSwitch) 둘 다 이 추적에 기댄다 - grd2/grd3/grd4/grd5(편집 가능한 하위
         // 그리드)는 EnterNewMode/LoadDetailAsync에서 새 DataTable로 바뀔 때마다 그때그때
         // TrackDirty(_detail1..4)를 다시 걸어야 한다.
+        // 상위그룹 콤보 - 선택한 그룹 레벨의 바로 위 레벨 그룹만 보인다(L_ITEM_GRP, 파라미터를 채운 "뒤에" LookupKey 지정 - frmItem 품목그룹 콤보와 같은 이유).
+        // 그룹 레벨을 고르면 그 레벨-1로 목록을 바꾸고 기존 선택은 비운다. 1레벨은 상위그룹이 없으므로 콤보를 막는다(서버도 같은 규칙, 293).
+        cboDetailParGrpId.SetParam("p_grp_lvl", "1");
+        cboDetailParGrpId.SetParam("p_par_grp_id", string.Empty);
+        cboDetailParGrpId.LookupKey = "L_ITEM_GRP";
+        cboDetailGrpLvl.EditValueChanged += (s, e) => { if (!_syncingLevel) ApplyGrpLevel(clearParent: true); };
+
         TrackDirty(panData);
 
         EnterNewMode();
@@ -131,6 +141,7 @@ public partial class frmItemGrp : BaseForm
     {
         var p = new Dictionary<string, string?>
         {
+            ["p_acc_id"] = cboSearchAccId.EditValue?.ToString(),
             ["p_work_type"] = "Q",
             //["p_grp_id"] = txtGrpId.Text,
             ["p_grp_nm"] = txtGrpNm_Q.Text,
@@ -190,8 +201,34 @@ public partial class frmItemGrp : BaseForm
         return null;
     }
 
+    /// <summary>그룹 레벨에 맞춰 상위그룹 콤보를 맞춘다 - 2~4레벨은 (레벨-1) 그룹 목록 + 필수, 1레벨/미선택은 비활성.</summary>
+    private void ApplyGrpLevel(bool clearParent)
+    {
+        var lvl = int.TryParse(cboDetailGrpLvl.EditValue?.ToString(), out var n) ? n : 0;
+        var needParent = lvl >= 2;
+        cboDetailParGrpId.Enabled = needParent;
+        cboDetailParGrpId.Required = needParent;
+        if (clearParent) cboDetailParGrpId.EditValue = null!;
+        if (needParent) cboDetailParGrpId.SetParam("p_grp_lvl", (lvl - 1).ToString());
+    }
+
+    /// <summary>선택한 그룹의 상위그룹 값을 콤보에 채운다 - 목록(레벨-1)이 실제로 다시 채워진 뒤에 값을 넣어야 표시 텍스트가 붙는다. 상위 없음(0)은 빈 값.</summary>
+    private async Task LoadParentAsync(DataRow row)
+    {
+        var lvl = int.TryParse(row["grp_lvl"]?.ToString(), out var n) ? n : 0;
+        cboDetailParGrpId.Enabled = lvl >= 2;
+        cboDetailParGrpId.Required = lvl >= 2;
+        if (lvl >= 2) await cboDetailParGrpId.SetParamAsync("p_grp_lvl", (lvl - 1).ToString());
+
+        var par = row["par_grp_id"]?.ToString();
+        SuppressDirtyTracking(() => cboDetailParGrpId.EditValue = string.IsNullOrEmpty(par) || par == "0" ? null! : par);
+    }
+
     private async Task OnMasterSelectedAsync(DataRow row)
     {
+        _syncingLevel = true;
+        try
+        {
         // 코드가 값을 채우는 것뿐인데 TrackDirty(panData)가 "사용자가 고쳤다"로 오인하지 않게 감싼다.
         SuppressDirtyTracking(() =>
         {
@@ -200,10 +237,12 @@ public partial class frmItemGrp : BaseForm
         txtDetailGrpId.Text = row["grp_id"]?.ToString() ?? string.Empty;
         txtDetailGrpNm.Text = row["grp_nm"]?.ToString() ?? string.Empty;
         cboDetailGrpLvl.EditValue = row["grp_lvl"]?.ToString() ?? string.Empty;
-        txtDetailParGrpId.Text = row["par_grp_id"]?.ToString() ?? string.Empty;
-        txtDetailParGrpNm.Text = row["par_grp_nm"]?.ToString() ?? string.Empty;
         memDetailRemark.Text = row["remark"]?.ToString() ?? string.Empty;
         });
+
+        await LoadParentAsync(row);
+        }
+        finally { _syncingLevel = false; }
 
         await LoadDetailAsync();
     }
@@ -219,9 +258,10 @@ public partial class frmItemGrp : BaseForm
         cboDetailAccId.EditValue = Session.AccId?.ToString() ?? string.Empty;
         txtDetailGrpId.Text = string.Empty;
         txtDetailGrpNm.Text = string.Empty;
-        cboDetailGrpLvl.EditValue = string.Empty;
-        txtDetailParGrpId.Text = string.Empty;
-        txtDetailParGrpNm.Text = string.Empty;
+        _syncingLevel = true;
+        try { cboDetailGrpLvl.EditValue = string.Empty; }
+        finally { _syncingLevel = false; }
+        ApplyGrpLevel(clearParent: true); // 레벨 미선택 - 상위그룹 콤보는 비활성
         memDetailRemark.Text = string.Empty;
             _detail1 = _detail1.Clone();
             _detail2 = _detail2.Clone();
@@ -251,33 +291,27 @@ public partial class frmItemGrp : BaseForm
     /// 같은 가드 패턴).</summary>
     private async Task LoadDetailAsync()
     {
-        if (string.IsNullOrEmpty(""))
+        // 하위 그리드는 grd2 하나만 쓴다 - 선택한 그룹에 속한 품목 리스트(조회 전용, USP_BA_ITEMGRP_Q Q1). 그룹을 고를 때마다 다시 조회한다.
+        if (_editingKey == null)
         {
+            _detail1 = new DataTable();
             grd2.DataSource = null;
-            grd3.DataSource = null;
-            grd4.DataSource = null;
-            grd5.DataSource = null;
+            sectionHeaderWyn2.Text = "소속 품목 LIST";
             return;
         }
 
-        var p = new Dictionary<string, string?>
+        var key = _editingKey;
+        var table = await QueryAsync("USP_BA_ITEMGRP_Q", new Dictionary<string, string?>
         {
-            ["p_work_type"] = "",
-            ["p_grp_id"] = _editingKey,
-        };
-        var tables = await QueryMultiAsync("", p);
-        _detail1 = tables.Count > 0 ? tables[0] : new DataTable();
-        _detail2 = tables.Count > 1 ? tables[1] : new DataTable();
-        _detail3 = tables.Count > 2 ? tables[2] : new DataTable();
-        _detail4 = tables.Count > 3 ? tables[3] : new DataTable();
-        TrackDirty(_detail1);
-        TrackDirty(_detail2);
-        TrackDirty(_detail3);
-        TrackDirty(_detail4);
+            ["p_work_type"] = "Q1",
+            ["p_acc_id"] = cboDetailAccId.EditValue?.ToString(),
+            ["p_grp_id"] = key,
+        });
+        if (key != _editingKey) return; // 조회하는 사이 다른 그룹으로 옮겼으면 이 결과는 버린다
+
+        _detail1 = table;
         grd2.DataSource = _detail1;
-        grd3.DataSource = _detail2;
-        grd4.DataSource = _detail3;
-        grd5.DataSource = _detail4;
+        sectionHeaderWyn2.Text = $"소속 품목 LIST ({_detail1.Rows.Count}건)";
     }
 
     public override Task NewClick()
@@ -305,7 +339,7 @@ public partial class frmItemGrp : BaseForm
             ["p_grp_id"] = txtDetailGrpId.Text,
             ["p_grp_nm"] = txtDetailGrpNm.Text,
             ["p_grp_lvl"] = cboDetailGrpLvl.EditValue?.ToString() ?? string.Empty,
-            ["p_par_grp_id"] = txtDetailParGrpId.Text,
+            ["p_par_grp_id"] = cboDetailParGrpId.EditValue?.ToString() ?? string.Empty,
             ["p_remark"] = memDetailRemark.Text,
         };
 

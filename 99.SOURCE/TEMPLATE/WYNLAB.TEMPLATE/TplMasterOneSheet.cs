@@ -23,10 +23,13 @@ public partial class TplMasterOneSheet : BaseForm
     public TplMasterOneSheet()
     {
         InitializeComponent();
+        // 검색조건 기본값(화면 표준 - 첫 번째 검색조건 사업장은 로그인 사업장이 기본값, 2026-10-03)
+        // @AI_BUILDER:BEGIN SEARCH_DEFAULTS
+        // @AI_BUILDER:END SEARCH_DEFAULTS
 
         Text = "__MENU_CAPTION__";
 
-        Controls.Add(BuildScreenHeader());
+        // 화면 제목은 Designer의 sectionHeaderWyn("... [폼명]")이 담당한다 - BuildScreenHeader()를 또 추가하면 제목이 두 줄로 중복된다.
 
         // grd2~grd5(하위 그리드, 전부 선택사항)는 편집 가능하고 각자 자기 저장프로시저로 저장된다
         // (TplMasterFormSubGrid와 같은 방식) - Role=Edit이면 그리드 자신의 EmbeddedNavigator에도

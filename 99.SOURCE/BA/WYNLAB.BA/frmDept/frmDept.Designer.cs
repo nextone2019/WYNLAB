@@ -75,6 +75,8 @@ public partial class frmDept
             this.panelWyn2 = new WYNLAB.Base.Controls.PanelWyn();
             this.sectionHeaderWyn4 = new WYNLAB.Base.Controls.SectionHeaderWyn();
             this.panHeader = new WYNLAB.Base.Controls.PanelWyn();
+            this.lblSearchAccId = new DevExpress.XtraEditors.LabelControl();
+            this.cboSearchAccId = new WYNLAB.Base.Controls.LookUpEditWyn();
             this.labelControl1 = new DevExpress.XtraEditors.LabelControl();
             this.txtDeptId = new WYNLAB.Base.Controls.TextEditWyn();
             this.lblSearchDeptNm = new DevExpress.XtraEditors.LabelControl();
@@ -123,6 +125,7 @@ public partial class frmDept
             ((System.ComponentModel.ISupportInitialize)(this.txtDeptNm.Properties)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.paTitleH)).BeginInit();
             this.paTitleH.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.cboSearchAccId.Properties)).BeginInit();
             this.SuspendLayout();
             // 
             // panBase
@@ -343,7 +346,7 @@ public partial class frmDept
             this.btnDeletRow2.Location = new System.Drawing.Point(68, 4);
             this.btnDeletRow2.Name = "btnDeletRow2";
             this.btnDeletRow2.PressedColor = System.Drawing.Color.FromArgb(((int)(((byte)(225)))), ((int)(((byte)(235)))), ((int)(((byte)(253)))));
-            this.btnDeletRow2.Size = new System.Drawing.Size(58, 22);
+            this.btnDeletRow2.Size = new System.Drawing.Size(60, 24);
             this.btnDeletRow2.Text = "행삭제";
             this.btnDeletRow2.TabIndex = 0;
             this.btnDeletRow2.ToolTip = "행삭제(현재 탭)";
@@ -361,7 +364,7 @@ public partial class frmDept
             this.btnAddRow2.Location = new System.Drawing.Point(6, 4);
             this.btnAddRow2.Name = "btnAddRow2";
             this.btnAddRow2.PressedColor = System.Drawing.Color.FromArgb(((int)(((byte)(225)))), ((int)(((byte)(235)))), ((int)(((byte)(253)))));
-            this.btnAddRow2.Size = new System.Drawing.Size(58, 22);
+            this.btnAddRow2.Size = new System.Drawing.Size(60, 24);
             this.btnAddRow2.Text = "행추가";
             this.btnAddRow2.TabIndex = 0;
             this.btnAddRow2.ToolTip = "행추가(현재 탭)";
@@ -722,6 +725,8 @@ public partial class frmDept
             this.panHeader.Appearance.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(240)))), ((int)(((byte)(240)))), ((int)(((byte)(240)))));
             this.panHeader.Appearance.Options.UseBackColor = true;
             this.panHeader.BorderStyle = DevExpress.XtraEditors.Controls.BorderStyles.Default;
+            this.panHeader.Controls.Add(this.lblSearchAccId);
+            this.panHeader.Controls.Add(this.cboSearchAccId);
             this.panHeader.Controls.Add(this.labelControl1);
             this.panHeader.Controls.Add(this.txtDeptId);
             this.panHeader.Controls.Add(this.lblSearchDeptNm);
@@ -733,11 +738,38 @@ public partial class frmDept
             this.panHeader.Size = new System.Drawing.Size(1235, 49);
             this.panHeader.TabIndex = 8;
             // 
+            // lblSearchAccId (조회조건 첫 번째 - 사업장 표준, 2026-10-03)
+            // 
+            this.lblSearchAccId.Appearance.Font = new System.Drawing.Font("맑은 고딕", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
+            this.lblSearchAccId.Appearance.Options.UseFont = true;
+            this.lblSearchAccId.Location = new System.Drawing.Point(20, 18);
+            this.lblSearchAccId.Name = "lblSearchAccId";
+            this.lblSearchAccId.Size = new System.Drawing.Size(36, 15);
+            this.lblSearchAccId.TabIndex = 0;
+            this.lblSearchAccId.Text = "사업장";
+            // 
+            // cboSearchAccId (사업장 LookUp, Required - 기본값은 화면 생성자에서 로그인 사업장)
+            // 
+            this.cboSearchAccId.EditValue = "";
+            this.cboSearchAccId.Location = new System.Drawing.Point(64, 15);
+            this.cboSearchAccId.LookupKey = "L_ACC";
+            this.cboSearchAccId.Name = "cboSearchAccId";
+            this.cboSearchAccId.Properties.Appearance.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(249)))), ((int)(((byte)(219)))));
+            this.cboSearchAccId.Properties.Appearance.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))));
+            this.cboSearchAccId.Properties.Appearance.Options.UseBackColor = true;
+            this.cboSearchAccId.Properties.Appearance.Options.UseForeColor = true;
+            this.cboSearchAccId.Properties.Buttons.AddRange(new DevExpress.XtraEditors.Controls.EditorButton[] {
+            new DevExpress.XtraEditors.Controls.EditorButton(DevExpress.XtraEditors.Controls.ButtonPredefines.Combo)});
+            this.cboSearchAccId.Properties.NullText = "";
+            this.cboSearchAccId.Required = true;
+            this.cboSearchAccId.Size = new System.Drawing.Size(131, 20);
+            this.cboSearchAccId.TabIndex = 1;
+            // 
             // labelControl1
             // 
             this.labelControl1.Appearance.Font = new System.Drawing.Font("맑은 고딕", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
             this.labelControl1.Appearance.Options.UseFont = true;
-            this.labelControl1.Location = new System.Drawing.Point(850, 18);
+            this.labelControl1.Location = new System.Drawing.Point(1049, 18);
             this.labelControl1.Name = "labelControl1";
             this.labelControl1.Size = new System.Drawing.Size(48, 15);
             this.labelControl1.TabIndex = 0;
@@ -746,7 +778,7 @@ public partial class frmDept
             // 
             // txtDeptId
             // 
-            this.txtDeptId.Location = new System.Drawing.Point(921, 15);
+            this.txtDeptId.Location = new System.Drawing.Point(1120, 15);
             this.txtDeptId.Name = "txtDeptId";
             this.txtDeptId.Size = new System.Drawing.Size(150, 20);
             this.txtDeptId.TabIndex = 2;
@@ -754,7 +786,7 @@ public partial class frmDept
             // 
             // lblSearchDeptNm
             // 
-            this.lblSearchDeptNm.Location = new System.Drawing.Point(20, 18);
+            this.lblSearchDeptNm.Location = new System.Drawing.Point(219, 18);
             this.lblSearchDeptNm.Name = "lblSearchDeptNm";
             this.lblSearchDeptNm.Size = new System.Drawing.Size(20, 14);
             this.lblSearchDeptNm.TabIndex = 3;
@@ -762,7 +794,7 @@ public partial class frmDept
             // 
             // txtDeptNm
             // 
-            this.txtDeptNm.Location = new System.Drawing.Point(46, 15);
+            this.txtDeptNm.Location = new System.Drawing.Point(245, 15);
             this.txtDeptNm.Name = "txtDeptNm";
             this.txtDeptNm.Size = new System.Drawing.Size(150, 20);
             this.txtDeptNm.TabIndex = 4;
@@ -841,6 +873,7 @@ public partial class frmDept
             ((System.ComponentModel.ISupportInitialize)(this.txtDeptNm.Properties)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.paTitleH)).EndInit();
             this.paTitleH.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.cboSearchAccId.Properties)).EndInit();
             this.ResumeLayout(false);
 
     }
@@ -903,4 +936,6 @@ public partial class frmDept
     private MemoEditWyn txtDetailRemark;
     private PanelWyn paTitleH;
     private SectionHeaderWyn sectionHeaderWyn1;
+    private DevExpress.XtraEditors.LabelControl lblSearchAccId;
+    private WYNLAB.Base.Controls.LookUpEditWyn cboSearchAccId;
 }

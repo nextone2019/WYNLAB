@@ -135,6 +135,8 @@ public partial class frmNameCardReq : BaseForm
         return Task.CompletedTask;
     }
 
+    protected override bool ConfirmDeleteByDefault => false; // 삭제 확인창을 DeleteClick에서 직접 띄움(문서번호 등 상세 문구)
+
     public override async Task DeleteClick()
     {
         if (_editingId == null)
@@ -176,6 +178,11 @@ public partial class frmNameCardReq : BaseForm
 
     public override async Task SaveClick()
     {
+        if (IsApprovalLockedStatus(txtApprStatCd.Text))
+        {
+            AppMessageBox.Show("결재 상신된 문서는 수정할 수 없습니다.", "안내");
+            return;
+        }
         if (string.IsNullOrWhiteSpace(txtNameKor.Text))
         {
             AppMessageBox.Show("성명(한글)은 필수입니다.", "확인");
@@ -294,6 +301,7 @@ public partial class frmNameCardReq : BaseForm
             memoRemark.Text = string.Empty;
         });
         txtSearchQ.Focus();
+        ApplyLockState();
     }
 
     private void EnterEditMode(DataRow row)
@@ -319,7 +327,11 @@ public partial class frmNameCardReq : BaseForm
             txtApproverEmpNo.Text = string.Empty;
             memoRemark.Text = Str(row, "remark");
         });
+        ApplyLockState();
     }
+
+    /// <summary>결재 상신된(상신/진행중/승인완료) 신청서는 입력 항목을 수정하지 못하게 잠근다 - 반려/상신 취소되면 다시 수정 가능(서버도 같은 기준).</summary>
+    private void ApplyLockState() => ApplyApprovalLock(IsApprovalLockedStatus(txtApprStatCd.Text), panData, null);
 
     private static string Str(DataRow row, string columnName) =>
         row.Table.Columns.Contains(columnName) && row[columnName] != DBNull.Value

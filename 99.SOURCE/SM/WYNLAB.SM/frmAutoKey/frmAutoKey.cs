@@ -21,7 +21,6 @@ public partial class frmAutoKey : BaseForm
 
         Text = "자동채번등록";
 
-        Controls.Add(BuildScreenHeader());
 
         gvw1.Role = GridRoleWyn.Query;
         gvw1.HighlightFocusedRow = true;

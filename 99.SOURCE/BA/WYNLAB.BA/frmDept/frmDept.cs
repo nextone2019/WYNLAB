@@ -21,6 +21,10 @@ public partial class frmDept : BaseForm
     {
         InitializeComponent();
 
+        // 조회조건 사업장 - 화면 표준(2026-10-03): 항상 첫 번째, Required, 화면을 열면 로그인 사업장이 기본값.
+        cboSearchAccId.EditValue = Session.AccId?.ToString() ?? string.Empty;
+        cboSearchAccId.Tag = new BindingFieldTag("acc_id");
+
         Text = "부서등록";
 
         // 최상단 공통 타이틀(BuildScreenHeader)은 뺐다(2026-09-26 요청) - 아래 표준 제목 바(paTitleH "부서등록 [frmDept]")만 남긴다.
@@ -134,6 +138,7 @@ public partial class frmDept : BaseForm
     {
         var p = new Dictionary<string, string?>
         {
+            ["p_acc_id"] = cboSearchAccId.EditValue?.ToString(),
             ["p_work_type"] = "Q",
             ["p_dept_id"] = txtDeptId.Text,
             ["p_dept_nm"] = txtDeptNm.Text,

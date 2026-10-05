@@ -33,6 +33,8 @@ public partial class frmStockList
             this.colTransId = new DevExpress.XtraGrid.Columns.GridColumn();
             this.colUptDt = new DevExpress.XtraGrid.Columns.GridColumn();
             this.panHeader = new WYNLAB.Base.Controls.PanelWyn();
+            this.lblSearchAccId = new DevExpress.XtraEditors.LabelControl();
+            this.cboSearchAccId = new WYNLAB.Base.Controls.LookUpEditWyn();
             this.lblSearchKeyword = new DevExpress.XtraEditors.LabelControl();
             this.txtSearchKeyword = new WYNLAB.Base.Controls.TextEditWyn();
             this.lblSearchWh = new DevExpress.XtraEditors.LabelControl();
@@ -61,6 +63,7 @@ public partial class frmStockList
             this.paTitleH.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.paTitle1)).BeginInit();
             this.paTitle1.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.cboSearchAccId.Properties)).BeginInit();
             this.SuspendLayout();
             // 
             // panBase
@@ -239,6 +242,8 @@ public partial class frmStockList
             this.panHeader.Appearance.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(241)))), ((int)(((byte)(245)))), ((int)(((byte)(249)))));
             this.panHeader.Appearance.Options.UseBackColor = true;
             this.panHeader.BorderStyle = DevExpress.XtraEditors.Controls.BorderStyles.Default;
+            this.panHeader.Controls.Add(this.lblSearchAccId);
+            this.panHeader.Controls.Add(this.cboSearchAccId);
             this.panHeader.Controls.Add(this.lblSearchKeyword);
             this.panHeader.Controls.Add(this.txtSearchKeyword);
             this.panHeader.Controls.Add(this.lblSearchWh);
@@ -254,9 +259,36 @@ public partial class frmStockList
             this.panHeader.Size = new System.Drawing.Size(1670, 49);
             this.panHeader.TabIndex = 8;
             // 
+            // lblSearchAccId (조회조건 첫 번째 - 사업장 표준, 2026-10-03)
+            // 
+            this.lblSearchAccId.Appearance.Font = new System.Drawing.Font("맑은 고딕", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
+            this.lblSearchAccId.Appearance.Options.UseFont = true;
+            this.lblSearchAccId.Location = new System.Drawing.Point(25, 18);
+            this.lblSearchAccId.Name = "lblSearchAccId";
+            this.lblSearchAccId.Size = new System.Drawing.Size(36, 15);
+            this.lblSearchAccId.TabIndex = 0;
+            this.lblSearchAccId.Text = "사업장";
+            // 
+            // cboSearchAccId (사업장 LookUp, Required - 기본값은 화면 생성자에서 로그인 사업장)
+            // 
+            this.cboSearchAccId.EditValue = "";
+            this.cboSearchAccId.Location = new System.Drawing.Point(69, 15);
+            this.cboSearchAccId.LookupKey = "L_ACC";
+            this.cboSearchAccId.Name = "cboSearchAccId";
+            this.cboSearchAccId.Properties.Appearance.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(249)))), ((int)(((byte)(219)))));
+            this.cboSearchAccId.Properties.Appearance.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))));
+            this.cboSearchAccId.Properties.Appearance.Options.UseBackColor = true;
+            this.cboSearchAccId.Properties.Appearance.Options.UseForeColor = true;
+            this.cboSearchAccId.Properties.Buttons.AddRange(new DevExpress.XtraEditors.Controls.EditorButton[] {
+            new DevExpress.XtraEditors.Controls.EditorButton(DevExpress.XtraEditors.Controls.ButtonPredefines.Combo)});
+            this.cboSearchAccId.Properties.NullText = "";
+            this.cboSearchAccId.Required = true;
+            this.cboSearchAccId.Size = new System.Drawing.Size(131, 20);
+            this.cboSearchAccId.TabIndex = 1;
+            // 
             // lblSearchKeyword
             // 
-            this.lblSearchKeyword.Location = new System.Drawing.Point(25, 18);
+            this.lblSearchKeyword.Location = new System.Drawing.Point(224, 18);
             this.lblSearchKeyword.Name = "lblSearchKeyword";
             this.lblSearchKeyword.Size = new System.Drawing.Size(70, 14);
             this.lblSearchKeyword.TabIndex = 0;
@@ -264,14 +296,14 @@ public partial class frmStockList
             // 
             // txtSearchKeyword
             // 
-            this.txtSearchKeyword.Location = new System.Drawing.Point(129, 15);
+            this.txtSearchKeyword.Location = new System.Drawing.Point(328, 15);
             this.txtSearchKeyword.Name = "txtSearchKeyword";
             this.txtSearchKeyword.Size = new System.Drawing.Size(150, 20);
             this.txtSearchKeyword.TabIndex = 1;
             // 
             // lblSearchWh
             // 
-            this.lblSearchWh.Location = new System.Drawing.Point(301, 18);
+            this.lblSearchWh.Location = new System.Drawing.Point(500, 18);
             this.lblSearchWh.Name = "lblSearchWh";
             this.lblSearchWh.Size = new System.Drawing.Size(20, 14);
             this.lblSearchWh.TabIndex = 2;
@@ -279,14 +311,14 @@ public partial class frmStockList
             // 
             // txtSearchWh
             // 
-            this.txtSearchWh.Location = new System.Drawing.Point(333, 15);
+            this.txtSearchWh.Location = new System.Drawing.Point(532, 15);
             this.txtSearchWh.Name = "txtSearchWh";
             this.txtSearchWh.Size = new System.Drawing.Size(110, 20);
             this.txtSearchWh.TabIndex = 3;
             // 
             // lblSearchLot
             // 
-            this.lblSearchLot.Location = new System.Drawing.Point(465, 18);
+            this.lblSearchLot.Location = new System.Drawing.Point(664, 18);
             this.lblSearchLot.Name = "lblSearchLot";
             this.lblSearchLot.Size = new System.Drawing.Size(23, 14);
             this.lblSearchLot.TabIndex = 4;
@@ -294,14 +326,14 @@ public partial class frmStockList
             // 
             // txtSearchLot
             // 
-            this.txtSearchLot.Location = new System.Drawing.Point(509, 15);
+            this.txtSearchLot.Location = new System.Drawing.Point(708, 15);
             this.txtSearchLot.Name = "txtSearchLot";
             this.txtSearchLot.Size = new System.Drawing.Size(110, 20);
             this.txtSearchLot.TabIndex = 5;
             // 
             // lblSearchZero
             // 
-            this.lblSearchZero.Location = new System.Drawing.Point(641, 18);
+            this.lblSearchZero.Location = new System.Drawing.Point(840, 18);
             this.lblSearchZero.Name = "lblSearchZero";
             this.lblSearchZero.Size = new System.Drawing.Size(31, 14);
             this.lblSearchZero.TabIndex = 6;
@@ -309,7 +341,7 @@ public partial class frmStockList
             // 
             // cboSearchZero
             // 
-            this.cboSearchZero.Location = new System.Drawing.Point(697, 15);
+            this.cboSearchZero.Location = new System.Drawing.Point(896, 15);
             this.cboSearchZero.Name = "cboSearchZero";
             this.cboSearchZero.Properties.Buttons.AddRange(new DevExpress.XtraEditors.Controls.EditorButton[] {
             new DevExpress.XtraEditors.Controls.EditorButton(DevExpress.XtraEditors.Controls.ButtonPredefines.Combo)});
@@ -395,6 +427,7 @@ public partial class frmStockList
             this.paTitleH.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.paTitle1)).EndInit();
             this.paTitle1.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.cboSearchAccId.Properties)).EndInit();
             this.ResumeLayout(false);
 
     }
@@ -426,4 +459,6 @@ public partial class frmStockList
     private SectionHeaderWyn sectionHeaderWyn4;
     private PanelWyn paTitleH;
     private SectionHeaderWyn sectionHeaderWyn1;
+    private DevExpress.XtraEditors.LabelControl lblSearchAccId;
+    private WYNLAB.Base.Controls.LookUpEditWyn cboSearchAccId;
 }

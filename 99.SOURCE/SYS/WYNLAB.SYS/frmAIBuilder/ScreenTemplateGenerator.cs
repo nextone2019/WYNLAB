@@ -168,6 +168,7 @@ public static class ScreenTemplateGenerator
         }
 
         formCs = SpliceBlock(formCs, "QUERY_PARAMS", BuildQueryParamsBlock(spec));
+        formCs = SpliceBlock(formCs, "SEARCH_DEFAULTS", BuildSearchDefaultsBlock(spec));
         formCs = SpliceBlock(formCs, "SAVE_PARAMS", saveParams.ToString());
 
         // ---- 토큰 치환 + 클래스명/네임스페이스 ----
@@ -219,6 +220,7 @@ public static class ScreenTemplateGenerator
         designerCs = SpliceBlock(designerCs, "DETAIL_COLUMN_DECL", detailDecl.ToString());
 
         formCs = SpliceBlock(formCs, "QUERY_PARAMS", BuildQueryParamsBlock(spec));
+        formCs = SpliceBlock(formCs, "SEARCH_DEFAULTS", BuildSearchDefaultsBlock(spec));
         formCs = SpliceBlock(formCs, "SAVE_PARAMS", saveAction != null ? BuildSaveParamsBlock(saveAction) : string.Empty);
 
         designerCs = ApplyTokens(designerCs, spec, "TplMasterSubGrid");
@@ -375,6 +377,7 @@ public static class ScreenTemplateGenerator
         designerCs = SpliceBlock(designerCs, "DETAIL_FORM_DECL", formDecl.ToString());
 
         formCs = SpliceBlock(formCs, "QUERY_PARAMS", BuildQueryParamsBlock(spec));
+        formCs = SpliceBlock(formCs, "SEARCH_DEFAULTS", BuildSearchDefaultsBlock(spec));
         formCs = SpliceBlock(formCs, "DETAIL_FORM_ASSIGN", formAssign.ToString());
         formCs = SpliceBlock(formCs, "DETAIL_FORM_CLEAR", formClear.ToString());
         formCs = SpliceBlock(formCs, "DETAIL_FORM_TAG", formTag.ToString());
@@ -544,6 +547,7 @@ public static class ScreenTemplateGenerator
         designerCs = SpliceBlock(designerCs, "DETAIL_FORM_DECL", formDecl.ToString());
 
         formCs = SpliceBlock(formCs, "QUERY_PARAMS", BuildQueryParamsBlock(spec));
+        formCs = SpliceBlock(formCs, "SEARCH_DEFAULTS", BuildSearchDefaultsBlock(spec));
         formCs = SpliceBlock(formCs, "DETAIL_FORM_ASSIGN", formAssign.ToString());
         formCs = SpliceBlock(formCs, "DETAIL_FORM_CLEAR", formClear.ToString());
         formCs = SpliceBlock(formCs, "DETAIL_FORM_TAG", formTag.ToString());
@@ -709,6 +713,7 @@ public static class ScreenTemplateGenerator
         designerCs = SpliceBlock(designerCs, "DETAIL_FORM_DECL", formDecl.ToString());
 
         formCs = SpliceBlock(formCs, "QUERY_PARAMS", BuildQueryParamsBlock(spec));
+        formCs = SpliceBlock(formCs, "SEARCH_DEFAULTS", BuildSearchDefaultsBlock(spec));
         formCs = SpliceBlock(formCs, "DETAIL_FORM_ASSIGN", formAssign.ToString());
         formCs = SpliceBlock(formCs, "DETAIL_FORM_CLEAR", formClear.ToString());
         formCs = SpliceBlock(formCs, "DETAIL_FORM_TAG", formTag.ToString());
@@ -780,11 +785,44 @@ public static class ScreenTemplateGenerator
     // 조회조건 패널과 같은 가로 배치). f.Visible=false(검색조건 그리드의 View 체크박스, 2026-09-09
     // 요청)면 라벨/컨트롤 둘 다 그대로 만들어지되(코드에서 계속 값을 읽고 쓸 수 있어야 하므로)
     // Visible=false로 생성된다 - ParamName이 비어서 아예 조회에 안 보내는 것과는 독립된 축이다.
+    // 화면 표준(2026-10-03): 검색조건의 첫 번째는 항상 사업장(L_ACC LookUp, Required, 화면을 열면
+    // 로그인 사업장이 기본값)이다. 조회프로시저가 @p_acc_id를 받아서 SearchFields에 그 파라미터
+    // (ParamName="p_acc_id")가 들어 있을 때만 적용한다 - acc_id 컬럼이 없는 데이터(거래처 마스터
+    // 등)에 p_acc_id를 억지로 보내면 프로시저가 "매개 변수가 없다"며 실패하므로 합성해서 넣지는 않는다.
+    private static bool IsAccSearchField(ColumnSpec f) =>
+        string.Equals(f.ParamName, "p_acc_id", StringComparison.OrdinalIgnoreCase) ||
+        f.Name.Equals("acc_id", StringComparison.OrdinalIgnoreCase);
+
+    private static List<ColumnSpec> OrderedSearchFields(ScreenGenSpec spec)
+    {
+        var list = spec.SearchFields.ToList();
+        var acc = list.FirstOrDefault(IsAccSearchField);
+        if (acc == null) return list;
+        list.Remove(acc);
+        acc.ControlKind = "COMBO";
+        acc.LookupKey = string.IsNullOrWhiteSpace(acc.LookupKey) ? "L_ACC" : acc.LookupKey;
+        acc.Required = true;
+        acc.Visible = true;
+        if (string.IsNullOrWhiteSpace(acc.Caption)) acc.Caption = "사업장";
+        list.Insert(0, acc);
+        return list;
+    }
+
+    // 생성자에서 InitializeComponent() 바로 뒤에 들어가는 검색조건 기본값 - 사업장 콤보는 로그인 사업장.
+    private static string BuildSearchDefaultsBlock(ScreenGenSpec spec)
+    {
+        var sb = new StringBuilder();
+        foreach (var f in OrderedSearchFields(spec).Where(IsAccSearchField))
+            sb.AppendLine($"        {SearchFieldName(f)}.EditValue = Session.AccId?.ToString() ?? string.Empty;");
+        return sb.ToString();
+    }
+
     private static (string New, string Config, string Decl) BuildSearchFieldBlocks(ScreenGenSpec spec)
     {
         var searchNew = new StringBuilder();
         var searchDecl = new StringBuilder();
-        foreach (var f in spec.SearchFields)
+        var searchFields = OrderedSearchFields(spec);
+        foreach (var f in searchFields)
         {
             searchNew.AppendLine($"        this.lblSearch{PascalCase(f.Name)} = new DevExpress.XtraEditors.LabelControl();");
             searchNew.AppendLine($"        this.{SearchFieldDecl(f)}");
@@ -796,10 +834,13 @@ public static class ScreenTemplateGenerator
         const int editWidth = 150;
         const int fieldSpacing = 16;
         var x = 16;
-        foreach (var f in spec.SearchFields)
+        foreach (var f in searchFields)
         {
             var lbl = $"lblSearch{PascalCase(f.Name)}";
             var field = SearchFieldName(f);
+            // 라벨은 항상 맑은 고딕 9로 명시한다 - 안 그러면 VS 디자이너가 기본 글꼴(Tahoma 8.25)로 그려서 실제 실행 화면과 위치가 어긋나 보인다(2026-10-03).
+            searchConfig.AppendLine($"        this.{lbl}.Appearance.Font = new System.Drawing.Font(\"맑은 고딕\", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(129)));");
+            searchConfig.AppendLine($"        this.{lbl}.Appearance.Options.UseFont = true;");
             searchConfig.AppendLine($"        this.{lbl}.Location = new System.Drawing.Point({x}, 24);");
             searchConfig.AppendLine($"        this.{lbl}.Name = \"{lbl}\";");
             searchConfig.AppendLine($"        this.{lbl}.Text = \"{EscapeCs(f.Caption)}\";");
@@ -824,7 +865,7 @@ public static class ScreenTemplateGenerator
     private static string BuildQueryParamsBlock(ScreenGenSpec spec)
     {
         var sb = new StringBuilder();
-        foreach (var f in spec.SearchFields)
+        foreach (var f in OrderedSearchFields(spec))
         {
             if (string.IsNullOrWhiteSpace(f.ParamName)) continue;
             sb.AppendLine($"            [\"{f.ParamName}\"] = {SearchFieldReadExpr(f)},");

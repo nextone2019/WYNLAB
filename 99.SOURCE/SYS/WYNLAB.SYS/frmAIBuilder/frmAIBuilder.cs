@@ -73,7 +73,6 @@ public partial class frmAIBuilder : BaseForm
 
         Text = "AI Builder";
 
-        Controls.Add(BuildScreenHeader());
 
         //cboModule.Properties.Items.AddRange(new[] { "SM", "BA", "SA", "PR", "SYS", "MA" });
        // cboModule.Properties.TextEditStyle = TextEditStyles.DisableTextEditor;

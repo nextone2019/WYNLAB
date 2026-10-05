@@ -1,0 +1,8 @@
+﻿-- 280: 품목일괄수정(frmItemMod) 메뉴 등록 (2026-10-04). 품목일괄등록(frmItemMulti) 바로 뒤에 같은 그룹/모듈/PROC_PREFIX(USP_BA_ITEM_)로 붙인다.
+-- 프로시저는 새로 만들지 않는다(조회 USP_BA_ITEM_Q, 저장 USP_BA_ITEM_S(U) 그대로).
+INSERT INTO TSMMENU (MENU_NM, UPPER_MENU_ID, MENU_LEVEL, MENU_TYPE, MODULE, SCREEN_CLASS_NM, PROC_PREFIX, SORT_ORDER, USE_YN, reg_user_id, reg_dt)
+SELECT N'품목일괄수정', m.UPPER_MENU_ID, m.MENU_LEVEL, m.MENU_TYPE, m.MODULE, 'frmItemMod', m.PROC_PREFIX, m.SORT_ORDER + 1, 'Y', SUSER_SNAME(), GETDATE()
+FROM TSMMENU m
+WHERE m.SCREEN_CLASS_NM = 'frmItemMulti'
+  AND NOT EXISTS (SELECT 1 FROM TSMMENU x WHERE x.MODULE = m.MODULE AND x.SCREEN_CLASS_NM = 'frmItemMod');
+GO

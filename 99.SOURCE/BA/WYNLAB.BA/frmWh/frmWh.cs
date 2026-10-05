@@ -22,6 +22,10 @@ public partial class frmWh : BaseForm
     {
         InitializeComponent();
 
+        // 조회조건 사업장 - 화면 표준(2026-10-03): 항상 첫 번째, Required, 화면을 열면 로그인 사업장이 기본값.
+        cboSearchAccId.EditValue = Session.AccId?.ToString() ?? string.Empty;
+        cboSearchAccId.Tag = new BindingFieldTag("acc_id");
+
         Text = "창고/위치등록";
 
         gvw1.FocusedRowObjectChanged += Gvw1_FocusedRowObjectChanged;
@@ -57,6 +61,7 @@ public partial class frmWh : BaseForm
         popDetailDeptNm.MapField("DEPT_ID", txtDetailDeptId);
         popDetailEmpNm.MatchField = "emp_nm";
         popDetailEmpNm.MapField("EMP_ID", txtDetailEmpId);
+        popDetailEmpNm.LinkDept(popDetailDeptNm, txtDetailDeptId); // 담당자 팝업은 선택한 부서 소속만, 담당자를 고르면 부서도 채움
 
         TrackDirty(panData);
 
@@ -72,6 +77,7 @@ public partial class frmWh : BaseForm
 
         _whs = await QueryAsync("USP_BA_WH_Q", new
         {
+            p_acc_id = cboSearchAccId.EditValue?.ToString(),
             p_work_type = "Q",
             p_wh_nm = keyword
         });
@@ -273,6 +279,8 @@ public partial class frmWh : BaseForm
 
         return result.Success ? null : $"[{locNm}] {FormatSaveFailMessage(result)}";
     }
+
+    protected override bool ConfirmDeleteByDefault => false; // 삭제 확인창을 DeleteClick에서 직접 띄움(문서번호 등 상세 문구)
 
     public override async Task DeleteClick()
     {

@@ -17,6 +17,10 @@ public partial class frmProc : BaseForm
     {
         InitializeComponent();
 
+        // 조회조건 사업장 - 화면 표준(2026-10-03): 항상 첫 번째, Required, 화면을 열면 로그인 사업장이 기본값.
+        cboSearchAccId.EditValue = Session.AccId?.ToString() ?? string.Empty;
+        cboSearchAccId.Tag = new BindingFieldTag("acc_id");
+
         Text = "공정관리";
 
         Controls.Add(BuildScreenHeader());
@@ -74,6 +78,7 @@ public partial class frmProc : BaseForm
     {
         var p = new Dictionary<string, string?>
         {
+            ["p_acc_id"] = cboSearchAccId.EditValue?.ToString(),
             ["p_work_type"] = "Q",
             ["p_acc_id"] = Session.AccId?.ToString(),
             ["p_keyword"] = txtSearchKeyword.Text,

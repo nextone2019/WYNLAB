@@ -70,6 +70,7 @@ internal static class Program
 
         // .NET Framework용 WinForms 초기화 (net6+의 ApplicationConfiguration.Initialize() 대체)
         Application.EnableVisualStyles();
+        WYNLAB.Base.Controls.ImeGuard.InstallGlobalFilter();   // 전각 키 입력을 반각으로 - 로그인/팝업 포함 앱 전체(ImeGuard 참고)
         Application.SetCompatibleTextRenderingDefault(false);
 
         // 전역 예외 안전망. `Load += async (s, e) => await QueryClick();`처럼 이벤트에 async

@@ -7,6 +7,8 @@ public class HomeNoticeItemDto
     public string Title { get; set; } = string.Empty;
     public string ImportantYn { get; set; } = "N";
     public DateTime? RegDt { get; set; }
+    /// <summary>작성자 이름(USP_SM_BOARD_Q의 emp_nm) - 홈 공지 목록의 "작성자" 컬럼.</summary>
+    public string EmpNm { get; set; } = string.Empty;
 }
 
 /// <summary>홈화면 "오늘 일정" 위젯 1건 - HomeController.TodaySchedule(USP_SM_SCHEDULE_Q).</summary>

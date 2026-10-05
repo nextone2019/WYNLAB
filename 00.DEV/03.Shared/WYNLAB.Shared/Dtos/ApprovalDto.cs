@@ -143,6 +143,7 @@ public class ApprovalDashboardItemDto
     public string AppTitle { get; set; } = string.Empty;
     public string DocType { get; set; } = string.Empty;
     public long DocId { get; set; }
+    public string DocNo { get; set; } = string.Empty;
     public string? FormId { get; set; }
     /// <summary>Pending 목록에서만 값이 있다(기안자 이름) - Drafted 목록은 로그인 사용자 본인이라 불필요.</summary>
     public string? ReqEmpNm { get; set; }
@@ -153,4 +154,21 @@ public class ApprovalDashboardItemDto
     /// (승인완료/반려 등 더 이상 대기 라인이 없으면 NULL). Pending 목록은 로그인 사용자 본인이
     /// 항상 그 대상이라 불필요.</summary>
     public string? CurApprEmpNm { get; set; }
+    /// <summary>상신일시(TAPDOC.reg_dt) - 홈 결재 리스트의 "상신일시" 컬럼.</summary>
+    public DateTime? ReqDt { get; set; }
+    /// <summary>결재라인(C)의 마지막 사람 이름 - 홈 결재 리스트의 "최종승인자" 컬럼.</summary>
+    public string? LastApprEmpNm { get; set; }
+    /// <summary>결재함(Q7) 목록에서만 값이 있다 - 내 역할(C=결재, R=수신).</summary>
+    public string? PathType { get; set; }
+}
+
+/// <summary>홈 "기안서 작성" 탭의 바로가기 타일 1개 - TSMMINOR(AP0002) 문서유형 중 문서등록 화면
+/// (rel_cd1)이 지정된 것. 어느 화면을 열지는 FormId("{MODULE}.{화면클래스명}")로 푼다.</summary>
+public class ApprovalDocTypeDto
+{
+    public string DocType { get; set; } = string.Empty;
+    public string DocTypeNm { get; set; } = string.Empty;
+    public string FormId { get; set; } = string.Empty;
+    /// <summary>분류 칩 이름(rel_cd2) - 비어 있으면 "기타".</summary>
+    public string Category { get; set; } = string.Empty;
 }

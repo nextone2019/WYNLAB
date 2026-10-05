@@ -43,9 +43,20 @@ public class MenuAuthRow
     public string Auth10 { get; set; } = "N";
 }
 
+public class MenuFeatureRow
+{
+    public long MenuId { get; set; }
+    public string FeatureCd { get; set; } = string.Empty;
+    public string UseYn { get; set; } = "Y";
+    public string? OptionVal { get; set; }
+}
+
 public interface IMenuRepository
 {
     Task<List<MenuRow>> GetAllActiveMenusAsync();
+
+    /// <summary>모든 메뉴에 켜진 화면 기능(use_yn=Y) - 로그인 때 메뉴 목록에 한 번에 붙인다.</summary>
+    Task<List<MenuFeatureRow>> GetActiveFeaturesAsync();
 
     /// <summary>사용자가 속한 그룹들(GRP) + 본인(USER)에 걸린 권한행을 한 번에 조회</summary>
     Task<List<MenuAuthRow>> GetMenuAuthRowsAsync(string userId, List<string> groupCodes);
@@ -62,6 +73,15 @@ public class MenuRepository : IMenuRepository
         using var conn = _context.CreateConnection();
         var result = await conn.QueryAsync<MenuRow>("USP_SM_MENU_Q_2",
             new { p_work_type = "Q" }, commandType: CommandType.StoredProcedure);
+        return result.ToList();
+    }
+
+    public async Task<List<MenuFeatureRow>> GetActiveFeaturesAsync()
+    {
+        using var conn = _context.CreateConnection();
+        // Dapper는 snake_case 컬럼을 PascalCase 속성에 자동 매핑하지 않으므로 별칭을 단다.
+        var result = await conn.QueryAsync<MenuFeatureRow>(
+            "SELECT menu_id AS MenuId, feature_cd AS FeatureCd, use_yn AS UseYn, option_val AS OptionVal FROM TSMMENUFEATURE WHERE use_yn = 'Y'");
         return result.ToList();
     }
 

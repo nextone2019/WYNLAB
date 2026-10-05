@@ -1,4 +1,4 @@
-﻿#nullable disable
+#nullable disable
 using WYNLAB.Base.Controls;
 
 namespace WYNLAB.SM.MENU;
@@ -43,6 +43,13 @@ public partial class frmMenu
     private CheckBoxWyn chkUseYn;
 
     private GroupBoxWyn grpAuth;
+    private GroupBoxWyn grpFeature;
+    private CheckBoxWyn chkFeatApproval;
+    private DevExpress.XtraEditors.LabelControl lblApprDocType;
+    private LookUpEditWyn cboApprDocType;
+    private CheckBoxWyn chkFeatFile;
+    private DevExpress.XtraEditors.LabelControl lblFileDocType;
+    private TextEditWyn txtFileDocType;
     private DevExpress.XtraEditors.LabelControl lblAuthNm1;
     private TextEditWyn txtAuthNm1;
     private DevExpress.XtraEditors.LabelControl lblAuthNm2;
@@ -98,6 +105,13 @@ public partial class frmMenu
             this.lblSortOrder = new DevExpress.XtraEditors.LabelControl();
             this.spnSortOrder = new WYNLAB.Base.Controls.SpinEditWyn();
             this.grpAuth = new WYNLAB.Base.Controls.GroupBoxWyn();
+            this.grpFeature = new WYNLAB.Base.Controls.GroupBoxWyn();
+            this.chkFeatApproval = new WYNLAB.Base.Controls.CheckBoxWyn();
+            this.lblApprDocType = new DevExpress.XtraEditors.LabelControl();
+            this.cboApprDocType = new WYNLAB.Base.Controls.LookUpEditWyn();
+            this.chkFeatFile = new WYNLAB.Base.Controls.CheckBoxWyn();
+            this.lblFileDocType = new DevExpress.XtraEditors.LabelControl();
+            this.txtFileDocType = new WYNLAB.Base.Controls.TextEditWyn();
             this.lblAuthNm1 = new DevExpress.XtraEditors.LabelControl();
             this.txtAuthNm1 = new WYNLAB.Base.Controls.TextEditWyn();
             this.lblAuthNm2 = new DevExpress.XtraEditors.LabelControl();
@@ -149,6 +163,11 @@ public partial class frmMenu
             ((System.ComponentModel.ISupportInitialize)(this.txtProcPrefix.Properties)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.spnSortOrder.Properties)).BeginInit();
             this.grpAuth.SuspendLayout();
+            this.grpFeature.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.chkFeatApproval.Properties)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.cboApprDocType.Properties)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.chkFeatFile.Properties)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.txtFileDocType.Properties)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.txtAuthNm1.Properties)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.txtAuthNm2.Properties)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.txtAuthNm3.Properties)).BeginInit();
@@ -207,6 +226,7 @@ public partial class frmMenu
             this.panData.Controls.Add(this.grpBasic);
             this.panData.Controls.Add(this.grpConn);
             this.panData.Controls.Add(this.grpAuth);
+            this.panData.Controls.Add(this.grpFeature);
             this.panData.Dock = System.Windows.Forms.DockStyle.Fill;
             this.panData.EdgeLineColor = System.Drawing.Color.FromArgb(((int)(((byte)(228)))), ((int)(((byte)(229)))), ((int)(((byte)(232)))));
             this.panData.Location = new System.Drawing.Point(0, 35);
@@ -518,13 +538,83 @@ public partial class frmMenu
             this.grpAuth.Controls.Add(this.lblAuthNm10);
             this.grpAuth.Controls.Add(this.txtAuthNm10);
             this.grpAuth.Font = new System.Drawing.Font("맑은 고딕", 9F);
-            this.grpAuth.Location = new System.Drawing.Point(15, 313);
+            this.grpAuth.Location = new System.Drawing.Point(15, 297);
             this.grpAuth.Name = "grpAuth";
             this.grpAuth.Size = new System.Drawing.Size(540, 165);
             this.grpAuth.TabIndex = 3;
             this.grpAuth.TabStop = false;
             this.grpAuth.Text = "추가권한 캡션(AUTH01~10)";
             // 
+            // grpFeature (화면 기능 - 2026-10-03: 이 화면에 켤 공통 기능. 켜면 화면의 FeatureBarWyn에 해당 버튼이 나타난다)
+            // 
+            this.grpFeature.Controls.Add(this.chkFeatApproval);
+            this.grpFeature.Controls.Add(this.lblApprDocType);
+            this.grpFeature.Controls.Add(this.cboApprDocType);
+            this.grpFeature.Controls.Add(this.chkFeatFile);
+            this.grpFeature.Controls.Add(this.lblFileDocType);
+            this.grpFeature.Controls.Add(this.txtFileDocType);
+            this.grpFeature.Font = new System.Drawing.Font("맑은 고딕", 9F);
+            this.grpFeature.Location = new System.Drawing.Point(15, 468);
+            this.grpFeature.Name = "grpFeature";
+            this.grpFeature.Size = new System.Drawing.Size(540, 52);
+            this.grpFeature.TabIndex = 4;
+            this.grpFeature.TabStop = false;
+            this.grpFeature.Text = "화면 기능";
+            // 
+            // chkFeatApproval
+            // 
+            this.chkFeatApproval.Location = new System.Drawing.Point(12, 22);
+            this.chkFeatApproval.Name = "chkFeatApproval";
+            this.chkFeatApproval.Properties.Caption = "전자결재 사용";
+            this.chkFeatApproval.Size = new System.Drawing.Size(106, 20);
+            this.chkFeatApproval.TabIndex = 0;
+            // 
+            // lblApprDocType
+            // 
+            this.lblApprDocType.Appearance.Font = new System.Drawing.Font("맑은 고딕", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
+            this.lblApprDocType.Appearance.Options.UseFont = true;
+            this.lblApprDocType.Location = new System.Drawing.Point(124, 25);
+            this.lblApprDocType.Name = "lblApprDocType";
+            this.lblApprDocType.Size = new System.Drawing.Size(48, 15);
+            this.lblApprDocType.TabIndex = 1;
+            this.lblApprDocType.Text = "문서유형";
+            // 
+            // cboApprDocType
+            // 
+            this.cboApprDocType.EditValue = "";
+            this.cboApprDocType.Location = new System.Drawing.Point(178, 22);
+            this.cboApprDocType.LookupKey = "L_AP0002";
+            this.cboApprDocType.Name = "cboApprDocType";
+            this.cboApprDocType.Properties.Buttons.AddRange(new DevExpress.XtraEditors.Controls.EditorButton[] {
+            new DevExpress.XtraEditors.Controls.EditorButton(DevExpress.XtraEditors.Controls.ButtonPredefines.Combo)});
+            this.cboApprDocType.Properties.NullText = "";
+            this.cboApprDocType.Size = new System.Drawing.Size(100, 20);
+            this.cboApprDocType.TabIndex = 2;
+            // 
+            // chkFeatFile
+            // 
+            this.chkFeatFile.Location = new System.Drawing.Point(298, 22);
+            this.chkFeatFile.Name = "chkFeatFile";
+            this.chkFeatFile.Properties.Caption = "첨부파일 사용";
+            this.chkFeatFile.Size = new System.Drawing.Size(106, 20);
+            this.chkFeatFile.TabIndex = 3;
+            // 
+            // lblFileDocType
+            // 
+            this.lblFileDocType.Appearance.Font = new System.Drawing.Font("맑은 고딕", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
+            this.lblFileDocType.Appearance.Options.UseFont = true;
+            this.lblFileDocType.Location = new System.Drawing.Point(410, 25);
+            this.lblFileDocType.Name = "lblFileDocType";
+            this.lblFileDocType.Size = new System.Drawing.Size(48, 15);
+            this.lblFileDocType.TabIndex = 4;
+            this.lblFileDocType.Text = "첨부구분";
+            // 
+            // txtFileDocType
+            // 
+            this.txtFileDocType.Location = new System.Drawing.Point(464, 22);
+            this.txtFileDocType.Name = "txtFileDocType";
+            this.txtFileDocType.Size = new System.Drawing.Size(66, 20);
+            this.txtFileDocType.TabIndex = 5;            // 
             // lblAuthNm1
             // 
             this.lblAuthNm1.Appearance.Font = new System.Drawing.Font("맑은 고딕", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
@@ -698,14 +788,14 @@ public partial class frmMenu
             this.btnNewTop.BackColor = System.Drawing.Color.Transparent;
             this.btnNewTop.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(74)))), ((int)(((byte)(134)))), ((int)(((byte)(232)))));
             this.btnNewTop.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.btnNewTop.FillColor = System.Drawing.Color.White;
+            this.btnNewTop.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(234)))), ((int)(((byte)(241)))), ((int)(((byte)(253)))));
             this.btnNewTop.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(51)))), ((int)(((byte)(51)))), ((int)(((byte)(51)))));
             this.btnNewTop.HoverColor = System.Drawing.Color.FromArgb(((int)(((byte)(240)))), ((int)(((byte)(245)))), ((int)(((byte)(255)))));
             this.btnNewTop.Image = null;
-            this.btnNewTop.Location = new System.Drawing.Point(113, 2);
+            this.btnNewTop.Location = new System.Drawing.Point(113, 4);
             this.btnNewTop.Name = "btnNewTop";
             this.btnNewTop.PressedColor = System.Drawing.Color.FromArgb(((int)(((byte)(225)))), ((int)(((byte)(235)))), ((int)(((byte)(253)))));
-            this.btnNewTop.Size = new System.Drawing.Size(107, 30);
+            this.btnNewTop.Size = new System.Drawing.Size(107, 24);
             this.btnNewTop.TabIndex = 2;
             this.btnNewTop.Text = "최상위메뉴추가";
             this.btnNewTop.ToolTip = null;
@@ -715,14 +805,14 @@ public partial class frmMenu
             this.btnNewChild.BackColor = System.Drawing.Color.Transparent;
             this.btnNewChild.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(74)))), ((int)(((byte)(134)))), ((int)(((byte)(232)))));
             this.btnNewChild.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.btnNewChild.FillColor = System.Drawing.Color.White;
+            this.btnNewChild.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(234)))), ((int)(((byte)(241)))), ((int)(((byte)(253)))));
             this.btnNewChild.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(51)))), ((int)(((byte)(51)))), ((int)(((byte)(51)))));
             this.btnNewChild.HoverColor = System.Drawing.Color.FromArgb(((int)(((byte)(240)))), ((int)(((byte)(245)))), ((int)(((byte)(255)))));
             this.btnNewChild.Image = null;
-            this.btnNewChild.Location = new System.Drawing.Point(3, 2);
+            this.btnNewChild.Location = new System.Drawing.Point(3, 4);
             this.btnNewChild.Name = "btnNewChild";
             this.btnNewChild.PressedColor = System.Drawing.Color.FromArgb(((int)(((byte)(225)))), ((int)(((byte)(235)))), ((int)(((byte)(253)))));
-            this.btnNewChild.Size = new System.Drawing.Size(107, 30);
+            this.btnNewChild.Size = new System.Drawing.Size(107, 24);
             this.btnNewChild.TabIndex = 3;
             this.btnNewChild.Text = "하위메뉴추가";
             this.btnNewChild.ToolTip = null;
@@ -809,10 +899,10 @@ public partial class frmMenu
             this.btnSaveInline.ForeColor = System.Drawing.Color.White;
             this.btnSaveInline.HoverColor = System.Drawing.Color.FromArgb(((int)(((byte)(240)))), ((int)(((byte)(245)))), ((int)(((byte)(255)))));
             this.btnSaveInline.Image = null;
-            this.btnSaveInline.Location = new System.Drawing.Point(443, 2);
+            this.btnSaveInline.Location = new System.Drawing.Point(443, 4);
             this.btnSaveInline.Name = "btnSaveInline";
             this.btnSaveInline.PressedColor = System.Drawing.Color.FromArgb(((int)(((byte)(225)))), ((int)(((byte)(235)))), ((int)(((byte)(253)))));
-            this.btnSaveInline.Size = new System.Drawing.Size(107, 30);
+            this.btnSaveInline.Size = new System.Drawing.Size(107, 24);
             this.btnSaveInline.TabIndex = 11;
             this.btnSaveInline.Text = "저장";
             this.btnSaveInline.ToolTip = null;
@@ -823,16 +913,16 @@ public partial class frmMenu
             this.btnCancelEdit.BackColor = System.Drawing.Color.Transparent;
             this.btnCancelEdit.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(74)))), ((int)(((byte)(134)))), ((int)(((byte)(232)))));
             this.btnCancelEdit.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.btnCancelEdit.FillColor = System.Drawing.Color.White;
+            this.btnCancelEdit.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(234)))), ((int)(((byte)(241)))), ((int)(((byte)(253)))));
             this.btnCancelEdit.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(51)))), ((int)(((byte)(51)))), ((int)(((byte)(51)))));
             this.btnCancelEdit.HoverColor = System.Drawing.Color.FromArgb(((int)(((byte)(240)))), ((int)(((byte)(245)))), ((int)(((byte)(255)))));
             this.btnCancelEdit.Image = null;
-            this.btnCancelEdit.Location = new System.Drawing.Point(333, 2);
+            this.btnCancelEdit.Location = new System.Drawing.Point(333, 4);
             this.btnCancelEdit.Name = "btnCancelEdit";
             this.btnCancelEdit.PressedColor = System.Drawing.Color.FromArgb(((int)(((byte)(225)))), ((int)(((byte)(235)))), ((int)(((byte)(253)))));
-            this.btnCancelEdit.Size = new System.Drawing.Size(107, 30);
+            this.btnCancelEdit.Size = new System.Drawing.Size(107, 24);
             this.btnCancelEdit.TabIndex = 10;
-            this.btnCancelEdit.Text = "痍⑥냼";
+            this.btnCancelEdit.Text = "취소";
             this.btnCancelEdit.ToolTip = null;
             // 
             // btnCopy
@@ -840,16 +930,16 @@ public partial class frmMenu
             this.btnCopy.BackColor = System.Drawing.Color.Transparent;
             this.btnCopy.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(74)))), ((int)(((byte)(134)))), ((int)(((byte)(232)))));
             this.btnCopy.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.btnCopy.FillColor = System.Drawing.Color.White;
+            this.btnCopy.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(234)))), ((int)(((byte)(241)))), ((int)(((byte)(253)))));
             this.btnCopy.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(51)))), ((int)(((byte)(51)))), ((int)(((byte)(51)))));
             this.btnCopy.HoverColor = System.Drawing.Color.FromArgb(((int)(((byte)(240)))), ((int)(((byte)(245)))), ((int)(((byte)(255)))));
             this.btnCopy.Image = null;
-            this.btnCopy.Location = new System.Drawing.Point(223, 2);
+            this.btnCopy.Location = new System.Drawing.Point(223, 4);
             this.btnCopy.Name = "btnCopy";
             this.btnCopy.PressedColor = System.Drawing.Color.FromArgb(((int)(((byte)(225)))), ((int)(((byte)(235)))), ((int)(((byte)(253)))));
-            this.btnCopy.Size = new System.Drawing.Size(107, 30);
+            this.btnCopy.Size = new System.Drawing.Size(107, 24);
             this.btnCopy.TabIndex = 12;
-            this.btnCopy.Text = "蹂듭궗";
+            this.btnCopy.Text = "복사";
             this.btnCopy.ToolTip = null;
             // 
             // svgImageCollection1
@@ -895,6 +985,12 @@ public partial class frmMenu
             ((System.ComponentModel.ISupportInitialize)(this.cboIconNm.Properties)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.txtProcPrefix.Properties)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.spnSortOrder.Properties)).EndInit();
+            this.grpFeature.ResumeLayout(false);
+            this.grpFeature.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.chkFeatApproval.Properties)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.cboApprDocType.Properties)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.chkFeatFile.Properties)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.txtFileDocType.Properties)).EndInit();
             this.grpAuth.ResumeLayout(false);
             this.grpAuth.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.txtAuthNm1.Properties)).EndInit();

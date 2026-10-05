@@ -9,14 +9,16 @@ namespace WYNLAB.PR;
 /// grd2(TPRROUTED)가 있고, 조회(목록)와 저장(우측 편집 내용)을 한 화면에서 같이 한다. 조회 조건이 비어 있으면 전체 목록이고, 목록에서 행을 고르면 우측이
 /// 그 라우팅으로 바뀐다(저장 안 된 변경이 있으면 먼저 확인 - BaseForm.ConfirmMasterRowSwitch). 신규는 툴바 신규로 우측을 비우고 입력한다.
 ///
-/// 공정 하나가 "투입품목 1개 -> 산출품목 1개" 변환이라(공정 단위 BOM) 앞 공정의 산출품목이 다음 공정의 투입품목이어야 한다 - 저장할 때 끊긴 곳이
-/// 있으면 알려준다(막지는 않는다). 품목을 고르면 단위는 품목 단위로 채우고, 공정은 공정마스터(L_PRPROC)에서 고른다. 라우팅을 고쳐도 이미 낸 작업지시에는
-/// 영향이 없다(작업지시가 공정행을 복사해서 갖는다). 작업지시에서 쓴 라우팅은 삭제 대신 사용여부를 끈다. 라우팅코드는 한 번 저장하면 바꿀 수 없다.
+/// 공정 하나는 "산출품목"을 정하면 투입품목이 그 품목 BOM(BOM관리)의 주원료로 자동 결정된다(서버가 채우고 검증). 앞 공정의 산출품목이 다음 공정의 투입품목이어야 하므로
+/// 저장할 때 끊긴 곳이 있으면 알려준다(막지는 않는다). 우측 상단 "적용 제품" 그리드(TPRITEMROUTE)로 이 라우팅을 쓸 제품을 연결하고 제품마다 기본 라우팅 1개를 지정한다 -
+/// 작업지시는 제품을 고르면 그 제품에 연결된 라우팅만 고를 수 있다. 라우팅을 고쳐도 이미 낸 작업지시에는 영향이 없다(작업지시가 공정행을 복사해서 갖는다).
+/// 공정은 공정마스터(L_PRPROC)에서 고른다. 작업지시에서 쓴 라우팅은 삭제 대신 사용여부를 끈다. 라우팅코드는 한 번 저장하면 바꿀 수 없다.
 /// </summary>
 public partial class frmRoute : BaseForm
 {
     private DataTable _list = new();
     private DataTable _detail = new();
+    private DataTable _items = new();       // 적용 제품(TPRITEMROUTE)
     private DataTable _itemCache = new();
     private string? _editingKey; // 선택한(저장된) 라우팅의 route_id. null이면 신규모드
     private int _loadSeq;        // 목록 행을 빠르게 넘길 때 늦게 온 응답이 최신 선택을 덮어쓰지 않게 하는 번호
@@ -25,11 +27,13 @@ public partial class frmRoute : BaseForm
     {
         InitializeComponent();
 
+        // 조회조건 사업장 - 화면 표준(2026-10-03): 항상 첫 번째, Required, 화면을 열면 로그인 사업장이 기본값.
+        cboSearchAccId.EditValue = Session.AccId?.ToString() ?? string.Empty;
+        cboSearchAccId.Tag = new BindingFieldTag("acc_id");
+
         Text = "라우팅관리";
 
         Controls.Add(BuildScreenHeader());
-
-        txtItemNm.MapField("item_id", txtItemId);
 
         // grd1(라우팅 목록)은 조회전용
         gvw1.Role = GridRoleWyn.Query;
@@ -46,6 +50,13 @@ public partial class frmRoute : BaseForm
         btnAddRow1.Click += (s, e) => AddRow();
         btnDeletRow1.Click += (s, e) => DeleteRow();
 
+        gvw3.Role = GridRoleWyn.Edit;
+        gvw3.HighlightFocusedRow = true;
+        gvw3.RowAdd += (s, e) => AddItemRow();
+        gvw3.RowDelete += (s, e) => DeleteItemRow();
+        btnAddItem.Click += (s, e) => AddItemRow();
+        btnDelItem.Click += (s, e) => DeleteItemRow();
+
         TrackDirty(panData);
 
         EnterNewMode();
@@ -60,6 +71,16 @@ public partial class frmRoute : BaseForm
     private static decimal Dec(object? value) => decimal.TryParse(value?.ToString(), out var d) ? d : 0;
 
     private void AddRow() => gvw2.AddNewRow();
+
+    private void AddItemRow() => gvw3.AddNewRow();
+
+    private void DeleteItemRow()
+    {
+        gvw3.CloseEditor();
+        gvw3.UpdateCurrentRow();
+        try { if (gvw3.GetFocusedRow() is DataRowView view) view.Row.Delete(); }
+        catch (Exception ex) { AppMessageBox.Show(ex.Message, "삭제 실패"); }
+    }
 
     private void DeleteRow()
     {
@@ -77,6 +98,7 @@ public partial class frmRoute : BaseForm
 
         var tables = await QueryMultiAsync("USP_PR_ROUTE_Q", new Dictionary<string, string?> { ["p_work_type"] = "Q", ["p_route_id"] = "-1" });
         if (tables.Count > 1) _detail = tables[1];
+        if (tables.Count > 2) _items = tables[2];
         EnterNewMode();
     }
 
@@ -142,6 +164,7 @@ public partial class frmRoute : BaseForm
         // 라우팅코드/명 하나로 같이 검색한다. 비우면 전체.
         _list = await QueryAsync("USP_PR_ROUTE_Q", new Dictionary<string, string?>
         {
+            ["p_acc_id"] = cboSearchAccId.EditValue?.ToString(),
             ["p_work_type"] = "L",
             ["p_keyword"] = txtSearchRouteCd.Text.Trim(),
             ["p_acc_id"] = Session.AccId?.ToString(),
@@ -195,6 +218,7 @@ public partial class frmRoute : BaseForm
 
         var header = tables.Count > 0 ? tables[0] : new DataTable();
         _detail = tables.Count > 1 ? tables[1] : new DataTable();
+        _items = tables.Count > 2 ? tables[2] : new DataTable();
 
         if (header.Rows.Count > 0) OnRowLoaded(header.Rows[0]);
         else EnterNewMode();
@@ -209,14 +233,14 @@ public partial class frmRoute : BaseForm
             txtRouteCd.Text = row["route_cd"]?.ToString() ?? string.Empty;
             txtRouteCd.Properties.ReadOnly = true; // 라우팅코드는 저장 후 변경 불가
             txtRouteNm.Text = row["route_nm"]?.ToString() ?? string.Empty;
-            txtItemId.Text = row["item_id"]?.ToString() ?? string.Empty;
-            txtItemNm.Text = row["item_nm"]?.ToString() ?? string.Empty;
             chkUseYn.Checked = row["use_yn"]?.ToString() != "N";
             memoRemark.Text = row["remark"]?.ToString() ?? string.Empty;
             lblUsedNote.Text = row["used_yn"]?.ToString() == "Y" ? "※ 작업지시에서 사용 중인 라우팅입니다. 삭제할 수 없고, 수정은 이후 작업지시에만 반영됩니다." : string.Empty;
 
             TrackDirty(_detail);
             grd2.DataSource = _detail;
+            TrackDirty(_items);
+            grd3.DataSource = _items;
         });
     }
 
@@ -230,8 +254,6 @@ public partial class frmRoute : BaseForm
             txtRouteCd.Text = string.Empty;
             txtRouteCd.Properties.ReadOnly = false;
             txtRouteNm.Text = string.Empty;
-            txtItemId.Text = string.Empty;
-            txtItemNm.Text = string.Empty;
             chkUseYn.Checked = true;
             memoRemark.Text = string.Empty;
             lblUsedNote.Text = string.Empty;
@@ -239,6 +261,9 @@ public partial class frmRoute : BaseForm
             _detail = _detail.Clone();
             TrackDirty(_detail);
             grd2.DataSource = _detail;
+            _items = _items.Clone();
+            TrackDirty(_items);
+            grd3.DataSource = _items;
         });
     }
 
@@ -282,6 +307,8 @@ public partial class frmRoute : BaseForm
     {
         gvw2.CloseEditor();
         gvw2.UpdateCurrentRow();
+        gvw3.CloseEditor();
+        gvw3.UpdateCurrentRow();
 
         var broken = CheckChain();
         if (broken != null && AppMessageBox.Show(broken + "\n그래도 저장하시겠습니까?", "공정 연결 확인", MessageBoxButtons.YesNo) != DialogResult.Yes) return;
@@ -293,7 +320,6 @@ public partial class frmRoute : BaseForm
             ["p_acc_id"] = cboAccId.EditValue?.ToString(),
             ["p_route_cd"] = txtRouteCd.Text,
             ["p_route_nm"] = txtRouteNm.Text,
-            ["p_item_id"] = txtItemId.Text,
             ["p_use_yn"] = chkUseYn.Checked ? "Y" : "N",
             ["p_remark"] = memoRemark.Text,
         };
@@ -343,10 +369,59 @@ public partial class frmRoute : BaseForm
             }
         }
 
+        // 적용 제품: 삭제 -> 추가/수정(기본 지정은 서버가 제품당 1개로 정리한다)
+        var itemRows = _items.Rows.Cast<DataRow>()
+            .Where(r => r.RowState != DataRowState.Unchanged)
+            .OrderBy(r => r.RowState == DataRowState.Deleted ? 0 : 1)
+            .ToList();
+        foreach (var row in itemRows)
+        {
+            var del = row.RowState == DataRowState.Deleted;
+            var version = del ? DataRowVersion.Original : DataRowVersion.Current;
+            // 제품을 다른 제품으로 바꾼 행은 옛 제품 연결을 먼저 지운다
+            if (row.RowState == DataRowState.Modified)
+            {
+                var oldItem = row["item_id", DataRowVersion.Original]?.ToString();
+                var newItem = row["item_id", DataRowVersion.Current]?.ToString();
+                if (oldItem != newItem && !string.IsNullOrEmpty(oldItem))
+                {
+                    var delOld = await SaveAsync("USP_PR_ROUTE_S_2", new Dictionary<string, string?>
+                    {
+                        ["p_work_type"] = "D", ["p_route_id"] = headerKey, ["p_item_id"] = oldItem,
+                    });
+                    if (delOld == null || !delOld.Success)
+                    {
+                        AppMessageBox.Show(delOld?.Message ?? "적용 제품 저장에 실패했습니다.", "저장 실패");
+                        _editingKey ??= headerResult.GeneratedCode;
+                        await QueryCore(preserveSelection: true);
+                        return;
+                    }
+                }
+            }
+            var itemId = ProcData.Str(row, "item_id", version);
+            if (string.IsNullOrEmpty(itemId)) continue;
+            var linkResult = await SaveAsync("USP_PR_ROUTE_S_2", new Dictionary<string, string?>
+            {
+                ["p_work_type"] = del ? "D" : "N",
+                ["p_route_id"] = headerKey,
+                ["p_item_id"] = itemId,
+                ["p_default_yn"] = ProcData.Str(row, "default_yn", version),
+            });
+            if (linkResult == null || !linkResult.Success)
+            {
+                AppMessageBox.Show(linkResult?.Message ?? "적용 제품 저장에 실패했습니다.", "저장 실패");
+                _editingKey ??= headerResult.GeneratedCode;
+                await QueryCore(preserveSelection: true);
+                return;
+            }
+        }
+
         _editingKey ??= headerResult.GeneratedCode;
         Toast.Show("저장되었습니다.");
         await QueryCore(preserveSelection: true); // 방금 저장한 라우팅을 목록에서 그대로 선택해 둔다(신규였다면 목록에 새로 나타난다)
     }
+
+    protected override bool ConfirmDeleteByDefault => false; // 삭제 확인창을 DeleteClick에서 직접 띄움(문서번호 등 상세 문구)
 
     public override async Task DeleteClick()
     {

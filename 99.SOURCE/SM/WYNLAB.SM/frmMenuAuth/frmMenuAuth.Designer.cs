@@ -603,14 +603,14 @@ public partial class frmMenuAuth
             this.btnSave.BackColor = System.Drawing.Color.Transparent;
             this.btnSave.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(74)))), ((int)(((byte)(134)))), ((int)(((byte)(232)))));
             this.btnSave.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.btnSave.FillColor = System.Drawing.Color.White;
+            this.btnSave.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(234)))), ((int)(((byte)(241)))), ((int)(((byte)(253)))));
             this.btnSave.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(51)))), ((int)(((byte)(51)))), ((int)(((byte)(51)))));
             this.btnSave.HoverColor = System.Drawing.Color.FromArgb(((int)(((byte)(240)))), ((int)(((byte)(245)))), ((int)(((byte)(255)))));
             this.btnSave.Image = null;
-            this.btnSave.Location = new System.Drawing.Point(794, 6);
+            this.btnSave.Location = new System.Drawing.Point(794, 8);
             this.btnSave.Name = "btnSave";
             this.btnSave.PressedColor = System.Drawing.Color.FromArgb(((int)(((byte)(225)))), ((int)(((byte)(235)))), ((int)(((byte)(253)))));
-            this.btnSave.Size = new System.Drawing.Size(90, 28);
+            this.btnSave.Size = new System.Drawing.Size(90, 24);
             this.btnSave.TabIndex = 1;
             this.btnSave.Text = "저장";
             this.btnSave.ToolTip = null;

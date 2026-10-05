@@ -119,6 +119,9 @@
     <Compile Update="frmDelv\frmDelv.Designer.cs">
       <DependentUpon>frmDelv.cs</DependentUpon>
     </Compile>
+    <EmbeddedResource Update="frmDelv\frmDelv.resx">
+      <DependentUpon>frmDelv.cs</DependentUpon>
+    </EmbeddedResource>
   </ItemGroup>
 
   <ItemGroup>
@@ -161,6 +164,64 @@
     <EmbeddedResource Update="frmPoStatus\frmPoStatus.resx">
       <DependentUpon>frmPoStatus.cs</DependentUpon>
     </EmbeddedResource>
+  </ItemGroup>
+
+  <!-- 기초재고등록 / 기타출고요청등록 / 기타출고등록 (2026-10-03) - SubType=Form + DependentUpon이 있어야 VS가 .Designer.cs를 .cs 밑에 묶고 폼 디자이너로 연다 -->
+  <ItemGroup>
+    <Compile Update="frmOpenStock\frmOpenStock.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="frmOpenStock\frmOpenStock.Designer.cs">
+      <DependentUpon>frmOpenStock.cs</DependentUpon>
+    </Compile>
+    <Compile Update="frmEtcOutReq\frmEtcOutReq.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="frmEtcOutReq\frmEtcOutReq.Designer.cs">
+      <DependentUpon>frmEtcOutReq.cs</DependentUpon>
+    </Compile>
+    <EmbeddedResource Update="frmEtcOutReq\frmEtcOutReq.resx">
+      <DependentUpon>frmEtcOutReq.cs</DependentUpon>
+    </EmbeddedResource>
+    <Compile Update="frmEtcOut\frmEtcOut.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="frmEtcOut\frmEtcOut.Designer.cs">
+      <DependentUpon>frmEtcOut.cs</DependentUpon>
+    </Compile>
+    <EmbeddedResource Update="frmEtcOut\frmEtcOut.resx">
+      <DependentUpon>frmEtcOut.cs</DependentUpon>
+    </EmbeddedResource>
+    <Compile Update="frmEtcIn\frmEtcIn.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="frmEtcIn\frmEtcIn.Designer.cs">
+      <DependentUpon>frmEtcIn.cs</DependentUpon>
+    </Compile>
+    <Compile Update="frmEtcOutList\frmEtcOutList.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="frmEtcOutList\frmEtcOutList.Designer.cs">
+      <DependentUpon>frmEtcOutList.cs</DependentUpon>
+    </Compile>
+    <Compile Update="frmStockCount\frmStockCount.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="frmStockCount\frmStockCount.Designer.cs">
+      <DependentUpon>frmStockCount.cs</DependentUpon>
+    </Compile>
+    <Compile Update="frmStockCountList\frmStockCountList.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="frmStockCountList\frmStockCountList.Designer.cs">
+      <DependentUpon>frmStockCountList.cs</DependentUpon>
+    </Compile>
+    <Compile Update="frmStockCountDiff\frmStockCountDiff.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="frmStockCountDiff\frmStockCountDiff.Designer.cs">
+      <DependentUpon>frmStockCountDiff.cs</DependentUpon>
+    </Compile>
   </ItemGroup>
 
   <ItemGroup>

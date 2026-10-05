@@ -259,6 +259,7 @@ public partial class frmProcConfig : BaseForm
     // 설정은 개발자가 마이그레이션으로 정의한다 - 이 화면에서 추가/삭제하지 않는다.
     public override Task NewClick() => Task.CompletedTask;
     public override Task DeleteClick() => Task.CompletedTask;
+    protected override bool ConfirmDeleteByDefault => false; // 조회전용 - 삭제 기능 없음
     public override Task NewRowClick() => Task.CompletedTask;
     public override Task DeleteRowClick() => Task.CompletedTask;
 }

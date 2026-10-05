@@ -49,6 +49,8 @@ public partial class frmEmpList
             this.paTitle1 = new WYNLAB.Base.Controls.PanelWyn();
             this.sectionHeaderWyn4 = new WYNLAB.Base.Controls.SectionHeaderWyn();
             this.panHeader = new WYNLAB.Base.Controls.PanelWyn();
+            this.lblSearchAccId = new DevExpress.XtraEditors.LabelControl();
+            this.cboSearchAccId = new WYNLAB.Base.Controls.LookUpEditWyn();
             this.txtDeptNm = new WYNLAB.Base.Controls.PopupLookupEditWyn();
             this.labelControl1 = new DevExpress.XtraEditors.LabelControl();
             this.lblSearchDeptId = new DevExpress.XtraEditors.LabelControl();
@@ -74,6 +76,7 @@ public partial class frmEmpList
             ((System.ComponentModel.ISupportInitialize)(this.txtDeptId.Properties)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.paTitleH)).BeginInit();
             this.paTitleH.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.cboSearchAccId.Properties)).BeginInit();
             this.SuspendLayout();
             // 
             // panBody
@@ -345,6 +348,8 @@ public partial class frmEmpList
             // panHeader
             // 
             this.panHeader.BorderStyle = DevExpress.XtraEditors.Controls.BorderStyles.Default;
+            this.panHeader.Controls.Add(this.lblSearchAccId);
+            this.panHeader.Controls.Add(this.cboSearchAccId);
             this.panHeader.Controls.Add(this.txtDeptNm);
             this.panHeader.Controls.Add(this.labelControl1);
             this.panHeader.Controls.Add(this.lblSearchDeptId);
@@ -357,9 +362,36 @@ public partial class frmEmpList
             this.panHeader.Size = new System.Drawing.Size(1235, 60);
             this.panHeader.TabIndex = 0;
             // 
+            // lblSearchAccId (조회조건 첫 번째 - 사업장 표준, 2026-10-03)
+            // 
+            this.lblSearchAccId.Appearance.Font = new System.Drawing.Font("맑은 고딕", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
+            this.lblSearchAccId.Appearance.Options.UseFont = true;
+            this.lblSearchAccId.Location = new System.Drawing.Point(18, 24);
+            this.lblSearchAccId.Name = "lblSearchAccId";
+            this.lblSearchAccId.Size = new System.Drawing.Size(36, 15);
+            this.lblSearchAccId.TabIndex = 0;
+            this.lblSearchAccId.Text = "사업장";
+            // 
+            // cboSearchAccId (사업장 LookUp, Required - 기본값은 화면 생성자에서 로그인 사업장)
+            // 
+            this.cboSearchAccId.EditValue = "";
+            this.cboSearchAccId.Location = new System.Drawing.Point(62, 21);
+            this.cboSearchAccId.LookupKey = "L_ACC";
+            this.cboSearchAccId.Name = "cboSearchAccId";
+            this.cboSearchAccId.Properties.Appearance.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(249)))), ((int)(((byte)(219)))));
+            this.cboSearchAccId.Properties.Appearance.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))));
+            this.cboSearchAccId.Properties.Appearance.Options.UseBackColor = true;
+            this.cboSearchAccId.Properties.Appearance.Options.UseForeColor = true;
+            this.cboSearchAccId.Properties.Buttons.AddRange(new DevExpress.XtraEditors.Controls.EditorButton[] {
+            new DevExpress.XtraEditors.Controls.EditorButton(DevExpress.XtraEditors.Controls.ButtonPredefines.Combo)});
+            this.cboSearchAccId.Properties.NullText = "";
+            this.cboSearchAccId.Required = true;
+            this.cboSearchAccId.Size = new System.Drawing.Size(131, 20);
+            this.cboSearchAccId.TabIndex = 1;
+            // 
             // txtDeptNm
             // 
-            this.txtDeptNm.Location = new System.Drawing.Point(44, 21);
+            this.txtDeptNm.Location = new System.Drawing.Point(243, 21);
             this.txtDeptNm.LookupKey = "P_DEPT";
             this.txtDeptNm.MatchField = "dept_nm";
             this.txtDeptNm.Name = "txtDeptNm";
@@ -371,7 +403,7 @@ public partial class frmEmpList
             // 
             // labelControl1
             // 
-            this.labelControl1.Location = new System.Drawing.Point(277, 24);
+            this.labelControl1.Location = new System.Drawing.Point(476, 24);
             this.labelControl1.Name = "labelControl1";
             this.labelControl1.Size = new System.Drawing.Size(30, 14);
             this.labelControl1.TabIndex = 6;
@@ -379,7 +411,7 @@ public partial class frmEmpList
             // 
             // lblSearchDeptId
             // 
-            this.lblSearchDeptId.Location = new System.Drawing.Point(18, 24);
+            this.lblSearchDeptId.Location = new System.Drawing.Point(217, 24);
             this.lblSearchDeptId.Name = "lblSearchDeptId";
             this.lblSearchDeptId.Size = new System.Drawing.Size(20, 14);
             this.lblSearchDeptId.TabIndex = 6;
@@ -387,14 +419,14 @@ public partial class frmEmpList
             // 
             // txtEmpNm
             // 
-            this.txtEmpNm.Location = new System.Drawing.Point(314, 21);
+            this.txtEmpNm.Location = new System.Drawing.Point(513, 21);
             this.txtEmpNm.Name = "txtEmpNm";
             this.txtEmpNm.Size = new System.Drawing.Size(122, 20);
             this.txtEmpNm.TabIndex = 7;
             // 
             // txtDeptId
             // 
-            this.txtDeptId.Location = new System.Drawing.Point(591, 19);
+            this.txtDeptId.Location = new System.Drawing.Point(790, 19);
             this.txtDeptId.Name = "txtDeptId";
             this.txtDeptId.Size = new System.Drawing.Size(150, 20);
             this.txtDeptId.TabIndex = 7;
@@ -454,6 +486,7 @@ public partial class frmEmpList
             ((System.ComponentModel.ISupportInitialize)(this.txtDeptId.Properties)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.paTitleH)).EndInit();
             this.paTitleH.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.cboSearchAccId.Properties)).EndInit();
             this.ResumeLayout(false);
 
     }
@@ -489,4 +522,6 @@ public partial class frmEmpList
     private SectionHeaderWyn sectionHeaderWyn1;
     private DevExpress.XtraGrid.Columns.GridColumn colDeptId;
     private DevExpress.XtraGrid.Columns.GridColumn colDeptNm;
+    private DevExpress.XtraEditors.LabelControl lblSearchAccId;
+    private WYNLAB.Base.Controls.LookUpEditWyn cboSearchAccId;
 }

@@ -1,6 +1,6 @@
-﻿// AI Builder Master-One Sheet ?쒗뵆由?湲곕컲 - frmPoReq? ?꾩쟾??媛숈? 援ъ“, ????뚯씠釉붾쭔
-// TMAPOM/TMAPOD(2026-09-22). 諛쒖＜???뺤젙 媛寃⑹씠 ?꾩슂?댁꽌 ?덈ぉ 洹몃━?쒖뿉 ?④?/湲덉븸/遺媛??
-// ?먰솕?섏궛 而щ읆??異붽??쒕떎(援щℓ?붿껌 洹몃━?쒖뿏 ?놁쓬).
+// AI Builder Master-One Sheet 템플릿 기반 - frmPoReq와 완전히 같은 구조, 대상 테이블만
+// TMAPOM/TMAPOD(2026-09-22). 발주는 확정 가격이 필요해서 품목 그리드에 단가/금액/부가세/
+// 원화환산 컬럼이 추가된다(구매요청 그리드엔 없음).
 #nullable disable
 using WYNLAB.Base;
 using WYNLAB.Base.Controls;
@@ -150,10 +150,14 @@ public partial class frmPo
             this.txtPoTitle = new WYNLAB.Base.Controls.TextEditWyn();
             this.lblRemark = new DevExpress.XtraEditors.LabelControl();
             this.memoRemark = new DevExpress.XtraEditors.MemoEdit();
-            this.panelWyn2 = new WYNLAB.Base.Controls.PanelWyn();
             this.panHeader = new WYNLAB.Base.Controls.PanelWyn();
+            this.lblSearchAccId = new DevExpress.XtraEditors.LabelControl();
+            this.cboSearchAccId = new WYNLAB.Base.Controls.LookUpEditWyn();
             this.lblSearchPoNo = new DevExpress.XtraEditors.LabelControl();
             this.txtSearchPoNo = new WYNLAB.Base.Controls.TextEditWyn();
+            this.panelWyn6 = new WYNLAB.Base.Controls.PanelWyn();
+            this.paTitleH = new WYNLAB.Base.Controls.PanelWyn();
+            this.sectionHeaderWyn1 = new WYNLAB.Base.Controls.SectionHeaderWyn();
             ((System.ComponentModel.ISupportInitialize)(this.panBase)).BeginInit();
             this.panBase.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.panelWyn3)).BeginInit();
@@ -207,10 +211,14 @@ public partial class frmPo
             ((System.ComponentModel.ISupportInitialize)(this.txtAppNo.Properties)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.txtPoTitle.Properties)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.memoRemark.Properties)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.panelWyn2)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.panHeader)).BeginInit();
             this.panHeader.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.cboSearchAccId.Properties)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.txtSearchPoNo.Properties)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.panelWyn6)).BeginInit();
+            this.panelWyn6.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.paTitleH)).BeginInit();
+            this.paTitleH.SuspendLayout();
             this.SuspendLayout();
             // 
             // panBase
@@ -218,7 +226,6 @@ public partial class frmPo
             this.panBase.Appearance.BackColor = System.Drawing.Color.White;
             this.panBase.Appearance.Options.UseBackColor = true;
             this.panBase.Controls.Add(this.panelWyn3);
-            this.panBase.Controls.Add(this.panHeader);
             this.panBase.Dock = System.Windows.Forms.DockStyle.Fill;
             this.panBase.EdgeLineColor = System.Drawing.Color.FromArgb(((int)(((byte)(228)))), ((int)(((byte)(229)))), ((int)(((byte)(232)))));
             this.panBase.Location = new System.Drawing.Point(0, 0);
@@ -232,28 +239,26 @@ public partial class frmPo
             this.panelWyn3.Appearance.BackColor = System.Drawing.Color.White;
             this.panelWyn3.Appearance.Options.UseBackColor = true;
             this.panelWyn3.Controls.Add(this.panelWyn4);
-            this.panelWyn3.Controls.Add(this.panelWyn2);
             this.panelWyn3.Dock = System.Windows.Forms.DockStyle.Fill;
             this.panelWyn3.EdgeLineColor = System.Drawing.Color.FromArgb(((int)(((byte)(228)))), ((int)(((byte)(229)))), ((int)(((byte)(232)))));
-            this.panelWyn3.Location = new System.Drawing.Point(5, 82);
+            this.panelWyn3.Location = new System.Drawing.Point(5, 0);
             this.panelWyn3.Name = "panelWyn3";
-            this.panelWyn3.Size = new System.Drawing.Size(1670, 713);
+            this.panelWyn3.Size = new System.Drawing.Size(1670, 795);
             this.panelWyn3.TabIndex = 7;
             // 
             // panelWyn4
             // 
             this.panelWyn4.Appearance.BackColor = System.Drawing.Color.White;
             this.panelWyn4.Appearance.Options.UseBackColor = true;
-            this.panelWyn4.Controls.Add(this.grd1);
-            this.panelWyn4.Controls.Add(this.panelWyn7);
-            this.panelWyn4.Controls.Add(this.panelWyn1);
+            this.panelWyn4.Controls.Add(this.panelWyn6);
             this.panelWyn4.Controls.Add(this.panelWyn5);
+            this.panelWyn4.Controls.Add(this.paTitleH);
             this.panelWyn4.Dock = System.Windows.Forms.DockStyle.Fill;
             this.panelWyn4.EdgeLineColor = System.Drawing.Color.FromArgb(((int)(((byte)(228)))), ((int)(((byte)(229)))), ((int)(((byte)(232)))));
-            this.panelWyn4.Location = new System.Drawing.Point(0, 28);
+            this.panelWyn4.Location = new System.Drawing.Point(0, 0);
             this.panelWyn4.Name = "panelWyn4";
             this.panelWyn4.Padding = new System.Windows.Forms.Padding(3, 0, 3, 0);
-            this.panelWyn4.Size = new System.Drawing.Size(1670, 685);
+            this.panelWyn4.Size = new System.Drawing.Size(1670, 795);
             this.panelWyn4.TabIndex = 7;
             // 
             // grd1
@@ -264,7 +269,7 @@ public partial class frmPo
             this.grd1.EmbeddedNavigator.Buttons.Edit.Visible = false;
             this.grd1.EmbeddedNavigator.Buttons.EndEdit.Visible = false;
             this.grd1.EmbeddedNavigator.Buttons.Remove.Visible = false;
-            this.grd1.Location = new System.Drawing.Point(3, 274);
+            this.grd1.Location = new System.Drawing.Point(0, 70);
             this.grd1.MainView = this.gvw1;
             this.grd1.Name = "grd1";
             this.grd1.RepositoryItems.AddRange(new DevExpress.XtraEditors.Repository.RepositoryItem[] {
@@ -275,7 +280,7 @@ public partial class frmPo
             this.popcolLoc,
             this.lookupcolSrcType,
             this.chkcolYn});
-            this.grd1.Size = new System.Drawing.Size(1664, 411);
+            this.grd1.Size = new System.Drawing.Size(1664, 447);
             this.grd1.TabIndex = 0;
             this.grd1.ViewCollection.AddRange(new DevExpress.XtraGrid.Views.Base.BaseView[] {
             this.gvw1});
@@ -366,7 +371,7 @@ public partial class frmPo
             // 
             // colItemSpec
             // 
-            this.colItemSpec.Caption = "洹쒓꺽";
+            this.colItemSpec.Caption = "규격";
             this.colItemSpec.FieldName = "item_spec";
             this.colItemSpec.Name = "colItemSpec";
             this.colItemSpec.OptionsColumn.AllowEdit = false;
@@ -679,7 +684,7 @@ public partial class frmPo
             this.panelWyn7.Controls.Add(this.btnAddRow1);
             this.panelWyn7.Dock = System.Windows.Forms.DockStyle.Top;
             this.panelWyn7.EdgeLineColor = System.Drawing.Color.FromArgb(((int)(((byte)(228)))), ((int)(((byte)(229)))), ((int)(((byte)(232)))));
-            this.panelWyn7.Location = new System.Drawing.Point(3, 244);
+            this.panelWyn7.Location = new System.Drawing.Point(0, 40);
             this.panelWyn7.Name = "panelWyn7";
             this.panelWyn7.Padding = new System.Windows.Forms.Padding(5, 3, 0, 2);
             this.panelWyn7.Size = new System.Drawing.Size(1664, 30);
@@ -690,14 +695,14 @@ public partial class frmPo
             this.btnLoadReq.BackColor = System.Drawing.Color.Transparent;
             this.btnLoadReq.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(74)))), ((int)(((byte)(134)))), ((int)(((byte)(232)))));
             this.btnLoadReq.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.btnLoadReq.FillColor = System.Drawing.Color.White;
+            this.btnLoadReq.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(234)))), ((int)(((byte)(241)))), ((int)(((byte)(253)))));
             this.btnLoadReq.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(51)))), ((int)(((byte)(51)))), ((int)(((byte)(51)))));
             this.btnLoadReq.HoverColor = System.Drawing.Color.FromArgb(((int)(((byte)(240)))), ((int)(((byte)(245)))), ((int)(((byte)(255)))));
             this.btnLoadReq.Image = null;
-            this.btnLoadReq.Location = new System.Drawing.Point(130, 4);
+            this.btnLoadReq.Location = new System.Drawing.Point(130, 3);
             this.btnLoadReq.Name = "btnLoadReq";
             this.btnLoadReq.PressedColor = System.Drawing.Color.FromArgb(((int)(((byte)(225)))), ((int)(((byte)(235)))), ((int)(((byte)(253)))));
-            this.btnLoadReq.Size = new System.Drawing.Size(123, 22);
+            this.btnLoadReq.Size = new System.Drawing.Size(123, 24);
             this.btnLoadReq.TabIndex = 0;
             this.btnLoadReq.Text = "구매요청 불러오기";
             this.btnLoadReq.ToolTip = "승인 완료된 구매요청의 수량을 발주 품목으로 불러옵니다.";
@@ -707,14 +712,14 @@ public partial class frmPo
             this.btnLineStop.BackColor = System.Drawing.Color.Transparent;
             this.btnLineStop.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(74)))), ((int)(((byte)(134)))), ((int)(((byte)(232)))));
             this.btnLineStop.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.btnLineStop.FillColor = System.Drawing.Color.White;
+            this.btnLineStop.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(234)))), ((int)(((byte)(241)))), ((int)(((byte)(253)))));
             this.btnLineStop.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(51)))), ((int)(((byte)(51)))), ((int)(((byte)(51)))));
             this.btnLineStop.HoverColor = System.Drawing.Color.FromArgb(((int)(((byte)(240)))), ((int)(((byte)(245)))), ((int)(((byte)(255)))));
             this.btnLineStop.Image = null;
-            this.btnLineStop.Location = new System.Drawing.Point(259, 4);
+            this.btnLineStop.Location = new System.Drawing.Point(259, 3);
             this.btnLineStop.Name = "btnLineStop";
             this.btnLineStop.PressedColor = System.Drawing.Color.FromArgb(((int)(((byte)(225)))), ((int)(((byte)(235)))), ((int)(((byte)(253)))));
-            this.btnLineStop.Size = new System.Drawing.Size(84, 22);
+            this.btnLineStop.Size = new System.Drawing.Size(84, 24);
             this.btnLineStop.TabIndex = 0;
             this.btnLineStop.Text = "라인마감";
             this.btnLineStop.ToolTip = "선택한 발주 품목의 수량을 남아서 종결합니다(승인 완료된 발주만).";
@@ -724,16 +729,16 @@ public partial class frmPo
             this.btnLineStopCancel.BackColor = System.Drawing.Color.Transparent;
             this.btnLineStopCancel.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(74)))), ((int)(((byte)(134)))), ((int)(((byte)(232)))));
             this.btnLineStopCancel.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.btnLineStopCancel.FillColor = System.Drawing.Color.White;
+            this.btnLineStopCancel.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(234)))), ((int)(((byte)(241)))), ((int)(((byte)(253)))));
             this.btnLineStopCancel.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(51)))), ((int)(((byte)(51)))), ((int)(((byte)(51)))));
             this.btnLineStopCancel.HoverColor = System.Drawing.Color.FromArgb(((int)(((byte)(240)))), ((int)(((byte)(245)))), ((int)(((byte)(255)))));
             this.btnLineStopCancel.Image = null;
-            this.btnLineStopCancel.Location = new System.Drawing.Point(347, 4);
+            this.btnLineStopCancel.Location = new System.Drawing.Point(347, 3);
             this.btnLineStopCancel.Name = "btnLineStopCancel";
             this.btnLineStopCancel.PressedColor = System.Drawing.Color.FromArgb(((int)(((byte)(225)))), ((int)(((byte)(235)))), ((int)(((byte)(253)))));
-            this.btnLineStopCancel.Size = new System.Drawing.Size(84, 22);
+            this.btnLineStopCancel.Size = new System.Drawing.Size(84, 24);
             this.btnLineStopCancel.TabIndex = 0;
-            this.btnLineStopCancel.Text = "留덇컧痍⑥냼";
+            this.btnLineStopCancel.Text = "마감취소";
             this.btnLineStopCancel.ToolTip = "선택한 발주 품목의 마감을 취소합니다.";
             // 
             // btnDeletRow1
@@ -745,10 +750,10 @@ public partial class frmPo
             this.btnDeletRow1.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(51)))), ((int)(((byte)(51)))), ((int)(((byte)(51)))));
             this.btnDeletRow1.HoverColor = System.Drawing.Color.FromArgb(((int)(((byte)(240)))), ((int)(((byte)(245)))), ((int)(((byte)(255)))));
             this.btnDeletRow1.Image = null;
-            this.btnDeletRow1.Location = new System.Drawing.Point(65, 4);
+            this.btnDeletRow1.Location = new System.Drawing.Point(65, 3);
             this.btnDeletRow1.Name = "btnDeletRow1";
             this.btnDeletRow1.PressedColor = System.Drawing.Color.FromArgb(((int)(((byte)(225)))), ((int)(((byte)(235)))), ((int)(((byte)(253)))));
-            this.btnDeletRow1.Size = new System.Drawing.Size(58, 22);
+            this.btnDeletRow1.Size = new System.Drawing.Size(60, 24);
             this.btnDeletRow1.TabIndex = 0;
             this.btnDeletRow1.Text = "행삭제";
             this.btnDeletRow1.ToolTip = "행삭제";
@@ -762,10 +767,10 @@ public partial class frmPo
             this.btnAddRow1.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(51)))), ((int)(((byte)(51)))), ((int)(((byte)(51)))));
             this.btnAddRow1.HoverColor = System.Drawing.Color.FromArgb(((int)(((byte)(240)))), ((int)(((byte)(245)))), ((int)(((byte)(255)))));
             this.btnAddRow1.Image = null;
-            this.btnAddRow1.Location = new System.Drawing.Point(3, 4);
+            this.btnAddRow1.Location = new System.Drawing.Point(3, 3);
             this.btnAddRow1.Name = "btnAddRow1";
             this.btnAddRow1.PressedColor = System.Drawing.Color.FromArgb(((int)(((byte)(225)))), ((int)(((byte)(235)))), ((int)(((byte)(253)))));
-            this.btnAddRow1.Size = new System.Drawing.Size(58, 22);
+            this.btnAddRow1.Size = new System.Drawing.Size(60, 24);
             this.btnAddRow1.TabIndex = 0;
             this.btnAddRow1.Text = "행추가";
             this.btnAddRow1.ToolTip = "행추가";
@@ -777,7 +782,7 @@ public partial class frmPo
             this.panelWyn1.Controls.Add(this.sectionHeaderWyn4);
             this.panelWyn1.Dock = System.Windows.Forms.DockStyle.Top;
             this.panelWyn1.EdgeLineColor = System.Drawing.Color.FromArgb(((int)(((byte)(228)))), ((int)(((byte)(229)))), ((int)(((byte)(232)))));
-            this.panelWyn1.Location = new System.Drawing.Point(3, 204);
+            this.panelWyn1.Location = new System.Drawing.Point(0, 0);
             this.panelWyn1.Name = "panelWyn1";
             this.panelWyn1.Padding = new System.Windows.Forms.Padding(5, 0, 0, 2);
             this.panelWyn1.Size = new System.Drawing.Size(1664, 40);
@@ -801,11 +806,12 @@ public partial class frmPo
             this.panelWyn5.Appearance.BackColor = System.Drawing.Color.White;
             this.panelWyn5.Appearance.Options.UseBackColor = true;
             this.panelWyn5.Controls.Add(this.panData);
+            this.panelWyn5.Controls.Add(this.panHeader);
             this.panelWyn5.Dock = System.Windows.Forms.DockStyle.Top;
             this.panelWyn5.EdgeLineColor = System.Drawing.Color.FromArgb(((int)(((byte)(228)))), ((int)(((byte)(229)))), ((int)(((byte)(232)))));
-            this.panelWyn5.Location = new System.Drawing.Point(3, 0);
+            this.panelWyn5.Location = new System.Drawing.Point(3, 25);
             this.panelWyn5.Name = "panelWyn5";
-            this.panelWyn5.Size = new System.Drawing.Size(1664, 204);
+            this.panelWyn5.Size = new System.Drawing.Size(1664, 253);
             this.panelWyn5.TabIndex = 6;
             // 
             // panData
@@ -866,7 +872,7 @@ public partial class frmPo
             this.panData.Controls.Add(this.memoRemark);
             this.panData.Dock = System.Windows.Forms.DockStyle.Fill;
             this.panData.EdgeLineColor = System.Drawing.Color.FromArgb(((int)(((byte)(228)))), ((int)(((byte)(229)))), ((int)(((byte)(232)))));
-            this.panData.Location = new System.Drawing.Point(0, 0);
+            this.panData.Location = new System.Drawing.Point(0, 49);
             this.panData.Name = "panData";
             this.panData.Size = new System.Drawing.Size(1664, 204);
             this.panData.TabIndex = 8;
@@ -876,14 +882,14 @@ public partial class frmPo
             this.btnSaveAs.BackColor = System.Drawing.Color.Transparent;
             this.btnSaveAs.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(74)))), ((int)(((byte)(134)))), ((int)(((byte)(232)))));
             this.btnSaveAs.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.btnSaveAs.FillColor = System.Drawing.Color.White;
+            this.btnSaveAs.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(234)))), ((int)(((byte)(241)))), ((int)(((byte)(253)))));
             this.btnSaveAs.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(51)))), ((int)(((byte)(51)))), ((int)(((byte)(51)))));
             this.btnSaveAs.HoverColor = System.Drawing.Color.FromArgb(((int)(((byte)(240)))), ((int)(((byte)(245)))), ((int)(((byte)(255)))));
             this.btnSaveAs.Image = null;
-            this.btnSaveAs.Location = new System.Drawing.Point(465, 7);
+            this.btnSaveAs.Location = new System.Drawing.Point(465, 8);
             this.btnSaveAs.Name = "btnSaveAs";
             this.btnSaveAs.PressedColor = System.Drawing.Color.FromArgb(((int)(((byte)(225)))), ((int)(((byte)(235)))), ((int)(((byte)(253)))));
-            this.btnSaveAs.Size = new System.Drawing.Size(100, 27);
+            this.btnSaveAs.Size = new System.Drawing.Size(100, 24);
             this.btnSaveAs.TabIndex = 0;
             this.btnSaveAs.Text = "Save As";
             this.btnSaveAs.ToolTip = "";
@@ -923,7 +929,7 @@ public partial class frmPo
             this.lblPoType.Name = "lblPoType";
             this.lblPoType.Size = new System.Drawing.Size(48, 15);
             this.lblPoType.TabIndex = 2;
-            this.lblPoType.Text = "諛쒖＜援щ텇";
+            this.lblPoType.Text = "발주구분";
             // 
             // cboPoType
             // 
@@ -950,7 +956,7 @@ public partial class frmPo
             this.lblPoNo.Name = "lblPoNo";
             this.lblPoNo.Size = new System.Drawing.Size(48, 15);
             this.lblPoNo.TabIndex = 4;
-            this.lblPoNo.Text = "諛쒖＜踰덊샇";
+            this.lblPoNo.Text = "발주번호";
             // 
             // txtPoId
             // 
@@ -1144,6 +1150,7 @@ public partial class frmPo
             this.txtCustNm.LookupKey = "P_CUST";
             this.txtCustNm.MatchField = "cust_nm";
             this.txtCustNm.Name = "txtCustNm";
+            this.txtCustNm.PopupConditions = "p_cust_class=PO";
             this.txtCustNm.Properties.Appearance.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(249)))), ((int)(((byte)(219)))));
             this.txtCustNm.Properties.Appearance.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))));
             this.txtCustNm.Properties.Appearance.Options.UseBackColor = true;
@@ -1248,7 +1255,7 @@ public partial class frmPo
             this.labelControl1.Name = "labelControl1";
             this.labelControl1.Size = new System.Drawing.Size(24, 15);
             this.labelControl1.TabIndex = 23;
-            this.labelControl1.Text = "湲덉븸";
+            this.labelControl1.Text = "금액";
             // 
             // lblExcRate
             // 
@@ -1377,7 +1384,7 @@ public partial class frmPo
             this.lblAppNo.Name = "lblAppNo";
             this.lblAppNo.Size = new System.Drawing.Size(48, 15);
             this.lblAppNo.TabIndex = 29;
-            this.lblAppNo.Text = "寃곗옱踰덊샇";
+            this.lblAppNo.Text = "결재번호";
             // 
             // txtAppNo
             // 
@@ -1422,7 +1429,7 @@ public partial class frmPo
             this.lblRemark.Name = "lblRemark";
             this.lblRemark.Size = new System.Drawing.Size(24, 15);
             this.lblRemark.TabIndex = 35;
-            this.lblRemark.Text = "鍮꾧퀬";
+            this.lblRemark.Text = "비고";
             // 
             // memoRemark
             // 
@@ -1431,46 +1438,104 @@ public partial class frmPo
             this.memoRemark.Size = new System.Drawing.Size(604, 77);
             this.memoRemark.TabIndex = 12;
             // 
-            // panelWyn2
-            // 
-            this.panelWyn2.Appearance.BackColor = System.Drawing.Color.White;
-            this.panelWyn2.Appearance.Options.UseBackColor = true;
-            this.panelWyn2.Dock = System.Windows.Forms.DockStyle.Top;
-            this.panelWyn2.EdgeLineColor = System.Drawing.Color.FromArgb(((int)(((byte)(228)))), ((int)(((byte)(229)))), ((int)(((byte)(232)))));
-            this.panelWyn2.Location = new System.Drawing.Point(0, 0);
-            this.panelWyn2.Name = "panelWyn2";
-            this.panelWyn2.Size = new System.Drawing.Size(1670, 28);
-            this.panelWyn2.TabIndex = 8;
-            // 
             // panHeader
             // 
             this.panHeader.Appearance.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(241)))), ((int)(((byte)(245)))), ((int)(((byte)(249)))));
             this.panHeader.Appearance.Options.UseBackColor = true;
+            this.panHeader.Controls.Add(this.lblSearchAccId);
+            this.panHeader.Controls.Add(this.cboSearchAccId);
             this.panHeader.Controls.Add(this.lblSearchPoNo);
             this.panHeader.Controls.Add(this.txtSearchPoNo);
             this.panHeader.Dock = System.Windows.Forms.DockStyle.Top;
             this.panHeader.EdgeLineColor = System.Drawing.Color.FromArgb(((int)(((byte)(228)))), ((int)(((byte)(229)))), ((int)(((byte)(232)))));
-            this.panHeader.Location = new System.Drawing.Point(5, 33);
+            this.panHeader.Location = new System.Drawing.Point(0, 0);
             this.panHeader.Name = "panHeader";
-            this.panHeader.Size = new System.Drawing.Size(1670, 49);
+            this.panHeader.Size = new System.Drawing.Size(1664, 49);
             this.panHeader.TabIndex = 8;
             this.panHeader.Visible = false;
             // 
+            // lblSearchAccId
+            // 
+            this.lblSearchAccId.Appearance.Font = new System.Drawing.Font("맑은 고딕", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
+            this.lblSearchAccId.Appearance.Options.UseFont = true;
+            this.lblSearchAccId.Location = new System.Drawing.Point(25, 18);
+            this.lblSearchAccId.Name = "lblSearchAccId";
+            this.lblSearchAccId.Size = new System.Drawing.Size(36, 15);
+            this.lblSearchAccId.TabIndex = 0;
+            this.lblSearchAccId.Text = "사업장";
+            // 
+            // cboSearchAccId
+            // 
+            this.cboSearchAccId.EditValue = "";
+            this.cboSearchAccId.Location = new System.Drawing.Point(69, 15);
+            this.cboSearchAccId.LookupKey = "L_ACC";
+            this.cboSearchAccId.Name = "cboSearchAccId";
+            this.cboSearchAccId.Properties.Appearance.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(249)))), ((int)(((byte)(219)))));
+            this.cboSearchAccId.Properties.Appearance.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))));
+            this.cboSearchAccId.Properties.Appearance.Options.UseBackColor = true;
+            this.cboSearchAccId.Properties.Appearance.Options.UseForeColor = true;
+            this.cboSearchAccId.Properties.Buttons.AddRange(new DevExpress.XtraEditors.Controls.EditorButton[] {
+            new DevExpress.XtraEditors.Controls.EditorButton(DevExpress.XtraEditors.Controls.ButtonPredefines.Combo)});
+            this.cboSearchAccId.Properties.NullText = "";
+            this.cboSearchAccId.Required = true;
+            this.cboSearchAccId.Size = new System.Drawing.Size(131, 20);
+            this.cboSearchAccId.TabIndex = 1;
+            // 
             // lblSearchPoNo
             // 
-            this.lblSearchPoNo.Location = new System.Drawing.Point(25, 18);
+            this.lblSearchPoNo.Location = new System.Drawing.Point(224, 18);
             this.lblSearchPoNo.Name = "lblSearchPoNo";
             this.lblSearchPoNo.Size = new System.Drawing.Size(40, 14);
             this.lblSearchPoNo.TabIndex = 0;
-            this.lblSearchPoNo.Text = "諛쒖＜踰덊샇";
+            this.lblSearchPoNo.Text = "발주번호";
             // 
             // txtSearchPoNo
             // 
-            this.txtSearchPoNo.Location = new System.Drawing.Point(90, 15);
+            this.txtSearchPoNo.Location = new System.Drawing.Point(289, 15);
             this.txtSearchPoNo.Name = "txtSearchPoNo";
             this.txtSearchPoNo.Size = new System.Drawing.Size(180, 20);
             this.txtSearchPoNo.TabIndex = 1;
-            //
+            // 
+            // panelWyn6
+            // 
+            this.panelWyn6.Appearance.BackColor = System.Drawing.Color.White;
+            this.panelWyn6.Appearance.Options.UseBackColor = true;
+            this.panelWyn6.Controls.Add(this.grd1);
+            this.panelWyn6.Controls.Add(this.panelWyn7);
+            this.panelWyn6.Controls.Add(this.panelWyn1);
+            this.panelWyn6.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.panelWyn6.EdgeLineColor = System.Drawing.Color.FromArgb(((int)(((byte)(228)))), ((int)(((byte)(229)))), ((int)(((byte)(232)))));
+            this.panelWyn6.Location = new System.Drawing.Point(3, 278);
+            this.panelWyn6.Name = "panelWyn6";
+            this.panelWyn6.Size = new System.Drawing.Size(1664, 517);
+            this.panelWyn6.TabIndex = 10;
+            // 
+            // paTitleH
+            // 
+            this.paTitleH.Appearance.BackColor = System.Drawing.Color.White;
+            this.paTitleH.Appearance.Options.UseBackColor = true;
+            this.paTitleH.Controls.Add(this.sectionHeaderWyn1);
+            this.paTitleH.Dock = System.Windows.Forms.DockStyle.Top;
+            this.paTitleH.EdgeLineColor = System.Drawing.Color.FromArgb(((int)(((byte)(228)))), ((int)(((byte)(229)))), ((int)(((byte)(232)))));
+            this.paTitleH.Location = new System.Drawing.Point(3, 0);
+            this.paTitleH.Name = "paTitleH";
+            this.paTitleH.Padding = new System.Windows.Forms.Padding(5, 0, 0, 0);
+            this.paTitleH.Size = new System.Drawing.Size(1664, 25);
+            this.paTitleH.TabIndex = 11;
+            // 
+            // sectionHeaderWyn1
+            // 
+            this.sectionHeaderWyn1.BackColor = System.Drawing.Color.White;
+            this.sectionHeaderWyn1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.sectionHeaderWyn1.Font = new System.Drawing.Font("맑은 고딕", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
+            this.sectionHeaderWyn1.Icon = WYNLAB.Base.Controls.SectionHeaderIcon.Folder;
+            this.sectionHeaderWyn1.Location = new System.Drawing.Point(5, 0);
+            this.sectionHeaderWyn1.Name = "sectionHeaderWyn1";
+            this.sectionHeaderWyn1.Size = new System.Drawing.Size(1659, 25);
+            this.sectionHeaderWyn1.SvgIcon = ((DevExpress.Utils.Svg.SvgImage)(resources.GetObject("sectionHeaderWyn1.SvgIcon")));
+            this.sectionHeaderWyn1.TabIndex = 14;
+            this.sectionHeaderWyn1.Text = "구매발주등록 [frmPo]";
+            // 
             // frmPo
             // 
             this.Appearance.Options.UseFont = true;
@@ -1531,11 +1596,15 @@ public partial class frmPo
             ((System.ComponentModel.ISupportInitialize)(this.txtAppNo.Properties)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.txtPoTitle.Properties)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.memoRemark.Properties)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.panelWyn2)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.panHeader)).EndInit();
             this.panHeader.ResumeLayout(false);
             this.panHeader.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.cboSearchAccId.Properties)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.txtSearchPoNo.Properties)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.panelWyn6)).EndInit();
+            this.panelWyn6.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.paTitleH)).EndInit();
+            this.paTitleH.ResumeLayout(false);
             this.ResumeLayout(false);
 
     }
@@ -1643,5 +1712,9 @@ public partial class frmPo
     private LookUpEditWyn cboApprStatCd;
     private ButtonWyn btnSaveAs;
     private SectionHeaderWyn sectionHeaderWyn4;
-    private PanelWyn panelWyn2;
+    private DevExpress.XtraEditors.LabelControl lblSearchAccId;
+    private WYNLAB.Base.Controls.LookUpEditWyn cboSearchAccId;
+    private PanelWyn panelWyn6;
+    private PanelWyn paTitleH;
+    private SectionHeaderWyn sectionHeaderWyn1;
 }

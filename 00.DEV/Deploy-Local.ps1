@@ -98,7 +98,7 @@ try {
 # user-secrets(dotnet user-secrets, WYNLAB.Api UserSecretsId=803575cc-...)에 등록된 것과 같은
 # 값이다 - IIS로 띄우는 Api는 user-secrets를 못 읽으므로(그건 dotnet run 전용) web.config의
 # environmentVariables로 같은 값을 넣어줘야 한다.
-$localConnStr = "Server=tcp:localhost,15434;Database=WYNLAB;User Id=wynlab;Password=@nextone.com12!@;TrustServerCertificate=True;"
+$localConnStr = "Server=tcp:localhost,15434;Database=WYNLAB_DEV;User Id=wynlab;Password=@nextone.com12!@;TrustServerCertificate=True;"
 $localJwtKey = "8QkiVHgACqcQWl1KZpiumQ5Xnc99e2lVr20uokT1yqbJKYrZqCY6gt5xQdULz"
 
 # SMTP는 여기 스크립트(git 추적됨)에 직접 못 박아넣는다 - 개인 Gmail 계정 비밀번호라 DB

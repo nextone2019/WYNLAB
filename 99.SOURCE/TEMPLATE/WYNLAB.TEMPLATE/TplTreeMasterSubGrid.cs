@@ -25,10 +25,13 @@ public partial class TplTreeMasterSubGrid : BaseForm
     public TplTreeMasterSubGrid()
     {
         InitializeComponent();
+        // 검색조건 기본값(화면 표준 - 첫 번째 검색조건 사업장은 로그인 사업장이 기본값, 2026-10-03)
+        // @AI_BUILDER:BEGIN SEARCH_DEFAULTS
+        // @AI_BUILDER:END SEARCH_DEFAULTS
 
         Text = "__MENU_CAPTION__";
 
-        Controls.Add(BuildScreenHeader());
+        // 화면 제목은 Designer의 sectionHeaderWyn("... [폼명]")이 담당한다 - BuildScreenHeader()를 또 추가하면 제목이 두 줄로 중복된다.
 
         // tree1은 자기참조 계층 데이터를 그린다 - KeyFieldName은 grd1의 __MASTER_KEY_COLUMN__과
         // 같은 역할(행 식별), ParentFieldName은 이 템플릿에만 있는 값으로 "이 행의 상위 행"을

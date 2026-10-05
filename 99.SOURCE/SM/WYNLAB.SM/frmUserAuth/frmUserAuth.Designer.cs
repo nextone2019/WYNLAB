@@ -1,4 +1,4 @@
-﻿// VS 디자이너가 자동 생성하는 필드 선언에는 = null!을 안 붙여서 nullable 경고(CS8618)가
+// VS 디자이너가 자동 생성하는 필드 선언에는 = null!을 안 붙여서 nullable 경고(CS8618)가
 // 계속 나기 때문에, 이 파일(디자이너 전용)만 nullable 검사를 끈다 - 흔한 관례.
 #nullable disable
 using DevExpress.XtraGrid;
@@ -532,10 +532,10 @@ public partial class frmUserAuth
             this.simpleButton5.ForeColor = System.Drawing.Color.Transparent;
             this.simpleButton5.HoverColor = System.Drawing.Color.Transparent;
             this.simpleButton5.Image = ((System.Drawing.Image)(resources.GetObject("simpleButton5.Image")));
-            this.simpleButton5.Location = new System.Drawing.Point(42, 2);
+            this.simpleButton5.Location = new System.Drawing.Point(42, 1);
             this.simpleButton5.Name = "simpleButton5";
             this.simpleButton5.PressedColor = System.Drawing.Color.FromArgb(((int)(((byte)(189)))), ((int)(((byte)(213)))), ((int)(((byte)(250)))));
-            this.simpleButton5.Size = new System.Drawing.Size(24, 22);
+            this.simpleButton5.Size = new System.Drawing.Size(24, 24);
             this.simpleButton5.TabIndex = 0;
             this.simpleButton5.Text = "";
             this.simpleButton5.ToolTip = "행삭제";
@@ -551,10 +551,10 @@ public partial class frmUserAuth
             this.simpleButton6.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(28)))), ((int)(((byte)(84)))), ((int)(((byte)(187)))));
             this.simpleButton6.HoverColor = System.Drawing.Color.FromArgb(((int)(((byte)(216)))), ((int)(((byte)(231)))), ((int)(((byte)(253)))));
             this.simpleButton6.Image = ((System.Drawing.Image)(resources.GetObject("simpleButton6.Image")));
-            this.simpleButton6.Location = new System.Drawing.Point(10, 2);
+            this.simpleButton6.Location = new System.Drawing.Point(10, 1);
             this.simpleButton6.Name = "simpleButton6";
             this.simpleButton6.PressedColor = System.Drawing.Color.FromArgb(((int)(((byte)(189)))), ((int)(((byte)(213)))), ((int)(((byte)(250)))));
-            this.simpleButton6.Size = new System.Drawing.Size(24, 22);
+            this.simpleButton6.Size = new System.Drawing.Size(24, 24);
             this.simpleButton6.TabIndex = 0;
             this.simpleButton6.Text = "";
             this.simpleButton6.ToolTip = "행추가";
@@ -686,10 +686,10 @@ public partial class frmUserAuth
             this.simpleButton1.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(28)))), ((int)(((byte)(84)))), ((int)(((byte)(187)))));
             this.simpleButton1.HoverColor = System.Drawing.Color.FromArgb(((int)(((byte)(216)))), ((int)(((byte)(231)))), ((int)(((byte)(253)))));
             this.simpleButton1.Image = ((System.Drawing.Image)(resources.GetObject("simpleButton1.Image")));
-            this.simpleButton1.Location = new System.Drawing.Point(42, 2);
+            this.simpleButton1.Location = new System.Drawing.Point(42, 1);
             this.simpleButton1.Name = "simpleButton1";
             this.simpleButton1.PressedColor = System.Drawing.Color.FromArgb(((int)(((byte)(189)))), ((int)(((byte)(213)))), ((int)(((byte)(250)))));
-            this.simpleButton1.Size = new System.Drawing.Size(24, 22);
+            this.simpleButton1.Size = new System.Drawing.Size(24, 24);
             this.simpleButton1.TabIndex = 0;
             this.simpleButton1.Text = "";
             this.simpleButton1.ToolTip = "행삭제";
@@ -705,10 +705,10 @@ public partial class frmUserAuth
             this.simpleButton2.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(28)))), ((int)(((byte)(84)))), ((int)(((byte)(187)))));
             this.simpleButton2.HoverColor = System.Drawing.Color.FromArgb(((int)(((byte)(216)))), ((int)(((byte)(231)))), ((int)(((byte)(253)))));
             this.simpleButton2.Image = ((System.Drawing.Image)(resources.GetObject("simpleButton2.Image")));
-            this.simpleButton2.Location = new System.Drawing.Point(10, 2);
+            this.simpleButton2.Location = new System.Drawing.Point(10, 1);
             this.simpleButton2.Name = "simpleButton2";
             this.simpleButton2.PressedColor = System.Drawing.Color.FromArgb(((int)(((byte)(189)))), ((int)(((byte)(213)))), ((int)(((byte)(250)))));
-            this.simpleButton2.Size = new System.Drawing.Size(24, 22);
+            this.simpleButton2.Size = new System.Drawing.Size(24, 24);
             this.simpleButton2.TabIndex = 0;
             this.simpleButton2.Text = "";
             this.simpleButton2.ToolTip = "행추가";
@@ -1443,11 +1443,11 @@ public partial class frmUserAuth
             this.btnDeletRow2.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(253)))), ((int)(((byte)(236)))), ((int)(((byte)(234)))));
             this.btnDeletRow2.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(28)))), ((int)(((byte)(84)))), ((int)(((byte)(187)))));
             this.btnDeletRow2.HoverColor = System.Drawing.Color.FromArgb(((int)(((byte)(216)))), ((int)(((byte)(231)))), ((int)(((byte)(253)))));
-            this.btnDeletRow2.Image = ((System.Drawing.Image)(resources.GetObject("btnDeletRow2.Image")));
+            this.btnDeletRow2.Image = null;
             this.btnDeletRow2.Location = new System.Drawing.Point(68, 4);
             this.btnDeletRow2.Name = "btnDeletRow2";
             this.btnDeletRow2.PressedColor = System.Drawing.Color.FromArgb(((int)(((byte)(189)))), ((int)(((byte)(213)))), ((int)(((byte)(250)))));
-            this.btnDeletRow2.Size = new System.Drawing.Size(58, 22);
+            this.btnDeletRow2.Size = new System.Drawing.Size(60, 24);
             this.btnDeletRow2.TabIndex = 0;
             this.btnDeletRow2.Text = "행삭제";
             this.btnDeletRow2.ToolTip = "행삭제";
@@ -1462,11 +1462,11 @@ public partial class frmUserAuth
             this.btnAddRow2.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(228)))), ((int)(((byte)(245)))), ((int)(((byte)(231)))));
             this.btnAddRow2.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(28)))), ((int)(((byte)(84)))), ((int)(((byte)(187)))));
             this.btnAddRow2.HoverColor = System.Drawing.Color.FromArgb(((int)(((byte)(216)))), ((int)(((byte)(231)))), ((int)(((byte)(253)))));
-            this.btnAddRow2.Image = ((System.Drawing.Image)(resources.GetObject("btnAddRow2.Image")));
+            this.btnAddRow2.Image = null;
             this.btnAddRow2.Location = new System.Drawing.Point(6, 4);
             this.btnAddRow2.Name = "btnAddRow2";
             this.btnAddRow2.PressedColor = System.Drawing.Color.FromArgb(((int)(((byte)(189)))), ((int)(((byte)(213)))), ((int)(((byte)(250)))));
-            this.btnAddRow2.Size = new System.Drawing.Size(58, 22);
+            this.btnAddRow2.Size = new System.Drawing.Size(60, 24);
             this.btnAddRow2.TabIndex = 0;
             this.btnAddRow2.Text = "행추가";
             this.btnAddRow2.ToolTip = "행추가";
@@ -1596,10 +1596,10 @@ public partial class frmUserAuth
             this.simpleButton3.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(28)))), ((int)(((byte)(84)))), ((int)(((byte)(187)))));
             this.simpleButton3.HoverColor = System.Drawing.Color.FromArgb(((int)(((byte)(216)))), ((int)(((byte)(231)))), ((int)(((byte)(253)))));
             this.simpleButton3.Image = ((System.Drawing.Image)(resources.GetObject("simpleButton3.Image")));
-            this.simpleButton3.Location = new System.Drawing.Point(42, 2);
+            this.simpleButton3.Location = new System.Drawing.Point(42, 1);
             this.simpleButton3.Name = "simpleButton3";
             this.simpleButton3.PressedColor = System.Drawing.Color.FromArgb(((int)(((byte)(189)))), ((int)(((byte)(213)))), ((int)(((byte)(250)))));
-            this.simpleButton3.Size = new System.Drawing.Size(24, 22);
+            this.simpleButton3.Size = new System.Drawing.Size(24, 24);
             this.simpleButton3.TabIndex = 0;
             this.simpleButton3.Text = "";
             this.simpleButton3.ToolTip = "행삭제";
@@ -1615,10 +1615,10 @@ public partial class frmUserAuth
             this.simpleButton4.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(28)))), ((int)(((byte)(84)))), ((int)(((byte)(187)))));
             this.simpleButton4.HoverColor = System.Drawing.Color.FromArgb(((int)(((byte)(216)))), ((int)(((byte)(231)))), ((int)(((byte)(253)))));
             this.simpleButton4.Image = ((System.Drawing.Image)(resources.GetObject("simpleButton4.Image")));
-            this.simpleButton4.Location = new System.Drawing.Point(10, 2);
+            this.simpleButton4.Location = new System.Drawing.Point(10, 1);
             this.simpleButton4.Name = "simpleButton4";
             this.simpleButton4.PressedColor = System.Drawing.Color.FromArgb(((int)(((byte)(189)))), ((int)(((byte)(213)))), ((int)(((byte)(250)))));
-            this.simpleButton4.Size = new System.Drawing.Size(24, 22);
+            this.simpleButton4.Size = new System.Drawing.Size(24, 24);
             this.simpleButton4.TabIndex = 0;
             this.simpleButton4.Text = "";
             this.simpleButton4.ToolTip = "행추가";

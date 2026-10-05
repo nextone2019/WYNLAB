@@ -33,4 +33,16 @@ public class MenuDto
     /// 분리해야 하는 권한이 생겼을 때 쓰는 예비 슬롯(사장님 지시, 2026-08-31). 인덱스
     /// 0=AUTH01 ... 9=AUTH10. 화면 개발자는 BaseForm.Auth[]로 그대로 쓰면 된다.</summary>
     public bool[] Auth { get; set; } = new bool[10];
+
+    /// <summary>메뉴등록에서 이 화면에 켜둔 화면 기능(TSMMENUFEATURE, use_yn=Y만) - 전자결재/첨부파일 등. 화면의 공통 버튼 패널(FeatureBarWyn)이
+    /// 이 목록을 보고 켜진 기능의 버튼만 보여준다. 권한과 달리 사용자와 무관한 메뉴 자체의 설정이다.</summary>
+    public List<MenuFeatureDto> Features { get; set; } = new();
+}
+
+/// <summary>메뉴에 켜진 화면 기능 1개 - FeatureCd는 공통코드 SM0012(APPROVAL/FILE...), OptionVal은 기능별 옵션(APPROVAL=결재 문서유형 doc_type, FILE=첨부 doc_type).</summary>
+public class MenuFeatureDto
+{
+    public string FeatureCd { get; set; } = string.Empty;
+    public bool UseYn { get; set; } = true;
+    public string? OptionVal { get; set; }
 }

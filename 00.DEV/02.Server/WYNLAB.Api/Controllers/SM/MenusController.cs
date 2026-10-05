@@ -60,6 +60,26 @@ public class MenusController : ControllerBase
         return Ok(new ApiResult { Success = true });
     }
 
+    /// <summary>이 메뉴에 설정된 화면 기능 목록(전자결재/첨부파일...) - 메뉴등록 화면용.</summary>
+    [HttpGet("{menuId}/features")]
+    [RequireMenuPermission("SM", "MENU.frmMenu", MenuAction.View)]
+    public async Task<ActionResult<List<MenuFeatureDto>>> GetFeatures(long menuId) => Ok(await _repo.GetFeaturesAsync(menuId));
+
+    /// <summary>화면 기능 설정 저장 - 보낸 기능들만 갱신한다(안 보낸 기능은 그대로). 결재 사용은 doc_type 필수 등 검증은 프로시저가 한다.</summary>
+    [HttpPut("{menuId}/features")]
+    [RequireMenuPermission("SM", "MENU.frmMenu", MenuAction.Update)]
+    public async Task<ActionResult<ApiResult>> SaveFeatures(long menuId, [FromBody] List<MenuFeatureDto> features)
+    {
+        if (!await _repo.ExistsAsync(menuId))
+            return Ok(new ApiResult { Success = false, Message = "존재하지 않는 메뉴입니다." });
+
+        var result = await _repo.SaveFeaturesAsync(menuId, features, CurrentUserId, ClientPc);
+        if (!result.IsSuccess)
+            return Ok(new ApiResult { Success = false, Message = result.FailMessage });
+
+        return Ok(new ApiResult { Success = true });
+    }
+
     [HttpDelete("{menuId}")]
     [RequireMenuPermission("SM", "MENU.frmMenu", MenuAction.Delete)]
     public async Task<ActionResult<ApiResult>> Delete(long menuId)

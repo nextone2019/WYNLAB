@@ -61,6 +61,7 @@ public partial class frmApprInbox : BaseForm
 
     public override Task NewClick() => Task.CompletedTask;
     public override Task DeleteClick() => Task.CompletedTask;
+    protected override bool ConfirmDeleteByDefault => false; // 조회전용 - 삭제 기능 없음
     public override Task NewRowClick() => Task.CompletedTask;
     public override Task DeleteRowClick() => Task.CompletedTask;
     public override Task SaveClick() => Task.CompletedTask;

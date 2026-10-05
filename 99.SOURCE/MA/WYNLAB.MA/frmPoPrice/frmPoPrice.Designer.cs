@@ -1,5 +1,5 @@
-﻿// 援щℓ?④??깅줉 - ?덈ぉ 留덉뒪??以묒떖 援ъ“(2026-09-26 蹂寃?: ?쇱そ grd1 = ?덈ぉ 紐⑸줉(+理쒖쥌?④?), ?ㅻⅨ履?= panData(?좏깮???덈ぉ ?뺣낫) + 洹??꾨옒 grd2(?덈ぉ???④? ?깅줉).
-// ?ъ썝?깅줉(frmEmp) ?쒖? 諛곗튂(?쒕ぉ 諛?移대뱶/?ㅻ뜑 ?꾩씠肄?瑜??곕쫫. VS ?붿옄?대꼫濡??먯쑀濡?쾶 ?몄쭛 媛?ν빀?덈떎.
+﻿// 구매단가등록 - 품목 마스터 중심 구조(2026-09-26 변경): 왼쪽 grd1 = 품목 목록(+최종단가), 오른쪽 = panData(선택한 품목 정보) + 그 아래 grd2(품목의 단가 등록).
+// 사원등록(frmEmp) 표준 배치(제목 바/카드/헤더 아이콘)를 따름. VS 디자이너로 자유롭게 편집 가능합니다.
 #nullable disable
 using WYNLAB.Base;
 using WYNLAB.Base.Controls;
@@ -19,11 +19,11 @@ public partial class frmPoPrice
     private void InitializeComponent()
     {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(frmPoPrice));
-            DevExpress.XtraEditors.Controls.EditorButtonImageOptions editorButtonImageOptions2 = new DevExpress.XtraEditors.Controls.EditorButtonImageOptions();
-            DevExpress.Utils.SerializableAppearanceObject serializableAppearanceObject5 = new DevExpress.Utils.SerializableAppearanceObject();
-            DevExpress.Utils.SerializableAppearanceObject serializableAppearanceObject6 = new DevExpress.Utils.SerializableAppearanceObject();
-            DevExpress.Utils.SerializableAppearanceObject serializableAppearanceObject7 = new DevExpress.Utils.SerializableAppearanceObject();
-            DevExpress.Utils.SerializableAppearanceObject serializableAppearanceObject8 = new DevExpress.Utils.SerializableAppearanceObject();
+            DevExpress.XtraEditors.Controls.EditorButtonImageOptions editorButtonImageOptions1 = new DevExpress.XtraEditors.Controls.EditorButtonImageOptions();
+            DevExpress.Utils.SerializableAppearanceObject serializableAppearanceObject1 = new DevExpress.Utils.SerializableAppearanceObject();
+            DevExpress.Utils.SerializableAppearanceObject serializableAppearanceObject2 = new DevExpress.Utils.SerializableAppearanceObject();
+            DevExpress.Utils.SerializableAppearanceObject serializableAppearanceObject3 = new DevExpress.Utils.SerializableAppearanceObject();
+            DevExpress.Utils.SerializableAppearanceObject serializableAppearanceObject4 = new DevExpress.Utils.SerializableAppearanceObject();
             this.panBase = new WYNLAB.Base.Controls.PanelWyn();
             this.panelWyn3 = new WYNLAB.Base.Controls.PanelWyn();
             this.panelWyn4 = new WYNLAB.Base.Controls.PanelWyn();
@@ -68,6 +68,7 @@ public partial class frmPoPrice
             this.colStatNm = new DevExpress.XtraGrid.Columns.GridColumn();
             this.colRemark = new DevExpress.XtraGrid.Columns.GridColumn();
             this.panButtons = new WYNLAB.Base.Controls.PanelWyn();
+            this.featBar = new WYNLAB.Popup.FeatureBarWyn();
             this.btnRevise = new WYNLAB.Base.Controls.ButtonWyn();
             this.btnDeletRow1 = new WYNLAB.Base.Controls.ButtonWyn();
             this.btnAddRow1 = new WYNLAB.Base.Controls.ButtonWyn();
@@ -130,6 +131,7 @@ public partial class frmPoPrice
             ((System.ComponentModel.ISupportInitialize)(this.datecolEnd.CalendarTimeProperties)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.lookupcolCurCd)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.lookupcolUnitCd)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.featBar)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.panButtons)).BeginInit();
             this.panButtons.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.panelWyn2)).BeginInit();
@@ -208,7 +210,7 @@ public partial class frmPoPrice
             this.panelWyn8.EdgeLineColor = System.Drawing.Color.FromArgb(((int)(((byte)(228)))), ((int)(((byte)(229)))), ((int)(((byte)(232)))));
             this.panelWyn8.Location = new System.Drawing.Point(0, 3);
             this.panelWyn8.Name = "panelWyn8";
-            this.panelWyn8.Padding = new System.Windows.Forms.Padding(0, 4, 8, 8);
+            this.panelWyn8.Padding = new System.Windows.Forms.Padding(8, 4, 8, 8);
             this.panelWyn8.Size = new System.Drawing.Size(563, 635);
             this.panelWyn8.Style = WYNLAB.Base.Controls.PanelWynStyle.Card;
             this.panelWyn8.TabIndex = 12;
@@ -221,7 +223,7 @@ public partial class frmPoPrice
             this.grd1.EmbeddedNavigator.Buttons.Edit.Visible = false;
             this.grd1.EmbeddedNavigator.Buttons.EndEdit.Visible = false;
             this.grd1.EmbeddedNavigator.Buttons.Remove.Visible = false;
-            this.grd1.Location = new System.Drawing.Point(0, 31);
+            this.grd1.Location = new System.Drawing.Point(8, 31);
             this.grd1.MainView = this.gvw1;
             this.grd1.Name = "grd1";
             this.grd1.RepositoryItems.AddRange(new DevExpress.XtraEditors.Repository.RepositoryItem[] {
@@ -229,7 +231,7 @@ public partial class frmPoPrice
             this.lookupcolMCur,
             this.datecolMStart,
             this.datecolMEnd});
-            this.grd1.Size = new System.Drawing.Size(555, 596);
+            this.grd1.Size = new System.Drawing.Size(547, 596);
             this.grd1.TabIndex = 10;
             this.grd1.ViewCollection.AddRange(new DevExpress.XtraGrid.Views.Base.BaseView[] {
             this.gvw1});
@@ -282,7 +284,7 @@ public partial class frmPoPrice
             // 
             // colMItemSpec
             // 
-            this.colMItemSpec.Caption = "洹쒓꺽";
+            this.colMItemSpec.Caption = "규격";
             this.colMItemSpec.FieldName = "item_spec";
             this.colMItemSpec.Name = "colMItemSpec";
             this.colMItemSpec.Visible = true;
@@ -405,10 +407,10 @@ public partial class frmPoPrice
             this.panelWyn7.Controls.Add(this.sectionHeaderWyn4);
             this.panelWyn7.Dock = System.Windows.Forms.DockStyle.Top;
             this.panelWyn7.EdgeLineColor = System.Drawing.Color.FromArgb(((int)(((byte)(228)))), ((int)(((byte)(229)))), ((int)(((byte)(232)))));
-            this.panelWyn7.Location = new System.Drawing.Point(0, 4);
+            this.panelWyn7.Location = new System.Drawing.Point(8, 4);
             this.panelWyn7.Name = "panelWyn7";
             this.panelWyn7.Padding = new System.Windows.Forms.Padding(5, 0, 0, 2);
-            this.panelWyn7.Size = new System.Drawing.Size(555, 27);
+            this.panelWyn7.Size = new System.Drawing.Size(547, 27);
             this.panelWyn7.TabIndex = 11;
             // 
             // sectionHeaderWyn4
@@ -419,7 +421,7 @@ public partial class frmPoPrice
             this.sectionHeaderWyn4.Icon = WYNLAB.Base.Controls.SectionHeaderIcon.Folder;
             this.sectionHeaderWyn4.Location = new System.Drawing.Point(5, 0);
             this.sectionHeaderWyn4.Name = "sectionHeaderWyn4";
-            this.sectionHeaderWyn4.Size = new System.Drawing.Size(550, 25);
+            this.sectionHeaderWyn4.Size = new System.Drawing.Size(542, 25);
             this.sectionHeaderWyn4.SvgIcon = ((DevExpress.Utils.Svg.SvgImage)(resources.GetObject("sectionHeaderWyn4.SvgIcon")));
             this.sectionHeaderWyn4.TabIndex = 9;
             this.sectionHeaderWyn4.Text = "품목 LIST";
@@ -441,6 +443,7 @@ public partial class frmPoPrice
             this.panelWyn5.CardCornerRadius = 0;
             this.panelWyn5.Controls.Add(this.grd2);
             this.panelWyn5.Controls.Add(this.panButtons);
+            this.panelWyn5.Controls.Add(this.featBar);
             this.panelWyn5.Controls.Add(this.panelWyn2);
             this.panelWyn5.Controls.Add(this.panData);
             this.panelWyn5.Controls.Add(this.panelWyn6);
@@ -452,6 +455,14 @@ public partial class frmPoPrice
             this.panelWyn5.Size = new System.Drawing.Size(700, 635);
             this.panelWyn5.Style = WYNLAB.Base.Controls.PanelWynStyle.Card;
             this.panelWyn5.TabIndex = 6;
+            // 
+            // featBar (공통 기능 버튼 패널 - 선택한 단가 한 줄에 대한 전자결재/첨부파일, 메뉴등록 '화면 기능'에서 켠 것만 보인다)
+            // 
+            this.featBar.Dock = System.Windows.Forms.DockStyle.Top;
+            this.featBar.Location = new System.Drawing.Point(8, 136);
+            this.featBar.Name = "featBar";
+            this.featBar.Size = new System.Drawing.Size(684, 33);
+            this.featBar.TabIndex = 10;
             // 
             // grd2
             // 
@@ -511,7 +522,7 @@ public partial class frmPoPrice
             // 
             // colCustId
             // 
-            this.colCustId.Caption = "嫄곕옒泥쁈D";
+            this.colCustId.Caption = "거래처ID";
             this.colCustId.FieldName = "cust_id";
             this.colCustId.Name = "colCustId";
             // 
@@ -528,8 +539,9 @@ public partial class frmPoPrice
             // popcolCust
             // 
             this.popcolCust.Buttons.AddRange(new DevExpress.XtraEditors.Controls.EditorButton[] {
-            new DevExpress.XtraEditors.Controls.EditorButton(DevExpress.XtraEditors.Controls.ButtonPredefines.Ellipsis, "", 24, true, true, false, editorButtonImageOptions2, new DevExpress.Utils.KeyShortcut(System.Windows.Forms.Keys.None), serializableAppearanceObject5, serializableAppearanceObject6, serializableAppearanceObject7, serializableAppearanceObject8, "...", null, null, DevExpress.Utils.ToolTipAnchor.Default)});
+            new DevExpress.XtraEditors.Controls.EditorButton(DevExpress.XtraEditors.Controls.ButtonPredefines.Ellipsis, "", 24, true, true, false, editorButtonImageOptions1, new DevExpress.Utils.KeyShortcut(System.Windows.Forms.Keys.None), serializableAppearanceObject1, serializableAppearanceObject2, serializableAppearanceObject3, serializableAppearanceObject4, "...", null, null, DevExpress.Utils.ToolTipAnchor.Default)});
             this.popcolCust.LookupKey = "P_CUST";
+            this.popcolCust.PopupConditions = "p_cust_class=PO";
             this.popcolCust.Name = "popcolCust";
             // 
             // colStartDate
@@ -635,7 +647,7 @@ public partial class frmPoPrice
             // 
             // colRemark
             // 
-            this.colRemark.Caption = "鍮꾧퀬";
+            this.colRemark.Caption = "비고";
             this.colRemark.FieldName = "remark";
             this.colRemark.Name = "colRemark";
             this.colRemark.Visible = true;
@@ -666,10 +678,10 @@ public partial class frmPoPrice
             this.btnRevise.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(51)))), ((int)(((byte)(51)))), ((int)(((byte)(51)))));
             this.btnRevise.HoverColor = System.Drawing.Color.FromArgb(((int)(((byte)(240)))), ((int)(((byte)(245)))), ((int)(((byte)(255)))));
             this.btnRevise.Image = null;
-            this.btnRevise.Location = new System.Drawing.Point(130, 3);
+            this.btnRevise.Location = new System.Drawing.Point(134, 3);
             this.btnRevise.Name = "btnRevise";
             this.btnRevise.PressedColor = System.Drawing.Color.FromArgb(((int)(((byte)(225)))), ((int)(((byte)(235)))), ((int)(((byte)(253)))));
-            this.btnRevise.Size = new System.Drawing.Size(72, 24);
+            this.btnRevise.Size = new System.Drawing.Size(60, 24);
             this.btnRevise.TabIndex = 2;
             this.btnRevise.Text = "단가개정";
             this.btnRevise.ToolTip = "선택한 단가를 오늘 시작일로 개정합니다 - 이전 단가는 종료일이 자동으로 어제로 정리되고 같은 내용의 새 행이 만들어집니다.";
@@ -683,10 +695,10 @@ public partial class frmPoPrice
             this.btnDeletRow1.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(51)))), ((int)(((byte)(51)))), ((int)(((byte)(51)))));
             this.btnDeletRow1.HoverColor = System.Drawing.Color.FromArgb(((int)(((byte)(240)))), ((int)(((byte)(245)))), ((int)(((byte)(255)))));
             this.btnDeletRow1.Image = null;
-            this.btnDeletRow1.Location = new System.Drawing.Point(68, 3);
+            this.btnDeletRow1.Location = new System.Drawing.Point(70, 3);
             this.btnDeletRow1.Name = "btnDeletRow1";
             this.btnDeletRow1.PressedColor = System.Drawing.Color.FromArgb(((int)(((byte)(225)))), ((int)(((byte)(235)))), ((int)(((byte)(253)))));
-            this.btnDeletRow1.Size = new System.Drawing.Size(58, 24);
+            this.btnDeletRow1.Size = new System.Drawing.Size(60, 24);
             this.btnDeletRow1.TabIndex = 1;
             this.btnDeletRow1.Text = "행삭제";
             this.btnDeletRow1.ToolTip = "선택한 행을 삭제합니다(저장 시 반영).";
@@ -703,7 +715,7 @@ public partial class frmPoPrice
             this.btnAddRow1.Location = new System.Drawing.Point(6, 3);
             this.btnAddRow1.Name = "btnAddRow1";
             this.btnAddRow1.PressedColor = System.Drawing.Color.FromArgb(((int)(((byte)(225)))), ((int)(((byte)(235)))), ((int)(((byte)(253)))));
-            this.btnAddRow1.Size = new System.Drawing.Size(58, 24);
+            this.btnAddRow1.Size = new System.Drawing.Size(60, 24);
             this.btnAddRow1.TabIndex = 0;
             this.btnAddRow1.Text = "행추가";
             this.btnAddRow1.ToolTip = "새 단가 행을 추가합니다 - 시작일자는 오늘, 종료일자는 비우면 무기한.";
@@ -821,9 +833,9 @@ public partial class frmPoPrice
             // 
             this.lblDetailItemSpec.Location = new System.Drawing.Point(38, 74);
             this.lblDetailItemSpec.Name = "lblDetailItemSpec";
-            this.lblDetailItemSpec.Size = new System.Drawing.Size(20, 14);
+            this.lblDetailItemSpec.Size = new System.Drawing.Size(32, 14);
             this.lblDetailItemSpec.TabIndex = 3;
-            this.lblDetailItemSpec.Text = "洹쒓꺽";
+            this.lblDetailItemSpec.Text = "규격";
             // 
             // txtDetailItemSpec
             // 
@@ -1022,9 +1034,9 @@ public partial class frmPoPrice
             this.cboPriceYn.Properties.Buttons.AddRange(new DevExpress.XtraEditors.Controls.EditorButton[] {
             new DevExpress.XtraEditors.Controls.EditorButton(DevExpress.XtraEditors.Controls.ButtonPredefines.Combo)});
             this.cboPriceYn.Properties.Items.AddRange(new object[] {
-            "?꾩껜",
-            "?④? ?깅줉???덈ぉ",
-            "?④? ?녿뒗 ?덈ぉ"});
+            "전체",
+            "단가 등록된 품목",
+            "단가 없는 품목"});
             this.cboPriceYn.Properties.TextEditStyle = DevExpress.XtraEditors.Controls.TextEditStyles.DisableTextEditor;
             this.cboPriceYn.Size = new System.Drawing.Size(150, 20);
             this.cboPriceYn.TabIndex = 2;
@@ -1090,6 +1102,7 @@ public partial class frmPoPrice
             ((System.ComponentModel.ISupportInitialize)(this.datecolEnd)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.lookupcolCurCd)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.lookupcolUnitCd)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.featBar)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.panButtons)).EndInit();
             this.panButtons.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.panelWyn2)).EndInit();
@@ -1165,6 +1178,7 @@ public partial class frmPoPrice
     private PanelWyn panelWyn2;
     private SectionHeaderWyn sectionHeaderWyn2;
     private PanelWyn panButtons;
+    private WYNLAB.Popup.FeatureBarWyn featBar;
     private ButtonWyn btnRevise;
     private ButtonWyn btnDeletRow1;
     private ButtonWyn btnAddRow1;

@@ -157,6 +157,14 @@ public class LookUpEditWyn : LookUpEdit
         _ = LoadFromLookupKeyAsync();
     }
 
+    /// <summary>여러 파라미터를 한꺼번에 채우고 목록을 한 번만 다시 불러온다 - 연쇄 콤보(상위 선택값 여러 개)에서 SetParam을 여러 번 부르면
+    /// 그 횟수만큼 서버 조회가 나가서 낭비다. 값이 비어 있으면(null/빈 문자열) "조건 없음"으로 넘어간다.</summary>
+    public void SetParams(IEnumerable<KeyValuePair<string, string?>> values)
+    {
+        foreach (var kv in values) _lookupParams[kv.Key] = kv.Value;
+        _ = LoadFromLookupKeyAsync();
+    }
+
     /// <summary>SetParam과 같지만 목록이 실제로 다시 채워질 때까지 기다린다 - 연쇄(부모-자식)
     /// LookUp에서 기존 레코드를 불러와 자식의 EditValue를 이어서 설정해야 할 때 쓴다. SetParam은
     /// fire-and-forget이라, 부모 값에 맞는 목록이 아직 안 채워진 상태에서 자식 EditValue를
@@ -167,16 +175,21 @@ public class LookUpEditWyn : LookUpEdit
         await LoadFromLookupKeyAsync();
     }
 
+    private int _loadVersion;
+
     private async Task LoadFromLookupKeyAsync()
     {
         var lookupKey = _lookupKey;
         if (string.IsNullOrEmpty(lookupKey) || ComboLookupProvider.Fetch == null) return;
 
+        // 조회가 연달아 나가면(파라미터가 바뀔 때마다) 먼저 보낸 요청의 응답이 나중에 도착해 최신 목록을 덮어쓸 수 있다 - 마지막 요청의 응답만 반영한다.
+        var version = ++_loadVersion;
+
         try
         {
             var paramsSnapshot = new Dictionary<string, string?>(_lookupParams);
             var result = await ComboLookupProvider.Fetch(lookupKey!, paramsSnapshot);
-            if (lookupKey != _lookupKey) return; // 응답 오는 사이 LookupKey가 또 바뀌었으면 버림
+            if (lookupKey != _lookupKey || version != _loadVersion) return; // 응답 오는 사이 LookupKey/파라미터가 또 바뀌었으면 버림
 
             var items = result.Items;
             items.Insert(0, new CodeLookupItem()); // ProcName/Where 경로와 같은 이유 - 빈 값으로 되돌릴 수 있게

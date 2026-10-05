@@ -102,6 +102,8 @@ public partial class frmIqc
             this.btnConfirm = new WYNLAB.Base.Controls.ButtonWyn();
             this.btnConfirmCancel = new WYNLAB.Base.Controls.ButtonWyn();
             this.panHeader = new WYNLAB.Base.Controls.PanelWyn();
+            this.lblSearchAccId = new DevExpress.XtraEditors.LabelControl();
+            this.cboSearchAccId = new WYNLAB.Base.Controls.LookUpEditWyn();
             this.lblSearchIqcNo = new DevExpress.XtraEditors.LabelControl();
             this.txtSearchIqcNo = new WYNLAB.Base.Controls.TextEditWyn();
             this.paTitle1 = new WYNLAB.Base.Controls.PanelWyn();
@@ -149,6 +151,7 @@ public partial class frmIqc
             this.paTitleH.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.panelWyn6)).BeginInit();
             this.panelWyn6.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.cboSearchAccId.Properties)).BeginInit();
             this.SuspendLayout();
             // 
             // panBase
@@ -496,7 +499,7 @@ public partial class frmIqc
             this.btnLoadDelv.BackColor = System.Drawing.Color.Transparent;
             this.btnLoadDelv.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(74)))), ((int)(((byte)(134)))), ((int)(((byte)(232)))));
             this.btnLoadDelv.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.btnLoadDelv.FillColor = System.Drawing.Color.White;
+            this.btnLoadDelv.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(234)))), ((int)(((byte)(241)))), ((int)(((byte)(253)))));
             this.btnLoadDelv.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(51)))), ((int)(((byte)(51)))), ((int)(((byte)(51)))));
             this.btnLoadDelv.HoverColor = System.Drawing.Color.FromArgb(((int)(((byte)(240)))), ((int)(((byte)(245)))), ((int)(((byte)(255)))));
             this.btnLoadDelv.Image = null;
@@ -520,7 +523,7 @@ public partial class frmIqc
             this.btnDeletRow1.Location = new System.Drawing.Point(6, 3);
             this.btnDeletRow1.Name = "btnDeletRow1";
             this.btnDeletRow1.PressedColor = System.Drawing.Color.FromArgb(((int)(((byte)(225)))), ((int)(((byte)(235)))), ((int)(((byte)(253)))));
-            this.btnDeletRow1.Size = new System.Drawing.Size(58, 24);
+            this.btnDeletRow1.Size = new System.Drawing.Size(60, 24);
             this.btnDeletRow1.TabIndex = 0;
             this.btnDeletRow1.Text = "행삭제";
             this.btnDeletRow1.ToolTip = "행삭제";
@@ -684,6 +687,7 @@ public partial class frmIqc
             // 
             this.txtCustNm.Location = new System.Drawing.Point(74, 68);
             this.txtCustNm.LookupKey = "P_CUST";
+            this.txtCustNm.PopupConditions = "p_cust_class=PO";
             this.txtCustNm.MatchField = "cust_nm";
             this.txtCustNm.Name = "txtCustNm";
             this.txtCustNm.Properties.Appearance.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(249)))), ((int)(((byte)(219)))));
@@ -834,7 +838,7 @@ public partial class frmIqc
             this.btnConfirm.BackColor = System.Drawing.Color.Transparent;
             this.btnConfirm.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(74)))), ((int)(((byte)(134)))), ((int)(((byte)(232)))));
             this.btnConfirm.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.btnConfirm.FillColor = System.Drawing.Color.White;
+            this.btnConfirm.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(234)))), ((int)(((byte)(241)))), ((int)(((byte)(253)))));
             this.btnConfirm.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(51)))), ((int)(((byte)(51)))), ((int)(((byte)(51)))));
             this.btnConfirm.HoverColor = System.Drawing.Color.FromArgb(((int)(((byte)(240)))), ((int)(((byte)(245)))), ((int)(((byte)(255)))));
             this.btnConfirm.Image = null;
@@ -852,7 +856,7 @@ public partial class frmIqc
             this.btnConfirmCancel.BackColor = System.Drawing.Color.Transparent;
             this.btnConfirmCancel.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(74)))), ((int)(((byte)(134)))), ((int)(((byte)(232)))));
             this.btnConfirmCancel.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.btnConfirmCancel.FillColor = System.Drawing.Color.White;
+            this.btnConfirmCancel.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(234)))), ((int)(((byte)(241)))), ((int)(((byte)(253)))));
             this.btnConfirmCancel.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(51)))), ((int)(((byte)(51)))), ((int)(((byte)(51)))));
             this.btnConfirmCancel.HoverColor = System.Drawing.Color.FromArgb(((int)(((byte)(240)))), ((int)(((byte)(245)))), ((int)(((byte)(255)))));
             this.btnConfirmCancel.Image = null;
@@ -869,6 +873,8 @@ public partial class frmIqc
             this.panHeader.Appearance.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(241)))), ((int)(((byte)(245)))), ((int)(((byte)(249)))));
             this.panHeader.Appearance.Options.UseBackColor = true;
             this.panHeader.BorderStyle = DevExpress.XtraEditors.Controls.BorderStyles.Default;
+            this.panHeader.Controls.Add(this.lblSearchAccId);
+            this.panHeader.Controls.Add(this.cboSearchAccId);
             this.panHeader.Controls.Add(this.lblSearchIqcNo);
             this.panHeader.Controls.Add(this.txtSearchIqcNo);
             this.panHeader.Dock = System.Windows.Forms.DockStyle.Top;
@@ -878,9 +884,36 @@ public partial class frmIqc
             this.panHeader.Size = new System.Drawing.Size(1670, 49);
             this.panHeader.TabIndex = 8;
             // 
+            // lblSearchAccId (조회조건 첫 번째 - 사업장 표준, 2026-10-03)
+            // 
+            this.lblSearchAccId.Appearance.Font = new System.Drawing.Font("맑은 고딕", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
+            this.lblSearchAccId.Appearance.Options.UseFont = true;
+            this.lblSearchAccId.Location = new System.Drawing.Point(25, 18);
+            this.lblSearchAccId.Name = "lblSearchAccId";
+            this.lblSearchAccId.Size = new System.Drawing.Size(36, 15);
+            this.lblSearchAccId.TabIndex = 0;
+            this.lblSearchAccId.Text = "사업장";
+            // 
+            // cboSearchAccId (사업장 LookUp, Required - 기본값은 화면 생성자에서 로그인 사업장)
+            // 
+            this.cboSearchAccId.EditValue = "";
+            this.cboSearchAccId.Location = new System.Drawing.Point(69, 15);
+            this.cboSearchAccId.LookupKey = "L_ACC";
+            this.cboSearchAccId.Name = "cboSearchAccId";
+            this.cboSearchAccId.Properties.Appearance.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(249)))), ((int)(((byte)(219)))));
+            this.cboSearchAccId.Properties.Appearance.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))));
+            this.cboSearchAccId.Properties.Appearance.Options.UseBackColor = true;
+            this.cboSearchAccId.Properties.Appearance.Options.UseForeColor = true;
+            this.cboSearchAccId.Properties.Buttons.AddRange(new DevExpress.XtraEditors.Controls.EditorButton[] {
+            new DevExpress.XtraEditors.Controls.EditorButton(DevExpress.XtraEditors.Controls.ButtonPredefines.Combo)});
+            this.cboSearchAccId.Properties.NullText = "";
+            this.cboSearchAccId.Required = true;
+            this.cboSearchAccId.Size = new System.Drawing.Size(131, 20);
+            this.cboSearchAccId.TabIndex = 1;
+            // 
             // lblSearchIqcNo
             // 
-            this.lblSearchIqcNo.Location = new System.Drawing.Point(25, 18);
+            this.lblSearchIqcNo.Location = new System.Drawing.Point(224, 18);
             this.lblSearchIqcNo.Name = "lblSearchIqcNo";
             this.lblSearchIqcNo.Size = new System.Drawing.Size(40, 14);
             this.lblSearchIqcNo.TabIndex = 27;
@@ -888,7 +921,7 @@ public partial class frmIqc
             // 
             // txtSearchIqcNo
             // 
-            this.txtSearchIqcNo.Location = new System.Drawing.Point(81, 15);
+            this.txtSearchIqcNo.Location = new System.Drawing.Point(280, 15);
             this.txtSearchIqcNo.Name = "txtSearchIqcNo";
             this.txtSearchIqcNo.Size = new System.Drawing.Size(180, 20);
             this.txtSearchIqcNo.TabIndex = 28;
@@ -1019,6 +1052,7 @@ public partial class frmIqc
             this.paTitleH.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.panelWyn6)).EndInit();
             this.panelWyn6.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.cboSearchAccId.Properties)).EndInit();
             this.ResumeLayout(false);
 
     }
@@ -1090,4 +1124,6 @@ public partial class frmIqc
     private SectionHeaderWyn sectionHeaderWyn3;
     private PanelWyn paTitleH;
     private SectionHeaderWyn sectionHeaderWyn1;
+    private DevExpress.XtraEditors.LabelControl lblSearchAccId;
+    private WYNLAB.Base.Controls.LookUpEditWyn cboSearchAccId;
 }

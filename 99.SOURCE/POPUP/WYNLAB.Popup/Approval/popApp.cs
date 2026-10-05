@@ -58,36 +58,73 @@ public partial class popApp : XtraForm
         grdRecv.AllowDrop = true;
         grdLine.DragEnter += (s, e) => AcceptEmpDrag(e);
         grdRecv.DragEnter += (s, e) => AcceptEmpDrag(e);
-        grdLine.DragDrop += (s, e) => DropEmp(e, "A");
-        grdRecv.DragDrop += (s, e) => DropEmp(e, "F");
+        grdLine.DragDrop += (s, e) => DropOnGrid(e, gvwLine, _lineRows, "C");
+        grdRecv.DragDrop += (s, e) => DropOnGrid(e, gvwRecv, _recvRows, "R");
+        gvwLine.MouseDown += (s, e) => StartRowDrag(gvwLine, _lineRows, e);
+        gvwRecv.MouseDown += (s, e) => StartRowDrag(gvwRecv, _recvRows, e);
+        gvwLine.CustomColumnDisplayText += (s, e) => FormatPathStatus(e, isRecv: false);
+        gvwRecv.CustomColumnDisplayText += (s, e) => FormatPathStatus(e, isRecv: true);
 
         btnRefresh.Click += async (s, e) => await RefreshAsync();
         btnSubmit.Click += async (s, e) => await OnPrimaryActionClick();
         btnReject.Click += async (s, e) => await ProcessApproveOrRejectAsync(approve: false);
         btnCancelApprove.Click += async (s, e) => await CancelApproveAsync();
         btnAck.Click += async (s, e) => await AcknowledgeAsync();
-        btnAddLine.Click += (s, e) => AddSelectedEmployee("A");
-        btnAddRecv.Click += (s, e) => AddSelectedEmployee("F");
+        btnAddLine.Click += (s, e) => AddSelectedEmployee("C");
+        btnAddRecv.Click += (s, e) => AddSelectedEmployee("R");
         btnApplyRoute.Click += async (s, e) => await ApplyRouteAsync();
         btnSaveRoute.Click += async (s, e) => await SaveRouteAsync();
         btnClose.Click += (s, e) => Close();
 
+        // OS 제목표시줄이 비어 있어 잡을 곳이 없으므로, 눈에 보이는 제목 영역을 끌어서 창을 옮길 수 있게 한다(popPopUp과 같은 방식).
+        foreach (Control c in new Control[] { paTitle, sectionHeaderWyn1 })
+            c.MouseDown += (s, e) =>
+            {
+                if (e.Button != MouseButtons.Left) return;
+                ReleaseCapture();
+                SendMessage(Handle, WM_NCLBUTTONDOWN, HTCAPTION, 0);
+            };
+
         Load += async (s, e) => await RefreshAsync();
     }
+
+    private const int WM_NCLBUTTONDOWN = 0xA1;
+    private const int HTCAPTION = 2;
+
+    [System.Runtime.InteropServices.DllImport("user32.dll")]
+    private static extern bool ReleaseCapture();
+
+    [System.Runtime.InteropServices.DllImport("user32.dll")]
+    private static extern IntPtr SendMessage(IntPtr hWnd, int msg, int wParam, int lParam);
+
+    // popPopUp.ShowAsync(2026-09-23)와 같은 문제 - 빠르게 두 번 클릭(또는 링크 클릭 한 번이
+    // DevExpress 쪽에서 중복 발생)하면 첫 호출이 아직 모달을 띄우기 전인 순간 두 번째 호출이
+    // 들어와 같은 문서의 결재창이 두 개 뜰 수 있다. 이 팝업은 한 번에 하나만 뜨면 되므로 static
+    // 플래그로 이미 진행 중인 호출이 있으면 새 호출은 조용히 무시한다.
+    private static bool _isShowing;
 
     /// <summary>doc_type/doc_id로 이 문서의 전자결재 화면을 모달로 띄운다. 반환값이 true면 결재상태가
     /// 바뀐 것이므로(상신/승인/반려/취소/확인 중 하나라도 실제로 일어남) 호출측이 재조회해야 한다.</summary>
     public static Task<bool> ShowAsync(string docType, long docId, string docNo, string title, string text, Control owner)
     {
-        var ownerForm = owner.FindForm();
-        var formId = ownerForm != null ? ResolveFormId(ownerForm.GetType()) : null;
+        if (_isShowing) return Task.FromResult(false);
+        _isShowing = true;
+        try
+        {
+            var ownerForm = owner.FindForm();
+            var formId = ownerForm != null ? ResolveFormId(ownerForm.GetType()) : null;
 
-        // ShowDialog는 원래 동기 호출(닫힐 때까지 블록)이라 await할 게 없다 - 그래도 다른
-        // ShowAsync류(popFileUpload 등)와 호출부 모양을 맞추려고 Task<bool>로 감싸서 돌려준다.
-        using var form = new popApp(docType, docId, docNo, title, text, formId);
-        if (ownerForm != null) form.ShowDialog(ownerForm);
-        else form.ShowDialog();
-        return Task.FromResult(form._changed);
+            // ShowDialog는 원래 동기 호출(닫힐 때까지 블록)이라 await할 게 없다 - 그래도 다른
+            // ShowAsync류(popFileUpload 등)와 호출부 모양을 맞추려고 Task<bool>로 감싸서 돌려준다.
+            using var form = new popApp(docType, docId, docNo, title, text, formId);
+            if (ownerForm != null) form.ShowDialog(ownerForm);
+            else form.ShowDialog();
+            return Task.FromResult(form._changed);
+        }
+        finally
+        {
+            _isShowing = false;
+        }
     }
 
     /// <summary>owner 폼의 실제 타입에서 "{MODULE}.{클래스명}"을 뽑아낸다(예: WYNLAB.AP.frmNameCardReq
@@ -118,8 +155,18 @@ public partial class popApp : XtraForm
             ymdAppDate.Text = string.Empty;
             txtReqEmpNm.Text = string.Empty;
             cboAppStatCd.EditValue = string.Empty;
-            
+            cboDocType.EditValue = _docType;
+            txtDocNo.Text = _docNo;
 
+            // 상신 즉시 서버(USP_AP_APPR_S work type 'N')가 기안자 본인을 sort=1/승인완료로 자동
+            // 삽입한다(클래스 주석 참고) - 상신 전에도 그리드에 미리 보여주되 아직 대기("N")로
+            // 두고, 실제 승인상태/일시는 SubmitAsync 이후 RefreshAsync가 서버값으로 덮어쓴다.
+            _lineRows = new List<ApprovalPathDto>
+            {
+                new() { EmpId = Session.EmpId ?? 0, EmpNo = Session.EmpNo, EmpNm = Session.EmpNm, PathType = "C", StatCd = "0", Sort = 1 },
+            };
+            _recvRows = new();
+            BindGrids();
 
             txtTitle.ReadOnly = false;
             memoOpinion.ReadOnly = false;
@@ -137,12 +184,14 @@ public partial class popApp : XtraForm
         ymdAppDate.Text = header.AppDate;
         txtReqEmpNm.Text = header.ReqEmpNm ?? string.Empty;
         cboAppStatCd.EditValue = header.StatCd ?? string.Empty;
+        cboDocType.EditValue = header.DocType;
+        txtDocNo.Text = header.DocNo;
         txtTitle.ReadOnly = true;
         memoOpinion.ReadOnly = true;
 
         var paths = history!.Paths.Where(p => p.AppId == header.AppId).ToList();
-        _lineRows = paths.Where(p => p.PathType == "A").OrderBy(p => p.Sort).ToList();
-        _recvRows = paths.Where(p => p.PathType == "F").ToList();
+        _lineRows = paths.Where(p => p.PathType == "C").OrderBy(p => p.Sort).ToList();
+        _recvRows = paths.Where(p => p.PathType == "R").ToList();
         BindGrids();
 
         SetMode(composing: false);
@@ -157,7 +206,11 @@ public partial class popApp : XtraForm
 
     private void SetMode(bool composing)
     {
-        //panCompose.Visible = composing;
+        // 조직도(승인자/수신자 추가 버튼 + 부서·사원 트리)와 저장된 결재경로 적용은 최초 상신 때 결재경로를 만들 때만 쓴다.
+        panelWyn8.Visible = composing;
+        splitterWyn1.Visible = composing;
+        cboRoute.Enabled = composing;
+        btnApplyRoute.Enabled = composing;
         _composing = composing;
         btnSubmit.Text = composing ? "결재상신" : "승인";
         btnReject.Visible = !composing;
@@ -186,17 +239,17 @@ public partial class popApp : XtraForm
         var myEmpNo = Session.EmpNo;
 
         var mine = _lineRows.FirstOrDefault(p => p.EmpNo == myEmpNo);
-        var canActNow = mine != null && mine.StatCd == "N"
-            && !_lineRows.Any(o => o.PathType == "A" && o.Sort < mine.Sort && o.StatCd != "Y");
+        var canActNow = mine != null && mine.StatCd == "0"
+            && !_lineRows.Any(o => o.PathType == "C" && o.Sort < mine.Sort && o.StatCd != "E");
         btnSubmit.Enabled = canActNow;
         btnReject.Enabled = canActNow;
 
-        var canCancel = mine != null && mine.StatCd == "Y"
-            && !_lineRows.Any(o => o.PathType == "A" && o.Sort > mine.Sort && o.StatCd == "Y");
+        var canCancel = mine != null && mine.StatCd == "E"
+            && !_lineRows.Any(o => o.PathType == "C" && o.Sort > mine.Sort && o.StatCd == "E");
         btnCancelApprove.Enabled = canCancel;
 
         var myRecv = _recvRows.FirstOrDefault(p => p.EmpNo == myEmpNo);
-        btnAck.Enabled = myRecv != null && myRecv.StatCd == "N";
+        btnAck.Enabled = myRecv != null && myRecv.StatCd == "0";
     }
 
     /// <summary>부서(TBADEPT)+사원(TBAEMP)을 한 번에 받아 treeEmp 하나에 합쳐 그린다 - 부서는
@@ -259,13 +312,72 @@ public partial class popApp : XtraForm
 
     private static void AcceptEmpDrag(DragEventArgs e)
     {
-        e.Effect = e.Data?.GetDataPresent(typeof(ApprovalEmpItemDto)) == true ? DragDropEffects.Copy : DragDropEffects.None;
+        if (e.Data?.GetDataPresent(typeof(ApprovalPathDto)) == true) e.Effect = DragDropEffects.Move;
+        else if (e.Data?.GetDataPresent(typeof(ApprovalEmpItemDto)) == true) e.Effect = DragDropEffects.Copy;
+        else e.Effect = DragDropEffects.None;
     }
 
-    private void DropEmp(DragEventArgs e, string pathType)
+    /// <summary>조직도에서 드래그해온 사원(ApprovalEmpItemDto)이면 새로 추가, 같은 그리드 안의 행
+    /// (ApprovalPathDto)이면 결재순서 변경 - grdLine/grdRecv가 공유하는 DragDrop 핸들러라 페이로드
+    /// 타입으로 분기한다. 다른 그리드에서 넘어온 행(rows에 없음)은 무시 - 결재라인/수신라인 간
+    /// 이동은 지원하지 않는다.</summary>
+    private void DropOnGrid(DragEventArgs e, DevExpress.XtraGrid.Views.Grid.GridView view, List<ApprovalPathDto> rows, string pathType)
     {
+        if (e.Data?.GetData(typeof(ApprovalPathDto)) is ApprovalPathDto dragged)
+        {
+            if (!_composing || !rows.Contains(dragged)) return;
+
+            var pt = view.GridControl.PointToClient(new Point(e.X, e.Y));
+            var hit = view.CalcHitInfo(pt);
+            var targetIndex = hit.RowHandle >= 0 ? hit.RowHandle : rows.Count - 1;
+            // 본인(기안자) 행은 서버가 항상 sort=1로 고정 삽입하므로 1번 자리 밑으로만 옮길 수 있다.
+            var minIndex = rows.Count > 0 && rows[0].EmpNo == Session.EmpNo ? 1 : 0;
+            targetIndex = Math.Max(minIndex, Math.Min(targetIndex, rows.Count - 1)); // net48엔 Math.Clamp가 없음
+
+            rows.Remove(dragged);
+            rows.Insert(targetIndex, dragged);
+            RenumberSort(rows, pathType);
+            BindGrids();
+            return;
+        }
+
         if (e.Data?.GetData(typeof(ApprovalEmpItemDto)) is ApprovalEmpItemDto emp)
             AddEmployeeToPath(emp, pathType);
+    }
+
+    /// <summary>그리드 행(ApprovalPathDto)을 드래그 시작해서 같은 그리드 안에서 놓으면 DropOnGrid가
+    /// 순서를 바꾼다. 상신 후(처리모드)엔 순서를 바꿔도 반영할 재정렬 API가 없으므로 작성모드에서만
+    /// 허용하고, 서버가 위치를 고정하는 본인 행은 드래그 시작 자체를 막는다.</summary>
+    private void StartRowDrag(DevExpress.XtraGrid.Views.Grid.GridView view, List<ApprovalPathDto> rows, MouseEventArgs e)
+    {
+        if (!_composing || e.Button != MouseButtons.Left) return;
+
+        var hit = view.CalcHitInfo(new Point(e.X, e.Y));
+        if (hit.RowHandle < 0 || hit.RowHandle >= rows.Count) return;
+        if (rows[hit.RowHandle].EmpNo == Session.EmpNo) return;
+
+        view.GridControl.DoDragDrop(rows[hit.RowHandle], DragDropEffects.Move);
+    }
+
+    private static void RenumberSort(List<ApprovalPathDto> rows, string pathType)
+    {
+        if (pathType != "C") return; // 수신라인(R)은 서버도 순서 개념이 없어(sort=0 고정) 번호를 안 매김
+        for (var i = 0; i < rows.Count; i++) rows[i].Sort = i + 1;
+    }
+
+    /// <summary>결재/수신라인 그리드의 상태코드(Y/N/R)를 화면 문구로 바꿔 보여준다 - 데이터는 그대로
+    /// 두고 표시 텍스트만 바꾸는 DevExpress 표준 방식(CustomColumnDisplayText)이라 별도 LookUp
+    /// 컬럼 없이 처리된다. 같은 "Y"도 결재라인은 승인, 수신라인은 확인으로 뜻이 달라 isRecv로
+    /// 구분한다.</summary>
+    private static void FormatPathStatus(DevExpress.XtraGrid.Views.Base.CustomColumnDisplayTextEventArgs e, bool isRecv)
+    {
+        if (e.Column.FieldName != "StatCd") return;
+        e.DisplayText = e.Value as string switch
+        {
+            "E" => isRecv ? "확인" : "승인",
+            "R" => "반려",
+            _ => "대기",
+        };
     }
 
     private static ApprovalEmpItemDto? NodeToEmp(DevExpress.XtraTreeList.Nodes.TreeListNode node)
@@ -331,14 +443,13 @@ public partial class popApp : XtraForm
         public int ImgIdx { get; set; }
     }
 
+    /// <summary>내가 저장한 결재경로(결재경로관리 화면에서 만든 것) 목록을 "저장된 결재경로" 콤보에 채운다.</summary>
     private async Task LoadRoutesAsync()
     {
-        //_routes = await ApprovalClient.GetRoutesAsync() ?? new List<ApprovalRouteItemDto>();
-        //cboRoute.Properties.Items.Clear();
-        //foreach (var r in _routes) cboRoute.Properties.Items.Add(r.RouteNm);
-        //await Task.CompletedTask;
+        _routes = await ApprovalClient.GetRoutesAsync() ?? new List<ApprovalRouteItemDto>();
+        cboRoute.BindCodeList(_routes, nameof(ApprovalRouteItemDto.RouteId), nameof(ApprovalRouteItemDto.RouteNm), "코드", "결재경로명", 330);
+        cboRoute.EditValue = null;
     }
-
     private void AddSelectedEmployee(string pathType)
     {
         var node = treeEmp.FocusedNode;
@@ -354,7 +465,14 @@ public partial class popApp : XtraForm
 
     private void AddEmployeeToPath(ApprovalEmpItemDto emp, string pathType)
     {
-        var target = pathType == "A" ? _lineRows : _recvRows;
+        // 결재라인/수신라인에 기안자(로그인 사용자) 본인은 넣을 수 없다 - 결재라인의 본인 행은 상신할 때 서버가 자동으로 넣는다.
+        if (!string.IsNullOrEmpty(Session.EmpNo) && emp.EmpNo == Session.EmpNo)
+        {
+            AppMessageBox.Show("본인은 결재라인/수신라인에 추가할 수 없습니다.", "안내");
+            return;
+        }
+
+        var target = pathType == "C" ? _lineRows : _recvRows;
         if (target.Any(r => r.EmpNo == emp.EmpNo))
         {
             AppMessageBox.Show("이미 추가된 사원입니다.", "안내");
@@ -367,39 +485,46 @@ public partial class popApp : XtraForm
             EmpNo = emp.EmpNo,
             EmpNm = emp.EmpNm,
             PathType = pathType,
-            StatCd = "N",
-            Sort = pathType == "A" ? target.Count(r => r.PathType == "A") + 1 : 0,
+            StatCd = "0",
+            Sort = pathType == "C" ? target.Count(r => r.PathType == "C") + 1 : 0,
         });
         BindGrids();
     }
 
+    /// <summary>"저장된 결재경로" 콤보에서 고른 경로의 결재라인/수신라인을 지금 상신 화면에 적용한다. 기안자 본인 행(결재라인 1번)은 남기고,
+    /// 나머지 결재라인/수신라인은 그 경로의 구성으로 바꾼다(경로에 본인이 들어 있으면 건너뛴다).</summary>
     private async Task ApplyRouteAsync()
     {
-        //var idx = cboRoute.SelectedIndex;
-        //if (idx < 0 || idx >= _routes.Count)
-        //{
-        //    AppMessageBox.Show("적용할 결재경로를 먼저 선택해주세요.", "안내");
-        //    return;
-        //}
+        if (cboRoute.EditValue == null || !long.TryParse(cboRoute.EditValue.ToString(), out var routeId))
+        {
+            AppMessageBox.Show("적용할 결재경로를 먼저 선택해주세요.", "안내");
+            return;
+        }
 
-        //var detail = await ApprovalClient.GetRouteDetailAsync(_routes[idx].RouteId) ?? new List<ApprovalRoutePathItemDto>();
-        //foreach (var d in detail)
-        //{
-        //    var target = d.PathType == "A" ? _lineRows : _recvRows;
-        //    if (target.Any(r => r.EmpNo == d.EmpNo)) continue;
-        //    target.Add(new ApprovalPathDto
-        //    {
-        //        EmpId = d.EmpId,
-        //        EmpNo = d.EmpNo,
-        //        EmpNm = d.EmpNm,
-        //        PathType = d.PathType,
-        //        StatCd = "N",
-        //        Sort = d.PathType == "A" ? target.Count(r => r.PathType == "A") + 1 : 0,
-        //    });
-        //}
-        //BindGrids();
+        var detail = await ApprovalClient.GetRouteDetailAsync(routeId) ?? new List<ApprovalRoutePathItemDto>();
+
+        _lineRows = _lineRows.Where(r => r.EmpNo == Session.EmpNo).ToList();   // 기안자 본인 행만 남긴다
+        _recvRows = new List<ApprovalPathDto>();
+
+        foreach (var d in detail.OrderBy(x => x.PathType).ThenBy(x => x.Sort))
+        {
+            if (string.IsNullOrEmpty(d.EmpNo) || d.EmpNo == Session.EmpNo) continue;
+
+            var target = d.PathType == "C" ? _lineRows : _recvRows;
+            if (target.Any(r => r.EmpNo == d.EmpNo)) continue;
+            target.Add(new ApprovalPathDto
+            {
+                EmpId = d.EmpId,
+                EmpNo = d.EmpNo,
+                EmpNm = d.EmpNm,
+                PathType = d.PathType,
+                StatCd = "0",
+                Sort = d.PathType == "C" ? target.Count + 1 : 0,
+            });
+        }
+
+        BindGrids();
     }
-
     private async Task SaveRouteAsync()
     {
         if (string.IsNullOrWhiteSpace(txtNewRouteNm.Text))
@@ -437,6 +562,9 @@ public partial class popApp : XtraForm
             return;
         }
 
+        var confirm = AppMessageBox.Show("결재상신 하시겠습니까?", "결재상신 확인", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+        if (confirm != DialogResult.Yes) return;
+
         var result = await ApprovalClient.SubmitAsync(new ApprovalSubmitRequest
         {
             DocType = _docType,
@@ -454,28 +582,41 @@ public partial class popApp : XtraForm
         }
 
         var appId = long.Parse(result.GeneratedCode);
+        var pathFailed = false;   // 결재/수신라인 추가에 실패했으면 창을 닫지 않고 남겨서 사용자가 상태를 확인하게 한다
 
-        foreach (var row in _lineRows)
+        // 기안자 본인은 서버(USP_AP_APPR_S work type 'N')가 상신 시점에 이미 자동 삽입하므로
+        // (RefreshAsync 작성모드의 self-row는 그 미리보기일 뿐) 다시 보내면 중복 행이 생긴다.
+        foreach (var row in _lineRows.Where(r => r.EmpNo != Session.EmpNo))
         {
-            var r = await ApprovalClient.AddPathAsync(new ApprovalAddPathRequest { AppId = appId, TargetEmpNo = row.EmpNo ?? string.Empty, PathType = "A" });
+            var r = await ApprovalClient.AddPathAsync(new ApprovalAddPathRequest { AppId = appId, TargetEmpNo = row.EmpNo ?? string.Empty, PathType = "C" });
             if (r == null || !r.Success)
             {
                 AppMessageBox.Show(r?.Message ?? "결재라인 추가 중 오류가 발생했습니다.", "오류");
+                pathFailed = true;
                 break;
             }
         }
         foreach (var row in _recvRows)
         {
-            var r = await ApprovalClient.AddPathAsync(new ApprovalAddPathRequest { AppId = appId, TargetEmpNo = row.EmpNo ?? string.Empty, PathType = "F" });
+            var r = await ApprovalClient.AddPathAsync(new ApprovalAddPathRequest { AppId = appId, TargetEmpNo = row.EmpNo ?? string.Empty, PathType = "R" });
             if (r == null || !r.Success)
             {
                 AppMessageBox.Show(r?.Message ?? "수신라인 추가 중 오류가 발생했습니다.", "오류");
+                pathFailed = true;
                 break;
             }
         }
 
+        // 라인 구성이 끝났으니 상신 마무리 - 결재자가 없어 이미 완료인 문서(본인 전결)의 문서 확정 후처리를 서버가 실행한다.
+        if (!pathFailed)
+        {
+            var fin = await ApprovalClient.FinalizeAsync(appId);
+            if (fin != null && !fin.Success) AppMessageBox.Show(fin.Message ?? "결재 완료 처리 중 오류가 발생했습니다.", "오류");
+        }
+
         _changed = true;
         Toast.Show("결재상신되었습니다.");
+        if (!pathFailed) { Close(); return; }   // 정상 상신이면 결재창을 자동으로 닫는다(호출 화면이 _changed를 보고 다시 조회)
         await RefreshAsync();
     }
 
@@ -498,7 +639,8 @@ public partial class popApp : XtraForm
 
         _changed = true;
         Toast.Show($"{label} 처리되었습니다.");
-        await RefreshAsync();
+        Close();   // 승인/반려도 정상 처리되면 결재창을 자동으로 닫는다
+        return;
     }
 
     private async Task CancelApproveAsync()

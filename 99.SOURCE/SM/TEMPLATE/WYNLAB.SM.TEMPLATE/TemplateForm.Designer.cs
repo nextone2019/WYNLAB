@@ -182,10 +182,10 @@ public partial class TemplateForm
             this.btnDeletRow2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)));
             this.btnDeletRow2.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(253)))), ((int)(((byte)(236)))), ((int)(((byte)(234)))));
             this.btnDeletRow2.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(245)))), ((int)(((byte)(198)))), ((int)(((byte)(193)))));
-            this.btnDeletRow2.Image = ((System.Drawing.Image)(resources.GetObject("btnDeletRow2.ImageOptions.Image")));
+            this.btnDeletRow2.Image = null;
             this.btnDeletRow2.Location = new System.Drawing.Point(68, 4);
             this.btnDeletRow2.Name = "btnDeletRow2";
-            this.btnDeletRow2.Size = new System.Drawing.Size(58, 22);
+            this.btnDeletRow2.Size = new System.Drawing.Size(60, 24);
             this.btnDeletRow2.TabIndex = 0;
             this.btnDeletRow2.Text = "행삭제";
             this.btnDeletRow2.ToolTip = "행삭제";
@@ -196,10 +196,10 @@ public partial class TemplateForm
             this.btnAddRow2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)));
             this.btnAddRow2.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(228)))), ((int)(((byte)(245)))), ((int)(((byte)(231)))));
             this.btnAddRow2.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(198)))), ((int)(((byte)(231)))), ((int)(((byte)(203)))));
-            this.btnAddRow2.Image = ((System.Drawing.Image)(resources.GetObject("btnAddRow2.ImageOptions.Image")));
+            this.btnAddRow2.Image = null;
             this.btnAddRow2.Location = new System.Drawing.Point(6, 4);
             this.btnAddRow2.Name = "btnAddRow2";
-            this.btnAddRow2.Size = new System.Drawing.Size(58, 22);
+            this.btnAddRow2.Size = new System.Drawing.Size(60, 24);
             this.btnAddRow2.TabIndex = 0;
             this.btnAddRow2.Text = "행추가";
             this.btnAddRow2.ToolTip = "행추가";

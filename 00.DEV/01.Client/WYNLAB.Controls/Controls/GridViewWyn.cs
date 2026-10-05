@@ -33,6 +33,7 @@ public class GridViewWyn : GridView
     {
         base.EndInit();
         _behavior.EnsureRoleApplied();
+        ApplyRequiredHeaders();
     }
 
     private HashSet<string> _requiredFields = new(StringComparer.OrdinalIgnoreCase);
@@ -52,7 +53,29 @@ public class GridViewWyn : GridView
             _requiredFields = new HashSet<string>(
                 (value ?? string.Empty).Split(new[] { ',', ';' }, StringSplitOptions.RemoveEmptyEntries).Select(x => x.Trim()).Where(x => x.Length > 0),
                 StringComparer.OrdinalIgnoreCase);
+            ApplyRequiredHeaders();
             if (GridControl != null) GridControl.Invalidate();
+        }
+    }
+
+    /// <summary>필수 입력 컬럼의 헤더 글자를 붉은색(UiTheme.RequiredHeaderForeColor)으로 - 컬럼이 아직 없으면(Designer가 속성을 먼저 지정) EndInit에서 다시 적용된다.
+    /// RequiredFields에서 빠진 컬럼은 되돌린다(헤더에 따로 색을 지정해 둔 컬럼은 건드리지 않도록 이 기능이 칠한 컬럼만 기억해서 되돌림).</summary>
+    private readonly HashSet<GridColumn> _requiredHeaderColumns = new();
+
+    private void ApplyRequiredHeaders()
+    {
+        foreach (GridColumn column in Columns)
+        {
+            if (IsRequiredColumn(column))
+            {
+                column.AppearanceHeader.ForeColor = UiTheme.RequiredHeaderForeColor;
+                column.AppearanceHeader.Options.UseForeColor = true;
+                _requiredHeaderColumns.Add(column);
+            }
+            else if (_requiredHeaderColumns.Remove(column))
+            {
+                column.AppearanceHeader.Options.UseForeColor = false;
+            }
         }
     }
 

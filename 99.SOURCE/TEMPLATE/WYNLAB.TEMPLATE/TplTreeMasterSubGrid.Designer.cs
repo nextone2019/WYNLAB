@@ -395,7 +395,7 @@ public partial class TplTreeMasterSubGrid
             this.btnDeletRow2.Location = new System.Drawing.Point(68, 4);
             this.btnDeletRow2.Name = "btnDeletRow2";
             this.btnDeletRow2.PressedColor = System.Drawing.Color.FromArgb(((int)(((byte)(225)))), ((int)(((byte)(235)))), ((int)(((byte)(253)))));
-            this.btnDeletRow2.Size = new System.Drawing.Size(58, 22);
+            this.btnDeletRow2.Size = new System.Drawing.Size(60, 24);
             this.btnDeletRow2.Text = "행삭제";
             this.btnDeletRow2.TabIndex = 0;
             this.btnDeletRow2.ToolTip = "행삭제(현재 탭)";
@@ -412,7 +412,7 @@ public partial class TplTreeMasterSubGrid
             this.btnAddRow2.Location = new System.Drawing.Point(6, 4);
             this.btnAddRow2.Name = "btnAddRow2";
             this.btnAddRow2.PressedColor = System.Drawing.Color.FromArgb(((int)(((byte)(225)))), ((int)(((byte)(235)))), ((int)(((byte)(253)))));
-            this.btnAddRow2.Size = new System.Drawing.Size(58, 22);
+            this.btnAddRow2.Size = new System.Drawing.Size(60, 24);
             this.btnAddRow2.Text = "행추가";
             this.btnAddRow2.TabIndex = 0;
             this.btnAddRow2.ToolTip = "행추가(현재 탭)";

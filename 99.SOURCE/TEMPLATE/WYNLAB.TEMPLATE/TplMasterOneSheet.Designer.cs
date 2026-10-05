@@ -379,7 +379,7 @@ public partial class TplMasterOneSheet
             this.btnDeletRow1.Location = new System.Drawing.Point(68, 4);
             this.btnDeletRow1.Name = "btnDeletRow1";
             this.btnDeletRow1.PressedColor = System.Drawing.Color.FromArgb(((int)(((byte)(225)))), ((int)(((byte)(235)))), ((int)(((byte)(253)))));
-            this.btnDeletRow1.Size = new System.Drawing.Size(58, 22);
+            this.btnDeletRow1.Size = new System.Drawing.Size(60, 24);
             this.btnDeletRow1.Text = "행삭제";
             this.btnDeletRow1.TabIndex = 0;
             this.btnDeletRow1.ToolTip = "행삭제(현재 탭)";
@@ -396,7 +396,7 @@ public partial class TplMasterOneSheet
             this.btnAddRow1.Location = new System.Drawing.Point(6, 4);
             this.btnAddRow1.Name = "btnAddRow1";
             this.btnAddRow1.PressedColor = System.Drawing.Color.FromArgb(((int)(((byte)(225)))), ((int)(((byte)(235)))), ((int)(((byte)(253)))));
-            this.btnAddRow1.Size = new System.Drawing.Size(58, 22);
+            this.btnAddRow1.Size = new System.Drawing.Size(60, 24);
             this.btnAddRow1.Text = "행추가";
             this.btnAddRow1.TabIndex = 0;
             this.btnAddRow1.ToolTip = "행추가(현재 탭)";

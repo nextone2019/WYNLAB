@@ -1,5 +1,5 @@
-﻿// VS ?붿옄?대꼫媛 ?먮룞 ?앹꽦?섎뒗 ?꾨뱶 ?좎뼵?먮뒗 = null!????遺숈뿬??nullable 寃쎄퀬(CS8618)媛
-// 怨꾩냽 ?섍린 ?뚮Ц?? ???뚯씪(?붿옄?대꼫 ?꾩슜)留?nullable 寃?щ? ?덈떎 - ?뷀븳 愿濡.
+// VS 디자이너가 자동 생성하는 필드 선언에는 = null!을 안 붙여서 nullable 경고(CS8618)가
+// 계속 나기 때문에, 이 파일(디자이너 전용)만 nullable 검사를 끈다 - 흔한 관례.
 #nullable disable
 using DevExpress.XtraGrid;
 using WYNLAB.Base.Controls;
@@ -7,10 +7,10 @@ using WYNLAB.Base.Controls;
 namespace WYNLAB.SYS;
 
 /// <summary>
-/// frmSysPopup(?앹뾽愿由???蹂듭궗?댁꽌 留뚮뱺 LookUp愿由??붾㈃ - 援ъ“???꾩쟾??媛숇떎(?쒕ぉ諛?+ 寃?됲뙣??+
-/// 醫뚯슦 ?ㅽ뵆由ы꽣 + 紐⑸줉洹몃━??grd1)/?곸꽭?⑤꼸(panData)/?섏쐞洹몃━??grd2)). ?앹뾽怨??щ━ 而щ읆 洹몃━?쒓?
-/// ?녿떎 - LookUp? 寃곌낵???꾩껜瑜?蹂댁뿬二쇰뒗 寃??꾨땲??媛?肄붾뱶)/?쒖떆媛?紐낆묶) ???꾨뱶留?戮묒븘 ?곌린
-/// ?뚮Ц?? ?섏쐞洹몃━???섎굹???뚮씪誘명꽣 紐⑸줉(sysLookupP) ?꾩슜?대떎.
+/// frmSysPopup(팝업관리)을 복사해서 만든 LookUp관리 화면 - 구조는 완전히 같다(제목바 + 검색패널 +
+/// 좌우 스플리터 + 목록그리드(grd1)/상세패널(panData)/하위그리드(grd2)). 팝업과 달리 컬럼 그리드가
+/// 없다 - LookUp은 결과셋 전체를 보여주는 게 아니라 값(코드)/표시값(명칭) 두 필드만 뽑아 쓰기
+/// 때문에, 하위그리드 하나는 파라미터 목록(sysLookupP) 전용이다.
 /// </summary>
 public partial class frmSysLookup
 {
@@ -325,12 +325,12 @@ public partial class frmSysLookup
             this.btnDeletRow2.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(253)))), ((int)(((byte)(236)))), ((int)(((byte)(234)))));
             this.btnDeletRow2.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(51)))), ((int)(((byte)(51)))), ((int)(((byte)(51)))));
             this.btnDeletRow2.HoverColor = System.Drawing.Color.FromArgb(((int)(((byte)(240)))), ((int)(((byte)(245)))), ((int)(((byte)(255)))));
-            this.btnDeletRow2.Image = ((System.Drawing.Image)(resources.GetObject("btnDeletRow2.Image")));
+            this.btnDeletRow2.Image = null;
             this.btnDeletRow2.Location = new System.Drawing.Point(68, 4);
             this.btnDeletRow2.Name = "btnDeletRow2";
             this.btnDeletRow2.PressedColor = System.Drawing.Color.FromArgb(((int)(((byte)(225)))), ((int)(((byte)(235)))), ((int)(((byte)(253)))));
-            this.btnDeletRow2.Size = new System.Drawing.Size(58, 22);
-            this.btnDeletRow2.Text = "?됱궘??";
+            this.btnDeletRow2.Size = new System.Drawing.Size(60, 24);
+            this.btnDeletRow2.Text = "행삭제";
             this.btnDeletRow2.TabIndex = 0;
             this.btnDeletRow2.ToolTip = "행삭제";
             this.btnDeletRow2.Click += new System.EventHandler(this.btnDeletRow2_Click);
@@ -344,12 +344,12 @@ public partial class frmSysLookup
             this.btnAddRow2.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(228)))), ((int)(((byte)(245)))), ((int)(((byte)(231)))));
             this.btnAddRow2.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(51)))), ((int)(((byte)(51)))), ((int)(((byte)(51)))));
             this.btnAddRow2.HoverColor = System.Drawing.Color.FromArgb(((int)(((byte)(240)))), ((int)(((byte)(245)))), ((int)(((byte)(255)))));
-            this.btnAddRow2.Image = ((System.Drawing.Image)(resources.GetObject("btnAddRow2.Image")));
+            this.btnAddRow2.Image = null;
             this.btnAddRow2.Location = new System.Drawing.Point(6, 4);
             this.btnAddRow2.Name = "btnAddRow2";
             this.btnAddRow2.PressedColor = System.Drawing.Color.FromArgb(((int)(((byte)(225)))), ((int)(((byte)(235)))), ((int)(((byte)(253)))));
-            this.btnAddRow2.Size = new System.Drawing.Size(58, 22);
-            this.btnAddRow2.Text = "?됱텛媛";
+            this.btnAddRow2.Size = new System.Drawing.Size(60, 24);
+            this.btnAddRow2.Text = "행추가";
             this.btnAddRow2.TabIndex = 0;
             this.btnAddRow2.ToolTip = "행추가";
             this.btnAddRow2.Click += new System.EventHandler(this.btnAddRow2_Click);
@@ -468,7 +468,7 @@ public partial class frmSysLookup
             this.sectionHeaderWyn6.Size = new System.Drawing.Size(316, 25);
             this.sectionHeaderWyn6.SvgIcon = ((DevExpress.Utils.Svg.SvgImage)(resources.GetObject("sectionHeaderWyn6.SvgIcon")));
             this.sectionHeaderWyn6.TabIndex = 8;
-            this.sectionHeaderWyn6.Text = "而щ읆 紐⑸줉";
+            this.sectionHeaderWyn6.Text = "컬럼 목록";
             // 
             // splitterWyn2
             // 
@@ -576,14 +576,14 @@ public partial class frmSysLookup
             this.btnGenerateParams.BackColor = System.Drawing.Color.Transparent;
             this.btnGenerateParams.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(74)))), ((int)(((byte)(134)))), ((int)(((byte)(232)))));
             this.btnGenerateParams.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.btnGenerateParams.FillColor = System.Drawing.Color.White;
+            this.btnGenerateParams.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(234)))), ((int)(((byte)(241)))), ((int)(((byte)(253)))));
             this.btnGenerateParams.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(51)))), ((int)(((byte)(51)))), ((int)(((byte)(51)))));
             this.btnGenerateParams.HoverColor = System.Drawing.Color.FromArgb(((int)(((byte)(240)))), ((int)(((byte)(245)))), ((int)(((byte)(255)))));
             this.btnGenerateParams.Image = null;
-            this.btnGenerateParams.Location = new System.Drawing.Point(300, 33);
+            this.btnGenerateParams.Location = new System.Drawing.Point(300, 34);
             this.btnGenerateParams.Name = "btnGenerateParams";
             this.btnGenerateParams.PressedColor = System.Drawing.Color.FromArgb(((int)(((byte)(225)))), ((int)(((byte)(235)))), ((int)(((byte)(253)))));
-            this.btnGenerateParams.Size = new System.Drawing.Size(100, 27);
+            this.btnGenerateParams.Size = new System.Drawing.Size(100, 24);
             this.btnGenerateParams.TabIndex = 6;
             this.btnGenerateParams.Text = "파라미터생성";
             this.btnGenerateParams.ToolTip = null;
@@ -649,7 +649,7 @@ public partial class frmSysLookup
             this.lblRemark.Name = "lblRemark";
             this.lblRemark.Size = new System.Drawing.Size(24, 15);
             this.lblRemark.TabIndex = 13;
-            this.lblRemark.Text = "鍮꾧퀬";
+            this.lblRemark.Text = "비고";
             // 
             // txtRemark
             // 
@@ -714,14 +714,14 @@ public partial class frmSysLookup
             this.btnCopy.BackColor = System.Drawing.Color.Transparent;
             this.btnCopy.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(74)))), ((int)(((byte)(134)))), ((int)(((byte)(232)))));
             this.btnCopy.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.btnCopy.FillColor = System.Drawing.Color.White;
+            this.btnCopy.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(234)))), ((int)(((byte)(241)))), ((int)(((byte)(253)))));
             this.btnCopy.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(51)))), ((int)(((byte)(51)))), ((int)(((byte)(51)))));
             this.btnCopy.HoverColor = System.Drawing.Color.FromArgb(((int)(((byte)(240)))), ((int)(((byte)(245)))), ((int)(((byte)(255)))));
             this.btnCopy.Image = null;
             this.btnCopy.Location = new System.Drawing.Point(658, 1);
             this.btnCopy.Name = "btnCopy";
             this.btnCopy.PressedColor = System.Drawing.Color.FromArgb(((int)(((byte)(225)))), ((int)(((byte)(235)))), ((int)(((byte)(253)))));
-            this.btnCopy.Size = new System.Drawing.Size(85, 25);
+            this.btnCopy.Size = new System.Drawing.Size(85, 24);
             this.btnCopy.TabIndex = 1;
             this.btnCopy.Text = "Save As";
             this.btnCopy.ToolTip = "선택한 LookUp을 복사해서 새 LookUp 만들기";
@@ -795,14 +795,14 @@ public partial class frmSysLookup
             this.btnPreview.BackColor = System.Drawing.Color.Transparent;
             this.btnPreview.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(74)))), ((int)(((byte)(134)))), ((int)(((byte)(232)))));
             this.btnPreview.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.btnPreview.FillColor = System.Drawing.Color.White;
+            this.btnPreview.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(234)))), ((int)(((byte)(241)))), ((int)(((byte)(253)))));
             this.btnPreview.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(51)))), ((int)(((byte)(51)))), ((int)(((byte)(51)))));
             this.btnPreview.HoverColor = System.Drawing.Color.FromArgb(((int)(((byte)(240)))), ((int)(((byte)(245)))), ((int)(((byte)(255)))));
             this.btnPreview.Image = null;
             this.btnPreview.Location = new System.Drawing.Point(617, 1);
             this.btnPreview.Name = "btnPreview";
             this.btnPreview.PressedColor = System.Drawing.Color.FromArgb(((int)(((byte)(225)))), ((int)(((byte)(235)))), ((int)(((byte)(253)))));
-            this.btnPreview.Size = new System.Drawing.Size(125, 25);
+            this.btnPreview.Size = new System.Drawing.Size(125, 24);
             this.btnPreview.TabIndex = 0;
             this.btnPreview.Text = "실행결과 미리보기";
             this.btnPreview.ToolTip = null;

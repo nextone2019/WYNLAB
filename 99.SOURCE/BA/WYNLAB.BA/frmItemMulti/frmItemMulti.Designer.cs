@@ -53,6 +53,11 @@ public partial class frmItemMulti
     private LookUpColumnEdit lookUpUnitCd;
     private LookUpColumnEdit lookUpAssetType;
     private LookUpColumnEdit lookUpStatCd;
+    private PopupLookupColumnEdit popcolWh;
+    private PopupLookupColumnEdit popcolLoc;
+    private PopupLookupColumnEdit popcolDept;
+    private PopupLookupColumnEdit popcolEmp;
+    private PopupLookupColumnEdit popcolCust;
     private DevExpress.XtraEditors.Repository.RepositoryItemCheckEdit chkYn;
 
     private void InitializeComponent()
@@ -79,6 +84,11 @@ public partial class frmItemMulti
             this.colOutType = new DevExpress.XtraGrid.Columns.GridColumn();
             this.colStatCd = new DevExpress.XtraGrid.Columns.GridColumn();
             this.lookUpStatCd = new WYNLAB.Base.Controls.LookUpColumnEdit();
+            this.popcolWh = new WYNLAB.Base.Controls.PopupLookupColumnEdit();
+            this.popcolLoc = new WYNLAB.Base.Controls.PopupLookupColumnEdit();
+            this.popcolDept = new WYNLAB.Base.Controls.PopupLookupColumnEdit();
+            this.popcolEmp = new WYNLAB.Base.Controls.PopupLookupColumnEdit();
+            this.popcolCust = new WYNLAB.Base.Controls.PopupLookupColumnEdit();
             this.colPoQcYn = new DevExpress.XtraGrid.Columns.GridColumn();
             this.chkYn = new DevExpress.XtraEditors.Repository.RepositoryItemCheckEdit();
             this.colProdQcYn = new DevExpress.XtraGrid.Columns.GridColumn();
@@ -109,6 +119,11 @@ public partial class frmItemMulti
             ((System.ComponentModel.ISupportInitialize)(this.lookUpUnitCd)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.lookUpAssetType)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.lookUpStatCd)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.popcolWh)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.popcolLoc)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.popcolDept)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.popcolEmp)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.popcolCust)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.chkYn)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.panelWyn2)).BeginInit();
             this.panelWyn2.SuspendLayout();
@@ -161,6 +176,11 @@ public partial class frmItemMulti
             this.lookUpUnitCd,
             this.lookUpAssetType,
             this.lookUpStatCd,
+            this.popcolWh,
+            this.popcolLoc,
+            this.popcolDept,
+            this.popcolEmp,
+            this.popcolCust,
             this.chkYn});
             this.grd1.Size = new System.Drawing.Size(1294, 500);
             this.grd1.TabIndex = 1;
@@ -200,6 +220,7 @@ public partial class frmItemMulti
             this.gvw1.OptionsBehavior.Editable = false;
             this.gvw1.OptionsClipboard.PasteMode = DevExpress.Export.PasteMode.None;
             this.gvw1.OptionsView.ColumnAutoWidth = false;
+            this.gvw1.RequiredFields = "item_no,item_nm,unit_cd,asset_type";
             this.gvw1.OptionsView.ShowGroupPanel = false;
             // 
             // colItemNo
@@ -270,6 +291,7 @@ public partial class frmItemMulti
             // colWhNm
             // 
             this.colWhNm.Caption = "창고";
+            this.colWhNm.ColumnEdit = this.popcolWh;
             this.colWhNm.FieldName = "wh_nm";
             this.colWhNm.Name = "colWhNm";
             this.colWhNm.Visible = true;
@@ -279,6 +301,7 @@ public partial class frmItemMulti
             // colLocNm
             // 
             this.colLocNm.Caption = "위치";
+            this.colLocNm.ColumnEdit = this.popcolLoc;
             this.colLocNm.FieldName = "loc_nm";
             this.colLocNm.Name = "colLocNm";
             this.colLocNm.Visible = true;
@@ -288,6 +311,7 @@ public partial class frmItemMulti
             // colDeptNm
             // 
             this.colDeptNm.Caption = "담당부서";
+            this.colDeptNm.ColumnEdit = this.popcolDept;
             this.colDeptNm.FieldName = "dept_nm";
             this.colDeptNm.Name = "colDeptNm";
             this.colDeptNm.Visible = true;
@@ -297,6 +321,7 @@ public partial class frmItemMulti
             // colEmpNm
             // 
             this.colEmpNm.Caption = "담당자";
+            this.colEmpNm.ColumnEdit = this.popcolEmp;
             this.colEmpNm.FieldName = "emp_nm";
             this.colEmpNm.Name = "colEmpNm";
             this.colEmpNm.Visible = true;
@@ -306,6 +331,7 @@ public partial class frmItemMulti
             // colCustNm
             // 
             this.colCustNm.Caption = "구매처";
+            this.colCustNm.ColumnEdit = this.popcolCust;
             this.colCustNm.FieldName = "cust_nm";
             this.colCustNm.Name = "colCustNm";
             this.colCustNm.Visible = true;
@@ -359,6 +385,41 @@ public partial class frmItemMulti
             this.lookUpStatCd.NullText = "";
             this.lookUpStatCd.PopupFilterMode = DevExpress.XtraEditors.PopupFilterMode.Contains;
             // 
+            // popcolWh
+            // 
+            this.popcolWh.Buttons.AddRange(new DevExpress.XtraEditors.Controls.EditorButton[] {
+            new DevExpress.XtraEditors.Controls.EditorButton(DevExpress.XtraEditors.Controls.ButtonPredefines.Ellipsis, "...")});
+            this.popcolWh.LookupKey = "P_WH";
+            this.popcolWh.Name = "popcolWh";
+            // 
+            // popcolLoc
+            // 
+            this.popcolLoc.Buttons.AddRange(new DevExpress.XtraEditors.Controls.EditorButton[] {
+            new DevExpress.XtraEditors.Controls.EditorButton(DevExpress.XtraEditors.Controls.ButtonPredefines.Ellipsis, "...")});
+            this.popcolLoc.LookupKey = "P_LOC";
+            this.popcolLoc.Name = "popcolLoc";
+            // 
+            // popcolDept
+            // 
+            this.popcolDept.Buttons.AddRange(new DevExpress.XtraEditors.Controls.EditorButton[] {
+            new DevExpress.XtraEditors.Controls.EditorButton(DevExpress.XtraEditors.Controls.ButtonPredefines.Ellipsis, "...")});
+            this.popcolDept.LookupKey = "P_DEPT";
+            this.popcolDept.Name = "popcolDept";
+            // 
+            // popcolEmp
+            // 
+            this.popcolEmp.Buttons.AddRange(new DevExpress.XtraEditors.Controls.EditorButton[] {
+            new DevExpress.XtraEditors.Controls.EditorButton(DevExpress.XtraEditors.Controls.ButtonPredefines.Ellipsis, "...")});
+            this.popcolEmp.LookupKey = "P_EMP";
+            this.popcolEmp.Name = "popcolEmp";
+            // 
+            // popcolCust
+            // 
+            this.popcolCust.Buttons.AddRange(new DevExpress.XtraEditors.Controls.EditorButton[] {
+            new DevExpress.XtraEditors.Controls.EditorButton(DevExpress.XtraEditors.Controls.ButtonPredefines.Ellipsis, "...")});
+            this.popcolCust.LookupKey = "P_CUST";
+            this.popcolCust.PopupConditions = "p_cust_class=PO";
+            this.popcolCust.Name = "popcolCust";            // 
             // colPoQcYn
             // 
             this.colPoQcYn.Caption = "수입검사";
@@ -493,14 +554,14 @@ public partial class frmItemMulti
             this.btnValidate.BackColor = System.Drawing.Color.Transparent;
             this.btnValidate.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(74)))), ((int)(((byte)(134)))), ((int)(((byte)(232)))));
             this.btnValidate.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.btnValidate.FillColor = System.Drawing.Color.White;
+            this.btnValidate.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(234)))), ((int)(((byte)(241)))), ((int)(((byte)(253)))));
             this.btnValidate.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(51)))), ((int)(((byte)(51)))), ((int)(((byte)(51)))));
             this.btnValidate.HoverColor = System.Drawing.Color.FromArgb(((int)(((byte)(240)))), ((int)(((byte)(245)))), ((int)(((byte)(255)))));
             this.btnValidate.Image = null;
-            this.btnValidate.Location = new System.Drawing.Point(461, 11);
+            this.btnValidate.Location = new System.Drawing.Point(461, 12);
             this.btnValidate.Name = "btnValidate";
             this.btnValidate.PressedColor = System.Drawing.Color.FromArgb(((int)(((byte)(225)))), ((int)(((byte)(235)))), ((int)(((byte)(253)))));
-            this.btnValidate.Size = new System.Drawing.Size(116, 26);
+            this.btnValidate.Size = new System.Drawing.Size(116, 24);
             this.btnValidate.TabIndex = 4;
             this.btnValidate.Text = "검증";
             this.btnValidate.ToolTip = null;
@@ -511,14 +572,14 @@ public partial class frmItemMulti
             this.btnUploadExcel.BackColor = System.Drawing.Color.Transparent;
             this.btnUploadExcel.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(74)))), ((int)(((byte)(134)))), ((int)(((byte)(232)))));
             this.btnUploadExcel.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.btnUploadExcel.FillColor = System.Drawing.Color.White;
+            this.btnUploadExcel.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(234)))), ((int)(((byte)(241)))), ((int)(((byte)(253)))));
             this.btnUploadExcel.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(51)))), ((int)(((byte)(51)))), ((int)(((byte)(51)))));
             this.btnUploadExcel.HoverColor = System.Drawing.Color.FromArgb(((int)(((byte)(240)))), ((int)(((byte)(245)))), ((int)(((byte)(255)))));
             this.btnUploadExcel.Image = null;
-            this.btnUploadExcel.Location = new System.Drawing.Point(343, 11);
+            this.btnUploadExcel.Location = new System.Drawing.Point(343, 12);
             this.btnUploadExcel.Name = "btnUploadExcel";
             this.btnUploadExcel.PressedColor = System.Drawing.Color.FromArgb(((int)(((byte)(225)))), ((int)(((byte)(235)))), ((int)(((byte)(253)))));
-            this.btnUploadExcel.Size = new System.Drawing.Size(116, 26);
+            this.btnUploadExcel.Size = new System.Drawing.Size(116, 24);
             this.btnUploadExcel.TabIndex = 3;
             this.btnUploadExcel.Text = "엑셀업로드";
             this.btnUploadExcel.ToolTip = null;
@@ -529,14 +590,14 @@ public partial class frmItemMulti
             this.btnDownloadTemplate.BackColor = System.Drawing.Color.Transparent;
             this.btnDownloadTemplate.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(74)))), ((int)(((byte)(134)))), ((int)(((byte)(232)))));
             this.btnDownloadTemplate.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.btnDownloadTemplate.FillColor = System.Drawing.Color.White;
+            this.btnDownloadTemplate.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(234)))), ((int)(((byte)(241)))), ((int)(((byte)(253)))));
             this.btnDownloadTemplate.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(51)))), ((int)(((byte)(51)))), ((int)(((byte)(51)))));
             this.btnDownloadTemplate.HoverColor = System.Drawing.Color.FromArgb(((int)(((byte)(240)))), ((int)(((byte)(245)))), ((int)(((byte)(255)))));
             this.btnDownloadTemplate.Image = null;
-            this.btnDownloadTemplate.Location = new System.Drawing.Point(225, 11);
+            this.btnDownloadTemplate.Location = new System.Drawing.Point(225, 12);
             this.btnDownloadTemplate.Name = "btnDownloadTemplate";
             this.btnDownloadTemplate.PressedColor = System.Drawing.Color.FromArgb(((int)(((byte)(225)))), ((int)(((byte)(235)))), ((int)(((byte)(253)))));
-            this.btnDownloadTemplate.Size = new System.Drawing.Size(116, 26);
+            this.btnDownloadTemplate.Size = new System.Drawing.Size(116, 24);
             this.btnDownloadTemplate.TabIndex = 2;
             this.btnDownloadTemplate.Text = "엑셀양식다운로드";
             this.btnDownloadTemplate.ToolTip = null;
@@ -547,6 +608,7 @@ public partial class frmItemMulti
             this.cboAccId.EditValue = "";
             this.cboAccId.Location = new System.Drawing.Point(60, 15);
             this.cboAccId.LookupKey = "L_ACC";
+            this.cboAccId.Required = true;
             this.cboAccId.Name = "cboAccId";
             this.cboAccId.Properties.Buttons.AddRange(new DevExpress.XtraEditors.Controls.EditorButton[] {
             new DevExpress.XtraEditors.Controls.EditorButton(DevExpress.XtraEditors.Controls.ButtonPredefines.Combo)});
@@ -615,6 +677,11 @@ public partial class frmItemMulti
             ((System.ComponentModel.ISupportInitialize)(this.lookUpUnitCd)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.lookUpAssetType)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.lookUpStatCd)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.popcolWh)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.popcolLoc)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.popcolDept)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.popcolEmp)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.popcolCust)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.chkYn)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.panelWyn2)).EndInit();
             this.panelWyn2.ResumeLayout(false);

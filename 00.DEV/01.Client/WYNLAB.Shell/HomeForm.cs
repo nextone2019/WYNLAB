@@ -1,5 +1,6 @@
 using DevExpress.XtraEditors;
 using WYNLAB.Base;
+using WYNLAB.Popup;
 using WYNLAB.Shared.Dtos;
 using System.Drawing;
 using System.Drawing.Drawing2D;
@@ -17,10 +18,9 @@ namespace WYNLAB.Shell;
 /// 문서(Q1)는 정의상 전부 "결재대기" 상태라 상태배지는 고정 텍스트다. 쪽지함 위젯도 목업에 없고
 /// 지시에도 없어서 이번에 뺐다(unread-messages 호출 자체를 안 함).
 /// </summary>
-public class HomeForm : BaseForm
+public partial class HomeForm : BaseForm
 {
-    private static readonly Color PageBg = Color.FromArgb(247, 248, 250);
-    private static readonly Color CardBorder = Color.FromArgb(226, 228, 232);
+    private static readonly Color CardBorder = Color.FromArgb(222, 224, 229);
     private static readonly Color CardBg = Color.White;
     private static readonly Color TextPrimary = Color.FromArgb(35, 35, 38);
     private static readonly Color TextSecondary = Color.FromArgb(130, 132, 138);
@@ -29,26 +29,11 @@ public class HomeForm : BaseForm
     private static readonly Color BadgeBg = Color.FromArgb(240, 242, 245);
     private static readonly Color PendingBg = Color.FromArgb(255, 236, 236);
     private static readonly Color PendingText = Color.FromArgb(191, 62, 62);
-    // "결재대기" 상태 배지 전용(목업은 이것만 짙은 배지, 나머지는 옅은 배지) - PendingBg/Text와
-    // 별도로 둔다("중요" 공지 배지는 계속 옅은 빨강을 쓴다).
-    private static readonly Color StatusWaitingBg = Color.FromArgb(31, 35, 44);
-    private static readonly Color StatusWaitingText = Color.White;
-    // 기안함 탭 전용 상태 배지 색(app_stat_cd: 1=진행중/E=승인완료/R=반려) - 반려는 "중요" 공지
-    // 배지와 같은 옅은 빨강을 재사용한다.
-    private static readonly Color StatusProgressBg = Color.FromArgb(232, 240, 254);
-    private static readonly Color StatusDoneBg = Color.FromArgb(230, 247, 237);
-    private static readonly Color StatusDoneText = Color.FromArgb(56, 142, 60);
     // 목록 줄무늬(zebra) 배경 - 그룹웨어 포털 느낌을 위해 한 줄씩 아주 옅게 번갈아 칠한다.
     private static readonly Color ZebraBg = Color.FromArgb(249, 250, 252);
-    // 공지사항/오늘의 일정 섹션 제목 앞 작은 색상 점(포털 위젯 구분용 - 파랑/결재는 탭 자체가
-    // 헤더라 점이 따로 필요 없다).
-    private static readonly Color NoticeAccent = Color.FromArgb(245, 158, 66);
-    private static readonly Color ScheduleAccent = Color.FromArgb(76, 175, 125);
 
-    private const int UserCardHeight = 104;
-    private const int SectionGap = 16;
-    private const int ApprovalSectionHeight = 270; // 탭 스트립(20) 추가분만큼 기존 250에서 키움
-    private const int NoticeSectionHeight = 190;
+    // 색상/크기 중 화면에 보이는 고정 값(페이지 배경, 카드 간격, 섹션 높이 등)은 HomeForm.Designer.cs에 직접 들어 있다.
+    // 아래 색상은 런타임에 동적으로 만드는 행(공지/일정 행, 배지, 기안서 작성 타일)이 쓴다.
 
     // frmSchedule.ColorPalette와 같은 값 - Shell은 화면 모듈(SM)을 참조하지 않으므로 여기 따로
     // 둔다(작은 값이라 중복이 참조보다 싸다). id는 DB에 저장된 COLOR_CD 그대로.
@@ -65,76 +50,61 @@ public class HomeForm : BaseForm
     };
 
     private List<HomeNoticeItemDto> _notices = new();
+    // KPI "전자결재 대기" 건수 전용(목록 자체는 결재 리스트 그리드가 따로 조회한다).
     private List<ApprovalDashboardItemDto> _pendingApprovals = new();
-    private List<ApprovalDashboardItemDto> _draftedApprovals = new();
     private List<HomeScheduleItemDto> _todaySchedule = new();
     // 구분 배지용 문서유형 코드->이름(L_AP0002 LookUp, api/combo-lookups) - 목록이 작고 거의 안
     // 바뀌어서 최초 1회만 불러와 캐시한다(RefreshDashboardAsync 참고).
     private Dictionary<string, string> _docTypeNames = new();
 
-    // false=결재함(내가 승인해야 할 문서/Pending), true=기안함(내가 기안한 문서/Drafted)
-    private bool _showDrafted;
-
-    private Panel _noticeListHost = null!;
-    private Panel _approvalListHost = null!;
-    private Panel _scheduleListHost = null!;
-    private Panel _approvalTabStrip = null!;
-    private LabelControl _approvalCountLabel = null!;
-    private LabelControl _approverColHeader = null!;
+    // 디자이너 구성이 끝나기 전에 발생하는 컨트롤 이벤트(탭 선택 변경 등)를 무시하기 위한 플래그.
+    private bool _homeReady;
 
     public HomeForm()
     {
-        Text = "Home";
-        Name = "__HOME__"; // ShellForm이 이 이름으로 기존 홈 탭을 찾아서 재사용/보호함
-        BackColor = PageBg;
+        InitializeComponent();
 
-        var scrollHost = new Panel { Dock = DockStyle.Fill, AutoScroll = true, BackColor = PageBg };
-        var content = new Panel { Dock = DockStyle.Top, Padding = new Padding(24, 20, 24, 24), AutoSize = true, AutoSizeMode = AutoSizeMode.GrowAndShrink };
-
-        // 목업대로 "오늘의 일정"은 페이지 오른쪽에 세로로 길게 고정하고(Dock=Right, 전체 높이),
-        // 나머지 3블록(내 정보/미결재 문서함/사내 공지사항)은 왼쪽에 세로로 쌓는다. 오른쪽 칼럼의
-        // 높이는 Dock=Right가 부모(mainRow) 높이를 그대로 따라가므로, mainRow의 Height를 왼쪽
-        // 3블록 높이 합(+간격)으로 명시해주면 저절로 왼쪽과 같은 높이로 맞춰진다.
-        var mainRow = new Panel
-        {
-            Dock = DockStyle.Top,
-            Height = UserCardHeight + SectionGap + ApprovalSectionHeight + SectionGap + NoticeSectionHeight,
-        };
-
-        var scheduleCard = BuildScheduleCard();
-        scheduleCard.Dock = DockStyle.Fill;
-        var rightCol = new Panel { Dock = DockStyle.Right, Width = 320 };
-        rightCol.Controls.Add(scheduleCard);
-
-        var gap = new Panel { Dock = DockStyle.Right, Width = SectionGap };
-
-        var leftCol = new Panel { Dock = DockStyle.Fill };
-        var userCard = BuildUserCard();
-        userCard.Dock = DockStyle.Top;
-        userCard.Height = UserCardHeight;
-        var approvalSection = BuildApprovalSection();
-        var noticeSection = BuildNoticeSection();
-        var gap1 = new Panel { Dock = DockStyle.Top, Height = SectionGap };
-        var gap2 = new Panel { Dock = DockStyle.Top, Height = SectionGap };
-        // Dock=Top 스택은 나중에 추가한 컨트롤이 위쪽 우선권을 가진다 - 화면 순서(위->아래:
-        // 내정보/간격/미결재문서함/간격/공지사항)의 역순으로 추가한다.
-        leftCol.Controls.Add(noticeSection);
-        leftCol.Controls.Add(gap2);
-        leftCol.Controls.Add(approvalSection);
-        leftCol.Controls.Add(gap1);
-        leftCol.Controls.Add(userCard);
-
-        mainRow.Controls.Add(leftCol);
-        mainRow.Controls.Add(gap);
-        mainRow.Controls.Add(rightCol);
-
-        content.Controls.Add(mainRow);
-
-        scrollHost.Controls.Add(content);
-        Controls.Add(scrollHost);
-
-        Load += async (s, e) => await RefreshDashboardAsync();
+        // 디자이너(HomeForm.Designer.cs)가 만든 고정 컨트롤에 런타임 값(아이콘 이미지/사용자 정보/기본 검색조건)을 채운다.
+        InitializeHome();
+        InitializeApprovalCenter();
+        _homeReady = true;
     }
+
+    /// <summary>디자이너에서 정할 수 없는 런타임 값만 여기서 채운다 - 오늘 날짜 문구, 처음엔 안 보이는 기안서 작성 화면.</summary>
+    private void InitializeHome()
+    {
+        lblScheduleDate.Text = DateTime.Now.ToString("MM/dd (ddd)", System.Globalization.CultureInfo.GetCultureInfo("ko-KR"));
+        panComposeView.Visible = false;
+    }
+
+    private async void HomeForm_Load(object? sender, EventArgs e) => await RefreshDashboardAsync();
+
+    /// <summary>섹션 제목 앞 색상 점 - 점 색은 디자이너에서 정한 패널의 ForeColor를 그대로 쓴다.</summary>
+    private void SectionDot_Paint(object? sender, PaintEventArgs e)
+    {
+        var dot = (Control)sender!;
+        e.Graphics.SmoothingMode = SmoothingMode.AntiAlias;
+        using var brush = new SolidBrush(dot.ForeColor);
+        e.Graphics.FillEllipse(brush, 0, 0, 7, 7);
+    }
+
+    /// <summary>표 테두리 1px - 공지 표 프레임이 쓴다(결재 검색조건 패널은 panSearch_Paint).</summary>
+    private void BorderFrame_Paint(object? sender, PaintEventArgs e)
+    {
+        var frame = (Control)sender!;
+        using var pen = new Pen(CardBorder);
+        e.Graphics.DrawRectangle(pen, 0, 0, frame.Width - 1, frame.Height - 1);
+    }
+
+    /// <summary>빠른 실행 타일/글자 클릭 - Tag="모듈|화면클래스명"(디자이너에서 지정).</summary>
+    private void QuickLaunch_Click(object? sender, EventArgs e)
+    {
+        if (((Control)sender!).Tag is not string tag) return;
+        var parts = tag.Split('|');
+        if (parts.Length == 2) OpenScreen(parts[0], parts[1]);
+    }
+
+    private void lblNoticeAdd_Click(object? sender, EventArgs e) => OpenScreen("SM", "frmBoard");
 
     /// <summary>공지사항/전자결재(승인대상문서)/오늘 일정 실데이터를 받아와 이미 그려진 카드
     /// 내용을 채워 넣는다 - 하나가 실패해도(네트워크 순간 끊김 등) 서로 영향 없게 각각 try/catch로
@@ -164,107 +134,29 @@ public class HomeForm : BaseForm
         {
             var dash = await ApiClient.GetAsync<ApprovalDashboardResponse>("api/approvals/my-dashboard");
             _pendingApprovals = dash?.Pending ?? new();
-            _draftedApprovals = dash?.Drafted ?? new();
         }
-        catch { _pendingApprovals = new(); _draftedApprovals = new(); }
-        RenderApprovalList();
+        catch { _pendingApprovals = new(); }
+
+        // 결재 리스트(기안함/결재함 그리드)와 기안서 작성 타일 - 현재 검색조건/탭 그대로 다시 조회한다.
+        await LoadDocTypesAsync();
+        await QueryApprovalAsync(silent: true);
 
         try { _todaySchedule = await ApiClient.GetAsync<List<HomeScheduleItemDto>>("api/home/today-schedule") ?? new(); }
         catch { _todaySchedule = new(); }
         RenderSchedule();
     }
 
-    /// <summary>이름/부서/관리자여부/현재 시각은 로그인 시점에 이미 세션에 있는 값이라(Session.
-    /// UserNm/DeptNm/IsAdmin, DateTime.Now) 실데이터로 채우는 데 새 API가 필요 없었다. 목업의
-    /// "접속일시/접속IP"는 세션에 그 값 자체가 없어(로그인 감사로그를 아직 안 만듦) 지어내지
-    /// 않고 현재 시각으로 대체했다.</summary>
-    private Panel BuildUserCard()
-    {
-        var card = new Panel { Padding = new Padding(20, 18, 20, 18) };
-        card.Paint += (s, e) => DrawCardBorder(card, e.Graphics, CardBorder, 10);
-
-        const int avatarSize = 56;
-        var avatar = new Panel { Location = new Point(20, 18), Size = new Size(avatarSize, avatarSize) };
-        var initial = string.IsNullOrEmpty(Session.UserNm) ? "?" : Session.UserNm.Substring(0, 1);
-        avatar.Paint += (s, e) =>
-        {
-            e.Graphics.SmoothingMode = SmoothingMode.AntiAlias;
-            using var brush = new SolidBrush(AccentBlue);
-            e.Graphics.FillEllipse(brush, 0, 0, avatarSize - 1, avatarSize - 1);
-            using var font = new Font(AppFonts.Heading.FontFamily, 16f, FontStyle.Bold);
-            using var textBrush = new SolidBrush(Color.White);
-            var size = e.Graphics.MeasureString(initial, font);
-            e.Graphics.DrawString(initial, font, textBrush, (avatarSize - size.Width) / 2, (avatarSize - size.Height) / 2);
-        };
-
-        var infoLeft = avatar.Right + 16;
-
-        var lblName = new LabelControl { Text = $"{Session.UserNm}님", Location = new Point(infoLeft, 20), AutoSize = true };
-        lblName.Appearance.Font = AppFonts.SubHeading;
-        lblName.Appearance.ForeColor = TextPrimary;
-
-        var badgeRow = new FlowLayoutPanel { Location = new Point(infoLeft + lblName.Width + 12, 18), AutoSize = true, WrapContents = false };
-        if (!string.IsNullOrEmpty(Session.DeptNm)) badgeRow.Controls.Add(BuildPillBadge(Session.DeptNm, BadgeBg, TextSecondary));
-        if (Session.IsAdmin) badgeRow.Controls.Add(BuildPillBadge("최고관리자", Color.FromArgb(232, 240, 254), AccentBlue));
-
-        var now = DateTime.Now;
-        var lblDetail = new LabelControl
-        {
-            Text = now.ToString("yyyy-MM-dd (ddd) HH:mm", System.Globalization.CultureInfo.GetCultureInfo("ko-KR")),
-            Location = new Point(infoLeft, 50),
-            AutoSize = true,
-        };
-        lblDetail.Appearance.Font = AppFonts.Body;
-        lblDetail.Appearance.ForeColor = TextSecondary;
-
-        card.Controls.Add(avatar);
-        card.Controls.Add(lblName);
-        card.Controls.Add(badgeRow);
-        card.Controls.Add(lblDetail);
-        return card;
-    }
-
-    private Panel BuildScheduleCard()
-    {
-        var card = new Panel { Padding = new Padding(16) };
-        card.Paint += (s, e) => DrawCardBorder(card, e.Graphics, CardBorder, 10);
-
-        var lblTitle = BuildSectionTitle("오늘의 일정", ScheduleAccent);
-
-        var lblDate = new LabelControl
-        {
-            Text = DateTime.Now.ToString("MM/dd (ddd)", System.Globalization.CultureInfo.GetCultureInfo("ko-KR")),
-            Dock = DockStyle.Right,
-            AutoSizeMode = LabelAutoSizeMode.None,
-            Width = 80,
-        };
-        lblDate.Appearance.Font = AppFonts.Caption;
-        lblDate.Appearance.ForeColor = TextSecondary;
-        lblDate.Appearance.TextOptions.HAlignment = DevExpress.Utils.HorzAlignment.Far;
-
-        var titleRow = new Panel { Dock = DockStyle.Top, Height = 24 };
-        titleRow.Controls.Add(lblTitle);
-        titleRow.Controls.Add(lblDate);
-
-        // 실데이터는 RefreshDashboardAsync -> RenderSchedule이 채운다(다른 카드와 같은 패턴).
-        _scheduleListHost = new Panel { Dock = DockStyle.Fill, Margin = new Padding(0, 8, 0, 0) };
-
-        card.Controls.Add(_scheduleListHost);
-        card.Controls.Add(titleRow);
-        return card;
-    }
-
-    /// <summary>_todaySchedule로 _scheduleListHost를 다시 그린다. 시간대(start_tm/end_tm)가
+    /// <summary>_todaySchedule로 panScheduleList를 다시 그린다. 시간대(start_tm/end_tm)가
     /// 있으면 "HH:mm-HH:mm"로, 없으면(종일 일정) "종일"로 표시하고, color_cd를 SchedulePalette로
     /// 매핑한 점 하나를 앞에 찍는다(frmSchedule의 라벨 색과 같은 팔레트).</summary>
     private void RenderSchedule()
     {
-        _scheduleListHost.SuspendLayout();
-        _scheduleListHost.Controls.Clear();
+        panScheduleList.SuspendLayout();
+        panScheduleList.Controls.Clear();
 
         if (_todaySchedule.Count == 0)
         {
-            _scheduleListHost.Controls.Add(BuildEmptyRow("오늘 등록된 일정이 없습니다."));
+            panScheduleList.Controls.Add(BuildEmptyRow("오늘 등록된 일정이 없습니다."));
         }
         else
         {
@@ -274,11 +166,11 @@ public class HomeForm : BaseForm
                     ? (FormatHhMm(s.EndTm) is { Length: > 0 } et ? $"{st}-{et}" : st)
                     : "종일";
                 var color = s.ColorCd is not null && SchedulePalette.TryGetValue(s.ColorCd, out var c) ? c : SchedulePalette["1"];
-                _scheduleListHost.Controls.Add(BuildScheduleRow(color, timeLabel, s.Title));
+                panScheduleList.Controls.Add(BuildScheduleRow(color, timeLabel, s.Title));
             }
         }
 
-        _scheduleListHost.ResumeLayout();
+        panScheduleList.ResumeLayout();
     }
 
     private static string? FormatHhMm(string? hhmm) =>
@@ -297,7 +189,7 @@ public class HomeForm : BaseForm
         };
 
         var lblTime = new LabelControl { Text = time, Location = new Point(16, 6), Size = new Size(56, 18), AutoSizeMode = LabelAutoSizeMode.None };
-        lblTime.Appearance.Font = AppFonts.Caption;
+        lblTime.Appearance.Font = AppFonts.Body;
         lblTime.Appearance.ForeColor = TextSecondary;
 
         var lblTitle = new LabelControl { Text = title, Location = new Point(74, 5), Size = new Size(row.Width - 78, 20), Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right, AutoSizeMode = LabelAutoSizeMode.None };
@@ -310,300 +202,87 @@ public class HomeForm : BaseForm
         return row;
     }
 
-    private Panel BuildApprovalSection()
+    // 공지 목록 컬럼 폭 - 좌우 끝에는 RowSideMargin만큼 여백을 둬서 표 테두리에 글자가 붙지 않게 한다.
+    private const int ColTypeWidth = 90;
+    private const int ColApproverWidth = 90;
+    private const int RowSideMargin = 12;
+
+    /// <summary>행/머리글 양 끝에 같은 배경색의 고정폭 여백 패널을 붙인다 - Dock=Left/Right 스택은 나중에
+    /// 추가한 컨트롤이 바깥쪽이므로 항상 맨 마지막에 호출한다. row.Padding을 쓰지 않는 이유는 행 구분선
+    /// (Dock=Top/Bottom 1px 패널)까지 안쪽으로 줄어들어 선이 끊겨 보이기 때문이다.</summary>
+    private static void AddRowSideMargins(Panel row, Color back)
     {
-        var card = new Panel { Dock = DockStyle.Top, Height = ApprovalSectionHeight, Margin = new Padding(0, 0, 0, 0), Padding = new Padding(16) };
-        card.Paint += (s, e) => DrawCardBorder(card, e.Graphics, CardBorder, 10);
-
-        var tabStrip = BuildApprovalTabStrip();
-
-        var metaRow = new Panel { Dock = DockStyle.Top, Height = 22, Margin = new Padding(0, 8, 0, 0) };
-
-        _approvalCountLabel = new LabelControl { Location = new Point(0, 3), AutoSize = true };
-        _approvalCountLabel.Appearance.Font = AppFonts.Caption;
-        _approvalCountLabel.Appearance.ForeColor = PendingText;
-
-        var lblGoInbox = new LabelControl { Text = "결재함 바로가기 >", Dock = DockStyle.Right, Width = 120, AutoSizeMode = LabelAutoSizeMode.None, Cursor = Cursors.Hand };
-        lblGoInbox.Appearance.Font = AppFonts.Caption;
-        lblGoInbox.Appearance.ForeColor = AccentBlue;
-        lblGoInbox.Appearance.TextOptions.HAlignment = DevExpress.Utils.HorzAlignment.Far;
-        lblGoInbox.Click += (s, e) => OpenScreen("AP", "frmApprInbox");
-
-        metaRow.Controls.Add(_approvalCountLabel);
-        metaRow.Controls.Add(lblGoInbox);
-
-        var colHeaderRow = BuildApprovalColumnHeaderRow();
-
-        _approvalListHost = new Panel { Dock = DockStyle.Fill, Margin = new Padding(0, 4, 0, 0) };
-
-        card.Controls.Add(_approvalListHost);
-        card.Controls.Add(colHeaderRow);
-        card.Controls.Add(metaRow);
-        card.Controls.Add(tabStrip);
-        return card;
-    }
-
-    private static readonly string[] ApprovalTabLabels = { "결재함", "기안함" };
-    private const int ApprovalTabWidth = 68;
-    private const int ApprovalTabGap = 20;
-
-    /// <summary>웹 포털에서 흔한 밑줄(underline) 탭 - 카드 전체 폭을 채우는 대신 왼쪽에 내용 폭
-    /// 만큼만 고정 크기로 둔다(처음엔 카드 절반씩 채우는 탭으로 만들었는데 너무 커 보인다는
-    /// 피드백으로 교체, 2026-09-29). 활성 탭은 굵은 글씨 + 파란 밑줄, 비활성 탭은 옅은 회색
-    /// 글씨만 - DevExpress XtraTab은 전체 화면용이라 이런 작은 위젯엔 과해서 직접 GDI+로 그린다.</summary>
-    private Panel BuildApprovalTabStrip()
-    {
-        var strip = new Panel { Dock = DockStyle.Top, Height = 30, Cursor = Cursors.Hand };
-        strip.Paint += (s, e) => DrawApprovalTabStrip(strip, e.Graphics);
-        strip.MouseClick += (s, e) =>
-        {
-            for (var i = 0; i < ApprovalTabLabels.Length; i++)
-            {
-                if (ApprovalTabRect(i).Contains(e.X, e.Y)) { SwitchApprovalTab(i == 1); return; }
-            }
-        };
-        _approvalTabStrip = strip;
-        return strip;
-    }
-
-    private static Rectangle ApprovalTabRect(int index) =>
-        new(index * (ApprovalTabWidth + ApprovalTabGap), 0, ApprovalTabWidth, 30);
-
-    private void DrawApprovalTabStrip(Panel strip, Graphics g)
-    {
-        g.SmoothingMode = SmoothingMode.AntiAlias;
-        var activeIndex = _showDrafted ? 1 : 0;
-
-        for (var i = 0; i < ApprovalTabLabels.Length; i++)
-        {
-            var rect = ApprovalTabRect(i);
-            var active = i == activeIndex;
-
-            using var font = new Font(AppFonts.Body.FontFamily, AppFonts.Body.Size, active ? FontStyle.Bold : FontStyle.Regular);
-            using var textBrush = new SolidBrush(active ? TextPrimary : TextSecondary);
-            var text = ApprovalTabLabels[i];
-            var size = g.MeasureString(text, font);
-            g.DrawString(text, font, textBrush, rect.X + (rect.Width - size.Width) / 2, rect.Y + 3);
-
-            if (active)
-            {
-                using var pen = new Pen(AccentBlue, 2f);
-                g.DrawLine(pen, rect.X + 6, rect.Bottom - 2, rect.Right - 6, rect.Bottom - 2);
-            }
-        }
-
-        using var dividerPen = new Pen(CardBorder);
-        g.DrawLine(dividerPen, 0, strip.Height - 1, strip.Width, strip.Height - 1);
-    }
-
-    /// <summary>미결재 문서함 목록 위 컬럼 제목 줄(구분/기안제목/기안자 또는 승인대기/기안일시/상태) -
-    /// 아래 BuildApprovalRow와 같은 Dock 순서(안쪽->바깥쪽: 기안자·승인대기/기안일시/상태)로
-    /// 맞춰야 컬럼이 세로로 정렬된다. 4번째 컬럼(_approverColHeader)은 탭에 따라 문구가 바뀐다
-    /// (SwitchApprovalTab 참고).</summary>
-    private Panel BuildApprovalColumnHeaderRow()
-    {
-        var row = new Panel { Dock = DockStyle.Top, Height = 28, Margin = new Padding(0, 10, 0, 0) };
-        var divider = new Panel { Dock = DockStyle.Bottom, Height = 1, BackColor = CardBorder };
-
-        LabelControl Head(string text)
-        {
-            var lbl = new LabelControl { Text = text };
-            lbl.Appearance.Font = AppFonts.Caption;
-            lbl.Appearance.ForeColor = TextMuted;
-            return lbl;
-        }
-
-        var lblStatus = Head("상태"); lblStatus.Dock = DockStyle.Right; lblStatus.Width = 90; lblStatus.AutoSizeMode = LabelAutoSizeMode.None;
-        lblStatus.Appearance.TextOptions.HAlignment = DevExpress.Utils.HorzAlignment.Center;
-        var lblDate = Head("기안일시"); lblDate.Dock = DockStyle.Right; lblDate.Width = 90; lblDate.AutoSizeMode = LabelAutoSizeMode.None;
-        _approverColHeader = Head("기안자"); _approverColHeader.Dock = DockStyle.Right; _approverColHeader.Width = 90; _approverColHeader.AutoSizeMode = LabelAutoSizeMode.None;
-        var lblType = Head("구분"); lblType.Dock = DockStyle.Left; lblType.Width = 90; lblType.AutoSizeMode = LabelAutoSizeMode.None;
-        var lblSubject = Head("기안제목"); lblSubject.Dock = DockStyle.Fill; lblSubject.AutoSizeMode = LabelAutoSizeMode.None;
-
-        row.Controls.Add(lblSubject);
-        row.Controls.Add(_approverColHeader);
-        row.Controls.Add(lblDate);
-        row.Controls.Add(lblStatus);
-        row.Controls.Add(lblType);
-        row.Controls.Add(divider);
-        return row;
-    }
-
-    private void SwitchApprovalTab(bool showDrafted)
-    {
-        if (_showDrafted == showDrafted) return;
-        _showDrafted = showDrafted;
-        _approvalTabStrip.Invalidate();
-        _approverColHeader.Text = _showDrafted ? "승인대기" : "기안자";
-        RenderApprovalList();
-    }
-
-    /// <summary>활성 탭(_showDrafted)에 따라 _pendingApprovals(결재함, Q1) 또는 _draftedApprovals
-    /// (기안함, Q6)로 _approvalListHost를 다시 그린다.</summary>
-    private void RenderApprovalList()
-    {
-        var list = _showDrafted ? _draftedApprovals : _pendingApprovals;
-        _approvalCountLabel.Text = _showDrafted ? $"{list.Count}건" : $"{list.Count}건 대기";
-
-        _approvalListHost.SuspendLayout();
-        _approvalListHost.Controls.Clear();
-
-        if (list.Count == 0)
-        {
-            _approvalListHost.Controls.Add(BuildEmptyRow(_showDrafted ? "기안한 문서가 없습니다." : "결재 대기중인 문서가 없습니다."));
-        }
-        else
-        {
-            // Dock=Top 스택은 나중에 추가한 컨트롤이 위로 가므로, list[0]이 맨 위에 오려면
-            // 뒤에서부터(아래 자리부터) 추가해야 한다 - 그 삽입 순서와 별개로 zebra 줄무늬는
-            // 화면에 보이는 순서(=list 순서) 기준으로 매겨야 해서 i를 그대로 넘긴다.
-            for (var i = list.Count - 1; i >= 0; i--)
-                _approvalListHost.Controls.Add(BuildApprovalRow(list[i], i));
-        }
-
-        _approvalListHost.ResumeLayout();
-    }
-
-    /// <summary>결재함(Q1) 행은 정의상 전부 "아직 내 결재 전"이라 상태 배지가 항상 "결재대기"
-    /// 고정이다. 기안함(Q6) 행은 item.StatCd(TAPDOC.app_stat_cd: 0/1/E/R)로 실제 진행상태를
-    /// 보여준다 - [[project_wynlab_approval_status_code_convention]]과 같은 코드값.</summary>
-    private (string Text, Color Bg, Color Fg) GetStatusBadge(ApprovalDashboardItemDto item)
-    {
-        if (!_showDrafted) return ("결재대기", StatusWaitingBg, StatusWaitingText);
-        return item.StatCd switch
-        {
-            "E" => ("승인완료", StatusDoneBg, StatusDoneText),
-            "R" => ("반려", PendingBg, PendingText),
-            "1" => ("진행중", StatusProgressBg, AccentBlue),
-            _ => ("결재상신", StatusWaitingBg, StatusWaitingText),
-        };
-    }
-
-    private Panel BuildApprovalRow(ApprovalDashboardItemDto item, int displayIndex)
-    {
-        var zebra = displayIndex % 2 == 1 ? ZebraBg : CardBg;
-        var row = new Panel { Dock = DockStyle.Top, Height = 38, BackColor = zebra };
-        var divider = new Panel { Dock = DockStyle.Top, Height = 1, BackColor = CardBorder };
-
-        // 상태/기안일시/기안자 칸은 위 BuildApprovalColumnHeaderRow와 같은 폭(90)으로 맞춰서
-        // 컬럼이 세로로 정렬되게 한다. 상태는 목업처럼 짙은 배지 + 가운데 정렬. statusHost/typeHost는
-        // 일반 Panel이라 BackColor를 안 맞추면 zebra 줄무늬가 이 두 구간만 하얗게 끊겨 보인다.
-        var (statusText, statusBg, statusFg) = GetStatusBadge(item);
-        var statusHost = new Panel { Dock = DockStyle.Right, Width = 90, BackColor = zebra };
-        var statusBadge = BuildPillBadge(statusText, statusBg, statusFg);
-        statusBadge.Location = new Point((statusHost.Width - statusBadge.Width) / 2, (row.Height - 1 - statusBadge.Height) / 2);
-        statusHost.Controls.Add(statusBadge);
-
-        var lblDate = new LabelControl { Text = item.AppDate, Dock = DockStyle.Right, Width = 90, Padding = new Padding(0, 11, 8, 0), AutoSizeMode = LabelAutoSizeMode.None };
-        lblDate.Appearance.Font = AppFonts.Caption;
-        lblDate.Appearance.ForeColor = TextMuted;
-
-        // 결재함 탭은 기안자(누가 올렸는지), 기안함 탭은 승인대기(지금 누가 처리할 차례인지)를
-        // 같은 자리에 보여준다 - BuildApprovalColumnHeaderRow의 _approverColHeader와 짝.
-        var approverText = _showDrafted ? (item.CurApprEmpNm ?? "-") : (item.ReqEmpNm ?? string.Empty);
-        var lblApprover = new LabelControl { Text = approverText, Dock = DockStyle.Right, Width = 90, Padding = new Padding(0, 11, 8, 0), AutoSizeMode = LabelAutoSizeMode.None };
-        lblApprover.Appearance.Font = AppFonts.Body;
-        lblApprover.Appearance.ForeColor = TextSecondary;
-
-        var typeHost = new Panel { Dock = DockStyle.Left, Width = 90, BackColor = zebra };
-        var typeBadge = BuildPillBadge(ResolveDocTypeName(item.DocType), BadgeBg, TextSecondary);
-        typeBadge.Location = new Point(0, (row.Height - 1 - typeBadge.Height) / 2);
-        typeHost.Controls.Add(typeBadge);
-
-        var lblTitle = new LabelControl { Text = item.AppTitle, Dock = DockStyle.Fill, Padding = new Padding(0, 11, 0, 0), AutoSizeMode = LabelAutoSizeMode.None, Cursor = Cursors.Hand };
-        lblTitle.Appearance.Font = AppFonts.Body;
-        lblTitle.Appearance.ForeColor = TextPrimary;
-        lblTitle.Click += (s, e) => OpenScreen("AP", "frmApprInbox");
-
-        // Dock=Right 스택은 나중에 추가한 컨트롤이 바깥쪽(오른쪽 끝) 우선권을 가진다 - 화면에
-        // 보일 순서(안쪽->바깥쪽: 기안자·승인대기/기안일시/상태)대로 추가한다.
-        row.Controls.Add(lblApprover);
-        row.Controls.Add(lblDate);
-        row.Controls.Add(statusHost);
-        row.Controls.Add(lblTitle);
-        row.Controls.Add(typeHost);
-        row.Controls.Add(divider);
-        return row;
+        row.Controls.Add(new Panel { Dock = DockStyle.Left, Width = RowSideMargin, BackColor = back });
+        row.Controls.Add(new Panel { Dock = DockStyle.Right, Width = RowSideMargin, BackColor = back });
     }
 
     private string ResolveDocTypeName(string docType) =>
         _docTypeNames.TryGetValue(docType, out var name) ? name : docType;
 
-    private Panel BuildNoticeSection()
-    {
-        var card = new Panel { Dock = DockStyle.Top, Height = NoticeSectionHeight, Padding = new Padding(16) };
-        card.Paint += (s, e) => DrawCardBorder(card, e.Graphics, CardBorder, 10);
-
-        var headerRow = new Panel { Dock = DockStyle.Top, Height = 26 };
-        var lblTitle = BuildSectionTitle("사내 공지사항", NoticeAccent);
-        lblTitle.Location = new Point(0, 2);
-
-        var lblAdd = new LabelControl { Text = "+", Dock = DockStyle.Right, Width = 24, AutoSizeMode = LabelAutoSizeMode.None, Cursor = Cursors.Hand };
-        lblAdd.Appearance.Font = AppFonts.BodyBold;
-        lblAdd.Appearance.ForeColor = TextSecondary;
-        lblAdd.Appearance.TextOptions.HAlignment = DevExpress.Utils.HorzAlignment.Far;
-        lblAdd.Click += (s, e) => OpenScreen("SM", "frmBoard");
-
-        headerRow.Controls.Add(lblTitle);
-        headerRow.Controls.Add(lblAdd);
-
-        // 실데이터는 LoadDashboardDataAsync -> RenderNotices가 채운다 - 최초 렌더 시점(생성자)엔
-        // 아직 서버 응답이 안 왔으므로 빈 채로 두고, 응답이 오면 이 컨테이너 안만 다시 그린다.
-        _noticeListHost = new Panel { Dock = DockStyle.Fill, Margin = new Padding(0, 8, 0, 0) };
-
-        card.Controls.Add(_noticeListHost);
-        card.Controls.Add(headerRow);
-        return card;
-    }
+    private const int ColNoticeDateWidth = 150;
+    // 공지 행 높이 - 결재 리스트 그리드 행의 화면상 높이(gvwApproval.RowHeight 25 + 행 구분선/여백 = 28)와 같게 맞춘다.
+    private const int NoticeRowHeight = 28;
 
     /// <summary>_notices(최대 5건, 서버가 이미 중요공지 우선/최신순으로 정렬해서 줌)로
-    /// _noticeListHost를 다시 그린다. Dock=Top 스택은 나중에 추가한 컨트롤이 위로 가므로
+    /// panNoticeList를 다시 그린다. Dock=Top 스택은 나중에 추가한 컨트롤이 위로 가므로
     /// 화면에 보일 순서의 역순으로 추가한다.</summary>
     private void RenderNotices()
     {
-        _noticeListHost.SuspendLayout();
-        _noticeListHost.Controls.Clear();
+        panNoticeList.SuspendLayout();
+        panNoticeList.Controls.Clear();
 
         if (_notices.Count == 0)
         {
-            _noticeListHost.Controls.Add(BuildEmptyRow("등록된 공지사항이 없습니다."));
+            panNoticeList.Controls.Add(BuildEmptyRow("등록된 공지사항이 없습니다."));
         }
         else
         {
             // BuildApprovalRow와 같은 이유로 뒤에서부터 추가하되 zebra는 화면 표시 순서(=원래
             // _notices 순서) 기준 인덱스로 매긴다.
             for (var i = _notices.Count - 1; i >= 0; i--)
-                _noticeListHost.Controls.Add(BuildNoticeRow(_notices[i], i));
+                panNoticeList.Controls.Add(BuildNoticeRow(_notices[i], i));
         }
 
-        _noticeListHost.ResumeLayout();
+        panNoticeList.ResumeLayout();
     }
 
     private Panel BuildNoticeRow(HomeNoticeItemDto n, int displayIndex)
     {
-        var row = new Panel { Dock = DockStyle.Top, Height = 33, BackColor = displayIndex % 2 == 1 ? ZebraBg : CardBg };
+        var row = new Panel { Dock = DockStyle.Top, Height = NoticeRowHeight, BackColor = displayIndex % 2 == 1 ? ZebraBg : CardBg };
         var divider = new Panel { Dock = DockStyle.Top, Height = 1, BackColor = CardBorder };
 
-        var lblDate = new LabelControl { Text = n.RegDt?.ToString("MM-dd") ?? string.Empty, Dock = DockStyle.Right, Width = 56, Padding = new Padding(0, 8, 0, 0), AutoSizeMode = LabelAutoSizeMode.None };
-        lblDate.Appearance.Font = AppFonts.Caption;
+        // 작성일시 "yyyy-MM-dd HH:mm" / 작성자 - 머리글(BuildNoticeColumnHeaderRow)과 같은 폭, 왼쪽 정렬.
+        var lblDate = new LabelControl { Text = n.RegDt?.ToString("yyyy-MM-dd HH:mm") ?? string.Empty, Dock = DockStyle.Right, Width = ColNoticeDateWidth, Padding = new Padding(0, 6, 0, 0), AutoSizeMode = LabelAutoSizeMode.None };
+        lblDate.Appearance.Font = AppFonts.Body;
         lblDate.Appearance.ForeColor = TextMuted;
-        lblDate.Appearance.TextOptions.HAlignment = DevExpress.Utils.HorzAlignment.Far;
 
-        Panel? importantBadge = null;
+        var lblAuthor = new LabelControl { Text = n.EmpNm, Dock = DockStyle.Right, Width = ColApproverWidth, Padding = new Padding(0, 6, 8, 0), AutoSizeMode = LabelAutoSizeMode.None };
+        lblAuthor.Appearance.Font = AppFonts.Body;
+        lblAuthor.Appearance.ForeColor = TextSecondary;
+
+        // "중요" 배지를 Dock=Left로 직접 붙이면 Panel이 부모(row, 33px)의 전체 높이로 늘어나
+        // 버려서(Dock은 세로 축도 꽉 채운다 - Margin은 일반 Panel 레이아웃에서 무시됨) 배지
+        // Paint가 그 늘어난 높이로 알약을 그려 텍스트 줄과 크기가 안 맞아 보였다("중요 표시가
+        // 라인에 사이즈도 안 맞아" 지적, 2026-10-02) - 다른 배지들(구분/상태)과 같은 방식으로
+        // 고정폭 호스트 안에 Location으로 세로 중앙 정렬해서 배지 자체 크기(Height=22)를 지킨다.
+        // 중요하지 않은 공지도 칸 폭은 똑같이 차지해야 제목 시작 위치가 모든 행에서 같다.
+        var badgeHost = new Panel { Dock = DockStyle.Left, Width = ColTypeWidth, BackColor = row.BackColor };
         if (n.ImportantYn == "Y")
         {
-            importantBadge = BuildPillBadge("중요", PendingBg, PendingText);
-            importantBadge.Dock = DockStyle.Left;
-            importantBadge.Margin = new Padding(0, 6, 8, 0);
+            var importantBadge = BuildPillBadge("중요", PendingBg, PendingText);
+            importantBadge.Location = new Point(0, (row.Height - 1 - importantBadge.Height) / 2);
+            badgeHost.Controls.Add(importantBadge);
         }
 
-        var lblTitle = new LabelControl { Text = n.Title, Dock = DockStyle.Fill, Padding = new Padding(0, 8, 0, 0), AutoSizeMode = LabelAutoSizeMode.None };
+        var lblTitle = new LabelControl { Text = n.Title, Dock = DockStyle.Fill, Padding = new Padding(0, 6, 0, 0), AutoSizeMode = LabelAutoSizeMode.None };
         lblTitle.Appearance.Font = AppFonts.Body;
         lblTitle.Appearance.ForeColor = TextPrimary;
 
         row.Controls.Add(lblTitle);
-        if (importantBadge != null) row.Controls.Add(importantBadge);
+        row.Controls.Add(lblAuthor);
         row.Controls.Add(lblDate);
+        row.Controls.Add(badgeHost);
+        AddRowSideMargins(row, row.BackColor);
         row.Controls.Add(divider);
         return row;
     }
@@ -622,6 +301,53 @@ public class HomeForm : BaseForm
         (MdiParent as ShellForm)?.OpenMenuById(menu.MenuId);
     }
 
+    /// <summary>문서번호 클릭 - frmApprInbox.OpenOriginalDocumentAsync와 완전히 같은 방식으로
+    /// item.FormId("{MODULE}.{화면클래스명}")를 풀어서 원본 업무화면을 그 건에 포커스해서 연다.
+    /// 홈화면은 결재 액션이 없으므로 여기서 열고 나면, 사용자가 그 화면의 전자결재 버튼을 직접
+    /// 눌러 결재를 진행한다.</summary>
+    private async Task OpenOriginalDocumentAsync(ApprovalDashboardItemDto item)
+    {
+        if (string.IsNullOrWhiteSpace(item.FormId))
+        {
+            AppMessageBox.Show("연결된 원본 화면 정보가 없습니다.", "안내");
+            return;
+        }
+
+        var parts = item.FormId.Split('.');
+        if (parts.Length != 2)
+        {
+            AppMessageBox.Show($"원본 화면 정보 형식이 올바르지 않습니다: {item.FormId}", "오류");
+            return;
+        }
+        var module = parts[0];
+        var className = parts[1];
+
+        var assembly = ModuleLoader.EnsureLoaded($"WYNLAB.{module}");
+        var formType = assembly?.GetType($"WYNLAB.{module}.{className}");
+        if (formType == null || Activator.CreateInstance(formType) is not BaseForm form)
+        {
+            AppMessageBox.Show($"화면을 찾을 수 없습니다: {item.FormId}", "오류");
+            return;
+        }
+
+        var menu = SessionManager.Current.Menus.FirstOrDefault(m => m.Module == module && m.ScreenClassNm == className);
+        form.MenuId = menu?.MenuId ?? 0;
+        form.MdiParent = MdiParent;
+        form.Show();
+
+        await form.FocusRecordAsync(item.DocId.ToString());
+    }
+
+    /// <summary>결재번호 클릭 - 원본 업무화면을 거치지 않고 전자결재 팝업(popApp)을 바로 띄운다.
+    /// 이미 상신된 건(app_id 있음)이라 popApp.ShowAsync가 서버 이력을 조회해서 곧바로 처리모드
+    /// (승인/반려)로 연다 - title/text 인자는 아직 상신 전(작성모드)일 때만 쓰이므로 여기선
+    /// 의미가 없다(그런 상황 자체가 안 생김 - 홈 목록은 전부 이미 상신된 건).</summary>
+    private async Task OpenApprovalPopupAsync(ApprovalDashboardItemDto item)
+    {
+        var changed = await popApp.ShowAsync(item.DocType, item.DocId, item.DocNo, item.AppTitle, string.Empty, this);
+        if (changed) await RefreshDashboardAsync();
+    }
+
     private Panel BuildEmptyRow(string message)
     {
         var row = new Panel { Dock = DockStyle.Top, Height = 33 };
@@ -632,45 +358,15 @@ public class HomeForm : BaseForm
         return row;
     }
 
-    /// <summary>섹션 제목 앞에 작은 색상 점을 붙인다 - 포털 대시보드에서 흔한, 위젯마다 다른 색
-    /// 아이콘을 다는 관행을 색 점 하나로 가볍게 흉내낸다(진짜 SVG 아이콘은 이런 홈 위젯 제목엔
-    /// 과하다). 결재 섹션은 탭 자체가 제목 역할이라 이 헬퍼를 안 쓴다.</summary>
-    private Panel BuildSectionTitle(string text, Color accentColor)
-    {
-        var panel = new Panel { Height = 24 };
-        var dot = new Panel { Size = new Size(8, 8), Location = new Point(0, 8) };
-        dot.Paint += (s, e) =>
-        {
-            e.Graphics.SmoothingMode = SmoothingMode.AntiAlias;
-            using var brush = new SolidBrush(accentColor);
-            e.Graphics.FillEllipse(brush, 0, 0, 7, 7);
-        };
-
-        var lbl = new LabelControl { Text = text, Location = new Point(14, 3), AutoSize = true };
-        lbl.Appearance.Font = AppFonts.BodyBold;
-        lbl.Appearance.ForeColor = TextPrimary;
-
-        panel.Controls.Add(dot);
-        panel.Controls.Add(lbl);
-
-        using (var g = panel.CreateGraphics())
-        {
-            var size = g.MeasureString(text, AppFonts.BodyBold);
-            panel.Width = 14 + (int)size.Width;
-        }
-
-        return panel;
-    }
-
     /// <summary>작은 알약(pill) 모양 배지 - 구분/상태/중요 표시에 공통으로 쓴다. 텍스트 폭에 맞춰
     /// AutoSize로 크기를 잡고 Paint에서 배경만 둥글게 채운다.</summary>
     private Panel BuildPillBadge(string text, Color bg, Color fg)
     {
         var lbl = new LabelControl { Text = text, Location = new Point(10, 3), AutoSize = true };
-        lbl.Appearance.Font = AppFonts.Caption;
+        lbl.Appearance.Font = AppFonts.Body;
         lbl.Appearance.ForeColor = fg;
 
-        var badge = new Panel { Height = 20, AutoSize = false };
+        var badge = new Panel { Height = 22, AutoSize = false };
         badge.Controls.Add(lbl);
         badge.SizeChanged += (s, e) => lbl.Location = new Point(10, (badge.Height - lbl.Height) / 2);
         badge.Paint += (s, e) =>
@@ -688,30 +384,27 @@ public class HomeForm : BaseForm
 
         // 텍스트 폭 + 좌우 여백(10+10)으로 배지 폭을 정한다 - AutoSize 대신 직접 계산하는 이유는
         // 위 Paint가 Width를 참조하는데 AutoSize 타이밍과 얽히면 첫 렌더에서 0폭으로 그려지는
-        // 경우가 있어서(DrawCardBorder류와 같은 이유로 생성자 시점에 한 번 고정폭을 준다).
+        // 경우가 있어서(생성자 시점에 한 번 고정폭을 준다).
         using (var g = badge.CreateGraphics())
         {
-            var size = g.MeasureString(text, AppFonts.Caption);
+            var size = g.MeasureString(text, AppFonts.Body);
             badge.Width = (int)size.Width + 20;
         }
 
         return badge;
     }
 
-    /// <summary>카드 테두리를 살짝 둥글게 직접 그린다(DevExpress Panel엔 기본 라운드 테두리가 없어서)</summary>
-    private static void DrawCardBorder(Panel card, Graphics g, Color color, int radius)
+    /// <summary>둥근 모서리 사각형 경로 - 탭 알약/배지 등 이 파일 여러 곳에서 공유하는 모양.</summary>
+    private static GraphicsPath RoundedRectPath(Rectangle rect, int radius)
     {
-        var rect = new Rectangle(0, 0, card.Width - 1, card.Height - 1);
-        g.SmoothingMode = SmoothingMode.AntiAlias;
-        using var path = new GraphicsPath();
+        var path = new GraphicsPath();
         var d = radius * 2;
         path.AddArc(rect.X, rect.Y, d, d, 180, 90);
         path.AddArc(rect.Right - d, rect.Y, d, d, 270, 90);
         path.AddArc(rect.Right - d, rect.Bottom - d, d, d, 0, 90);
         path.AddArc(rect.X, rect.Bottom - d, d, d, 90, 90);
         path.CloseFigure();
-        using var pen = new Pen(color);
-        g.DrawPath(pen, path);
+        return path;
     }
 
     /// <summary>

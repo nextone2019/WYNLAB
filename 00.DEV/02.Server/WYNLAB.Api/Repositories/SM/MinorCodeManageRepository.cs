@@ -119,7 +119,7 @@ public class MinorCodeManageRepository : IMinorCodeManageRepository
     {
         using var conn = _context.CreateConnection();
         var items = await conn.QueryAsync<CodeLookupItemDto>("SSP_CBO_CODE_Q",
-            new { p_major_code = where }, commandType: CommandType.StoredProcedure);
+            new { p_major_cd = where }, commandType: CommandType.StoredProcedure);
         return items.ToList();
     }
 

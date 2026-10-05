@@ -1,5 +1,5 @@
-﻿// AI Builder媛 留덉뒪??????렇由щ뱶 ?쒗뵆由우쓣 蹂듭젣?댁꽌 ?먮룞 ?앹꽦 - 2026-09-08.
-// ?붿옄???쒕ぉ?곸뿭/?щ갚/?됱긽)??諛붽씀?ㅻ㈃ ???뚯씪???꾨땲???먮낯 ?쒗뵆由?99.SOURCE/TEMPLATE/WYNLAB.TEMPLATE)??怨좎튂?몄슂.
+﻿// AI Builder가 마스터-폼-탭그리드 템플릿을 복제해서 자동 생성 - 2026-09-08.
+// 디자인(제목영역/여백/색상)을 바꾸려면 이 파일이 아니라 원본 템플릿(99.SOURCE/TEMPLATE/WYNLAB.TEMPLATE)을 고치세요.
 #nullable disable
 using WYNLAB.Base.Controls;
 
@@ -409,7 +409,7 @@ public partial class frmItem
             // 
             // colMItemSpec
             // 
-            this.colMItemSpec.Caption = "洹쒓꺽";
+            this.colMItemSpec.Caption = "규격";
             this.colMItemSpec.FieldName = "item_spec";
             this.colMItemSpec.Name = "colMItemSpec";
             this.colMItemSpec.Visible = true;
@@ -529,7 +529,7 @@ public partial class frmItem
             // 
             // colMCustId
             // 
-            this.colMCustId.Caption = "援щℓ泥쁈D";
+            this.colMCustId.Caption = "구매처ID";
             this.colMCustId.ColumnEdit = this.spinEditcolM;
             this.colMCustId.FieldName = "cust_id";
             this.colMCustId.Name = "colMCustId";
@@ -600,7 +600,7 @@ public partial class frmItem
             // 
             // colMLotYn
             // 
-            this.colMLotYn.Caption = "LOT愿由ъ뿬遺";
+            this.colMLotYn.Caption = "LOT관리여부";
             this.colMLotYn.ColumnEdit = this.chkEditcolM;
             this.colMLotYn.FieldName = "lot_yn";
             this.colMLotYn.Name = "colMLotYn";
@@ -679,7 +679,7 @@ public partial class frmItem
             // 
             // colMRemark
             // 
-            this.colMRemark.Caption = "鍮꾧퀬";
+            this.colMRemark.Caption = "비고";
             this.colMRemark.FieldName = "remark";
             this.colMRemark.Name = "colMRemark";
             this.colMRemark.Visible = true;
@@ -840,7 +840,7 @@ public partial class frmItem
             // 
             // colD1Remark
             // 
-            this.colD1Remark.Caption = "鍮꾧퀬";
+            this.colD1Remark.Caption = "비고";
             this.colD1Remark.FieldName = "remark";
             this.colD1Remark.Name = "colD1Remark";
             this.colD1Remark.Visible = true;
@@ -873,9 +873,9 @@ public partial class frmItem
             this.btnDeletRow2.Location = new System.Drawing.Point(65, 3);
             this.btnDeletRow2.Name = "btnDeletRow2";
             this.btnDeletRow2.PressedColor = System.Drawing.Color.FromArgb(((int)(((byte)(225)))), ((int)(((byte)(235)))), ((int)(((byte)(253)))));
-            this.btnDeletRow2.Size = new System.Drawing.Size(58, 24);
+            this.btnDeletRow2.Size = new System.Drawing.Size(60, 24);
             this.btnDeletRow2.TabIndex = 0;
-            this.btnDeletRow2.Text = "?됱궘??";
+            this.btnDeletRow2.Text = "행삭제";
             this.btnDeletRow2.ToolTip = "행삭제(현재 탭)";
             // 
             // btnAddRow2
@@ -890,9 +890,9 @@ public partial class frmItem
             this.btnAddRow2.Location = new System.Drawing.Point(3, 3);
             this.btnAddRow2.Name = "btnAddRow2";
             this.btnAddRow2.PressedColor = System.Drawing.Color.FromArgb(((int)(((byte)(225)))), ((int)(((byte)(235)))), ((int)(((byte)(253)))));
-            this.btnAddRow2.Size = new System.Drawing.Size(58, 24);
+            this.btnAddRow2.Size = new System.Drawing.Size(60, 24);
             this.btnAddRow2.TabIndex = 0;
-            this.btnAddRow2.Text = "?됱텛媛";
+            this.btnAddRow2.Text = "행추가";
             this.btnAddRow2.ToolTip = "행추가(현재 탭)";
             // 
             // panelWyn1
@@ -1016,7 +1016,7 @@ public partial class frmItem
             this.lblDetailLotYn.Name = "lblDetailLotYn";
             this.lblDetailLotYn.Size = new System.Drawing.Size(69, 15);
             this.lblDetailLotYn.TabIndex = 46;
-            this.lblDetailLotYn.Text = "LOT愿由ъ뿬遺";
+            this.lblDetailLotYn.Text = "LOT관리여부";
             // 
             // chkDetailLotYn
             // 
@@ -1275,7 +1275,7 @@ public partial class frmItem
             this.lblDetailItemSpec.Name = "lblDetailItemSpec";
             this.lblDetailItemSpec.Size = new System.Drawing.Size(24, 15);
             this.lblDetailItemSpec.TabIndex = 10;
-            this.lblDetailItemSpec.Text = "洹쒓꺽";
+            this.lblDetailItemSpec.Text = "규격";
             // 
             // txtDetailItemSpec
             // 
@@ -1664,6 +1664,7 @@ public partial class frmItem
             // 
             this.popDetailCustNm.Location = new System.Drawing.Point(83, 84);
             this.popDetailCustNm.LookupKey = "P_CUST";
+            this.popDetailCustNm.PopupConditions = "p_cust_class=PO";
             this.popDetailCustNm.Name = "popDetailCustNm";
             this.popDetailCustNm.Properties.Buttons.AddRange(new DevExpress.XtraEditors.Controls.EditorButton[] {
             new DevExpress.XtraEditors.Controls.EditorButton(DevExpress.XtraEditors.Controls.ButtonPredefines.Ellipsis, "", 24, true, true, false, editorButtonImageOptions3, new DevExpress.Utils.KeyShortcut(System.Windows.Forms.Keys.None), serializableAppearanceObject9, serializableAppearanceObject10, serializableAppearanceObject11, serializableAppearanceObject12, "", null, null, DevExpress.Utils.ToolTipAnchor.Default)});
@@ -1740,7 +1741,7 @@ public partial class frmItem
             this.labelControl2.Name = "labelControl2";
             this.labelControl2.Size = new System.Drawing.Size(36, 15);
             this.labelControl2.TabIndex = 0;
-            this.labelControl2.Text = "?ъ뾽??";
+            this.labelControl2.Text = "사업장";
             // 
             // txtItemId
             // 

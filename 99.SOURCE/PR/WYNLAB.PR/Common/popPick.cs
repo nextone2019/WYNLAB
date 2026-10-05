@@ -39,6 +39,7 @@ public partial class popPick : XtraForm
     private readonly string? _accId;
     private readonly Func<IReadOnlyList<DataRow>, string?>? _validate;
     private readonly string? _emptyHint;
+    private readonly IDictionary<string, string?>? _extra; // 조회 프로시저에 더 넘길 고정 파라미터(예: p_route_id)
     private DataTable _table = new();
 
     /// <summary>체크한 행들(조회 결과와 같은 컬럼 구성 + sel). 확인으로 닫았을 때만 채워진다.</summary>
@@ -50,7 +51,7 @@ public partial class popPick : XtraForm
     }
 
     private popPick(long menuId, string title, string procName, string docNoLabel, IReadOnlyList<PickColumn> columns,
-        string? accId, Func<IReadOnlyList<DataRow>, string?>? validate, string? emptyHint = null)
+        string? accId, Func<IReadOnlyList<DataRow>, string?>? validate, string? emptyHint = null, IDictionary<string, string?>? extra = null)
     {
         InitializeComponent();
 
@@ -59,6 +60,7 @@ public partial class popPick : XtraForm
         _accId = accId;
         _validate = validate;
         _emptyHint = emptyHint;
+        _extra = extra;
 
         Text = title;
         lblDocNo.Text = docNoLabel;
@@ -103,9 +105,10 @@ public partial class popPick : XtraForm
 
     /// <summary>팝업을 띄우고 체크한 행을 돌려준다(취소하거나 아무것도 안 고르면 null).</summary>
     public static DataTable? Pick(IWin32Window owner, long menuId, string title, string procName, string docNoLabel,
-        IReadOnlyList<PickColumn> columns, string? accId, Func<IReadOnlyList<DataRow>, string?>? validate = null, string? emptyHint = null)
+        IReadOnlyList<PickColumn> columns, string? accId, Func<IReadOnlyList<DataRow>, string?>? validate = null, string? emptyHint = null,
+        IDictionary<string, string?>? extra = null)
     {
-        using var dlg = new popPick(menuId, title, procName, docNoLabel, columns, accId, validate, emptyHint);
+        using var dlg = new popPick(menuId, title, procName, docNoLabel, columns, accId, validate, emptyHint, extra);
         return dlg.ShowDialog(owner) == DialogResult.OK ? dlg.Selected : null;
     }
 
@@ -123,6 +126,7 @@ public partial class popPick : XtraForm
                 ["p_cust_id"] = null,
                 ["p_keyword"] = txtKeyword.Text,
             };
+            if (_extra != null) foreach (var kv in _extra) p[kv.Key] = kv.Value;
             _table = await ProcData.QueryAsync(_menuId, _procName, p);
             if (!_table.Columns.Contains("sel")) _table.Columns.Add("sel", typeof(bool));
             foreach (DataRow r in _table.Rows) r["sel"] = false;

@@ -1,4 +1,4 @@
-﻿// 踰붿슜 遺덈윭?ㅺ린 ?앹뾽(popPick) ?붿옄?대꼫 - 寃???⑤꼸 + 泥댄겕 洹몃━??+ ?섎떒 踰꾪듉. 而щ읆? 遺瑜??붾㈃??popPick.cs??Pick()?쇰줈 ?섍릿???⑺뭹/?섏엯寃????.
+// 범용 불러오기 팝업(popPick) 디자이너 - 검색 패널 + 체크 그리드 + 하단 버튼. 컬럼은 부른 화면이 popPick.cs의 Pick()으로 넘긴다(납품/수입검사 등).
 #nullable disable
 using WYNLAB.Base;
 using WYNLAB.Base.Controls;
@@ -80,7 +80,7 @@ public partial class popPick
         this.lblDate.Name = "lblDate";
         this.lblDate.Size = new System.Drawing.Size(48, 15);
         this.lblDate.TabIndex = 0;
-        this.lblDate.Text = "?쇱옄";
+        this.lblDate.Text = "일자";
         //
         // dteFrom
         //
@@ -110,7 +110,7 @@ public partial class popPick
         this.lblDocNo.Name = "lblDocNo";
         this.lblDocNo.Size = new System.Drawing.Size(66, 15);
         this.lblDocNo.TabIndex = 4;
-        this.lblDocNo.Text = "臾몄꽌踰덊샇";
+        this.lblDocNo.Text = "문서번호";
         //
         // txtDocNo
         //
@@ -125,7 +125,7 @@ public partial class popPick
         this.lblKeyword.Name = "lblKeyword";
         this.lblKeyword.Size = new System.Drawing.Size(72, 15);
         this.lblKeyword.TabIndex = 6;
-        this.lblKeyword.Text = "?덈쾲/?덈챸/洹쒓꺽";
+        this.lblKeyword.Text = "품번/품명/규격";
         //
         // txtKeyword
         //
@@ -141,7 +141,7 @@ public partial class popPick
         this.btnSearch.Name = "btnSearch";
         this.btnSearch.Size = new System.Drawing.Size(80, 24);
         this.btnSearch.TabIndex = 8;
-        this.btnSearch.Text = "議고쉶";
+        this.btnSearch.Text = "조회";
         //
         // lblCust
         //
@@ -149,7 +149,7 @@ public partial class popPick
         this.lblCust.Name = "lblCust";
         this.lblCust.Size = new System.Drawing.Size(60, 15);
         this.lblCust.TabIndex = 9;
-        this.lblCust.Text = "嫄곕옒泥? ?꾩껜";
+        this.lblCust.Text = "거래처: 전체";
         //
         // grd1
         //
@@ -177,7 +177,7 @@ public partial class popPick
         //
         // colSel
         //
-        this.colSel.Caption = "?좏깮";
+        this.colSel.Caption = "선택";
         this.colSel.ColumnEdit = this.chkSel;
         this.colSel.FieldName = "sel";
         this.colSel.Name = "colSel";
@@ -209,7 +209,7 @@ public partial class popPick
         //
         this.chkAll.Location = new System.Drawing.Point(16, 12);
         this.chkAll.Name = "chkAll";
-        this.chkAll.Properties.Caption = "?꾩껜 ?좏깮";
+        this.chkAll.Properties.Caption = "전체 선택";
         this.chkAll.Size = new System.Drawing.Size(80, 20);
         this.chkAll.TabIndex = 0;
         //
@@ -219,27 +219,27 @@ public partial class popPick
         this.lblHint.Name = "lblHint";
         this.lblHint.Size = new System.Drawing.Size(60, 15);
         this.lblHint.TabIndex = 1;
-        this.lblHint.Text = "泥댄겕???덈ぉ??遺덈윭?듬땲??";
+        this.lblHint.Text = "체크한 품목을 불러옵니다.";
         //
         // btnOk
         //
         this.btnOk.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
         this.btnOk.Cursor = System.Windows.Forms.Cursors.Hand;
-        this.btnOk.Location = new System.Drawing.Point(796, 9);
+        this.btnOk.Location = new System.Drawing.Point(796, 10);
         this.btnOk.Name = "btnOk";
-        this.btnOk.Size = new System.Drawing.Size(90, 26);
+        this.btnOk.Size = new System.Drawing.Size(90, 24);
         this.btnOk.TabIndex = 2;
-        this.btnOk.Text = "遺덈윭?ㅺ린";
+        this.btnOk.Text = "불러오기";
         //
         // btnClose
         //
         this.btnClose.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
         this.btnClose.Cursor = System.Windows.Forms.Cursors.Hand;
-        this.btnClose.Location = new System.Drawing.Point(894, 9);
+        this.btnClose.Location = new System.Drawing.Point(894, 10);
         this.btnClose.Name = "btnClose";
-        this.btnClose.Size = new System.Drawing.Size(90, 26);
+        this.btnClose.Size = new System.Drawing.Size(90, 24);
         this.btnClose.TabIndex = 3;
-        this.btnClose.Text = "?リ린";
+        this.btnClose.Text = "닫기";
         //
         // popPick
         //
@@ -253,7 +253,7 @@ public partial class popPick
         this.Name = "popPick";
         this.ShowIcon = false;
         this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
-        this.Text = "遺덈윭?ㅺ린";
+        this.Text = "불러오기";
         ((System.ComponentModel.ISupportInitialize)(this.panHeader)).EndInit();
         this.panHeader.ResumeLayout(false);
         this.panHeader.PerformLayout();

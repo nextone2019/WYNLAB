@@ -14,6 +14,10 @@ public partial class frmLotTrace : BaseForm
     {
         InitializeComponent();
 
+        // 조회조건 사업장 - 화면 표준(2026-10-03): 항상 첫 번째, Required, 화면을 열면 로그인 사업장이 기본값.
+        cboSearchAccId.EditValue = Session.AccId?.ToString() ?? string.Empty;
+        cboSearchAccId.Tag = new BindingFieldTag("acc_id");
+
         Text = "LOT계보조회";
 
         Controls.Add(BuildScreenHeader());
@@ -42,6 +46,7 @@ public partial class frmLotTrace : BaseForm
 
         var list = await QueryAsync("USP_PR_LOTTRACE_Q", new Dictionary<string, string?>
         {
+            ["p_acc_id"] = cboSearchAccId.EditValue?.ToString(),
             ["p_work_type"] = "L",
             ["p_lot_no"] = txtSearchLotNo.Text.Trim(),
             ["p_wo_no"] = txtSearchWoNo.Text.Trim(),
@@ -89,6 +94,7 @@ public partial class frmLotTrace : BaseForm
             "RV" => new frmRcv { MenuId = menuFor("frmRcv"), MdiParent = MdiParent },
             "RS" => new frmRslt { MenuId = menuFor("frmRslt"), MdiParent = MdiParent },
             "XF" => new frmXfer { MenuId = menuFor("frmXfer"), MdiParent = MdiParent },
+            "GI" => OpenSaForm("frmGi"), // 출하는 영업(SA) 모듈 화면 - 모듈 간 참조 없이 ModuleLoader로 연다(결재함 원본열기와 같은 방식)
             _ => null,
         };
         if (form == null) return;
@@ -96,8 +102,23 @@ public partial class frmLotTrace : BaseForm
         await form.FocusRecordAsync(id);
     }
 
+    private BaseForm? OpenSaForm(string className)
+    {
+        var assembly = ModuleLoader.EnsureLoaded("WYNLAB.SA");
+        var type = assembly?.GetType($"WYNLAB.SA.{className}");
+        if (type == null || Activator.CreateInstance(type) is not BaseForm form)
+        {
+            AppMessageBox.Show($"화면을 찾을 수 없습니다: SA.{className}", "오류");
+            return null;
+        }
+        form.MenuId = SessionManager.Current.Menus.FirstOrDefault(m => m.Module == "SA" && m.ScreenClassNm == className)?.MenuId ?? 0;
+        form.MdiParent = MdiParent;
+        return form;
+    }
+
     public override Task NewClick() => Task.CompletedTask;
     public override Task DeleteClick() => Task.CompletedTask;
+    protected override bool ConfirmDeleteByDefault => false; // 조회전용 - 삭제 기능 없음
     public override Task NewRowClick() => Task.CompletedTask;
     public override Task DeleteRowClick() => Task.CompletedTask;
     public override Task SaveClick() => Task.CompletedTask;

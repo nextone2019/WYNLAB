@@ -16,7 +16,6 @@ public partial class frmCustList : BaseForm
 
         Text = "거래처현황";
 
-        Controls.Add(BuildScreenHeader());
 
         gvw1.Role = GridRoleWyn.Edit;
         gvw1.HighlightFocusedRow = true;
